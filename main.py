@@ -15,7 +15,7 @@ class GameSetting(object):
         self.FPS = 30
         self.square_size = [32, 32]
         self.base_locator_x = self.resolution[0] / 2 - self.square_size[0] / 2
-        self.base_locator_y = self.resolution[1] / 2 - self.square_size[1] / 2
+        self.base_locator_y = self.resolution[1] / 2 - self.square_size[1] /2
 
 
 class GameState(object):
