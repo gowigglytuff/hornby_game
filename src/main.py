@@ -14,7 +14,12 @@ def run_game_loop():
 
     while g.game_running:
         for event in pygame.event.get():
-            g.game_view.parse_event(event)
+            if event.type in [pygame.KEYDOWN, pygame.KEYUP, pygame.QUIT]:
+                g.game_view.parse_input_event(event)
+
+            if event.type in g.game_controller.timer_list:
+                g.game_controller.parse_timer_event(event)
+                g.game_view.parse_input_event(event) #  Delete this later, for test
 
         pygame.display.update()
         g.game_view.tick()

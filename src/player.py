@@ -1,7 +1,4 @@
-from game_core import Definitions
-
-
-class Player(object):
+class Player_Avatar(object):
     ID = "Player"
     FEATURE_TYPE = "Player"
 
@@ -9,37 +6,16 @@ class Player(object):
         self.x = x
         self.y = y
         self.name = "Jayden"
-        self.cur_img = 0
-        self.spritesheet = Spritesheet("assets/player/Player_CS.png", 32, 40)
-        self.img = self.spritesheet.get_image(0, 0)
+        self.cur_img = (0, 0)
+        self.spritesheet = "player_base_spritesheet"
+        # self.current_img = self.spritesheet.get_image(0, 0)
         self.state = "idle"
-        self.facing = Definitions.DOWN
+        self.facing = None
+        self.current_outfit = "Normal Outfit"
 
-        self.drawing_priority = 2
-        self.image_offset_y = 0
-        self.image_offset_x = 0
-        self.img_width = None
-        self.img_height = None
-        self.base_size_y = 1
-        self.base_size_x = 1
 
     def set_image(self, img_x, img_y):
         self.img = self.spritesheet.get_image(img_x, img_y)
-
-
-class Player(Feature):
-    NAME = "Player"
-
-    def __init__(self, x, y):
-        super().__init__(x, y)
-
-        self.width = 32
-        self.height = 40
-        self.spritesheet =
-        self.img = self.spritesheet.get_image(0, 0)
-        self.name = self.NAME
-        self.current_outfit = "Normal Outfit"
-        self.offset_y = 16
 
     def load_location(self):
         ss_data = self.gd_input.spreadsheet_list["player_location"].spreadsheet_load_location()
@@ -50,13 +26,13 @@ class Player(Feature):
 
     def put_on_outfit(self, new_outfit_spritesheet, name):
         self.spritesheet = new_outfit_spritesheet
-        if self.facing == Definitions.DOWN:
+        if self.facing == Direction.DOWN:
             self.img = self.spritesheet.get_image(0, 0)
-        if self.facing == Definitions.UP:
+        if self.facing == Direction.UP:
             self.img = self.spritesheet.get_image(0, 1)
-        if self.facing == Definitions.RIGHT:
+        if self.facing == Direction.RIGHT:
             self.img = self.spritesheet.get_image(0, 2)
-        if self.facing == Definitions.LEFT:
+        if self.facing == Direction.LEFT:
             self.img = self.spritesheet.get_image(0, 3)
         self.current_outfit = name
 
@@ -110,30 +86,30 @@ class Player(Feature):
             self.walk_player(direction)
 
     def turn_player(self, direction):
-        if direction is Definitions.LEFT:
+        if direction is Direction.LEFT:
             self.set_image(0, 3)
-            self.facing = Definitions.LEFT
-        elif direction is Definitions.RIGHT:
+            self.facing = Direction.LEFT
+        elif direction is Direction.RIGHT:
             self.set_image(0, 2)
-            self.facing = Definitions.RIGHT
-        elif direction is Definitions.UP:
+            self.facing = Direction.RIGHT
+        elif direction is Direction.UP:
             self.set_image(0, 1)
-            self.facing = Definitions.UP
-        elif direction is Definitions.DOWN:
+            self.facing = Direction.UP
+        elif direction is Direction.DOWN:
             self.set_image(0, 0)
-            self.facing = Definitions.DOWN
+            self.facing = Direction.DOWN
 
     def walk_player(self, direction):
         self.state = direction
 
         self.gd_input.positioner_list[self.gc_input.current_room].empty_tile(self)
-        if direction is Definitions.LEFT:
+        if direction is Direction.LEFT:
             self.x -= 1
-        elif direction is Definitions.RIGHT:
+        elif direction is Direction.RIGHT:
             self.x += 1
-        elif direction is Definitions.UP:
+        elif direction is Direction.UP:
             self.y -= 1
-        elif direction is Definitions.DOWN:
+        elif direction is Direction.DOWN:
             self.y += 1
         self.gd_input.positioner_list[self.gc_input.current_room].fill_tile(self)
 
@@ -141,19 +117,19 @@ class Player(Feature):
         row = 0
         relevant_camera = None
         movement = 0
-        if self.state == Definitions.LEFT:
+        if self.state == Direction.LEFT:
             row = 3
             relevant_camera = 0
             movement = 1 / 4
-        elif self.state == Definitions.RIGHT:
+        elif self.state == Direction.RIGHT:
             row = 2
             relevant_camera = 0
             movement = -1 / 4
-        elif self.state == Definitions.DOWN:
+        elif self.state == Direction.DOWN:
             row = 0
             relevant_camera = 1
             movement = -1 / 4
-        elif self.state == Definitions.UP:
+        elif self.state == Direction.UP:
             row = 1
             relevant_camera = 1
             movement = 1 / 4
@@ -174,11 +150,11 @@ class Player(Feature):
             self.set_image(0, row)
 
     def continue_walking(self):
-        if self.state in [Definitions.LEFT, Definitions.RIGHT, Definitions.UP, Definitions.DOWN]:
+        if self.state in [Direction.LEFT, Direction.RIGHT, Direction.UP, Direction.DOWN]:
             self.walk_cycle()
 
     def check_if_walking(self):
-        if self.state in [Definitions.LEFT, Definitions.RIGHT, Definitions.UP, Definitions.DOWN]:
+        if self.state in [Direction.LEFT, Direction.RIGHT, Direction.UP, Direction.DOWN]:
             return True
         else:
             return False
@@ -189,16 +165,16 @@ class Player(Feature):
         adj_tile_y = int(self.y)
         adj_tile_x = int(self.x)
 
-        if direction_to_check == Definitions.UP:
+        if direction_to_check == Direction.UP:
             adj_tile_y = int(self.y - 1)
 
-        elif direction_to_check == Definitions.DOWN:
+        elif direction_to_check == Direction.DOWN:
             adj_tile_y = int(self.y + 1)
 
-        elif direction_to_check == Definitions.LEFT:
+        elif direction_to_check == Direction.LEFT:
             adj_tile_x = int(self.x - 1)
 
-        elif direction_to_check == Definitions.RIGHT:
+        elif direction_to_check == Direction.RIGHT:
             adj_tile_x = int(self.x + 1)
 
         adj_tile = self.gd_input.room_list[self.gc_input.current_room].tiles_array[adj_tile_x][adj_tile_y]
@@ -233,3 +209,15 @@ class Player(Feature):
         print("PlayerImg: " + "(" + str(self.imagex) + ", " + str(self.imagey) + ")", "Camera: " +"(" + str(self.gc_input.camera[0]) + ", " + str(self.gc_input.camera[1]) + ")", "Player: " + "(" + str(self.x) + ", " + str(self.y) + ")")
         print("CharacterImg: " + "(" + str(self.gd_input.character_list["Jamara"].imagex) + ", " + str(self.gd_input.character_list["Jamara"].imagey) + ")", "Character: " + "(" + str(self.gd_input.character_list["Jamara"].x) + ", " + str(self.gd_input.character_list["Jamara"].y) + ")")
 
+class Player_Data(object):
+    ID = "Player"
+    FEATURE_TYPE = "Player"
+
+    def __init__(self):
+        self.drawing_priority = 2
+        self.image_offset_y = 16
+        self.image_offset_x = 0
+        self.img_width = 32
+        self.img_height = 40
+        self.base_size_y = 1
+        self.base_size_x = 1

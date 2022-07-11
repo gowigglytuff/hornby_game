@@ -1,51 +1,74 @@
 import pygame
 
+from spritesheet import Spritesheet
+
+from player import Player_Avatar, Player_Data
+
 
 def init_game(g):
     pygame.init()
     pygame.display.set_caption('window title')
     pygame.key.set_repeat()
-    g.game_view.initiate_timers()
+    g.game_controller.initiate_timers()
+    install_all_data(g.game_controller)
+
+    if g.game_state.new_game:
+        new_game_procedures(g.game_controller)
+    else:
+        continue_game_procedures(g.game_controller)
 
 
-def load_all_data(gs):
-    load_keyboard_managers(gs)
-    load_menus(gs)
-    load_temp_items(gs)
-    load_outfits(gs)
-    load_key_items(gs)
-    load_goals(gs)
-    load_tileset(gs)
-    load_player(gs)
+def new_game_procedures(gc):
+    gc.game.game_state.add_player_state(Player_Avatar(1, 1))
 
 
-def load_keyboard_managers(gs):
+def continue_game_procedures(gc):
     pass
 
 
-def load_menus(gs):
+def install_all_data(gc):
+    install_keyboard_managers(gc)
+    install_menus(gc)
+    install_temp_items(gc)
+    install_outfits(gc)
+    install_key_items(gc)
+    install_goals(gc)
+    install_tileset(gc)
+    install_player_data(gc)
+    install_spritesheets(gc)
+
+
+def install_spritesheets(gc):
+    gc.game.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
+
+
+def install_player_data(gc):
+    gc.game.game_data.add_player_data(Player_Data())
+
+
+def install_keyboard_managers(gc):
     pass
 
 
-def load_temp_items(gs):
+def install_menus(gc):
     pass
 
 
-def load_key_items(gs):
+def install_temp_items(gc):
     pass
 
 
-def load_outfits(gs):
+def install_key_items(gc):
     pass
 
 
-def load_player(gs):
+def install_outfits(gc):
     pass
 
 
-def load_tileset(gs):
+def install_tileset(gc):
     pass
 
 
-def load_goals(gs):
+def install_goals(gc):
     pass
