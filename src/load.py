@@ -39,8 +39,8 @@ def install_all_data(gc):
 
 
 def install_spritesheets(gc):
-    gc.game.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
-
+    # gc.game.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
+    pass
 
 def install_player_data(gc):
     gc.game.game_data.add_player_data(Player_Data())
