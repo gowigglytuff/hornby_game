@@ -1,5 +1,6 @@
 import pygame
 
+from room_page import BasicRoom
 from spritesheet import Spritesheet
 
 from player import Player_Avatar, Player_Data
@@ -11,6 +12,7 @@ def init_game(g):
     pygame.key.set_repeat()
     g.game_controller.initiate_timers()
     install_all_data(g.game_controller)
+    g.game_controller.set_camera()
 
     if g.game_state.new_game:
         new_game_procedures(g.game_controller)
@@ -36,7 +38,10 @@ def install_all_data(gc):
     install_tileset(gc)
     install_player_data(gc)
     install_spritesheets(gc)
+    install_rooms(gc)
 
+def install_rooms(gc):
+    gc.game.game_view.game_data.add_room_data(BasicRoom.ID, (BasicRoom()))
 
 def install_spritesheets(gc):
     # gc.game.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
