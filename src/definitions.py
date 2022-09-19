@@ -8,3 +8,7 @@ class Direction(Enum):
     UP = _ENUM_BASE + 3
     DOWN = _ENUM_BASE + 4
 
+class GameSettings(object):
+    TILESIZE = 24
+    TILESET_IMAGE = "assets/tile_set/tile_set_1.png"
+    TILESET_SIZE = 10

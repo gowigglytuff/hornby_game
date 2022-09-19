@@ -2,6 +2,9 @@ import csv
 import os
 import pygame
 
+from definitions import GameSettings
+
+
 
 class Tilling(object):
     def __init__(self, image, x, y):
@@ -11,44 +14,6 @@ class Tilling(object):
 
     def draw_tile(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
-
-
-class TileMap:
-    def __init__(self, filename, tile_source, tile_size):
-        self.tile_size = tile_size
-        self.start_x, self.start_y = 0, 0
-        self.tiles = self.load_tiles(filename, tile_source)
-        self.map_surface = pygame.Surface((self.map_w, self.map_h))
-        self.map_surface.set_colorkey((0, 0, 0))
-        self.load_map()
-
-    def return_map(self):
-        return self.map_surface
-
-    def load_map(self):
-        for tile in self.tiles:
-            tile.draw_tile(self.map_surface)
-
-    def read_csv(self, filename):
-        tile_map = []
-        with open(os.path.join(filename)) as data:
-            data = csv.reader(data, delimiter=',')
-            for row in data:
-                tile_map.append(list(row))
-        return tile_map
-
-    def load_tiles(self, filename, tile_source):
-        tiles = []
-        tile_map = self.read_csv(filename)
-        x, y = 0, 0
-        for row in tile_map:
-            x = 0
-            for tile in row:
-                tiles.append(Tilling(tile_source[int(tile)], x * self.tile_size, y * self.tile_size))
-                x += 1
-            y += 1
-        self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
-        return tiles
 
 
 class TileSet(object):
@@ -88,3 +53,42 @@ class TileSet(object):
                 tiles_dict[tiles_count] = self.get_tile_img(row, column)
                 tiles_count += 1
         return tiles_dict
+
+class TileMap:
+    def __init__(self, filename):
+        self.tile_set = TileSet(GameSettings.TILESET_IMAGE, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
+        self.tile_size = GameSettings.TILESIZE
+        self.start_x, self.start_y = 0, 0
+        self.tiles = self.load_tiles(filename, self.tile_set)
+        self.map_surface = pygame.Surface((self.map_w, self.map_h))
+        self.map_surface.set_colorkey((0, 0, 0))
+        self.load_map()
+
+    def return_map(self):
+        return self.map_surface
+
+    def load_map(self):
+        for tile in self.tiles:
+            tile.draw_tile(self.map_surface)
+
+    def read_csv(self, filename):
+        tile_map = []
+        with open(os.path.join(filename)) as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                tile_map.append(list(row))
+        return tile_map
+
+    def load_tiles(self, filename, tile_source):
+        tiles = []
+        tile_map = self.read_csv(filename)
+        x, y = 0, 0
+        for row in tile_map:
+            x = 0
+            for tile in row:
+                tiles.append(Tilling(tile_source[int(tile)], x * self.tile_size, y * self.tile_size))
+                x += 1
+            y += 1
+        self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
+        return tiles
+

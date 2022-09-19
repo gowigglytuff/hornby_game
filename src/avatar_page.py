@@ -5,11 +5,14 @@ from definitions import Direction
 class PlayerAvatar:
     def __init__(self, gv_input, image_x, image_y):
         self.gv_input = gv_input
-        self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player.png", 24, 36)
+        self.character_frame_x = 24
+        self.character_frame_y = 36
+        self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player.png", self.character_frame_x, self.character_frame_y)
         self.current_image_x = 0
         self.current_image_y = 0
         self.image_x = image_x
         self.image_y = image_y
+        self.image_offset_y = self.character_frame_y/2
         self.animation_list = {"walk_front": WalkAnimation(self, Direction.DOWN),
                                "walk_left": WalkAnimation(self, Direction.LEFT),
                                "walk_right": WalkAnimation(self, Direction.RIGHT),

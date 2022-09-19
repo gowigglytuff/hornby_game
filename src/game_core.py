@@ -8,7 +8,7 @@ from tile_map import TileMap, TileSet
 from room_page import Room
 from keyboard_manager_page import *
 from avatar_page import PlayerAvatar
-from definitions import Direction
+from definitions import Direction, GameSettings
 
 
 class Game(object):
@@ -215,9 +215,6 @@ class PositionManager(object):
             x = x - 1
         elif direction == Direction.RIGHT:
             x = x + 1
-        print(x, y)
-        print(checker.x)
-        print(checker.y)
         return room.tiles_array[x][y]
 
     def check_rooms_edges(self, direction, checker, room):
@@ -270,7 +267,7 @@ class GameView(object):
         self.clock = pygame.time.Clock()
         self.resolution = (312*2, 312*2)
         self.FPS = 72
-        self.square_size = [24, 24]
+        self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0]-self.square_size[0])/self.square_size[0])/2 + 1
         self.base_locator_y = ((self.resolution[1]-self.square_size[1])/self.square_size[1])/2 + 1
 
@@ -283,24 +280,27 @@ class GameView(object):
         self.fully_dark_hours = 4
         self.sky_change_degree = 15
 
-        self.tile_set = TileSet("assets/tile_set/tile_set_1.png", self.square_size[0], self.square_size[1], 10, 10).load_tile_images()
-        self.bg = TileMap("assets/tile_set/tile_map_1.csv", self.tile_set, self.square_size[0]).return_map()
-
-        self.offset_y = 36/2
-
         self.character_avatar = PlayerAvatar(self, self.base_locator_x, self.base_locator_y)
 
     def tick(self):
         self.clock.tick(self.FPS)
 
     def draw_player(self, screen):
-        screen.blit(self.character_avatar.spritesheet.get_image(self.character_avatar.current_image_x, self.character_avatar.current_image_y), [(self.character_avatar.image_x * self.square_size[0]) - self.square_size[0], self.character_avatar.image_y * self.square_size[1] - (self.square_size[1] + self.offset_y)])
+        player = self.character_avatar
+        play_loc_x = (player.image_x * self.square_size[0]) - self.square_size[0]
+        play_loc_y = player.image_y * self.square_size[1] - (self.square_size[1] + player.image_offset_y)
+        screen.blit(player.spritesheet.get_image(player.current_image_x, player.current_image_y), [play_loc_x, play_loc_y])
 
     def draw_bg(self):
         pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, self.resolution[0], self.resolution[1]))
-        bg_x = -self.camera[0]
-        bg_y = -self.camera[1]
-        self.screen.blit(self.bg, (bg_x, bg_y))
+        camera_x = -self.camera[0]
+        camera_y = -self.camera[1]
+        room = self.game_data.room_data_list[self.game_controller.game.game_state.current_room]
+        for plot in room.plot_list.keys():
+            selected_plot = room.plot_list[plot]
+            plot_location_x = room.plot_size_x * (selected_plot.plot_x - 1) * self.square_size[0]
+            plot_location_y = room.plot_size_y * (selected_plot.plot_y - 1) * self.square_size[1]
+            self.screen.blit(selected_plot.background_map, (camera_x + plot_location_x, camera_y + plot_location_y))
 
     def draw_all(self):
         self.draw_bg()
