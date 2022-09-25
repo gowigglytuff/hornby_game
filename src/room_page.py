@@ -37,8 +37,6 @@ class Room(object):
         self.plot_size_y = int(self.room_height / self.total_plots_y)
         self.tiles_array = self.generate_room_grid()
         self.add_all_plots()
-        for plot in self.plot_list:
-            print(plot)
 
     def generate_room_grid(self):
         tiles_array = []
@@ -52,11 +50,12 @@ class Room(object):
                 tiles_array[x].append(spot_name)
         return tiles_array
 
-    def print_tile_grid(self):
+    def display_tile_grid(self):
         for row in self.tiles_array:
             list = []
             for item in row:
-                list.append([item.x, item.y])
+                # list.append([item.x, item.y])
+                list.append(item.object_filling)
             print(list)
 
 
@@ -71,6 +70,7 @@ class Plot(object):
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.background_map = TileMap(self.background_csv_file).return_map()
 
+
 class Tile(object):
     def __init__(self, x, y, is_full, filling_type, object_filling, elevation, terrain_type):
         self.x = x
@@ -82,9 +82,15 @@ class Tile(object):
         self.elevation = elevation
         self.terrain_type = terrain_type
 
+    def fill_tile(self, type, object):
+        self.is_full = True
+        self.filling_type = type
+        self.object_filling = object
+
 
 class BasicRoom(Room):
     ID = "Basic_Room"
+
     def __init__(self):
         super().__init__()
 
@@ -95,10 +101,7 @@ class BasicRoom(Room):
         self.top_edge_y = 1
         self.total_plots_x = 2
         self.total_plots_y = 1
-
-
         self.initiate_room()
-        # self.print_tile_grid()
 
 
 

@@ -54,6 +54,7 @@ class TileSet(object):
                 tiles_count += 1
         return tiles_dict
 
+
 class TileMap:
     def __init__(self, filename):
         self.tile_set = TileSet(GameSettings.TILESET_IMAGE, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
