@@ -198,6 +198,8 @@ class GameController(object):
         npc_talking_to_ghost = self.game_state.npc_ghost_list[npc_talking_to]
         npc_talking_to_avatar = self.game_view.game_data.npc_avatar_list[npc_talking_to]
         self.change_npc_facing(direction_to_turn, npc_talking_to)
+        self.post_notice("You talked to " + npc_talking_to_ghost.name)
+        self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11)
 
     def player_interact(self):
         interact_tile = self.position_manager.check_adjacent_tile(self.get_player_ghost().facing, self.get_player_ghost(), self.get_current_room())
@@ -359,10 +361,10 @@ class GameView(object):
 
     def draw_menu_cursor(self, menu):
         my_font = pygame.font.Font(self.font, 10)
-        item = my_font.render("-", True, (0, 0, 0))
+        item = my_font.render(menu.cursor, True, (0, 0, 0))
         self.screen.blit(item, (menu.x - 12, (menu.y+2 + menu.y_spacing) + (menu.cursor_at * menu.menu_spread)))
 
-    def draw_menu(self, menu):
+    def draw_menu2(self, menu):
         menu_loc_x = []
         menu_loc_y = []
         self.draw_overlay(menu.overlay)
@@ -378,6 +380,21 @@ class GameView(object):
             print(option)
             item = my_font.render(menu.get_menu_items_to_print()[option], True, (0, 0, 0))
             self.screen.blit(item, (menu.x, menu.y + menu.y_spacing + (option * menu.menu_spread)))
+
+    def draw_menu(self, menu):
+        menu_loc_x = []
+        menu_loc_y = []
+        self.draw_overlay(menu.overlay)
+
+        text_print_list = menu.generate_text_print()
+
+        if menu.menu_type is not "static":
+            self.draw_menu_cursor(menu)
+
+        for menu_item in text_print_list:
+            my_font = pygame.font.Font(self.font, menu_item.font_size)
+            item = my_font.render(menu_item.text, True, (0, 0, 0))
+            self.screen.blit(item, (menu_item.x, menu_item.y))
 
 
 class GameData(object):
@@ -484,7 +501,7 @@ class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = ["game_action_dialogue_menu"]
+        self.static_menus = ["game_action_dialogue_menu"]  #
         self.active_menu = []
         self.menu_stack = []
         self.visible_menus = []
@@ -517,6 +534,12 @@ class MenuManager(object):
         selected_menu.update_menu_items_list()
         self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.menu_manager.add_menu_to_stack(menu_name)
+
+    def set_dialogue_menu(self, phrases, speaker_name, friendship_level):
+        selected_menu = self.menu_data_list["character_dialogue"]
+        selected_menu.update_menu_items_list(phrases, speaker_name, friendship_level)
+        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
+        selected_menu.gc_input.menu_manager.add_menu_to_stack("character_dialogue")
 
     def exit_menu(self, menu_name):
         selected_menu = self.menu_data_list[menu_name]

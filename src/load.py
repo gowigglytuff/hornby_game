@@ -5,7 +5,7 @@ from definitions import Direction
 from ghost_page import NpcGhost, PlayerGhost
 from item_page import *
 from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_page import StartMenu, InventoryMenu, GameActionDialogue
+from menu_page import StartMenu, InventoryMenu, GameActionDialogue, CharacterDialogue
 from room_page import BasicRoom
 
 from spritesheet import Spritesheet
@@ -28,7 +28,7 @@ def init_game(g):
 def new_game_procedures(gc):
     gc.game.game_state.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
 
-    gc.game.game_state.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "Basic_Room", 10, 10, Direction.DOWN))
+    gc.game.game_state.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "Basic_Room", 2, 1, Direction.DOWN))
 
 
 def continue_game_procedures(gc):
@@ -64,6 +64,7 @@ def install_all_data(gc):
         gc.menu_manager.install_menu_data(StartMenu.NAME, StartMenu(gc))
         gc.menu_manager.install_menu_data(InventoryMenu.NAME, InventoryMenu(gc))
         gc.menu_manager.install_menu_data(GameActionDialogue.NAME, GameActionDialogue(gc))
+        gc.menu_manager.install_menu_data(CharacterDialogue.NAME, CharacterDialogue(gc))
 
     def install_temp_items(gc):
         items_to_install = [Cheese, Milk, Cream, Banana, Apple, Orange, Mike, Spoon, Mouse, Match, Game, Card, Pizza, Meat, Egg]

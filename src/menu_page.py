@@ -1,3 +1,5 @@
+import textwrap
+
 import pygame
 
 from definitions import GameSettings, Types
@@ -12,6 +14,14 @@ class Overlay(object):
         self.image = image.get_image(0, 0)
 
 
+class TextPrint(object):
+    def __init__(self, text, x, y, font_size):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.font_size = font_size
+
+
 class MenuTemporary(object):
     NAME = "Menu_Temporary"
 
@@ -22,6 +32,7 @@ class MenuTemporary(object):
         overlay_size_y = 400
         x = 100
         y = 100
+        self.cursor = "-"
         self.font_size = 10
         self.offset_x = 30
         self.offset_y = 20
@@ -122,6 +133,14 @@ class MenuTemporary(object):
         if self.menu_header:
             self.y_spacing = 20
 
+    def generate_text_print(self):
+        source = self.get_menu_items_to_print()
+        text_print_list = []
+        if self.menu_header:
+            text_print_list.append(TextPrint(self.menu_header, self.x, self.y, self.font_size))
+        for item in range(len(source)):
+            text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
+        return text_print_list
 
 class StartMenu(MenuTemporary):
     NAME = "start_menu"
@@ -291,16 +310,12 @@ class InventoryMenu(MenuTemporary):
             self.gc_input.menu_manager.exit_all_menus()
 
     def cursor_left(self):
-        self.exit_menu()
-        self.gd_input.menu_list[KeyInventoryMenu.NAME].set_menu()
+        pass
 
     def cursor_right(self):
-        self.exit_menu()
-        self.gd_input.menu_list[KeyInventoryMenu.NAME].set_menu()
-
+        pass
 
     def cursor_down(self):
-
         if self.size > 1:
             if (self.cursor_at + self.list_shifts) < self.size - 1:
                 if self.size > self.max_length:
@@ -374,3 +389,116 @@ class GameActionDialogue(object):
 
     def get_menu_items_to_print(self):
         return self.menu_item_list
+
+    def generate_text_print(self):
+        source = self.get_menu_items_to_print()
+        text_print_list = []
+        if self.menu_header:
+            text_print_list.append(TextPrint(self.menu_header, self.x, self.y, self.font_size))
+        for item in range(len(source)):
+            text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
+        return text_print_list
+
+
+class CharacterDialogue(MenuTemporary):
+    NAME = "character_dialogue"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        image_file = "assets/spritesheets/menu_spritesheets/text_box.png"
+        self.font_size = 10
+        self.offset_x = 150
+        self.offset_y = 25
+        self.y_spacing = 25
+        self.menu_header = "Clown"
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.currently_displayed_items = []
+        self.fill_out_menu_info(image_file)
+        self.y_spacing = 35
+        self.menu_photo = None
+        self.cursor = ""
+
+        self.talking_to = None
+        self.current_phrase = []
+        self.speaking_queue = []
+
+        self.menu_item_list = "Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names..."
+        self.set_current_phrase()
+
+    def update_menu_items_list(self, phrases, speaker_name, friendship_level):
+        friendship_counter = "           "
+        if friendship_level == 0:
+            friendship_counter = "           "
+        elif 5 >= friendship_level >= 1:
+            friendship_counter = "<3         "
+        elif 10 >= friendship_level >= 6:
+            friendship_counter = "<3 <3      "
+        elif 15 >= friendship_level >= 11:
+            friendship_counter = "<3 <3 <3   "
+        elif friendship_level >= 16:
+            friendship_counter = "<3 <3 <3 <3"
+
+        self.menu_header = speaker_name + "   " + friendship_counter
+        self.menu_item_list = phrases
+        self.set_current_phrase()
+        self.set_speaking_queue()
+
+    def fill_out_menu_info(self, image_file):
+        spritesheet_width = Spritesheet.get_w_h(image_file)[0]
+        spritesheet_height = Spritesheet.get_w_h(image_file)[1]
+        x = GameSettings.RESOLUTION[0]/2 - spritesheet_width/2
+        y = GameSettings.RESOLUTION[1] - (GameSettings.RESOLUTION[1]/4 - spritesheet_height/4)
+        self.overlay = Overlay(self.NAME + "_overlay", x, y, Spritesheet(self.NAME + "_overlay" + "_spritesheet", image_file, spritesheet_width, spritesheet_height))
+        self.x = x + self.offset_x
+        self.y = y + self.offset_y
+        if self.menu_header:
+            self.y_spacing = 20
+
+    def set_current_phrase(self):
+        self.current_phrase = textwrap.wrap(self.menu_item_list, width=30)
+
+    def set_speaking_queue(self):
+        phrase_counter = 0
+        self.speaking_queue = []
+
+        if len(self.current_phrase) > 2:
+            for line in range(3):
+                self.speaking_queue.append(self.current_phrase[0])
+                self.current_phrase.pop(0)
+
+        elif (len(self.current_phrase) <= 2) and (len(self.current_phrase) > 0):
+            for line in range(len(self.current_phrase)):
+                self.speaking_queue.append(self.current_phrase[0])
+                self.current_phrase.pop(0)
+
+        elif len(self.current_phrase) == 0:
+            self.gc_input.menu_manager.exit_all_menus()
+
+    def get_menu_items_to_print(self):
+        return self.speaking_queue
+
+    @property
+    def size(self):
+        return len(self.menu_item_list)
+
+    def cursor_down(self):
+        pass
+
+    def cursor_up(self):
+        pass
+
+    def choose_option(self):
+        self.do_option()
+
+    def do_option(self):
+        self.set_speaking_queue()
+
+    def generate_text_print(self):
+        source = self.get_menu_items_to_print()
+        text_print_list = []
+        if self.menu_header:
+            text_print_list.append(TextPrint(self.menu_header, self.x, self.y, self.font_size))
+        for item in range(len(source)):
+            text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
+        return text_print_list
