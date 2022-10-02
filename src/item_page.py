@@ -1,3 +1,6 @@
+from spritesheet import Spritesheet
+
+
 class TempItem(object):
     '''
     :type gc_input: GameController
@@ -8,6 +11,10 @@ class TempItem(object):
         self.gc_input = gc_input
         self.name = self.NAME
         self.sell_price = 0
+        spritesheet = Spritesheet("items", "assets/spritesheets/item_spritesheets/food_images.png", 24, 24).get_image(0, 0)
+        base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", 90, 76).get_image(0, 0)
+        base.blit(spritesheet, [30, 20])
+        self.menu_image = base
 
     def item_use(self):
         pass
@@ -114,6 +121,10 @@ class Apple(Cheese):
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
+        spritesheet = Spritesheet("items", "assets/spritesheets/item_spritesheets/food_images.png", 24, 24).get_image(1, 0)
+        base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", 90, 76).get_image(0, 0)
+        base.blit(spritesheet, [30, 20])
+        self.menu_image = base
 
 
 class Banana(Cheese):

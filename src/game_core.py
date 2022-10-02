@@ -199,7 +199,7 @@ class GameController(object):
         npc_talking_to_avatar = self.game_view.game_data.npc_avatar_list[npc_talking_to]
         self.change_npc_facing(direction_to_turn, npc_talking_to)
         self.post_notice("You talked to " + npc_talking_to_ghost.name)
-        self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11)
+        self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def player_interact(self):
         interact_tile = self.position_manager.check_adjacent_tile(self.get_player_ghost().facing, self.get_player_ghost(), self.get_current_room())
@@ -387,9 +387,13 @@ class GameView(object):
         self.draw_overlay(menu.overlay)
 
         text_print_list = menu.generate_text_print()
+        img_print_list = menu.generate_image_print()
 
         if menu.menu_type is not "static":
             self.draw_menu_cursor(menu)
+
+        for menu_item in img_print_list:
+            self.screen.blit(menu_item.image, (menu_item.x, menu_item.y))
 
         for menu_item in text_print_list:
             my_font = pygame.font.Font(self.font, menu_item.font_size)
@@ -535,9 +539,9 @@ class MenuManager(object):
         self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.menu_manager.add_menu_to_stack(menu_name)
 
-    def set_dialogue_menu(self, phrases, speaker_name, friendship_level):
+    def set_dialogue_menu(self, phrases, speaker_name, friendship_level, face_image):
         selected_menu = self.menu_data_list["character_dialogue"]
-        selected_menu.update_menu_items_list(phrases, speaker_name, friendship_level)
+        selected_menu.update_menu_items_list(phrases, speaker_name, friendship_level, face_image)
         self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.menu_manager.add_menu_to_stack("character_dialogue")
 

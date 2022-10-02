@@ -1,3 +1,5 @@
+import pygame
+
 from animations_page import WalkAnimation
 from spritesheet import Spritesheet
 from definitions import Direction
@@ -11,6 +13,7 @@ class PlayerAvatar(object):
         self.character_frame_x = 24
         self.character_frame_y = 36
         self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.face_image = self.get_face_image()
         self.current_image_x = 0
         self.current_image_y = 0
         self.image_x = image_x
@@ -25,6 +28,12 @@ class PlayerAvatar(object):
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
+
+    def get_face_image(self):
+        face = self.spritesheet.get_image(0, 0)
+        face = face.subsurface(0, 0, 24, 24)
+        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        return face
 
     def face_character(self, direction):
         if direction == Direction.DOWN:
@@ -53,6 +62,7 @@ class NpcAvatar(object):
         self.character_frame_x = 24
         self.character_frame_y = 36
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.face_image = self.get_face_image()
         self.current_image_x = 0
         self.current_image_y = 0
         self.image_x = image_x
@@ -67,6 +77,12 @@ class NpcAvatar(object):
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
+
+    def get_face_image(self):
+        face = self.spritesheet.get_image(0, 0)
+        face = face.subsurface(0, 0, 24, 24)
+        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        return face
 
     def face_character(self, direction):
         if direction == Direction.DOWN:

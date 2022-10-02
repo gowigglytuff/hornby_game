@@ -22,6 +22,13 @@ class TextPrint(object):
         self.font_size = font_size
 
 
+class PhotoPrint(object):
+    def __init__(self, image, x, y):
+        self.image = image
+        self.x = x
+        self.y = y
+
+
 class MenuTemporary(object):
     NAME = "Menu_Temporary"
 
@@ -141,6 +148,11 @@ class MenuTemporary(object):
         for item in range(len(source)):
             text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
         return text_print_list
+
+    def generate_image_print(self):
+        image_print_list = []
+        return image_print_list
+
 
 class StartMenu(MenuTemporary):
     NAME = "start_menu"
@@ -348,6 +360,10 @@ class InventoryMenu(MenuTemporary):
         self.cursor_at = 0
         self.list_shifts = 0
 
+    def generate_image_print(self):
+        image_print_list = [PhotoPrint(self.gc_input.inventory_manager.item_data_list[self.get_current_menu_item()].menu_image, 900, 500)]
+        return image_print_list
+
 
 class GameActionDialogue(object):
     NAME = "game_action_dialogue_menu"
@@ -399,6 +415,10 @@ class GameActionDialogue(object):
             text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
         return text_print_list
 
+    def generate_image_print(self):
+        image_print_list = []
+        return image_print_list
+
 
 class CharacterDialogue(MenuTemporary):
     NAME = "character_dialogue"
@@ -407,7 +427,7 @@ class CharacterDialogue(MenuTemporary):
         super().__init__(gc_input)
         image_file = "assets/spritesheets/menu_spritesheets/text_box.png"
         self.font_size = 10
-        self.offset_x = 150
+        self.offset_x = 10
         self.offset_y = 25
         self.y_spacing = 25
         self.menu_header = "Clown"
@@ -426,7 +446,7 @@ class CharacterDialogue(MenuTemporary):
         self.menu_item_list = "Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names..."
         self.set_current_phrase()
 
-    def update_menu_items_list(self, phrases, speaker_name, friendship_level):
+    def update_menu_items_list(self, phrases, speaker_name, friendship_level, face_image):
         friendship_counter = "           "
         if friendship_level == 0:
             friendship_counter = "           "
@@ -439,6 +459,7 @@ class CharacterDialogue(MenuTemporary):
         elif friendship_level >= 16:
             friendship_counter = "<3 <3 <3 <3"
 
+        self.menu_photo = face_image
         self.menu_header = speaker_name + "   " + friendship_counter
         self.menu_item_list = phrases
         self.set_current_phrase()
@@ -498,7 +519,11 @@ class CharacterDialogue(MenuTemporary):
         source = self.get_menu_items_to_print()
         text_print_list = []
         if self.menu_header:
-            text_print_list.append(TextPrint(self.menu_header, self.x, self.y, self.font_size))
+            text_print_list.append(TextPrint(self.menu_header, self.x + 140, self.y, self.font_size))
         for item in range(len(source)):
-            text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
+            text_print_list.append(TextPrint(source[item], self.x + 140, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
         return text_print_list
+
+    def generate_image_print(self):
+        image_print_list = [PhotoPrint(self.menu_photo, self.x, self.y - 15)]
+        return image_print_list
