@@ -6,20 +6,57 @@ from definitions import GameSettings, Types
 from spritesheet import Spritesheet
 
 
-class Overlay(object):
-    def __init__(self, name, x, y, image):
-        self.x = x
-        self.y = y
+class BuiltOverlay(object):
+    def __init__(self, name, width, height):
+        self.x = None
+        self.y = None
+        self.square_size = (24, 24)
+        self.width = width
+        self.height = height
         self.name = name
-        self.image = image.get_image(0, 0)
+        self.image = None
+
+    def build_overlay(self):
+        tile_segment_size = GameSettings.MENUSEGMENTSIZE
+        sheet = Spritesheet("overlay_pieces", "assets/spritesheets/menu_spritesheets/menu_structure_gray.png", tile_segment_size, tile_segment_size)
+        x = self.width * tile_segment_size
+        y = self.height * tile_segment_size
+        base = pygame.Surface((x, y))
+        for item_y in range(self.height):
+            for item_x in range(self.width):
+                loc_x = 0
+                loc_y = 0
+
+                if item_y == 0:
+                    loc_y = 0
+                elif item_y == self.height-1:
+                    loc_y = 2
+                else:
+                    loc_y = 1
+
+                if item_x == 0:
+                    loc_x = 0
+                elif item_x == self.width-1:
+                    loc_x = 2
+                else:
+                    loc_x = 1
+
+                base.blit(sheet.get_image(loc_x, loc_y, transparent=False), [item_x * tile_segment_size, item_y * tile_segment_size])
+
+        return base
+
+
+class Overlay(object):
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
 
 
 class TextPrint(object):
-    def __init__(self, text, x, y, font_size):
+    def __init__(self, text, x, y):
         self.text = text
         self.x = x
         self.y = y
-        self.font_size = font_size
 
 
 class PhotoPrint(object):
@@ -29,31 +66,154 @@ class PhotoPrint(object):
         self.y = y
 
 
-class MenuTemporary(object):
-    NAME = "Menu_Temporary"
+class Menu(object):
+    NAME = "Menu_Base"
 
     def __init__(self, gc_input):
         super().__init__()
-        self.gc_input = gc_input
-        overlay_size_x = 150
-        overlay_size_y = 400
-        x = 100
-        y = 100
-        self.cursor = "-"
-        self.font_size = 10
-        self.offset_x = 30
+        self.gc_input = gc_input  #  type: GameController
+        self.overlay_size_x = 0
+        self.overlay_size_Y = 0
+        self.x = 0
+        self.y = 0
+
+        self.offset_x = 20
         self.offset_y = 20
-        self.overlay = Overlay(self.NAME + "_overlay", x, y, Spritesheet(self.NAME + "_overlay" + "_spritesheet", "assets/spritesheets/menu_spritesheets/start_menu.png", overlay_size_x, overlay_size_y))
-        self.x = x + self.offset_x
-        self.y = y + self.offset_y
-        self.menu_item_list = ["Bag", "Outfits", "Map", "Chore List", "Profile", "Save", "Options", "Vibes"]
-        self.menu_item_list.append("Exit")
+        self.header_spacing = 10
         self.menu_spread = 25
+
+        self.menu_item_list = []
+        self.menu_header = None
+
+        self.cursor = None
+        self.cursor_at = 0
+
+        self.name = self.NAME
+        self.menu_type = None
+
+        self.max_menu_width = 0
+        self.max_menu_length = 0
+
+    def fill_out_menu_info(self, screen_x, screen_y):
+            self.name = self.NAME
+
+            spritesheet_width = self.overlay_size_x * GameSettings.MENUSEGMENTSIZE
+            spritesheet_height = self.overlay_size_Y * GameSettings.MENUSEGMENTSIZE
+
+            edge = GameSettings.MENUEDGE
+
+            x = 0
+            y = 0
+
+            if screen_x == "center":
+                x = GameSettings.RESOLUTION[0] / 2 - spritesheet_width / 2
+            elif screen_x == "left":
+                x = 0 + GameSettings.RESOLUTION[0] / edge
+            elif screen_x == "right":
+                x = GameSettings.RESOLUTION[0] - spritesheet_width - GameSettings.RESOLUTION[0] / edge
+            else:
+                x = screen_x
+
+            if screen_y == "center":
+                y = GameSettings.RESOLUTION[1] / 2 - spritesheet_height / 2
+            elif screen_y == "top":
+                y = 0 + GameSettings.RESOLUTION[1] / edge
+            elif screen_y == "bottom":
+                y = GameSettings.RESOLUTION[1] - spritesheet_height - GameSettings.RESOLUTION[1] / edge
+            else:
+                y = screen_y
+
+            self.x = x
+            self.y = y
+
+            if self.menu_header:
+                self.header_spacing = 20
+
+    def get_menu_items_to_print(self):
+        return self.menu_item_list
+
+    def generate_text_print(self):
+        source = self.get_menu_items_to_print().copy()
+        cursor_spot = self.cursor_at
+        print(source)
+        text_print_list = []
+        if self.menu_header:
+            source.insert(0, self.menu_header)
+            cursor_spot = self.cursor_at + 1
+            # text_print_list.append(TextPrint(, self.offset_x, self.offset_y))
+        for item in range(len(source)):
+            text_print_list.append(TextPrint(source[item], self.offset_x, self.offset_y + (item * self.menu_spread)))
+        if self.cursor:
+            text_print_list.append(TextPrint(self.cursor, self.offset_x - GameSettings.FONT_MEDIUM * 1.5, self.offset_y + GameSettings.FONT_MEDIUM/4 + (cursor_spot * self.menu_spread)))
+
+        return text_print_list
+
+    def calculate_overlay_dimensions(self):
+        pass
+
+
+class MenuStatic(Menu):
+    NAME = "Menu_Static"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_type = "static"
+
+    @property
+    def size(self):
+        return len(self.menu_item_list)
+
+    def update_menu_items_list(self):
+        pass
+
+    def generate_image_print(self):
+        image_print_list = []
+        return image_print_list
+
+
+class GameActionDialogue(MenuStatic):
+    NAME = "game_action_dialogue_menu"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.gc_input = gc_input
+        self.offset_x = 10
+        self.offset_y = 10
+        self.name = self.NAME
+        self.menu_item_list = ["This is the game dialouge box!"]
         self.cursor_at = 0
         self.y_spacing = 0
-        self.name = self.NAME
-        self.menu_type = "base"
+        self.menu_type = "static"
         self.menu_header = None
+
+        self.overlay_size_x = 70
+        self.overlay_size_Y = 21
+        self.fill_out_menu_info("right", "bottom")
+
+    @property
+    def size(self):
+        return len(self.menu_item_list)
+
+    def show_dialogue(self, phrase):
+        if len(self.menu_item_list) >= 4:
+            del self.menu_item_list[0]
+        self.menu_item_list.append(phrase)
+
+    def generate_image_print(self):
+        image_print_list = []
+        return image_print_list
+
+
+class MenuTemporary(Menu):
+    NAME = "Menu_Temporary"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_item_list = []
+        self.menu_photo_list = []
+        self.cursor = "-"
+        self.cursor_at = 0
+        self.menu_type = Types.BASE
 
     @property
     def size(self):
@@ -129,26 +289,6 @@ class MenuTemporary(object):
     def get_menu_items_to_print(self):
         return self.menu_item_list
 
-    def fill_out_menu_info(self, image_file):
-        spritesheet_width = Spritesheet.get_w_h(image_file)[0]
-        spritesheet_height = Spritesheet.get_w_h(image_file)[1]
-        x = GameSettings.RESOLUTION[0] - spritesheet_width - 10
-        y = GameSettings.RESOLUTION[1] - spritesheet_height - 300
-        self.overlay = Overlay(self.NAME + "_overlay", x, y, Spritesheet(self.NAME + "_overlay" + "_spritesheet", image_file, spritesheet_width, spritesheet_height))
-        self.x = x + self.offset_x
-        self.y = y + self.offset_y
-        if self.menu_header:
-            self.y_spacing = 20
-
-    def generate_text_print(self):
-        source = self.get_menu_items_to_print()
-        text_print_list = []
-        if self.menu_header:
-            text_print_list.append(TextPrint(self.menu_header, self.x, self.y, self.font_size))
-        for item in range(len(source)):
-            text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
-        return text_print_list
-
     def generate_image_print(self):
         image_print_list = []
         return image_print_list
@@ -159,15 +299,11 @@ class StartMenu(MenuTemporary):
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
-        image_file = "assets/spritesheets/menu_spritesheets/start_menu.png"
-        self.font_size = 10
-        x = 100
-        y = 100
         self.menu_item_list = ["Bag", "Outfits", "Map", "Chore List", "Profile", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
-        self.name = self.NAME
-        self.menu_type = Types.BASE
-        self.fill_out_menu_info(image_file)
+        self.overlay_size_x = 30
+        self.overlay_size_Y = 50
+        self.fill_out_menu_info("right", "center")
 
     # Same for most menus
     def cursor_down(self):
@@ -202,6 +338,7 @@ class StartMenu(MenuTemporary):
 
         elif menu_selection == "Key Items":
             pass
+
         elif menu_selection == "Chore List":
             pass
 
@@ -237,21 +374,18 @@ class StartMenu(MenuTemporary):
         pass
 
 
-# Menus' from Start Menu
 class InventoryMenu(MenuTemporary):
     NAME = "inventory_menu"
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
-        image_file = "assets/spritesheets/menu_spritesheets/inventory_menu.png"
-        self.font_size = 10
         self.menu_header = "<   ITEMS   >"
         self.max_length = 14
-        self.menu_type = Types.BASE
-        self.menu_item_list = []
         self.currently_displayed_items = []
         self.list_shifts = 0
-        self.fill_out_menu_info(image_file)
+        self.overlay_size_x = 40
+        self.overlay_size_Y = 80
+        self.fill_out_menu_info("right", "center")
 
     def get_menu_items_to_print(self):
         menu_length_calc = 0
@@ -280,7 +414,6 @@ class InventoryMenu(MenuTemporary):
                 final_item = item + spaces_str + "x" + quantity
                 printable_item_list.append(final_item)
 
-        print(printable_item_list)
         return printable_item_list
 
     def update_menu_items_list(self):
@@ -361,62 +494,69 @@ class InventoryMenu(MenuTemporary):
         self.list_shifts = 0
 
     def generate_image_print(self):
-        image_print_list = [PhotoPrint(self.gc_input.inventory_manager.item_data_list[self.get_current_menu_item()].menu_image, 900, 500)]
+        image_print_list = []
+        current_item = self.get_current_menu_item()
+        if current_item is not "Exit":
+            item_info = self.gc_input.get_item_info(current_item)
+            image = item_info[0]
+            image_size_x = item_info[1]
+            image_size_y = item_info[2]
+            image_print_list = [PhotoPrint(image, self.x - image_size_x*1.5, self.y + 250)]
         return image_print_list
 
 
-class GameActionDialogue(object):
-    NAME = "game_action_dialogue_menu"
+class ConversationOptionsMenu(MenuTemporary):
+    NAME = "conversation_options_menu"
 
     def __init__(self, gc_input):
-        image_file = "assets/spritesheets/menu_spritesheets/game_action_dialogue_menu.png"
-        self.gc_input = gc_input
-        self.font_size = 7
-        self.offset_x = 10
-        self.offset_y = 20
-        self.name = self.NAME
-        self.menu_item_list = ["This is the game dialouge box!"]
-        self.menu_spread = 17
-        self.cursor_at = 0
-        self.y_spacing = 0
-        self.menu_type = "static"
-        self.menu_header = None
-        self.fill_out_menu_info(image_file)
+        super().__init__(gc_input)
+        self.offset_x = 150
+        self.offset_y = 25
+        self.menu_header = "Default"
+        self.menu_item_list = ["Talk", "Give Gift"]
+        self.menu_item_list.append("Exit")
 
-    def fill_out_menu_info(self, image_file):
-        spritesheet_width = Spritesheet.get_w_h(image_file)[0]
-        spritesheet_height = Spritesheet.get_w_h(image_file)[1]
-        x = GameSettings.RESOLUTION[0] - spritesheet_width - 10
-        y = GameSettings.RESOLUTION[1] - spritesheet_height - 10
-        self.overlay = Overlay(self.NAME + "_overlay", x, y, Spritesheet(self.NAME + "_overlay" + "_spritesheet", image_file, spritesheet_width, spritesheet_height))
-        self.x = x + self.offset_x
-        self.y = y + self.offset_y
-        if self.menu_header:
-            self.y_spacing = 20
+        self.talking_to = None
 
-    @property
-    def size(self):
-        return len(self.menu_item_list)
+        self.overlay_size_x = 95
+        self.overlay_size_Y = 27
+        self.fill_out_menu_info("center", "bottom")
+        self.y_spacing = 35
 
-    def show_dialogue(self, phrase):
-        if len(self.menu_item_list) >= 4:
-            del self.menu_item_list[0]
-        self.menu_item_list.append(phrase)
+    def update_menu_items_list(self, speaker_name, friendship_level, face_image):
+        friendship_counter = "           "
+        if friendship_level == 0:
+            friendship_counter = "           "
+        elif 5 >= friendship_level >= 1:
+            friendship_counter = "<3         "
+        elif 10 >= friendship_level >= 6:
+            friendship_counter = "<3 <3      "
+        elif 15 >= friendship_level >= 11:
+            friendship_counter = "<3 <3 <3   "
+        elif friendship_level >= 16:
+            friendship_counter = "<3 <3 <3 <3"
 
-    def get_menu_items_to_print(self):
-        return self.menu_item_list
+        self.menu_photo_list = [face_image]
+        self.menu_header = speaker_name + "   " + friendship_counter
+        self.talking_to = speaker_name
 
-    def generate_text_print(self):
-        source = self.get_menu_items_to_print()
-        text_print_list = []
-        if self.menu_header:
-            text_print_list.append(TextPrint(self.menu_header, self.x, self.y, self.font_size))
-        for item in range(len(source)):
-            text_print_list.append(TextPrint(source[item], self.x, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
-        return text_print_list
+    def do_option(self):
+        menu_selection = self.get_current_menu_item()
+        if menu_selection == "Talk":
+            npc_talking_to_ghost = self.gc_input.get_npc_ghost(self.talking_to)
+            npc_talking_to_avatar = self.gc_input.get_npc_avatar(self.talking_to)
+            self.gc_input.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
+
+        elif menu_selection == "Give Gift":
+            pass
+
+        elif menu_selection == "Exit":
+            pass
 
     def generate_image_print(self):
         image_print_list = []
+        for item in self.menu_photo_list:
+            image_print_list = [PhotoPrint(item, 10, 5)]
         return image_print_list
 
 
@@ -425,26 +565,22 @@ class CharacterDialogue(MenuTemporary):
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
-        image_file = "assets/spritesheets/menu_spritesheets/text_box.png"
         self.font_size = 10
-        self.offset_x = 10
+        self.offset_x = 150
         self.offset_y = 25
-        self.y_spacing = 25
-        self.menu_header = "Clown"
-        self.menu_type = Types.BASE
-        self.menu_item_list = []
-        self.currently_displayed_items = []
-        self.fill_out_menu_info(image_file)
-        self.y_spacing = 35
-        self.menu_photo = None
-        self.cursor = ""
+        self.menu_header = "Default"
 
-        self.talking_to = None
+        self.cursor = None
+
+        self.currently_displayed_items = []
         self.current_phrase = []
         self.speaking_queue = []
-
-        self.menu_item_list = "Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names..."
         self.set_current_phrase()
+
+        self.overlay_size_x = 95
+        self.overlay_size_Y = 27
+        self.fill_out_menu_info("center", "bottom")
+        self.y_spacing = 35
 
     def update_menu_items_list(self, phrases, speaker_name, friendship_level, face_image):
         friendship_counter = "           "
@@ -459,25 +595,15 @@ class CharacterDialogue(MenuTemporary):
         elif friendship_level >= 16:
             friendship_counter = "<3 <3 <3 <3"
 
-        self.menu_photo = face_image
+        self.menu_photo_list = [face_image]
         self.menu_header = speaker_name + "   " + friendship_counter
-        self.menu_item_list = phrases
+        self.menu_item_list = [phrases]
         self.set_current_phrase()
         self.set_speaking_queue()
 
-    def fill_out_menu_info(self, image_file):
-        spritesheet_width = Spritesheet.get_w_h(image_file)[0]
-        spritesheet_height = Spritesheet.get_w_h(image_file)[1]
-        x = GameSettings.RESOLUTION[0]/2 - spritesheet_width/2
-        y = GameSettings.RESOLUTION[1] - (GameSettings.RESOLUTION[1]/4 - spritesheet_height/4)
-        self.overlay = Overlay(self.NAME + "_overlay", x, y, Spritesheet(self.NAME + "_overlay" + "_spritesheet", image_file, spritesheet_width, spritesheet_height))
-        self.x = x + self.offset_x
-        self.y = y + self.offset_y
-        if self.menu_header:
-            self.y_spacing = 20
-
     def set_current_phrase(self):
-        self.current_phrase = textwrap.wrap(self.menu_item_list, width=30)
+        for item in range(len(self.menu_item_list)):
+            self.current_phrase = textwrap.wrap(self.menu_item_list[item], width=30)
 
     def set_speaking_queue(self):
         phrase_counter = 0
@@ -499,31 +625,11 @@ class CharacterDialogue(MenuTemporary):
     def get_menu_items_to_print(self):
         return self.speaking_queue
 
-    @property
-    def size(self):
-        return len(self.menu_item_list)
-
-    def cursor_down(self):
-        pass
-
-    def cursor_up(self):
-        pass
-
-    def choose_option(self):
-        self.do_option()
-
     def do_option(self):
         self.set_speaking_queue()
 
-    def generate_text_print(self):
-        source = self.get_menu_items_to_print()
-        text_print_list = []
-        if self.menu_header:
-            text_print_list.append(TextPrint(self.menu_header, self.x + 140, self.y, self.font_size))
-        for item in range(len(source)):
-            text_print_list.append(TextPrint(source[item], self.x + 140, self.y + self.y_spacing + (item * self.menu_spread), self.font_size))
-        return text_print_list
-
     def generate_image_print(self):
-        image_print_list = [PhotoPrint(self.menu_photo, self.x, self.y - 15)]
+        image_print_list = []
+        for item in self.menu_photo_list:
+            image_print_list = [PhotoPrint(item, 10, 5)]
         return image_print_list

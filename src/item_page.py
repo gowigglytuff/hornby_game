@@ -11,8 +11,10 @@ class TempItem(object):
         self.gc_input = gc_input
         self.name = self.NAME
         self.sell_price = 0
+        self.image_size_x = 90
+        self.image_size_y = 76
         spritesheet = Spritesheet("items", "assets/spritesheets/item_spritesheets/food_images.png", 24, 24).get_image(0, 0)
-        base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", 90, 76).get_image(0, 0)
+        base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", self.image_size_x, self.image_size_y).get_image(0, 0)
         base.blit(spritesheet, [30, 20])
         self.menu_image = base
 

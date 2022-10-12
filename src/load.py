@@ -5,15 +5,14 @@ from definitions import Direction
 from ghost_page import NpcGhost, PlayerGhost
 from item_page import *
 from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_page import StartMenu, InventoryMenu, GameActionDialogue, CharacterDialogue
+from menu_page import StartMenu, InventoryMenu, GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, BuiltOverlay, Overlay
 from room_page import BasicRoom
 
 from spritesheet import Spritesheet
 
 
 def init_game(g):
-    pygame.init()
-    pygame.display.set_caption('window title')
+
     pygame.key.set_repeat()
     g.game_controller.initiate_timers()
 
@@ -29,6 +28,7 @@ def new_game_procedures(gc):
     gc.game.game_state.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
 
     gc.game.game_state.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "Basic_Room", 2, 1, Direction.DOWN))
+    gc.game.game_state.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "Basic_Room", 1, 3, Direction.DOWN))
 
 
 def continue_game_procedures(gc):
@@ -49,7 +49,7 @@ def install_all_data(gc):
         pass
 
     def install_npc_avatar(gc):
-        npc_name_list = ["Clown"]
+        npc_name_list = ["Clown", "Cowboy"]
         for npc_item in npc_name_list:
             gc.game_view.game_data.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.npc_ghost_list[npc_item].x, gc.game_state.npc_ghost_list[npc_item].y))
 
@@ -61,10 +61,12 @@ def install_all_data(gc):
         gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
 
     def install_menus(gc):
-        gc.menu_manager.install_menu_data(StartMenu.NAME, StartMenu(gc))
-        gc.menu_manager.install_menu_data(InventoryMenu.NAME, InventoryMenu(gc))
-        gc.menu_manager.install_menu_data(GameActionDialogue.NAME, GameActionDialogue(gc))
-        gc.menu_manager.install_menu_data(CharacterDialogue.NAME, CharacterDialogue(gc))
+        for menu in [ConversationOptionsMenu, CharacterDialogue, GameActionDialogue, InventoryMenu, StartMenu]:
+            # make overlay in gameview
+            gc.menu_manager.install_menu_data(menu.NAME, menu(gc))
+            this_menu = gc.menu_manager.menu_data_list[menu.NAME]
+            menu_image = gc.build_overlay_image(this_menu.name + "_overlay", this_menu.overlay_size_x, this_menu.overlay_size_Y)
+            gc.game_view.game_data.add_overlay_data(this_menu.name + "_overlay", Overlay(this_menu.name + "_overlay", menu_image))
 
     def install_temp_items(gc):
         items_to_install = [Cheese, Milk, Cream, Banana, Apple, Orange, Mike, Spoon, Mouse, Match, Game, Card, Pizza, Meat, Egg]

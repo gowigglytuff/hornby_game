@@ -3,7 +3,7 @@ from enum import Enum
 import pygame
 
 from ghost_page import PlayerGhost
-from menu_page import StartMenu
+from menu_page import StartMenu, BuiltOverlay
 from player import Player_Avatar
 from tile_map import TileMap, TileSet
 from room_page import Room
@@ -17,7 +17,7 @@ class Game(object):
         self.game_running = True
         self.game_state = GameState()  # type: GameState
         self.game_data = GameData()  # type: GameData
-        self.game_view = GameView(self.game_data)  # type: GameView
+        self.game_view = GameView(self.game_data, MenuDrawer(self))  # type: GameView
 
         self.game_controller = GameController(self, self.game_view, self.game_state)  # type: GameController
 
@@ -199,7 +199,8 @@ class GameController(object):
         npc_talking_to_avatar = self.game_view.game_data.npc_avatar_list[npc_talking_to]
         self.change_npc_facing(direction_to_turn, npc_talking_to)
         self.post_notice("You talked to " + npc_talking_to_ghost.name)
-        self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
+        self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
+        # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def player_interact(self):
         interact_tile = self.position_manager.check_adjacent_tile(self.get_player_ghost().facing, self.get_player_ghost(), self.get_current_room())
@@ -213,6 +214,18 @@ class GameController(object):
 
     def post_notice(self, phrase):
         self.menu_manager.menu_data_list["game_action_dialogue_menu"].show_dialogue(phrase)
+
+    def build_overlay_image(self, name, x_size, y_size):
+        testing = BuiltOverlay(name, x_size, y_size)
+        image = testing.build_overlay()
+        print(type(image))
+        return image
+
+    def get_item_info(self, item_name):
+        image = self.inventory_manager.item_data_list[item_name].menu_image
+        item_size_x = self.inventory_manager.item_data_list[item_name].image_size_x
+        item_size_y = self.inventory_manager.item_data_list[item_name].image_size_y
+        return [image, item_size_x, item_size_y]
 
 
 class PositionManager(object):
@@ -297,8 +310,9 @@ class GameState(object):
 
 
 class GameView(object):
-    def __init__(self, game_data):
+    def __init__(self, game_data, menu_drawer):
         self.game_data = game_data  # type: GameData
+        self.menu_drawer = menu_drawer # type: MenuDrawer
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
         self.FPS = 72
@@ -308,7 +322,10 @@ class GameView(object):
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
-        self.font = "assets/fonts/PressStart.ttf"
+        self.font_file = "assets/fonts/PressStart.ttf"
+        self.font_small = pygame.font.Font(self.font_file, GameSettings.FONT_SMALL)
+        self.font_medium = pygame.font.Font(self.font_file, GameSettings.FONT_MEDIUM)
+        self.font_large = pygame.font.Font(self.font_file, GameSettings.FONT_LARGE)
 
         self.night_filter = pygame.Surface(pygame.Rect((0, 0, self.resolution[0], self.resolution[1])).size)
         self.sky_change_increments = 6
@@ -354,52 +371,27 @@ class GameView(object):
             elif drawable[0].type == "Npc":
                 self.draw_npc(drawable[0].name)
 
-    def draw_overlay(self, overlay):
-        overlay_loc_x = overlay.x
-        overlay_loc_y = overlay.y
-        self.screen.blit(overlay.image, (overlay_loc_x, overlay_loc_y))
-
-    def draw_menu_cursor(self, menu):
-        my_font = pygame.font.Font(self.font, 10)
-        item = my_font.render(menu.cursor, True, (0, 0, 0))
-        self.screen.blit(item, (menu.x - 12, (menu.y+2 + menu.y_spacing) + (menu.cursor_at * menu.menu_spread)))
-
-    def draw_menu2(self, menu):
-        menu_loc_x = []
-        menu_loc_y = []
-        self.draw_overlay(menu.overlay)
-        if menu.menu_type is not "static":
-            self.draw_menu_cursor(menu)
-        my_font = pygame.font.Font(self.font, menu.font_size)
-
-        if menu.menu_header:
-            item = my_font.render(menu.menu_header, True, (0, 0, 0))
-            self.screen.blit(item, (menu.x, menu.y))
-
-        for option in range(len(menu.get_menu_items_to_print())):
-            print(option)
-            item = my_font.render(menu.get_menu_items_to_print()[option], True, (0, 0, 0))
-            self.screen.blit(item, (menu.x, menu.y + menu.y_spacing + (option * menu.menu_spread)))
-
     def draw_menu(self, menu):
-        menu_loc_x = []
-        menu_loc_y = []
-        self.draw_overlay(menu.overlay)
-
+        overlay = self.game_data.overlay_data_list[menu.name + "_overlay"]
         text_print_list = menu.generate_text_print()
         img_print_list = menu.generate_image_print()
+        menu_tester = self.compile_menu(text_print_list, img_print_list, overlay)
+        self.screen.blit(menu_tester, (menu.x, menu.y))
 
-        if menu.menu_type is not "static":
-            self.draw_menu_cursor(menu)
 
-        for menu_item in img_print_list:
-            self.screen.blit(menu_item.image, (menu_item.x, menu_item.y))
+    def compile_menu(self, text_print_list, image_print_list, overlay):
+        final_image = pygame.Surface((overlay.image.get_width(), overlay.image.get_height()))
+        final_image.blit(overlay.image, [0, 0])
+        for item in text_print_list:
+            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_MEDIUM)
+            item_text = my_font.render(item.text, True, (0, 0, 0))
+            final_image.blit(item_text, [item.x, item.y])
 
-        for menu_item in text_print_list:
-            my_font = pygame.font.Font(self.font, menu_item.font_size)
-            item = my_font.render(menu_item.text, True, (0, 0, 0))
-            self.screen.blit(item, (menu_item.x, menu_item.y))
+        for item in image_print_list:
+            image = item.image
+            final_image.blit(image, [item.x, item.y])
 
+        return final_image
 
 class GameData(object):
     def __init__(self):
@@ -545,6 +537,12 @@ class MenuManager(object):
         self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.menu_manager.add_menu_to_stack("character_dialogue")
 
+    def set_conversation_menu(self, speaker_name, friendship_level, face_image):
+        selected_menu = self.menu_data_list["conversation_options_menu"]
+        selected_menu.update_menu_items_list(speaker_name, friendship_level, face_image)
+        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
+        selected_menu.gc_input.menu_manager.add_menu_to_stack("conversation_options_menu")
+
     def exit_menu(self, menu_name):
         selected_menu = self.menu_data_list[menu_name]
         selected_menu.reset_cursor()
@@ -559,3 +557,10 @@ class MenuManager(object):
 
     def get_item_quantity(self, item_name):
         return self.gc_input.game_state.current_inventory[item_name]["quantity"]
+
+
+class MenuDrawer(object):
+    def __init__(self, gv_input):
+        self.font_size = GameSettings.FONT_MEDIUM
+
+

@@ -2,6 +2,7 @@ from game_core import Game
 from load import init_game
 import pygame
 
+pygame.init()
 g = Game()
 
 

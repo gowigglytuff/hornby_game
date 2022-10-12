@@ -17,16 +17,17 @@ class Spritesheet(object):
 
         # Load a specific image from a specific rectangle
 
-    def image_at(self, rectangle):
+    def image_at(self, rectangle, transparent=True):
         # "Loads image from x,y,x+offset,y+offset"
         rect = pygame.Rect(rectangle)
         image = pygame.Surface(rect.size).convert()
         image.blit(self.sheet, (0, 0), rect)
-        colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey, pygame.RLEACCEL)
+        if transparent:
+            colorkey = image.get_at((0, 0))
+            image.set_colorkey(colorkey, pygame.RLEACCEL)
         return image
 
-    def get_image(self, img_x, img_y):
+    def get_image(self, img_x, img_y, transparent=True):
         '''
         Returns the nth image in the spritesheet
         :param img_num: number image in spritesheet
@@ -34,8 +35,10 @@ class Spritesheet(object):
         :return:
         '''
 
-        chosen_img = self.image_at((img_x*self.width, img_y*self.height, self.width, self.height))
-
+        if transparent:
+            chosen_img = self.image_at((img_x*self.width, img_y*self.height, self.width, self.height))
+        else:
+            chosen_img = self.image_at((img_x * self.width, img_y * self.height, self.width, self.height), transparent=False)
         return chosen_img # type: pygame.Surface
 
     @classmethod
