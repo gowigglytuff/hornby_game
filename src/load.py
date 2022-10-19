@@ -5,7 +5,7 @@ from definitions import Direction
 from ghost_page import NpcGhost, PlayerGhost
 from item_page import *
 from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_page import StartMenu, InventoryMenu, GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, BuiltOverlay, Overlay
+from menu_page import StartMenu, InventoryMenu, GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, BuiltOverlay, Overlay, StatsMenu, KeyInventoryMenu
 from room_page import BasicRoom
 
 from spritesheet import Spritesheet
@@ -61,7 +61,7 @@ def install_all_data(gc):
         gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
 
     def install_menus(gc):
-        for menu in [ConversationOptionsMenu, CharacterDialogue, GameActionDialogue, InventoryMenu, StartMenu]:
+        for menu in [ConversationOptionsMenu, CharacterDialogue, GameActionDialogue, InventoryMenu, KeyInventoryMenu, StartMenu, StatsMenu]:
             # make overlay in gameview
             gc.menu_manager.install_menu_data(menu.NAME, menu(gc))
             this_menu = gc.menu_manager.menu_data_list[menu.NAME]
@@ -77,7 +77,10 @@ def install_all_data(gc):
             q *= 3
 
     def install_key_items(gc):
-        pass
+        items_to_install = [Hammer]
+        for item in items_to_install:
+            gc.inventory_manager.install_key_item_data(item.NAME, item(gc))
+            gc.inventory_manager.get_key_item(item)
 
     def install_outfits(gc):
         pass

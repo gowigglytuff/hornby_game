@@ -196,10 +196,10 @@ class InMenuKeyboardManager(KeyboardManager):
         active_menu = self.gc_input.menu_manager.menu_data_list[self.gc_input.menu_manager.menu_stack[0]]
         if event_type == pygame.KEYDOWN:
             if key == pygame.K_RIGHT:
-                pass
+                active_menu.cursor_right()
 
             if key == pygame.K_LEFT:
-                pass
+                active_menu.cursor_left()
 
             if key == pygame.K_DOWN:
                 active_menu.cursor_down()

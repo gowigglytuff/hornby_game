@@ -171,6 +171,49 @@ class MenuStatic(Menu):
         return image_print_list
 
 
+class StatsMenu(MenuStatic):
+    NAME = "stats_menu"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.gc_input = gc_input
+        self.offset_x = 10
+        self.offset_y = 10
+        self.name = self.NAME
+        self.menu_item_list = []
+        self.y_spacing = 0
+        self.menu_type = "static"
+        self.menu_header = None
+
+        self.overlay_size_x = 36
+        self.overlay_size_Y = 26
+        self.fill_out_menu_info("right", "top")
+        self.update_menu_items_list()
+
+    def update_menu_items_list(self):
+        stat_dict = self.gc_input.get_stat_items()
+        self.menu_item_list = [("Coins: ", stat_dict["Coins"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Seeds:", stat_dict["seeds"]), ("Select: ", stat_dict["selected_tool"])]
+
+    def get_menu_items_to_print(self):
+        printable_item_list = []
+
+        for option in range(self.size):
+            item = self.menu_item_list[option][0]
+            available_spaces = 16
+            item_word_length = len(item)
+            quantity = self.menu_item_list[option][1]
+            quantity_word_length = len(quantity)
+            total_length = item_word_length + quantity_word_length
+            number_of_spaces = available_spaces - total_length
+            spaces_str = ""
+            for x in range(number_of_spaces):
+                spaces_str = spaces_str + " "
+            final_item = item + spaces_str + quantity
+            printable_item_list.append(final_item)
+
+        return printable_item_list
+
+
 class GameActionDialogue(MenuStatic):
     NAME = "game_action_dialogue_menu"
 
@@ -301,7 +344,7 @@ class StartMenu(MenuTemporary):
         super().__init__(gc_input)
         self.menu_item_list = ["Bag", "Outfits", "Map", "Chore List", "Profile", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
-        self.overlay_size_x = 30
+        self.overlay_size_x = 35
         self.overlay_size_Y = 50
         self.fill_out_menu_info("right", "center")
 
@@ -383,7 +426,7 @@ class InventoryMenu(MenuTemporary):
         self.max_length = 14
         self.currently_displayed_items = []
         self.list_shifts = 0
-        self.overlay_size_x = 40
+        self.overlay_size_x = 35
         self.overlay_size_Y = 80
         self.fill_out_menu_info("right", "center")
 
@@ -455,10 +498,10 @@ class InventoryMenu(MenuTemporary):
             self.gc_input.menu_manager.exit_all_menus()
 
     def cursor_left(self):
-        pass
+        self.gc_input.menu_manager.set_menu(KeyInventoryMenu.NAME)
 
     def cursor_right(self):
-        pass
+        self.gc_input.menu_manager.set_menu(KeyInventoryMenu.NAME)
 
     def cursor_down(self):
         if self.size > 1:
@@ -498,6 +541,122 @@ class InventoryMenu(MenuTemporary):
         current_item = self.get_current_menu_item()
         if current_item is not "Exit":
             item_info = self.gc_input.get_item_info(current_item)
+            image = item_info[0]
+            image_size_x = item_info[1]
+            image_size_y = item_info[2]
+            image_print_list = [PhotoPrint(image, self.x - image_size_x*1.5, self.y + 250)]
+        return image_print_list
+
+
+class KeyInventoryMenu(MenuTemporary):
+    NAME = "key_inventory_menu"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = "< KEY ITEMS >"
+        self.max_length = 14
+        self.currently_displayed_items = []
+        self.list_shifts = 0
+        self.overlay_size_x = 35
+        self.overlay_size_Y = 80
+        self.fill_out_menu_info("right", "center")
+
+    def get_menu_items_to_print(self):
+        menu_length_calc = 0
+        if self.size >= self.max_length:
+            menu_length_calc = self.max_length
+        elif self.size < self.max_length:
+            menu_length_calc = self.size
+
+        printable_item_list = []
+
+        for option in range(menu_length_calc):
+            printable_item_list.append(self.currently_displayed_items[option])
+
+        return printable_item_list
+
+    def update_menu_items_list(self):
+        keys_list = []
+        for item in self.gc_input.game_state.current_key_inventory:
+            keys_list.append(item)
+        self.menu_item_list = keys_list
+        self.menu_item_list.append("Exit")
+        self.update_currently_displayed()
+
+    def update_currently_displayed(self):
+        self.currently_displayed_items = []
+        if self.size <= self.max_length:
+            for item in range(self.size):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.list_shifts])
+        else:
+            for item in range(self.max_length):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.list_shifts])
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc_input.menu_manager.exit_all_menus()
+        else:
+            chosen_item = self.gc_input.inventory_manager.key_item_data_list[chosen_item_name]
+            self.gc_input.inventory_manager.use_key_item(chosen_item)
+            self.gc_input.menu_manager.exit_all_menus()
+
+    def do_option(self, choice=None):
+        menu_selection = choice
+
+        if menu_selection == "Use":
+            pass
+
+        elif menu_selection == "Toss":
+            pass
+
+        elif menu_selection == "Exit":
+            self.gc_input.menu_manager.exit_all_menus()
+
+    def cursor_left(self):
+        self.gc_input.menu_manager.set_menu(InventoryMenu.NAME)
+
+    def cursor_right(self):
+        self.gc_input.menu_manager.set_menu(InventoryMenu.NAME)
+
+    def cursor_down(self):
+        if self.size > 1:
+            if (self.cursor_at + self.list_shifts) < self.size - 1:
+                if self.size > self.max_length:
+                    if self.cursor_at == self.max_length - 1:
+                        self.list_shifts += 1
+                        self.update_currently_displayed()
+                    elif self.cursor_at < self.max_length - 1:
+                        self.cursor_at += 1
+                    else:
+                        pass
+
+                elif self.max_length >= self.size > self.cursor_at:
+                    self.cursor_at += 1
+
+    def cursor_up(self):
+        if (self.cursor_at + self.list_shifts) > 0:
+            if self.cursor_at == 0 and self.list_shifts > 0:
+                self.list_shifts -= 1
+                self.update_currently_displayed()
+            elif self.cursor_at > 0:
+                self.cursor_at -= 1
+            else:
+                pass
+
+    def get_current_menu_item(self):
+        menu_selection = self.currently_displayed_items[self.cursor_at]
+        return menu_selection
+
+    def reset_cursor(self):
+        self.cursor_at = 0
+        self.list_shifts = 0
+
+    def generate_image_print(self):
+        image_print_list = []
+        current_item = self.get_current_menu_item()
+        if current_item is not "Exit":
+            item_info = self.gc_input.get_key_item_info(current_item)
             image = item_info[0]
             image_size_x = item_info[1]
             image_size_y = item_info[2]

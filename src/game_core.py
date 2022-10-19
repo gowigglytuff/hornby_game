@@ -79,7 +79,7 @@ class GameController(object):
 
     def initiate_timers(self):
         twentieth_second_timer = self.twentieth_second_timer_id
-        pygame.time.set_timer(twentieth_second_timer, 7)
+        pygame.time.set_timer(twentieth_second_timer, 2)
 
         fifth_second_timer = self.fifth_second_timer_id
         pygame.time.set_timer(fifth_second_timer, 20)
@@ -227,10 +227,28 @@ class GameController(object):
         item_size_y = self.inventory_manager.item_data_list[item_name].image_size_y
         return [image, item_size_x, item_size_y]
 
+    def get_key_item_info(self, item_name):
+        image = self.inventory_manager.key_item_data_list[item_name].menu_image
+        item_size_x = self.inventory_manager.key_item_data_list[item_name].image_size_x
+        item_size_y = self.inventory_manager.key_item_data_list[item_name].image_size_y
+        return [image, item_size_x, item_size_y]
+
+    def get_stat_items(self):
+        hour = self.game_state.hour_of_day
+        minute = self.game_state.minute_of_hour
+
+        stat_dict = {"seeds": str(self.game_state.your_seeds),
+                     "Coins": str(self.game_state.your_coins),
+                     "time": str(hour) + ":" + str(minute) + "0",
+                     "day": str(self.game_state.day_of_summer),
+                     "selected_tool": str(self.game_state.selected_tool)}
+
+        return stat_dict
+
 
 class PositionManager(object):
     def __init__(self, gc_input):
-        self.gc_input = gc_input # type: GameController
+        self.gc_input = gc_input  # type: GameController
 
     def check_if_player_can_move(self, direction, checker, room):
         result = True
@@ -285,6 +303,7 @@ class PositionManager(object):
 
 class GameState(object):
     def __init__(self):
+        self.selected_tool = "None"
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
         self.npc_ghost_list = {}
         self.prop_ghost_list = {}
@@ -293,13 +312,15 @@ class GameState(object):
         self.new_game = True
         self.current_room = "Basic_Room"
         self.current_inventory = {}
+        self.current_key_inventory = {}
 
         self.your_coins = 127
         self.your_seeds = 24
         self.total_seeds_found = 26
 
         self.day_of_summer = 12
-        self.time_of_day = 14
+        self.hour_of_day = 14
+        self.minute_of_hour = 00
         self.night_filter_current_alpha = 0
 
     def add_player_ghost(self, player_object):
@@ -312,13 +333,13 @@ class GameState(object):
 class GameView(object):
     def __init__(self, game_data, menu_drawer):
         self.game_data = game_data  # type: GameData
-        self.menu_drawer = menu_drawer # type: MenuDrawer
+        self.menu_drawer = menu_drawer  # type: MenuDrawer
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
         self.FPS = 72
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
-        self.base_locator_x = ((self.resolution[0]-self.square_size[0])/self.square_size[0])/2 + 1
-        self.base_locator_y = ((self.resolution[1]-self.square_size[1])/self.square_size[1])/2 + 1
+        self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
+        self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
@@ -378,7 +399,6 @@ class GameView(object):
         menu_tester = self.compile_menu(text_print_list, img_print_list, overlay)
         self.screen.blit(menu_tester, (menu.x, menu.y))
 
-
     def compile_menu(self, text_print_list, image_print_list, overlay):
         final_image = pygame.Surface((overlay.image.get_width(), overlay.image.get_height()))
         final_image.blit(overlay.image, [0, 0])
@@ -392,6 +412,7 @@ class GameView(object):
             final_image.blit(image, [item.x, item.y])
 
         return final_image
+
 
 class GameData(object):
     def __init__(self):
@@ -459,6 +480,10 @@ class InventoryManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
         self.item_data_list = {}
+        self.key_item_data_list = {}
+
+    def install_key_item_data(self, item_name, item_object):
+        self.key_item_data_list[item_name] = item_object
 
     def install_item_data(self, item_name, item_object):
         self.item_data_list[item_name] = item_object
@@ -492,12 +517,38 @@ class InventoryManager(object):
             success = False
         return success
 
+    def check_if_can_use_key_item(self, item):
+        success = True
+
+        if not self.key_item_data_list[item.NAME].use_requirements():
+            success = False
+        return success
+
+    def get_key_item(self, item):
+        current_key_inventory = self.gc_input.game_state.current_key_inventory
+        if item.NAME in current_key_inventory:
+            pass
+        else:
+            current_key_inventory[item.NAME] = {"name": item.NAME}
+
+    def use_key_item(self, item):
+        current_key_inventory = self.gc_input.game_state.current_inventory
+        successes = 0
+        if self.check_if_can_use_key_item(item):
+            self.key_item_data_list[item.NAME].item_use()
+            successes += 1
+
+        if successes == 0:
+            self.gc_input.post_notice("Could not use " + item.NAME)
+        elif successes > 0:
+            self.gc_input.post_notice("used " + item.NAME)
+
 
 class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = ["game_action_dialogue_menu"]  #
+        self.static_menus = ["game_action_dialogue_menu", "stats_menu"]  #
         self.active_menu = []
         self.menu_stack = []
         self.visible_menus = []
@@ -562,5 +613,3 @@ class MenuManager(object):
 class MenuDrawer(object):
     def __init__(self, gv_input):
         self.font_size = GameSettings.FONT_MEDIUM
-
-
