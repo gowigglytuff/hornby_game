@@ -21,7 +21,7 @@ class TextPrint(object):
 class MenuAvatar(object):
     NAME = "Menu_Base_Avatar"
 
-    def __init__(self, gc_input):
+    def __init__(self, gc_input, name, items, display_details):
         self.gc_input = gc_input
 
         self.overlay_body_x = 0
@@ -41,16 +41,17 @@ class MenuAvatar(object):
 
         self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
         self.menu_spread_x = 0
-        self.name = self.NAME
+        self.name = name
         self.menu_type = None
 
-        self.set_menu_width = None
+        self.set_menu_width = display_details[0]
         self.set_menu_height = None
 
         self.spritesheet_width = 0
         self.spritesheet_height = 0
 
         self.overlay_image = None
+        self.fill_out_menu_info(items, display_details[1], display_details[2])
 
     def get_longest_item(self, menu_items_list, menu_header=None):
         longest_item = 3
@@ -180,62 +181,3 @@ class MenuAvatar(object):
             final_menu_text.append(TextPrint(text_print_list[position_y], loc_x, loc_y))
 
         return final_menu_text
-
-
-
-class SpecialMenuAvatar(MenuAvatar):
-    NAME = "special_menu_avatar"
-    GHOST = "special_menu_ghost"
-
-    def __init__(self, gc_input, menu_information):
-        super().__init__(gc_input)
-        self.fill_out_menu_info(menu_information, "left", "top")
-
-
-class StatMenuAvatar(MenuAvatar):
-    NAME = "stat_menu_avatar"
-    GHOST = "stat_menu_ghost"
-
-    def __init__(self, gc_input, menu_information):
-        super().__init__(gc_input)
-        self.fill_out_menu_info(menu_information, "right", "top")
-
-
-class StartMenuAvatar(MenuAvatar):
-    NAME = "start_menu_avatar"
-    GHOST = "start_menu_ghost"
-
-    def __init__(self, gc_input, menu_information):
-        super().__init__(gc_input)
-        self.set_menu_width = 32
-        self.fill_out_menu_info(menu_information, "right", "center")
-
-
-class InventoryMenuAvatar(MenuAvatar):
-    NAME = "inventory_menu_avatar"
-    GHOST = "inventory_menu_ghost"
-
-    def __init__(self, gc_input, menu_information):
-        super().__init__(gc_input)
-        self.set_menu_width = 34
-        self.fill_out_menu_info(menu_information, "right", "center")
-
-
-class KeyInventoryMenuAvatar(MenuAvatar):
-    NAME = "key_inventory_menu_avatar"
-    GHOST = "key_inventory_menu_ghost"
-
-    def __init__(self, gc_input, menu_information):
-        super().__init__(gc_input)
-        self.set_menu_width = 34
-        self.fill_out_menu_info(menu_information, "right", "center")
-
-
-class ConversationOptionsMenuAvatar(MenuAvatar):
-    NAME = "conversation_options_menu_avatar"
-    GHOST = "conversation_options_menu_ghost"
-
-    def __init__(self, gc_input, menu_information):
-        super().__init__(gc_input)
-        self.set_menu_width = 34
-        self.fill_out_menu_info(menu_information, "right", "center")

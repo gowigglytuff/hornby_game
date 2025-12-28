@@ -285,9 +285,7 @@ class GameState(object):
 
         self.new_game = True
         self.current_room = "Basic_Room"
-        self.menu_items_dict = {"inventory_menu":{}, "key_inventory_menu":{}}
-        self.current_inventory = {}
-        self.current_key_inventory = {}
+        self.menu_items_dict = {"supplies_inventory_menu": {}, "key_inventory_menu": {}}
 
         self.your_coins = 127
         self.your_seeds = 24
@@ -502,17 +500,16 @@ class InventoryManager(object):
         self.item_data_list[item_name] = item_object
 
     def get_item(self, item, quantity):
-        current_inventory = self.gc_input.game_state.menu_items_dict["inventory_menu"]
+        current_inventory = self.gc_input.menu_manager.get_menu_items_list("supplies_inventory_menu")
         if item.NAME in current_inventory:
             current_inventory[item.NAME]["quantity"] += quantity
         else:
             current_inventory[item.NAME] = {"name": item.NAME, "quantity": quantity}
 
     def use_item(self, item, quantity_used):
-        current_inventory = self.gc_input.game_state.menu_items_dict["inventory_menu"]
+        current_inventory = self.gc_input.menu_manager.get_menu_items_list("supplies_inventory_menu")
         successes = 0
         for x in range(quantity_used):
-            # print(quantity_used)
             if self.check_if_can_use_item(item, quantity_used):
                 successes += 1
                 self.item_data_list[item.NAME].item_use()
@@ -541,14 +538,14 @@ class InventoryManager(object):
         return success
 
     def get_key_item(self, item):
-        current_key_inventory = self.gc_input.game_state.current_key_inventory
+        current_key_inventory = self.gc_input.menu_manager.get_menu_items_list("key_inventory_menu")
         if item.NAME in current_key_inventory:
             pass
         else:
             current_key_inventory[item.NAME] = {"name": item.NAME}
 
     def use_key_item(self, item):
-        current_key_inventory = self.gc_input.game_state.current_inventory
+        current_key_inventory = self.gc_input.menu_manager.get_menu_items_list("key_inventory_menu")
         successes = 0
         if self.check_if_can_use_key_item(item):
             self.key_item_data_list[item.NAME].item_use()
@@ -570,10 +567,17 @@ class MenuManager(object):
         self.menu_stack = []
         self.visible_menus = ["special_menu", "stat_menu"]
         self.other_menus = ["special_menu_ghost", "stat_menu"]
-        self.start_menu_stack = ["inventory_menu", "key_inventory_menu"]
+        self.start_menu_stack = ["supplies_inventory_menu", "key_inventory_menu"]
+        self.menu_display_details = {"start_menu": [32, "right", "center"],
+                                     "stat_menu": [None, "right", "top"],
+                                     "special_menu": [None, "left", "top"],
+                                     "supplies_inventory_menu": [34, "right", "center"],
+                                     "key_inventory_menu": [34, "right", "center"],
+                                     "conversation_options_menu": [34, "right", "center"]}
 
     def get_menu_items_list(self, menu_name):
         items_list = self.gc_input.game_state.menu_items_dict[menu_name]
+        return items_list
 
     def install_menu_data(self, menu_name, menu_object):
         self.menu_data_list[menu_name] = menu_object
@@ -638,18 +642,16 @@ class MenuManager(object):
             self.exit_menu(item)
 
     def get_item_quantity(self, item_name):
-        # for item in self.gc_input.game_state.current_inventory:
-        #     print(item)
-        return self.gc_input.game_state.current_inventory[item_name]["quantity"]
+        return self.gc_input.game_state.menu_items_dict["supplies_inventory_menu"][item_name]["quantity"]
 
     def next_menu(self, current_menu):
         total_number_menus = len(self.start_menu_stack)
         print(total_number_menus)
         current_menu_index = self.start_menu_stack.index(current_menu)
         self.exit_menu(self.start_menu_stack[current_menu_index])
-        next_menu = self.start_menu_stack[current_menu_index + 1]
-        if current_menu_index == (total_number_menus - 1):
-            next_menu = self.start_menu_stack[0]
+        next_menu = self.start_menu_stack[0]
+        if current_menu_index != (total_number_menus - 1):
+            next_menu = self.start_menu_stack[current_menu_index + 1]
         else:
             pass
         self.set_menu(next_menu)
@@ -669,7 +671,7 @@ class MenuManager(object):
         menu_selection = item_selected
         if menu_selection == "Bag":
             self.exit_menu("start_menu")
-            self.set_menu("inventory_menu")
+            self.set_menu("supplies_inventory_menu")
 
         elif menu_selection == "Key Items":
             pass

@@ -5,9 +5,9 @@ from definitions import Direction
 from ghost_page import NpcGhost, PlayerGhost
 from item_page import *
 from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_avatars import SpecialMenuAvatar, StatMenuAvatar
-from menu_ghosts import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, InventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost
-from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, BuiltOverlay, Overlay, StatsMenu, KeyInventoryMenu, YesnoMenu, UseMenu
+from menu_avatars import MenuAvatar
+from menu_ghosts import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost
+from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
 from room_page import BasicRoom
 
 from spritesheet import Spritesheet
@@ -84,14 +84,15 @@ def install_all_data(gc):
             menu_image = gc.build_overlay_image(this_menu.name + "_overlay", this_menu.overlay_size_x, this_menu.overlay_size_Y)
             gc.game_view.game_data.add_overlay_data(this_menu.name + "_overlay", Overlay(this_menu.name + "_overlay", menu_image))
 
-        for ghost in [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, InventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost]:
+        for ghost in [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost]:
             gc.menu_manager.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gc.menu_manager.menu_ghost_data_list:
             menu_ghost = gc.menu_manager.menu_ghost_data_list[menu]
-            avatar = menu_ghost.AVATAR
+            avatar_name = menu_ghost.BASE + "_avatar"
+            display_details = gc.menu_manager.menu_display_details[menu_ghost.BASE]
             items = menu_ghost.generate_text_print()
-            gc.game_view.game_data.add_menu_avatar(avatar.NAME, avatar(gc, items))
+            gc.game_view.game_data.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
 
 
 

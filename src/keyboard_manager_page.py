@@ -227,7 +227,7 @@ class InMenuKeyboardManager(KeyboardManager):
                 self.key_caps_pressed()
 
             if key == pygame.K_ESCAPE:
-                active_menu.exit_all_menus()
+                self.gc_input.menu_manager.exit_all_menus()
 
         elif event_type == pygame.KEYUP:
             if key == pygame.K_RIGHT:

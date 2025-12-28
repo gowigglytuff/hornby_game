@@ -1,11 +1,9 @@
 from definitions import GameSettings, Types
-from menu_avatars import SpecialMenuAvatar, StatMenuAvatar, StartMenuAvatar, InventoryMenuAvatar, ConversationOptionsMenuAvatar, KeyInventoryMenuAvatar
 
 
 class MenuGhost(object):
     BASE = "menu_base"
     NAME = BASE + "_ghost"
-    AVATAR = None
 
     def __init__(self, gc_input):
         super().__init__()
@@ -89,7 +87,6 @@ class MenuGhost(object):
 class SpecialMenuGhost(MenuGhost):
     BASE = "special_menu"
     NAME = BASE + "_ghost"
-    AVATAR = SpecialMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -98,7 +95,6 @@ class SpecialMenuGhost(MenuGhost):
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
     NAME = BASE + "_ghost"
-    AVATAR = StatMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -141,7 +137,6 @@ class StatMenuGhost(MenuGhost):
 class StartMenuGhost(MenuGhost):
     BASE = "start_menu"
     NAME = BASE + "_ghost"
-    AVATAR = StartMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -161,7 +156,6 @@ class StartMenuGhost(MenuGhost):
 class InventoryMenuGhost(MenuGhost):
     BASE = "inventory_menu"
     NAME = BASE + "_ghost"
-    AVATAR = InventoryMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -187,10 +181,12 @@ class InventoryMenuGhost(MenuGhost):
                         self.cursor_at[1] += 1
                     else:
                         pass
-
                 elif self.max_displayed_items >= self.size > self.cursor_at[1]:
                     self.cursor_at[1] += 1
-        print(self.cursor_at[1])
+                else:
+                    pass
+        else:
+            pass
 
     def cursor_up(self):
         if (self.cursor_at[1] + self.shifts) > 0:
@@ -201,6 +197,8 @@ class InventoryMenuGhost(MenuGhost):
                 self.cursor_at[1] -= 1
             else:
                 pass
+        else:
+            pass
 
     def cursor_left(self):
         self.gc_input.menu_manager.previous_menu(self.BASE)
@@ -217,7 +215,7 @@ class InventoryMenuGhost(MenuGhost):
         self.menu_item_list.append("Exit")
         self.update_currently_displayed()
 
-    def get_menu_items_to_print(self):
+    def get_menu_items_to_print(self): #TODO: move most of this to menu avatar/display
         menu_length_calc = 0
         if self.size >= self.max_displayed_items:
             menu_length_calc = self.max_displayed_items
@@ -257,10 +255,9 @@ class InventoryMenuGhost(MenuGhost):
                 self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
 
 
-class InventoryMenuGhost(MenuGhost):
-    BASE = "inventory_menu"
+class SuppliesInventoryMenuGhost(InventoryMenuGhost):
+    BASE = "supplies_inventory_menu"
     NAME = BASE + "_ghost"
-    AVATAR = InventoryMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -275,93 +272,10 @@ class InventoryMenuGhost(MenuGhost):
         self.update_menu_items_list()
         self.update_currently_displayed()
 
-    def cursor_down(self):
-        # print(self.size)
-        # print(self.cursor_at[1])
-        if self.size > 1:
-            if (self.cursor_at[1] + self.shifts) < self.size - 1:
-                if self.size > self.max_displayed_items:
-                    if self.cursor_at[1] == self.max_displayed_items - 1:
-                        self.shifts += 1
-                        self.update_currently_displayed()
-                    elif self.cursor_at[1] < self.max_displayed_items - 1:
-                        self.cursor_at[1] += 1
-                    else:
-                        pass
 
-                elif self.max_displayed_items >= self.size > self.cursor_at[1]:
-                    self.cursor_at[1] += 1
-        print(self.cursor_at[1])
-
-    def cursor_up(self):
-        if (self.cursor_at[1] + self.shifts) > 0:
-            if self.cursor_at[1] == 0 and self.shifts > 0:
-                self.shifts -= 1
-                self.update_currently_displayed()
-            elif self.cursor_at[1] > 0:
-                self.cursor_at[1] -= 1
-            else:
-                pass
-
-    def cursor_left(self):
-        self.gc_input.menu_manager.previous_menu(self.BASE)
-
-    def cursor_right(self):
-        self.gc_input.menu_manager.next_menu(self.BASE)
-
-    def update_menu_items_list(self):
-        keys_list = []
-        current_inventory = self.gc_input.game_state.current_inventory
-        for item in current_inventory:
-            keys_list.append(item)
-        self.menu_item_list = keys_list
-        self.menu_item_list.append("Exit")
-        self.update_currently_displayed()
-
-    def get_menu_items_to_print(self):
-        menu_length_calc = 0
-        if self.size >= self.max_displayed_items:
-            menu_length_calc = self.max_displayed_items
-        elif self.size < self.max_displayed_items:
-            menu_length_calc = self.size
-
-        printable_item_list = []
-
-        for option in range(menu_length_calc):
-            item = self.currently_displayed_items[option]
-            if item == "Exit":
-                printable_item_list.append(self.currently_displayed_items[option])
-
-            else:
-                available_spaces = 13
-                item_word_length = len(item)
-                quantity = str(self.gc_input.menu_manager.get_item_quantity(item))
-                quantity_word_length = len(quantity)
-                total_length = item_word_length + quantity_word_length
-
-                number_of_spaces = available_spaces - total_length
-                spaces_str = ""
-                for x in range(number_of_spaces):
-                    spaces_str = spaces_str + " "
-                final_item = item + spaces_str + "x" + quantity
-                printable_item_list.append(final_item)
-
-        return printable_item_list
-
-    def update_currently_displayed(self):
-        self.currently_displayed_items = []
-        if self.size <= self.max_displayed_items:
-            for item in range(self.size):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-        else:
-            for item in range(self.max_displayed_items):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-
-
-class KeyInventoryMenuGhost(MenuGhost):
+class KeyInventoryMenuGhost(InventoryMenuGhost):
     BASE = "key_inventory_menu"
     NAME = BASE + "_ghost"
-    AVATAR = KeyInventoryMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -374,47 +288,6 @@ class KeyInventoryMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
         self.update_menu_items_list()
-        self.update_currently_displayed()
-
-    def cursor_down(self):
-        if self.size > 1:
-            if (self.cursor_at[1] + self.shifts) < self.size - 1:
-                if self.size > self.max_displayed_items:
-                    if self.cursor_at[1] == self.max_displayed_items - 1:
-                        self.shifts += 1
-                        self.update_currently_displayed()
-                    elif self.cursor_at[1] < self.max_displayed_items - 1:
-                        self.cursor_at[1] += 1
-                    else:
-                        pass
-
-                elif self.max_displayed_items >= self.size > self.cursor_at[1]:
-                    self.cursor_at[1] += 1
-        print(self.cursor_at[1])
-
-    def cursor_up(self):
-        if (self.cursor_at[1] + self.shifts) > 0:
-            if self.cursor_at[1] == 0 and self.shifts > 0:
-                self.shifts -= 1
-                self.update_currently_displayed()
-            elif self.cursor_at[1] > 0:
-                self.cursor_at[1] -= 1
-            else:
-                pass
-
-    def cursor_left(self):
-        self.gc_input.menu_manager.previous_menu(self.BASE)
-
-    def cursor_right(self):
-        self.gc_input.menu_manager.next_menu(self.BASE)
-
-    def update_menu_items_list(self):
-        keys_list = []
-        current_inventory = self.gc_input.game_state.current_key_inventory
-        for item in current_inventory:
-            keys_list.append(item)
-        self.menu_item_list = keys_list
-        self.menu_item_list.append("Exit")
         self.update_currently_displayed()
 
     def get_menu_items_to_print(self):
@@ -432,20 +305,10 @@ class KeyInventoryMenuGhost(MenuGhost):
 
         return printable_item_list
 
-    def update_currently_displayed(self):
-        self.currently_displayed_items = []
-        if self.size <= self.max_displayed_items:
-            for item in range(self.size):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-        else:
-            for item in range(self.max_displayed_items):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-
 
 class ConversationOptionsMenuGhost(MenuGhost):
     BASE = "conversation_options_menu"
     NAME = BASE + "_ghost"
-    AVATAR = ConversationOptionsMenuAvatar
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
@@ -489,13 +352,14 @@ class ConversationOptionsMenuGhost(MenuGhost):
                 pass
 
     def update_menu_items_list(self):
-        keys_list = []
-        current_inventory = self.gc_input.game_state.current_inventory
-        for item in current_inventory:
-            keys_list.append(item)
-        self.menu_item_list = keys_list
-        self.menu_item_list.append("Exit")
-        self.update_currently_displayed()
+        # keys_list = []
+        # current_inventory = self.gc_input.game_state.current_inventory
+        # for item in current_inventory:
+        #     keys_list.append(item)
+        # self.menu_item_list = keys_list
+        # self.menu_item_list.append("Exit")
+        # self.update_currently_displayed()
+        pass
 
     def get_menu_items_to_print(self):
         menu_length_calc = 0
