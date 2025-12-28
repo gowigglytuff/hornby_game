@@ -1,7 +1,15 @@
 from definitions import Direction, Types
+import pygame
 
+class Feature(object):
+    def __init__(self):
+        self.type = "default"
+        self.name = "default"
+        self.state = "idle"
+        self.facing = Direction.DOWN
+        self.current_skin = "default"
 
-class PlayerGhost:
+class PlayerGhost(object):
     def __init__(self, gs_input, x, y):
         self.gs_input = gs_input
         self.type = "Player"
@@ -14,7 +22,7 @@ class PlayerGhost:
         self.current_outfit = "Normal Outfit"
 
 
-class NpcGhost:
+class NpcGhost(object):
     def __init__(self, name, gs_input, room, x, y, direction):
         self.gs_input = gs_input
         self.type = Types.NPC

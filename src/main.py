@@ -1,3 +1,4 @@
+from position_manager import Room2
 from game_core import Game
 from load import init_game
 import pygame

@@ -1,15 +1,17 @@
+import copy
 from enum import Enum
 
 import pygame
 
 from ghost_page import PlayerGhost
-from menu_page import StartMenu, BuiltOverlay
+from graphics import BuiltOverlay
 from player import Player_Avatar
 from tile_map import TileMap, TileSet
 from room_page import Room
 from keyboard_manager_page import *
 from avatar_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
+from position_manager import Room2, PositionManager
 
 
 class Game(object):
@@ -24,6 +26,7 @@ class Game(object):
 
 class GameController(object):
     def __init__(self, game, game_view, game_state):
+        self.game = game  # type: Game
         self.game = game  # type: Game
         self.game_view = game_view  # type: GameView
         self.game_state = game_state  # type: GameState
@@ -126,6 +129,34 @@ class GameController(object):
         self.get_npc_ghost(npc_name).facing = direction
         self.get_npc_avatar(npc_name).face_character(direction)
 
+    def attempt_move_object(self, object_name, movement_direction):
+        feature_loc_info = self.position_manager.get_feature_location(object_name)
+        feature_room = feature_loc_info[0]
+        current_cube_location = feature_loc_info[1]
+        target_cube_location = copy.deepcopy(current_cube_location)
+
+        if movement_direction == Direction.DOWN:
+            target_cube_location[1] += 1
+        elif movement_direction == Direction.UP:
+            target_cube_location[1] -= 1
+        elif movement_direction == Direction.LEFT:
+            target_cube_location[0] -= 1
+        elif movement_direction == Direction.RIGHT:
+            target_cube_location[0] += 1
+
+        target_location_fill_status = self.position_manager.check_location_full(feature_room, target_cube_location)
+
+        if target_location_fill_status:
+            # print("this location is full")
+            pass
+        else:
+            # print("moving!")
+
+            self.position_manager.update_feature_dictionary(object_name, target_cube_location)
+            self.position_manager.update_locations("Room", object_name, target_cube_location, current_cube_location)
+        # print(current_cube_location)
+        # print(target_cube_location)
+
     def move_character_ghost(self, direction):
         if direction == Direction.DOWN:
             self.game_state.player_ghost.y += 1
@@ -151,10 +182,10 @@ class GameController(object):
         drawables_list = self.get_current_drawables()
         self.game_view.draw_all(drawables_list, current_room)
 
-        for menu in self.menu_manager.visible_menus:
-            self.game_view.draw_menu(self.menu_manager.menu_data_list[menu])
         for menu in self.menu_manager.static_menus:
             self.game_view.draw_menu(self.menu_manager.menu_data_list[menu])
+        for menu in self.menu_manager.visible_menus:
+            self.game_view.draw_special_menu(menu, self.menu_manager.menu_ghost_data_list[menu + "_ghost"].generate_text_print())
 
     def get_current_drawables(self):
         drawables_list = []
@@ -215,10 +246,8 @@ class GameController(object):
     def post_notice(self, phrase):
         self.menu_manager.menu_data_list["game_action_dialogue_menu"].show_dialogue(phrase)
 
-    def build_overlay_image(self, name, x_size, y_size):
-        testing = BuiltOverlay(name, x_size, y_size)
-        image = testing.build_overlay()
-        print(type(image))
+    def build_overlay_image(self, name, x_size, y_size, header=None):
+        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
         return image
 
     def get_item_info(self, item_name):
@@ -246,61 +275,6 @@ class GameController(object):
         return stat_dict
 
 
-class PositionManager(object):
-    def __init__(self, gc_input):
-        self.gc_input = gc_input  # type: GameController
-
-    def check_if_player_can_move(self, direction, checker, room):
-        result = True
-        if self.check_adjacent_tile(direction, checker, room).is_full:
-            result = False
-        if self.check_rooms_edges(direction, checker, room):
-            result = False
-
-        return result
-
-    def check_adjacent_tile(self, direction, checker, room):
-        x = checker.x
-        y = checker.y
-        if direction == Direction.DOWN:
-            y = y + 1
-        elif direction == Direction.UP:
-            y = y - 1
-        elif direction == Direction.LEFT:
-            x = x - 1
-        elif direction == Direction.RIGHT:
-            x = x + 1
-        return room.tiles_array[x][y]
-
-    def check_rooms_edges(self, direction, checker, room):
-        result = False
-        if direction == Direction.DOWN:
-            if room.bottom_edge_y == checker.y:
-                result = True
-        elif direction == Direction.UP:
-            if room.top_edge_y == checker.y:
-                result = True
-        elif direction == Direction.LEFT:
-            if room.left_edge_x == checker.x:
-                result = True
-        elif direction == Direction.RIGHT:
-            if room.right_edge_x == checker.x:
-                result = True
-        return result
-
-    def fill_room_grid(self, room_to_fill):
-        fill_list = []
-        npc_ghost_list = self.gc_input.game.game_state.npc_ghost_list
-        for npc in npc_ghost_list.keys():
-            npc_ghost = self.gc_input.get_npc_ghost(npc)
-            npc_avatar = self.gc_input.get_npc_avatar(npc)
-            if npc_ghost_list[npc].room == room_to_fill:
-                fill_list.append(npc_ghost)
-        fill_list.append(self.gc_input.game.game_state.player_ghost)
-        for item in fill_list:
-            self.gc_input.game.game_view.game_data.room_data_list[room_to_fill].tiles_array[item.x][item.y].fill_tile(item.type, item.name)
-
-
 class GameState(object):
     def __init__(self):
         self.selected_tool = "None"
@@ -311,6 +285,7 @@ class GameState(object):
 
         self.new_game = True
         self.current_room = "Basic_Room"
+        self.menu_items_dict = {"inventory_menu":{}, "key_inventory_menu":{}}
         self.current_inventory = {}
         self.current_key_inventory = {}
 
@@ -322,6 +297,9 @@ class GameState(object):
         self.hour_of_day = 14
         self.minute_of_hour = 00
         self.night_filter_current_alpha = 0
+        self.feature_location_dictionary = {
+            "John": ["overworld", [3, 3, 3]]
+        }
 
     def add_player_ghost(self, player_object):
         self.player_ghost = player_object
@@ -344,9 +322,9 @@ class GameView(object):
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
         self.font_file = "assets/fonts/PressStart.ttf"
-        self.font_small = pygame.font.Font(self.font_file, GameSettings.FONT_SMALL)
-        self.font_medium = pygame.font.Font(self.font_file, GameSettings.FONT_MEDIUM)
-        self.font_large = pygame.font.Font(self.font_file, GameSettings.FONT_LARGE)
+
+        self.font_medium = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
+
 
         self.night_filter = pygame.Surface(pygame.Rect((0, 0, self.resolution[0], self.resolution[1])).size)
         self.sky_change_increments = 6
@@ -398,24 +376,53 @@ class GameView(object):
         img_print_list = menu.generate_image_print()
         menu_tester = self.compile_menu(text_print_list, img_print_list, overlay)
         self.screen.blit(menu_tester, (menu.x, menu.y))
+        # print(menu.name)
+
+    def draw_special_menu(self, menu_name, menu_info):
+
+        menu_avatar = self.game_data.menu_avatar_data_list[menu_name + "_avatar"]
+        menu_info = menu_info
+        final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
+
+        full_menu = self.compile_special_menu(final_menu_text, None, menu_avatar.overlay_image)
+        self.screen.blit(full_menu, (menu_avatar.x, menu_avatar.y))
+
+    def compile_special_menu(self, text_print_list, image_print_list, overlay):
+        final_image = pygame.Surface((overlay.get_width(), overlay.get_height()))
+        final_image.blit(overlay, [0, 0])
+        # print("using compile")
+
+        for item in text_print_list:
+            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
+            item_text = my_font.render(item.text, True, (0, 0, 0))
+            final_image.blit(item_text, [item.x, item.y])
+
+        if image_print_list:
+            for item in image_print_list:
+                image = item.image
+                final_image.blit(image, [item.x, item.y])
+
+        return final_image
 
     def compile_menu(self, text_print_list, image_print_list, overlay):
         final_image = pygame.Surface((overlay.image.get_width(), overlay.image.get_height()))
         final_image.blit(overlay.image, [0, 0])
         for item in text_print_list:
-            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_MEDIUM)
+            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
             item_text = my_font.render(item.text, True, (0, 0, 0))
             final_image.blit(item_text, [item.x, item.y])
 
-        for item in image_print_list:
-            image = item.image
-            final_image.blit(image, [item.x, item.y])
+        if image_print_list:
+            for item in image_print_list:
+                image = item.image
+                final_image.blit(image, [item.x, item.y])
 
         return final_image
 
 
 class GameData(object):
     def __init__(self):
+        self.menu_avatar_data_list = {}
         self.player_avatar = None
         self.npc_avatar_list = {}
         self.prop_avatar_list = {}
@@ -432,6 +439,9 @@ class GameData(object):
         self.animation_list = {}
 
         self.spritesheet_list = {}
+        self.room_dictionary = {
+            "overworld": Room2("overworld", 5, 5)
+        }
 
     def add_spritesheet(self, spritesheet_name, spritesheet_object):
         self.spritesheet_list[spritesheet_name] = spritesheet_object
@@ -475,6 +485,9 @@ class GameData(object):
     def add_outfit_data(self, outfit_name, outfit_object):
         self.outfit_data_list[outfit_name] = outfit_object
 
+    def add_menu_avatar(self, menu_avatar_name, menu_avatar_object):
+        self.menu_avatar_data_list[menu_avatar_name] = menu_avatar_object
+
 
 class InventoryManager(object):
     def __init__(self, gc_input):
@@ -489,16 +502,17 @@ class InventoryManager(object):
         self.item_data_list[item_name] = item_object
 
     def get_item(self, item, quantity):
-        current_inventory = self.gc_input.game_state.current_inventory
+        current_inventory = self.gc_input.game_state.menu_items_dict["inventory_menu"]
         if item.NAME in current_inventory:
             current_inventory[item.NAME]["quantity"] += quantity
         else:
             current_inventory[item.NAME] = {"name": item.NAME, "quantity": quantity}
 
     def use_item(self, item, quantity_used):
-        current_inventory = self.gc_input.game_state.current_inventory
+        current_inventory = self.gc_input.game_state.menu_items_dict["inventory_menu"]
         successes = 0
         for x in range(quantity_used):
+            # print(quantity_used)
             if self.check_if_can_use_item(item, quantity_used):
                 successes += 1
                 self.item_data_list[item.NAME].item_use()
@@ -513,6 +527,8 @@ class InventoryManager(object):
 
     def check_if_can_use_item(self, item, quantity):
         success = True
+        if quantity > self.gc_input.menu_manager.get_item_quantity(item.name):
+            success = False
         if not self.item_data_list[item.NAME].use_requirements():
             success = False
         return success
@@ -546,22 +562,31 @@ class InventoryManager(object):
 
 class MenuManager(object):
     def __init__(self, gc_input):
+        self.menu_ghost_data_list = {}
         self.gc_input = gc_input  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = ["game_action_dialogue_menu", "stats_menu"]  #
+        self.static_menus = ["game_action_dialogue_menu"]
         self.active_menu = []
         self.menu_stack = []
-        self.visible_menus = []
+        self.visible_menus = ["special_menu", "stat_menu"]
+        self.other_menus = ["special_menu_ghost", "stat_menu"]
+        self.start_menu_stack = ["inventory_menu", "key_inventory_menu"]
+
+    def get_menu_items_list(self, menu_name):
+        items_list = self.gc_input.game_state.menu_items_dict[menu_name]
 
     def install_menu_data(self, menu_name, menu_object):
         self.menu_data_list[menu_name] = menu_object
+
+    def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
+        self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
 
     def add_menu_to_stack(self, menu_to_add):
         self.menu_stack.insert(0, menu_to_add)
         self.add_menu_to_visible(menu_to_add)
 
     def add_menu_to_visible(self, menu_to_add):
-        chosen_menu = self.menu_data_list[menu_to_add]
+        chosen_menu = self.menu_ghost_data_list[menu_to_add + "_ghost"]
         self.visible_menus.insert(0, menu_to_add)
         if chosen_menu.menu_type == Types.BASE:
             for menu in self.visible_menus:
@@ -577,8 +602,14 @@ class MenuManager(object):
             self.gc_input.set_active_keyboard_manager(InGameKeyboardManager.ID)
 
     def set_menu(self, menu_name):
-        selected_menu = self.menu_data_list[menu_name]
+        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
         selected_menu.update_menu_items_list()
+        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
+        selected_menu.gc_input.menu_manager.add_menu_to_stack(menu_name)
+
+    def set_sub_menu(self, menu_name, master_menu):
+        selected_menu = self.menu_data_list[menu_name]
+        selected_menu.update_menu_items_list(master_menu)
         self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.menu_manager.add_menu_to_stack(menu_name)
 
@@ -595,7 +626,7 @@ class MenuManager(object):
         selected_menu.gc_input.menu_manager.add_menu_to_stack("conversation_options_menu")
 
     def exit_menu(self, menu_name):
-        selected_menu = self.menu_data_list[menu_name]
+        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
         selected_menu.reset_cursor()
         self.gc_input.menu_manager.deactivate_menu(menu_name)
 
@@ -607,9 +638,71 @@ class MenuManager(object):
             self.exit_menu(item)
 
     def get_item_quantity(self, item_name):
+        # for item in self.gc_input.game_state.current_inventory:
+        #     print(item)
         return self.gc_input.game_state.current_inventory[item_name]["quantity"]
+
+    def next_menu(self, current_menu):
+        total_number_menus = len(self.start_menu_stack)
+        print(total_number_menus)
+        current_menu_index = self.start_menu_stack.index(current_menu)
+        self.exit_menu(self.start_menu_stack[current_menu_index])
+        next_menu = self.start_menu_stack[current_menu_index + 1]
+        if current_menu_index == (total_number_menus - 1):
+            next_menu = self.start_menu_stack[0]
+        else:
+            pass
+        self.set_menu(next_menu)
+
+    def previous_menu(self, current_menu):
+        total_number_menus = len(self.start_menu_stack)
+        current_menu_index = self.start_menu_stack.index(current_menu)
+        self.exit_menu(self.start_menu_stack[current_menu_index])
+        previous_menu = self.start_menu_stack[current_menu_index-1]
+        if current_menu_index == 0:
+            previous_menu = self.start_menu_stack[total_number_menus - 1]
+        else:
+            pass
+        self.set_menu(previous_menu)
+
+    def start_menu_selection(self, item_selected):
+        menu_selection = item_selected
+        if menu_selection == "Bag":
+            self.exit_menu("start_menu")
+            self.set_menu("inventory_menu")
+
+        elif menu_selection == "Key Items":
+            pass
+
+        elif menu_selection == "Chore List":
+            pass
+
+        elif menu_selection == "Profile":
+            pass
+
+        elif menu_selection == "Map":
+            pass
+
+        elif menu_selection == "Options":
+            pass
+
+        elif menu_selection == "Vibes":
+            pass
+
+        elif menu_selection == "Outfits":
+            pass
+
+        elif menu_selection == "Save":
+            pass
+
+        elif menu_selection == "Exit":
+            self.gc_input.menu_manager.exit_all_menus()
+
+        else:
+            self.gc_input.menu_manager.exit_all_menus()
 
 
 class MenuDrawer(object):
     def __init__(self, gv_input):
-        self.font_size = GameSettings.FONT_MEDIUM
+        self.font_size = GameSettings.FONT_SIZE
+        print("using this")

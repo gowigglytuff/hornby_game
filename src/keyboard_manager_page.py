@@ -1,7 +1,9 @@
 import pygame
 
+import position_manager
 from definitions import Direction
-from menu_page import StartMenu, InventoryMenu
+from menu_ghosts import StartMenuGhost
+from position_manager import Room2
 
 
 class KeyboardManager(object):
@@ -109,6 +111,7 @@ class InGameKeyboardManager(KeyboardManager):
                 self.key_direction_pressed(key)
 
             if key == pygame.K_RETURN:
+
                 self.key_return_pressed()
 
             if key == pygame.K_SPACE:
@@ -150,12 +153,13 @@ class InGameKeyboardManager(KeyboardManager):
 
     def key_return_pressed(self):
         self.gc_input.player_interact()
+        self.gc_input.attempt_move_object("John", Direction.DOWN)
 
     def key_space_pressed(self):
         self.gc_input.inventory_manager.use_item(self.gc_input.inventory_manager.item_data_list["Cheese"], 2)
 
     def key_control_pressed(self):
-        self.gc_input.menu_manager.set_menu(StartMenu.NAME)
+        self.gc_input.menu_manager.set_menu(StartMenuGhost.BASE)
 
     def key_escape_pressed(self):
         pass
@@ -193,7 +197,7 @@ class InMenuKeyboardManager(KeyboardManager):
         super().__init__(game_view)
 
     def parse_key_input(self, event_type, key):
-        active_menu = self.gc_input.menu_manager.menu_data_list[self.gc_input.menu_manager.menu_stack[0]]
+        active_menu = self.gc_input.menu_manager.menu_ghost_data_list[self.gc_input.menu_manager.menu_stack[0] + "_ghost"]
         if event_type == pygame.KEYDOWN:
             if key == pygame.K_RIGHT:
                 active_menu.cursor_right()
@@ -258,7 +262,7 @@ class InMenuKeyboardManager(KeyboardManager):
             self.game_view.game_controller.move_right()
 
     def key_return_pressed(self):
-        active_menu = self.gc_input.menu_manager.menu_data_list[self.gc_input.menu_manager.menu_stack[0]]
+        active_menu = self.gc_input.menu_manager.menu_ghost_data_list[self.gc_input.menu_manager.menu_stack[0] + "_ghost"]
         active_menu.choose_option()
 
     def key_space_pressed(self):

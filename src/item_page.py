@@ -41,7 +41,7 @@ class Cheese(TempItem):
 
     def use_requirements(self):
         result = False
-        if self.gc_input.game_state.current_inventory[self.NAME]["quantity"] > 1:
+        if self.gc_input.game_state.current_inventory[self.NAME]["quantity"] > 0:
             result = True
         return result
 
@@ -188,6 +188,20 @@ class KeyItem(object):
 
 class Hammer(KeyItem):
     NAME = "Hammer"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+
+
+class Shovel(KeyItem):
+    NAME = "Shovel"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+
+
+class Wrench(KeyItem):
+    NAME = "Wrench"
 
     def __init__(self, gc_input):
         super().__init__(gc_input)

@@ -13,19 +13,20 @@ class Direction(Enum):
 class GameSettings(object):
     TILESIZE = 24
     TILESET_IMAGE = "assets/tile_set/tile_set_1.png"
+    MENU_STYLE = "assets/spritesheets/menu_spritesheets/menu_structure_gray.png"
     TILESET_SIZE = 10
     RESOLUTION = (312*4, 312*3)
     MENUSEGMENTSIZE = 5
     MENUEDGE = 50
 
-    FONT_LARGE = 13
-    FONT_MEDIUM = 10
-    FONT_SMALL = 7
+    FONT_SIZE = 10
+
 
 class Types(Enum):
     PROP = "Prop"
     NPC = "Npc"
     BASE = "Base"
+    OVERWORLD = "Overworld"
 
 class Names(Enum):
     BASICMENU = "Basic Menu"
