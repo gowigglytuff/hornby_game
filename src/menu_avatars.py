@@ -51,7 +51,7 @@ class MenuAvatar(object):
         self.spritesheet_height = 0
 
         self.overlay_image = None
-        self.fill_out_menu_info(items, display_details["align_x"], display_details["align_y"])
+        self.fill_out_menu_info(items)
 
     def get_longest_item(self, menu_items_list, menu_header=None):
         longest_item = 3
@@ -66,7 +66,7 @@ class MenuAvatar(object):
 
         return longest_item
 
-    def fill_out_menu_info(self, menu_information, screen_x, screen_y):
+    def fill_out_menu_info(self, menu_information):
         menu_items_list = menu_information["text_print_list"]
         header = menu_information["header"]
         cursor_at = menu_information["cursor_at"]
@@ -76,7 +76,7 @@ class MenuAvatar(object):
         segment_proportion = font_size/segment_size
 
         # Calculate the menu body width
-        edge_size = self.offset_y/segment_size
+        edge_size = self.offset_x/segment_size
         longest_item = self.get_longest_item(menu_items_list, header)
         menu_width = 0
         if self.set_menu_width:
@@ -95,6 +95,7 @@ class MenuAvatar(object):
             space_height = space_size * number_of_spaces
             border_height = int(self.offset_y/segment_size) * 2
             menu_height = items_height + space_height + border_height
+            print(space_size, items_height, border_height)
 
         header_height = 0
         if header:
@@ -105,7 +106,7 @@ class MenuAvatar(object):
             header_height = header_items_height + header_border_height
             self.overlay_header_x = menu_width
             self.overlay_header_y = header_height
-            self.header_spacing = header_height * segment_size
+            self.header_spacing = header_height * segment_size - 5
 
         # Update class info
         self.overlay_body_x = menu_width
@@ -135,11 +136,11 @@ class MenuAvatar(object):
         final_menu_text = []
 
         if header:
-            header_length = len(header)*2
+            header_text_length = len(header)*2
             max_width = self.overlay_body_x
             offset = (self.offset_x/GameSettings.MENUSEGMENTSIZE)
             width_less_offsets = max_width/2 - offset
-            header_spaces = int((width_less_offsets - header_length/2)/2)
+            header_spaces = int((width_less_offsets - header_text_length/2)/2)
             for space in range(header_spaces):
                 header = " " + header
             final_menu_text.append(TextPrint(header, self.offset_x, self.offset_y))

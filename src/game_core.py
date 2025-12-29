@@ -235,8 +235,8 @@ class GameController(object):
         npc_talking_to_ghost = self.game_state.npc_ghost_list[npc_talking_to]
         npc_talking_to_avatar = self.game_view.game_data.npc_avatar_list[npc_talking_to]
         self.change_npc_facing(direction_to_turn, npc_talking_to)
-        self.post_notice("You talked to " + npc_talking_to_ghost.name)
-        self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
+        self.menu_manager.post_notice("You talked to " + npc_talking_to_ghost.name)
+        # self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def player_interact(self):
@@ -574,22 +574,13 @@ class MenuManager(object):
         self.visible_menus = []
         self.other_menus = ["special_menu_ghost", "stat_menu"]
         self.start_menu_stack = ["supplies_inventory_menu", "key_inventory_menu"]
-        # self.menu_display_details = {"start_menu": [32, None, "right", "center", [0, 0]],
-        #                              "stat_menu": [None, None, "right", "top", [0, 0]],
-        #                              "special_menu": [None, None, "left", "top", [0, 0]],
-        #                              "supplies_inventory_menu": [34, None, "right", "center", [0, 0]],
-        #                              "key_inventory_menu": [34, None, "right", "center", [0, 0]],
-        #                              "conversation_options_menu": [34, None, "right", "center", [0, 0]],
-        #                              "game_action_dialogue_menu": [70, 21, "right", "bottom", [0, 0]],
-        #                              "use_menu": [20, None, "right", "bottom", [0, 0]],
-        #                              "sub_menu": [20, None, "right", "bottom", [0, 0]]}
         self.menu_display_details = {"start_menu": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                                      "stat_menu": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "top", "coordinates": [0, 0]},
                                      "special_menu": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                                      "supplies_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                                      "key_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                                      "conversation_options_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "game_action_dialogue_menu": {"default_width": 70, "default_height": 21, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
+                                     "game_action_dialogue_menu": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "use_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "yes_no_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "sub_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]}}
@@ -626,9 +617,6 @@ class MenuManager(object):
     def get_menu_items_list(self, menu_name):
         items_list = self.gc_input.game_state.menu_items_dict[menu_name]
         return items_list
-
-    def install_menu_data(self, menu_name, menu_object):
-        self.menu_data_list[menu_name] = menu_object
 
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object

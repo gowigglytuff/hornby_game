@@ -153,7 +153,7 @@ class InGameKeyboardManager(KeyboardManager):
 
     def key_return_pressed(self):
         self.gc_input.player_interact()
-        self.gc_input.attempt_move_object("John", Direction.DOWN)
+        # self.gc_input.attempt_move_object("John", Direction.DOWN)
 
     def key_space_pressed(self):
         self.gc_input.inventory_manager.use_item(self.gc_input.inventory_manager.item_data_list["Cheese"], 2)
