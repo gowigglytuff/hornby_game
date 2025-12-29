@@ -6,8 +6,8 @@ from ghost_page import NpcGhost, PlayerGhost
 from item_page import *
 from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
 from menu_avatars import MenuAvatar
-from menu_ghosts import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost
-from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
+from menu_ghosts import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
+# from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
 from room_page import BasicRoom
 
 from spritesheet import Spritesheet
@@ -19,6 +19,7 @@ def init_game(g):
     g.game_controller.initiate_timers()
 
     if g.game_state.new_game:
+
         new_game_procedures(g.game_controller)
     else:
         continue_game_procedures(g.game_controller)
@@ -77,14 +78,7 @@ def install_all_data(gc):
             gc.inventory_manager.get_key_item(item)
 
     def install_menus(gc):
-        for menu in [ConversationOptionsMenu, CharacterDialogue, GameActionDialogue, KeyInventoryMenu, YesnoMenu, UseMenu]:
-            # make overlay in gameview
-            gc.menu_manager.install_menu_data(menu.NAME, menu(gc))
-            this_menu = gc.menu_manager.menu_data_list[menu.NAME]
-            menu_image = gc.build_overlay_image(this_menu.name + "_overlay", this_menu.overlay_size_x, this_menu.overlay_size_Y)
-            gc.game_view.game_data.add_overlay_data(this_menu.name + "_overlay", Overlay(this_menu.name + "_overlay", menu_image))
-
-        for ghost in [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost]:
+        for ghost in gc.game_data.menu_load_list:
             gc.menu_manager.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gc.menu_manager.menu_ghost_data_list:
@@ -93,8 +87,7 @@ def install_all_data(gc):
             display_details = gc.menu_manager.menu_display_details[menu_ghost.BASE]
             items = menu_ghost.generate_text_print()
             gc.game_view.game_data.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
-
-
+            gc.menu_manager.set_menu_display_coordinates(menu_ghost.BASE)
 
     def install_outfits(gc):
         pass

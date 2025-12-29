@@ -44,14 +44,14 @@ class MenuAvatar(object):
         self.name = name
         self.menu_type = None
 
-        self.set_menu_width = display_details[0]
-        self.set_menu_height = None
+        self.set_menu_width = display_details["default_width"]
+        self.set_menu_height = display_details["default_height"]
 
         self.spritesheet_width = 0
         self.spritesheet_height = 0
 
         self.overlay_image = None
-        self.fill_out_menu_info(items, display_details[1], display_details[2])
+        self.fill_out_menu_info(items, display_details["align_x"], display_details["align_y"])
 
     def get_longest_item(self, menu_items_list, menu_header=None):
         longest_item = 3
@@ -122,32 +122,6 @@ class MenuAvatar(object):
             self.overlay_image = self.gc_input.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
         else:
             self.overlay_image = self.gc_input.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        edge = GameSettings.MENUEDGE
-
-        x = 0
-        y = 0
-
-        if screen_x == "center":
-            x = GameSettings.RESOLUTION[0] / 2 - self.spritesheet_width / 2
-        elif screen_x == "left":
-            x = 0 + GameSettings.RESOLUTION[0] / edge
-        elif screen_x == "right":
-            x = GameSettings.RESOLUTION[0] - self.spritesheet_width - GameSettings.RESOLUTION[0] / edge
-        else:
-            x = screen_x
-
-        if screen_y == "center":
-            y = GameSettings.RESOLUTION[1] / 2 - self.spritesheet_height / 2
-        elif screen_y == "top":
-            y = 0 + GameSettings.RESOLUTION[1] / edge
-        elif screen_y == "bottom":
-            y = GameSettings.RESOLUTION[1] - self.spritesheet_height - GameSettings.RESOLUTION[1] / edge
-        else:
-            y = screen_y
-
-        self.x = x
-        self.y = y
 
         self.name = self.NAME
 

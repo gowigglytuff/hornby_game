@@ -5,6 +5,7 @@ import pygame
 
 from ghost_page import PlayerGhost
 from graphics import BuiltOverlay
+from menu_ghosts import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
 from player import Player_Avatar
 from tile_map import TileMap, TileSet
 from room_page import Room
@@ -21,15 +22,16 @@ class Game(object):
         self.game_data = GameData()  # type: GameData
         self.game_view = GameView(self.game_data, MenuDrawer(self))  # type: GameView
 
-        self.game_controller = GameController(self, self.game_view, self.game_state)  # type: GameController
+        self.game_controller = GameController(self, self.game_view, self.game_state, self.game_data)  # type: GameController
 
 
 class GameController(object):
-    def __init__(self, game, game_view, game_state):
+    def __init__(self, game, game_view, game_state, game_data):
         self.game = game  # type: Game
         self.game = game  # type: Game
         self.game_view = game_view  # type: GameView
         self.game_state = game_state  # type: GameState
+        self.game_data = game_data # type: GameData
 
         self.five_second_timer_id = pygame.USEREVENT + 150
         self.ten_second_timer_id = pygame.USEREVENT + 151
@@ -183,9 +185,13 @@ class GameController(object):
         self.game_view.draw_all(drawables_list, current_room)
 
         for menu in self.menu_manager.static_menus:
-            self.game_view.draw_menu(self.menu_manager.menu_data_list[menu])
+            self.game_view.draw_special_menu(menu, self.menu_manager.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.menu_manager.menu_display_details[menu]["coordinates"][0], self.menu_manager.menu_display_details[menu]["coordinates"][1])
         for menu in self.menu_manager.visible_menus:
-            self.game_view.draw_special_menu(menu, self.menu_manager.menu_ghost_data_list[menu + "_ghost"].generate_text_print())
+            if self.menu_manager.menu_ghost_data_list[menu + "_ghost"].menu_type == "sub":
+                sub_menu = self.menu_manager.menu_ghost_data_list[menu + "_ghost"]
+                self.game_view.draw_sub_menu(menu, sub_menu.generate_text_print(), self.menu_manager.menu_display_details[menu]["coordinates"][0], self.menu_manager.menu_display_details[menu]["coordinates"][1])
+            else:
+                self.game_view.draw_special_menu(menu, self.menu_manager.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.menu_manager.menu_display_details[menu]["coordinates"][0], self.menu_manager.menu_display_details[menu]["coordinates"][1])
 
     def get_current_drawables(self):
         drawables_list = []
@@ -242,9 +248,6 @@ class GameController(object):
             self.talk_to_npc(fill_object, self.get_player_ghost().facing)
         if fill_type == Types.PROP:
             pass
-
-    def post_notice(self, phrase):
-        self.menu_manager.menu_data_list["game_action_dialogue_menu"].show_dialogue(phrase)
 
     def build_overlay_image(self, name, x_size, y_size, header=None):
         image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
@@ -368,22 +371,25 @@ class GameView(object):
             elif drawable[0].type == "Npc":
                 self.draw_npc(drawable[0].name)
 
-    def draw_menu(self, menu):
-        overlay = self.game_data.overlay_data_list[menu.name + "_overlay"]
-        text_print_list = menu.generate_text_print()
-        img_print_list = menu.generate_image_print()
-        menu_tester = self.compile_menu(text_print_list, img_print_list, overlay)
-        self.screen.blit(menu_tester, (menu.x, menu.y))
-        # print(menu.name)
+    # def draw_menu(self, menu):
+    #     overlay = self.game_data.overlay_data_list[menu.name + "_overlay"]
+    #     text_print_list = menu.generate_text_print()
+    #     img_print_list = menu.generate_image_print()
+    #     menu_tester = self.compile_menu(text_print_list, img_print_list, overlay)
+    #     self.screen.blit(menu_tester, (menu.x, menu.y))
+    #     # print(menu.name)
 
-    def draw_special_menu(self, menu_name, menu_info):
-
+    def draw_special_menu(self, menu_name, menu_info, x, y):
         menu_avatar = self.game_data.menu_avatar_data_list[menu_name + "_avatar"]
-        menu_info = menu_info
         final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
-
         full_menu = self.compile_special_menu(final_menu_text, None, menu_avatar.overlay_image)
-        self.screen.blit(full_menu, (menu_avatar.x, menu_avatar.y))
+        self.screen.blit(full_menu, (x, y))
+
+    def draw_sub_menu(self, menu_name, menu_info, x, y):
+        menu_avatar = self.game_data.menu_avatar_data_list[menu_name + "_avatar"]
+        final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
+        full_menu = self.compile_special_menu(final_menu_text, None, menu_avatar.overlay_image)
+        self.screen.blit(full_menu, (x, y))
 
     def compile_special_menu(self, text_print_list, image_print_list, overlay):
         final_image = pygame.Surface((overlay.get_width(), overlay.get_height()))
@@ -438,8 +444,8 @@ class GameData(object):
 
         self.spritesheet_list = {}
         self.room_dictionary = {
-            "overworld": Room2("overworld", 5, 5)
-        }
+            "overworld": Room2("overworld", 5, 5)}
+        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost]
 
     def add_spritesheet(self, spritesheet_name, spritesheet_object):
         self.spritesheet_list[spritesheet_name] = spritesheet_object
@@ -518,9 +524,9 @@ class InventoryManager(object):
             current_inventory.pop(item.NAME)
 
         if successes == 0:
-            self.gc_input.post_notice("Could not use " + item.NAME)
+            self.gc_input.menu_manager.post_notice("Could not use " + item.NAME)
         elif successes > 0:
-            self.gc_input.post_notice("used " + str(successes) + " " + item.NAME + "(s)")
+            self.gc_input.menu_manager.post_notice("used " + str(successes) + " " + item.NAME + "(s)")
 
     def check_if_can_use_item(self, item, quantity):
         success = True
@@ -552,9 +558,9 @@ class InventoryManager(object):
             successes += 1
 
         if successes == 0:
-            self.gc_input.post_notice("Could not use " + item.NAME)
+            self.gc_input.menu_manager.post_notice("Could not use " + item.NAME)
         elif successes > 0:
-            self.gc_input.post_notice("used " + item.NAME)
+            self.gc_input.menu_manager.post_notice("used " + item.NAME)
 
 
 class MenuManager(object):
@@ -562,18 +568,60 @@ class MenuManager(object):
         self.menu_ghost_data_list = {}
         self.gc_input = gc_input  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = ["game_action_dialogue_menu"]
+        self.static_menus = ["game_action_dialogue_menu", "special_menu", "stat_menu"]
         self.active_menu = []
         self.menu_stack = []
-        self.visible_menus = ["special_menu", "stat_menu"]
+        self.visible_menus = []
         self.other_menus = ["special_menu_ghost", "stat_menu"]
         self.start_menu_stack = ["supplies_inventory_menu", "key_inventory_menu"]
-        self.menu_display_details = {"start_menu": [32, "right", "center"],
-                                     "stat_menu": [None, "right", "top"],
-                                     "special_menu": [None, "left", "top"],
-                                     "supplies_inventory_menu": [34, "right", "center"],
-                                     "key_inventory_menu": [34, "right", "center"],
-                                     "conversation_options_menu": [34, "right", "center"]}
+        # self.menu_display_details = {"start_menu": [32, None, "right", "center", [0, 0]],
+        #                              "stat_menu": [None, None, "right", "top", [0, 0]],
+        #                              "special_menu": [None, None, "left", "top", [0, 0]],
+        #                              "supplies_inventory_menu": [34, None, "right", "center", [0, 0]],
+        #                              "key_inventory_menu": [34, None, "right", "center", [0, 0]],
+        #                              "conversation_options_menu": [34, None, "right", "center", [0, 0]],
+        #                              "game_action_dialogue_menu": [70, 21, "right", "bottom", [0, 0]],
+        #                              "use_menu": [20, None, "right", "bottom", [0, 0]],
+        #                              "sub_menu": [20, None, "right", "bottom", [0, 0]]}
+        self.menu_display_details = {"start_menu": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                                     "stat_menu": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "top", "coordinates": [0, 0]},
+                                     "special_menu": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
+                                     "supplies_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                                     "key_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                                     "conversation_options_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                                     "game_action_dialogue_menu": {"default_width": 70, "default_height": 21, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
+                                     "use_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
+                                     "yes_no_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
+                                     "sub_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]}}
+
+    def set_menu_display_coordinates(self, name):
+        for item in self.menu_display_details:
+            menu_avatar = self.gc_input.game_view.game_data.menu_avatar_data_list[name + "_avatar"]
+            x_instruction = self.menu_display_details[name]["align_x"]
+            y_instruction = self.menu_display_details[name]["align_y"]
+            x = 0
+            y = 0
+
+            if x_instruction == "center":
+                x = GameSettings.RESOLUTION[0] / 2 - menu_avatar.spritesheet_width / 2
+            elif x_instruction == "left":
+                x = 0 + GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
+            elif x_instruction == "right":
+                x = GameSettings.RESOLUTION[0] - menu_avatar.spritesheet_width - GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
+            else:
+                x = x_instruction
+
+            if y_instruction == "center":
+                y = GameSettings.RESOLUTION[1] / 2 - menu_avatar.spritesheet_height / 2
+            elif y_instruction == "top":
+                y = 0 + GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+            elif y_instruction == "bottom":
+                y = GameSettings.RESOLUTION[1] - menu_avatar.spritesheet_height - GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+            else:
+                y = y_instruction
+
+            self.menu_display_details[name]["coordinates"][0] = x
+            self.menu_display_details[name]["coordinates"][1] = y
 
     def get_menu_items_list(self, menu_name):
         items_list = self.gc_input.game_state.menu_items_dict[menu_name]
@@ -598,6 +646,7 @@ class MenuManager(object):
                     self.visible_menus.remove(menu)
 
     def deactivate_menu(self, menu_to_deactivate):
+        print(self.menu_stack)
         self.menu_stack.remove(menu_to_deactivate)
         if menu_to_deactivate in self.visible_menus:
             self.visible_menus.remove(menu_to_deactivate)
@@ -612,8 +661,11 @@ class MenuManager(object):
         selected_menu.gc_input.menu_manager.add_menu_to_stack(menu_name)
 
     def set_sub_menu(self, menu_name, master_menu):
-        selected_menu = self.menu_data_list[menu_name]
-        selected_menu.update_menu_items_list(master_menu)
+        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
+        selected_menu.set_master_menu(master_menu)
+        selected_menu_avatar = self.gc_input.game_view.game_data.menu_avatar_data_list[menu_name + "_avatar"]
+        self.menu_display_details[menu_name]["coordinates"][0] = self.menu_display_details[master_menu]["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
+        self.menu_display_details[menu_name]["coordinates"][1] = self.menu_display_details[master_menu]["coordinates"][1]
         self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.menu_manager.add_menu_to_stack(menu_name)
 
@@ -703,6 +755,8 @@ class MenuManager(object):
         else:
             self.gc_input.menu_manager.exit_all_menus()
 
+    def post_notice(self, phrase):
+        self.menu_ghost_data_list["game_action_dialogue_menu_ghost"].show_dialogue(phrase)
 
 class MenuDrawer(object):
     def __init__(self, gv_input):
