@@ -208,7 +208,7 @@ class InventoryMenuGhost(MenuGhost):
 
     def update_menu_items_list(self):
         keys_list = []
-        current_inventory = self.gc_input.game_state.menu_items_dict[self.BASE]
+        current_inventory = self.gc_input.game_state.get_menu_items(self.BASE)
         for item in current_inventory:
             keys_list.append(item)
         self.menu_item_list = keys_list
@@ -232,7 +232,7 @@ class InventoryMenuGhost(MenuGhost):
             else:
                 available_spaces = 13
                 item_word_length = len(item)
-                quantity = str(self.gc_input.menu_manager.get_item_quantity(item))
+                quantity = str(self.gc_input.game_state.get_item_quantity(item))
                 quantity_word_length = len(quantity)
                 total_length = item_word_length + quantity_word_length
 
@@ -267,7 +267,7 @@ class InventoryMenuGhost(MenuGhost):
 
         if sub_menu_selection == "Use":
             print("used the " + chosen_item_name)
-            chosen_item = self.gc_input.inventory_manager.item_data_list[chosen_item_name]
+            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_item(chosen_item, 1)
             self.update_menu_items_list()
 
@@ -401,7 +401,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
             else:
                 available_spaces = 13
                 item_word_length = len(item)
-                quantity = str(self.gc_input.menu_manager.get_item_quantity(item))
+                quantity = str(self.gc_input.game_state.get_item_quantity(item))
                 quantity_word_length = len(quantity)
                 total_length = item_word_length + quantity_word_length
 
@@ -493,7 +493,7 @@ class UseMenuGhost(MenuGhost):
         else:
             print(self.NAME)
             self.gc_input.menu_manager.deactivate_menu(self.BASE)
-            self.gc_input.menu_manager.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
+            self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
             # self.do_option(chosen_item_name)
             # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)
 
@@ -506,7 +506,7 @@ class UseMenuGhost(MenuGhost):
 
         if menu_selection == "Use":
             print("used the " + chosen_item_name)
-            chosen_item = self.gc_input.inventory_manager.item_data_list[chosen_item_name]
+            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_item(chosen_item, 1)
             self.update_menu_items_list()
 

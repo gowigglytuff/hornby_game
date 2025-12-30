@@ -1,4 +1,6 @@
 from definitions import Direction
+from tile_map import TileMap
+
 
 class PositionManager(object):
     def __init__(self, gc_input):
@@ -46,8 +48,8 @@ class PositionManager(object):
         fill_list = []
         npc_ghost_list = self.gc_input.game.game_state.npc_ghost_list
         for npc in npc_ghost_list.keys():
-            npc_ghost = self.gc_input.get_npc_ghost(npc)
-            npc_avatar = self.gc_input.get_npc_avatar(npc)
+            npc_ghost = self.gc_input.game_state.get_npc_ghost(npc)
+            npc_avatar = self.gc_input.game_state.get_npc_avatar(npc)
             if npc_ghost_list[npc].room == room_to_fill:
                 fill_list.append(npc_ghost)
         fill_list.append(self.gc_input.game.game_state.player_ghost)
@@ -74,11 +76,21 @@ class Room2(object):
         self.x_size = x_size
         self.y_size = y_size
         self.z_size = z_size
+        self.left_edge_x = 0
+        self.top_edge_y = 0
 
         self.tiles_array = []
         self.active_tiles = []
-        self.generate_room_grid()
-        self.access_cube(3, 3, 3).fill_cube("John")
+
+        self.total_plots_x = 0
+        self.total_plots_y = 0
+        self.plot_list = {}
+        self.right_edge_x = 0
+        self.bottom_edge_y = 0
+        self.plot_size_x = 0
+        self.plot_size_y = 0
+        # self.initiate_room()
+        # self.access_cube(3, 3, 3).fill_cube("John")
 
     def generate_room_grid(self):
         for section in range(self.x_size):
@@ -135,6 +147,24 @@ class Room2(object):
         feature_cube.fill_cube(feature_name)
         pass
 
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), Plot(self.name, x, y))
+
+    def add_room_plot(self, plot_name, plot_object):
+        self.plot_list[plot_name] = plot_object
+
+    def initiate_room(self):
+        self.right_edge_x = self.left_edge_x + self.x_size - 1
+        self.bottom_edge_y = self.top_edge_y + self.y_size - 1
+        self.plot_size_x = int(self.x_size / self.total_plots_x)
+        self.plot_size_y = int(self.y_size / self.total_plots_y)
+        self.generate_room_grid()
+        self.add_all_plots()
+
 class Cube(object):
     def __init__(self, room_name, x, y, z):
         self.room_name = room_name
@@ -154,3 +184,22 @@ class Cube(object):
 
     def empty_cube(self):
         self.object_filling = None
+
+
+class Plot(object):
+    def __init__(self, room, plot_x, plot_y):
+        self.plot_x = plot_x
+        self.plot_y = plot_y
+        self.room = room
+        self.name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
+        self.background_csv_file = "assets/room_csv/background_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
+        self.terrain_csv_file = "assets/room_csv/terrain_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
+        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+        self.background_map = TileMap(self.background_csv_file).return_map()
+
+
+class NewBasicRoom(Room2):
+    ID = "Basic_Room"
+
+    def __init__(self):
+        super().__init__(self.ID, 80, 33)

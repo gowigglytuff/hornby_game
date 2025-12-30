@@ -120,9 +120,9 @@ class MenuAvatar(object):
 
         if header:
             # self.overlay_image = self.gc_input.build_special_overlay_image("special_menu" + "_overlay", menu_width, menu_height, self.offset_y)
-            self.overlay_image = self.gc_input.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
+            self.overlay_image = self.gc_input.game_data.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
         else:
-            self.overlay_image = self.gc_input.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
+            self.overlay_image = self.gc_input.game_data.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
 
         self.name = self.NAME
 
