@@ -159,7 +159,7 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.inventory_manager.use_item(self.gc_input.game_state.gd.inventory_manager.item_data_list["Cheese"], 2)
 
     def key_control_pressed(self):
-        self.gc_input.menu_manager.set_menu(StartMenuGhost.BASE)
+        self.gc_input.game_state.ms.set_menu(StartMenuGhost.BASE, None)
 
     def key_escape_pressed(self):
         pass
@@ -227,7 +227,7 @@ class InMenuKeyboardManager(KeyboardManager):
                 self.key_caps_pressed()
 
             if key == pygame.K_ESCAPE:
-                self.gc_input.menu_manager.exit_all_menus()
+                self.gc_input.game_state.ms.exit_all_menus()
 
         elif event_type == pygame.KEYUP:
             if key == pygame.K_RIGHT:
@@ -269,7 +269,7 @@ class InMenuKeyboardManager(KeyboardManager):
         pass
 
     def key_control_pressed(self):
-        self.gc_input.menu_manager.exit_all_menus()
+        self.gc_input.game_state.ms.exit_all_menus()
 
     def key_lshift_pressed(self):
         pass

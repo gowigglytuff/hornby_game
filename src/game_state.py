@@ -48,11 +48,11 @@ class GameState(object):
         return self.player_ghost
 
     def get_player_avatar(self):
-        return self.gd.player_avatar
+        return self.gv.player_avatar
 
     def change_player_facing(self, direction):
         self.player_ghost.facing = direction
-        self.gv.game_data.player_avatar.face_character(direction)
+        self.gv.player_avatar.face_character(direction)
 
     def move_player_ghost(self, direction):
         if direction == Direction.DOWN:
@@ -66,13 +66,13 @@ class GameState(object):
 
     def move_player_avatar(self, direction):
         if direction == Direction.DOWN:
-            self.gv.game_data.player_avatar.initiate_animation("walk_front")
+            self.gv.player_avatar.initiate_animation("walk_front")
         elif direction == Direction.UP:
-            self.gv.game_data.player_avatar.initiate_animation("walk_up")
+            self.gv.player_avatar.initiate_animation("walk_up")
         elif direction == Direction.LEFT:
-            self.gv.game_data.player_avatar.initiate_animation("walk_left")
+            self.gv.player_avatar.initiate_animation("walk_left")
         elif direction == Direction.RIGHT:
-            self.gv.game_data.player_avatar.initiate_animation("walk_right")
+            self.gv.player_avatar.initiate_animation("walk_right")
 
     def add_npc_ghost(self, npc_name, npc_object):
         self.npc_ghost_list[npc_name] = npc_object
@@ -81,7 +81,7 @@ class GameState(object):
         return self.npc_ghost_list[name]
 
     def get_npc_avatar(self, name):
-        return self.gv.game_data.npc_avatar_list[name]
+        return self.gv.npc_avatar_list[name]
 
     def change_npc_facing(self, direction, npc_name):
         self.get_npc_ghost(npc_name).facing = direction
@@ -92,20 +92,20 @@ class GameState(object):
 
     def update_view(self):
         current_room = self.current_room
-        drawables_list = self.get_current_drawables()
+        drawables_list = self.gv.get_drawables_list(self.get_feature_locations()[0], self.get_feature_locations()[1])
         self.gv.draw_all(drawables_list, current_room)
 
         for menu in self.ms.static_menus:
-            self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.ms.menu_display_details[menu]["coordinates"][0], self.ms.menu_display_details[menu]["coordinates"][1])
+            self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
         for menu in self.ms.visible_menus:
             if self.ms.menu_ghost_data_list[menu + "_ghost"].menu_type == "sub":
                 sub_menu = self.ms.menu_ghost_data_list[menu + "_ghost"]
-                self.gv.draw_sub_menu(menu, sub_menu.generate_text_print(), self.ms.menu_display_details[menu]["coordinates"][0], self.ms.menu_display_details[menu]["coordinates"][1])
+                self.gv.draw_sub_menu(menu, sub_menu.generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
             else:
-                self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.ms.menu_display_details[menu]["coordinates"][0], self.ms.menu_display_details[menu]["coordinates"][1])
+                self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
 
-    def get_current_drawables(self):
-        drawables_list = []
+    def get_feature_locations(self):
+        location_list = []
 
         npc_ghost_list = self.npc_ghost_list
 
@@ -113,13 +113,11 @@ class GameState(object):
             npc_ghost = self.get_npc_ghost(npc)
             npc_avatar = self.get_npc_avatar(npc)
             if npc_ghost_list[npc].room == self.current_room:
-                drawables_list.append([npc_avatar, npc_ghost.y, npc_avatar.drawing_priority])
+                location_list.append([npc, npc_ghost.y, npc_ghost.x])
 
-        drawables_list.append([self.get_player_avatar(), self.get_player_ghost().y, self.get_player_avatar().drawing_priority])
+        player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
 
-        drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
-
-        return drawing_order
+        return player_location, location_list
 
     def perform_animation(self, animator):
         animation_result = (animator.animation_list[animator.current_animation].animate())
@@ -167,7 +165,6 @@ class GameState(object):
 
 class MenuState(object):
     def __init__(self, gs_input):
-        self.menu_avatar_data_list = {}
         self.menu_ghost_data_list = {}
         self.gs = gs_input
         self.gc_input = self.gs.gc  # type: GameController
@@ -178,45 +175,9 @@ class MenuState(object):
         self.visible_menus = []
         self.other_menus = ["special_menu_ghost", "stat_menu"]
         self.start_menu_stack = ["supplies_inventory_menu", "key_inventory_menu"]
-        self.menu_display_details = {"start_menu": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "stat_menu": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "top", "coordinates": [0, 0]},
-                                     "special_menu": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
-                                     "supplies_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "key_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "conversation_options_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "game_action_dialogue_menu": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "use_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "yes_no_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "sub_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]}}
 
-    def set_menu_display_coordinates(self, name):
-        for item in self.menu_display_details:
-            menu_avatar = self.menu_avatar_data_list[name + "_avatar"]
-            x_instruction = self.menu_display_details[name]["align_x"]
-            y_instruction = self.menu_display_details[name]["align_y"]
-            x = 0
-            y = 0
-
-            if x_instruction == "center":
-                x = GameSettings.RESOLUTION[0] / 2 - menu_avatar.spritesheet_width / 2
-            elif x_instruction == "left":
-                x = 0 + GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
-            elif x_instruction == "right":
-                x = GameSettings.RESOLUTION[0] - menu_avatar.spritesheet_width - GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
-            else:
-                x = x_instruction
-
-            if y_instruction == "center":
-                y = GameSettings.RESOLUTION[1] / 2 - menu_avatar.spritesheet_height / 2
-            elif y_instruction == "top":
-                y = 0 + GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
-            elif y_instruction == "bottom":
-                y = GameSettings.RESOLUTION[1] - menu_avatar.spritesheet_height - GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
-            else:
-                y = y_instruction
-
-            self.menu_display_details[name]["coordinates"][0] = x
-            self.menu_display_details[name]["coordinates"][1] = y
+    def get_menu_ghost(self, menu_name):
+        return self.menu_ghost_data_list[menu_name + "_ghost"]
 
     def get_menu_items(self, menu_name):
         result = None
@@ -234,26 +195,121 @@ class MenuState(object):
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
 
-    def add_menu_avatar(self, menu_avatar_name, menu_avatar_object):
-        self.menu_avatar_data_list[menu_avatar_name] = menu_avatar_object
-
     def add_menu_to_stack(self, menu_to_add):
         self.menu_stack.insert(0, menu_to_add)
         self.add_menu_to_visible(menu_to_add)
 
     def add_menu_to_visible(self, menu_to_add):
-        chosen_menu = self.menu_ghost_data_list[menu_to_add + "_ghost"]
+        chosen_menu = self.get_menu_ghost(menu_to_add)
         self.visible_menus.insert(0, menu_to_add)
         if chosen_menu.menu_type == Types.BASE:
             for menu in self.visible_menus:
                 if (menu != menu_to_add) and (chosen_menu.menu_type == Types.BASE):
                     self.visible_menus.remove(menu)
 
+    def set_menu(self, menu_name, details):
+        selected_menu = self.get_menu_ghost(menu_name)
+        menu_type = selected_menu.menu_type
+
+        if menu_type == "base":
+            selected_menu.update_menu_items_list()
+
+        if menu_type == "sub":
+            selected_menu.set_master_menu(details["master_menu"])
+            self.gs.gv.update_sub_menu_display_details(menu_name, details["master_menu"])
+
+        if menu_type == "dialogue":
+            selected_menu.update_menu_items_list(details["phrases"], details["speaker_name"], details["friendship_level"], details["friendship_level"])
+
+        if menu_type == "conversation":
+            selected_menu.update_menu_items_list(details["speaker_name"], details["friendship_level"], details["face_image"])
+
+        self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
+        selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
+
+    def start_menu_selection(self, item_selected):
+        menu_selection = item_selected
+        if menu_selection == "Bag":
+            self.exit_menu("start_menu")
+            self.set_menu("supplies_inventory_menu", None)
+
+        elif menu_selection == "Key Items":
+            pass
+
+        elif menu_selection == "Chore List":
+            pass
+
+        elif menu_selection == "Profile":
+            pass
+
+        elif menu_selection == "Map":
+            pass
+
+        elif menu_selection == "Options":
+            pass
+
+        elif menu_selection == "Vibes":
+            pass
+
+        elif menu_selection == "Outfits":
+            pass
+
+        elif menu_selection == "Save":
+            pass
+
+        elif menu_selection == "Exit":
+            self.exit_all_menus()
+
+        else:
+            self.exit_all_menus()
+
+    def post_notice(self, phrase):
+        self.menu_ghost_data_list["game_action_dialogue_menu_ghost"].show_dialogue(phrase)
+
+    def next_menu(self, current_menu):
+        total_number_menus = len(self.start_menu_stack)
+        current_menu_index = self.start_menu_stack.index(current_menu)
+        self.exit_menu(self.start_menu_stack[current_menu_index])
+        next_menu = self.start_menu_stack[0]
+        if current_menu_index != (total_number_menus - 1):
+            next_menu = self.start_menu_stack[current_menu_index + 1]
+        else:
+            pass
+        self.gc_input.game_state.ms.set_menu(next_menu, None)
+
+    def previous_menu(self, current_menu):
+        total_number_menus = len(self.start_menu_stack)
+        current_menu_index = self.start_menu_stack.index(current_menu)
+        self.exit_menu(self.start_menu_stack[current_menu_index])
+        previous_menu = self.start_menu_stack[current_menu_index-1]
+        if current_menu_index == 0:
+            previous_menu = self.start_menu_stack[total_number_menus - 1]
+        else:
+            pass
+        self.set_menu(previous_menu, None)
+
+    def deactivate_menu(self, menu_to_deactivate):
+        self.menu_stack.remove(menu_to_deactivate)
+        if menu_to_deactivate in self.visible_menus:
+            self.visible_menus.remove(menu_to_deactivate)
+
+        if len(self.menu_stack) == 0:
+            self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+
+    def exit_menu(self, menu_name):
+        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
+        selected_menu.reset_cursor()
+        self.deactivate_menu(menu_name)
+
+    def exit_all_menus(self):
+        list = []
+        for x in self.menu_stack:
+            list.append(x)
+        for item in list:
+            self.exit_menu(item)
 
 class GameData(object):
     def __init__(self):
-        self.player_avatar = None
-        self.npc_avatar_list = {}
         self.prop_avatar_list = {}
         self.decoration_data_list = {}
 
@@ -286,18 +342,6 @@ class GameData(object):
 
     def add_animation(self, animation_name, animation_object):
         self.animation_list[animation_name] = animation_object
-
-    def add_player_avatar(self, player_object):
-        self.player_avatar = player_object
-
-    def add_character_avatar(self, character_name, character_object):
-        self.npc_avatar_list[character_name] = character_object
-
-    def add_prop_data(self, prop_name, prop_object):
-        self.prop_avatar_list[prop_name] = prop_object
-
-    def add_decoration_data(self, decoration_name, decoration_object):
-        self.decoration_data_list[decoration_name] = decoration_object
 
     def add_keyboard_manager_data(self, keyboard_manager_name, keyboard_manager_object):
         self.keyboard_manager_data_list[keyboard_manager_name] = keyboard_manager_object

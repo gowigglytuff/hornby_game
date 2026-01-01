@@ -48,7 +48,7 @@ class GameEvents(object):
             if event.type == self.fifth_second_timer_id:
                 pass
             if event.type == self.twentieth_second_timer_id:
-                if not self.gc.game_view.game_data.player_avatar.currently_animating:
+                if not self.gc.game_view.player_avatar.currently_animating:
                     direction = []
                     if self.gc.key_down_queue:
                         if self.gc.key_down_queue == pygame.K_DOWN:
@@ -65,8 +65,8 @@ class GameEvents(object):
                             self.gc.game_state.move_player_avatar(direction)
                             self.gc.game_state.move_player_ghost(direction)
 
-                if self.gc.game_view.game_data.player_avatar.currently_animating:
-                    self.gc.game_state.perform_animation(self.gc.game_view.game_data.player_avatar)
+                if self.gc.game_view.player_avatar.currently_animating:
+                    self.gc.game_view.animation_manager.perform_animation(self.gc.game_view.player_avatar)
 
     def initiate_timers(self):
         twentieth_second_timer = self.twentieth_second_timer_id
@@ -148,9 +148,9 @@ class GameController(object):
             direction_to_turn = Direction.LEFT
 
         npc_talking_to_ghost = self.game_state.npc_ghost_list[npc_talking_to]
-        npc_talking_to_avatar = self.game_view.game_data.npc_avatar_list[npc_talking_to]
+        npc_talking_to_avatar = self.game_view.npc_avatar_list[npc_talking_to]
         self.game_state.change_npc_facing(direction_to_turn, npc_talking_to)
-        self.menu_manager.post_notice("You talked to " + npc_talking_to_ghost.name)
+        self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
         # self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
@@ -200,9 +200,9 @@ class InventoryManager(object):
             current_inventory.pop(item.NAME)
 
         if successes == 0:
-            self.gc_input.menu_manager.post_notice("Could not use " + item.NAME)
+            self.gc_input.game_state.ms.post_notice("Could not use " + item.NAME)
         elif successes > 0:
-            self.gc_input.menu_manager.post_notice("used " + str(successes) + " " + item.NAME + "(s)")
+            self.gc_input.game_state.ms.post_notice("used " + str(successes) + " " + item.NAME + "(s)")
 
     def check_if_can_use_item(self, item, quantity):
         success = True
@@ -234,121 +234,16 @@ class InventoryManager(object):
             successes += 1
 
         if successes == 0:
-            self.gc_input.menu_manager.post_notice("Could not use " + item.NAME)
+            self.gc_input.game_state.ms.post_notice("Could not use " + item.NAME)
         elif successes > 0:
-            self.gc_input.menu_manager.post_notice("used " + item.NAME)
+            self.gc_input.game_state.ms.post_notice("used " + item.NAME)
 
 
 class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
 
-    def deactivate_menu(self, menu_to_deactivate):
-        self.gc_input.game_state.ms.menu_stack.remove(menu_to_deactivate)
-        if menu_to_deactivate in self.gc_input.game_state.ms.visible_menus:
-            self.gc_input.game_state.ms.visible_menus.remove(menu_to_deactivate)
 
-        if len(self.gc_input.game_state.ms.menu_stack) == 0:
-            self.gc_input.set_active_keyboard_manager(InGameKeyboardManager.ID)
-
-    def set_menu(self, menu_name):
-        selected_menu = self.gc_input.game_state.ms.menu_ghost_data_list[menu_name + "_ghost"]
-        selected_menu.update_menu_items_list()
-        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
-        selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
-
-    def set_sub_menu(self, menu_name, master_menu):
-        selected_menu = self.gc_input.game_state.ms.menu_ghost_data_list[menu_name + "_ghost"]
-        selected_menu.set_master_menu(master_menu)
-        selected_menu_avatar = self.gc_input.game_state.ms.menu_avatar_data_list[menu_name + "_avatar"]
-        self.gc_input.game_state.ms.menu_display_details[menu_name]["coordinates"][0] = self.gc_input.game_state.ms.menu_display_details[master_menu]["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
-        self.gc_input.game_state.ms.menu_display_details[menu_name]["coordinates"][1] = self.gc_input.game_state.ms.menu_display_details[master_menu]["coordinates"][1]
-        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
-        selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
-
-    def set_dialogue_menu(self, phrases, speaker_name, friendship_level, face_image):
-        selected_menu = self.gc_input.game_state.ms.menu_data_list["character_dialogue"]
-        selected_menu.update_menu_items_list(phrases, speaker_name, friendship_level, face_image)
-        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
-        selected_menu.gc_input.game_state.ms.add_menu_to_stack("character_dialogue")
-
-    def set_conversation_menu(self, speaker_name, friendship_level, face_image):
-        selected_menu = self.gc_input.game_state.ms.menu_data_list["conversation_options_menu"]
-        selected_menu.update_menu_items_list(speaker_name, friendship_level, face_image)
-        self.gc_input.set_active_keyboard_manager(InMenuKeyboardManager.ID)
-        selected_menu.gc_input.game_state.ms.add_menu_to_stack("conversation_options_menu")
-
-    def exit_menu(self, menu_name):
-        selected_menu = self.gc_input.game_state.ms.menu_ghost_data_list[menu_name + "_ghost"]
-        selected_menu.reset_cursor()
-        self.gc_input.menu_manager.deactivate_menu(menu_name)
-
-    def exit_all_menus(self):
-        list = []
-        for x in self.gc_input.game_state.ms.menu_stack:
-            list.append(x)
-        for item in list:
-            self.exit_menu(item)
-
-    def next_menu(self, current_menu):
-        total_number_menus = len(self.gc_input.game_state.ms.start_menu_stack)
-        print(total_number_menus)
-        current_menu_index = self.gc_input.game_state.ms.start_menu_stack.index(current_menu)
-        self.exit_menu(self.gc_input.game_state.ms.start_menu_stack[current_menu_index])
-        next_menu = self.gc_input.game_state.ms.start_menu_stack[0]
-        if current_menu_index != (total_number_menus - 1):
-            next_menu = self.gc_input.game_state.ms.start_menu_stack[current_menu_index + 1]
-        else:
-            pass
-        self.set_menu(next_menu)
-
-    def previous_menu(self, current_menu):
-        total_number_menus = len(self.gc_input.game_state.ms.start_menu_stack)
-        current_menu_index = self.gc_input.game_state.ms.start_menu_stack.index(current_menu)
-        self.exit_menu(self.gc_input.game_state.ms.start_menu_stack[current_menu_index])
-        previous_menu = self.gc_input.game_state.ms.start_menu_stack[current_menu_index-1]
-        if current_menu_index == 0:
-            previous_menu = self.gc_input.game_state.ms.start_menu_stack[total_number_menus - 1]
-        else:
-            pass
-        self.set_menu(previous_menu)
-
-    def start_menu_selection(self, item_selected):
-        menu_selection = item_selected
-        if menu_selection == "Bag":
-            self.exit_menu("start_menu")
-            self.set_menu("supplies_inventory_menu")
-
-        elif menu_selection == "Key Items":
-            pass
-
-        elif menu_selection == "Chore List":
-            pass
-
-        elif menu_selection == "Profile":
-            pass
-
-        elif menu_selection == "Map":
-            pass
-
-        elif menu_selection == "Options":
-            pass
-
-        elif menu_selection == "Vibes":
-            pass
-
-        elif menu_selection == "Outfits":
-            pass
-
-        elif menu_selection == "Save":
-            pass
-
-        elif menu_selection == "Exit":
-            self.gc_input.menu_manager.exit_all_menus()
-
-        else:
-            self.gc_input.menu_manager.exit_all_menus()
-
-    def post_notice(self, phrase):
-        self.gc_input.game_state.ms.menu_ghost_data_list["game_action_dialogue_menu_ghost"].show_dialogue(phrase)
+    def activate_menu(self):
+        pass
 

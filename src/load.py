@@ -47,13 +47,13 @@ def install_all_data(gc, gs):
         pass
 
     def install_player_avatar(gc, gs):
-        gs.gd.add_player_avatar(PlayerAvatar(gc.game_view.base_locator_x, gc.game_view.base_locator_y))
+        gs.gv.add_player_avatar(PlayerAvatar(gc.game_view.base_locator_x, gc.game_view.base_locator_y))
         pass
 
     def install_npc_avatar(gc, gs):
         npc_name_list = ["Clown", "Cowboy"]
         for npc_item in npc_name_list:
-            gs.gd.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.npc_ghost_list[npc_item].x, gc.game_state.npc_ghost_list[npc_item].y))
+            gs.gv.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.npc_ghost_list[npc_item].x, gc.game_state.npc_ghost_list[npc_item].y))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -83,10 +83,10 @@ def install_all_data(gc, gs):
         for menu in gs.ms.menu_ghost_data_list:
             menu_ghost = gs.ms.menu_ghost_data_list[menu]
             avatar_name = menu_ghost.BASE + "_avatar"
-            display_details = gs.ms.menu_display_details[menu_ghost.BASE]
+            display_details = gs.gv.menu_display_details[menu_ghost.BASE]
             items = menu_ghost.generate_text_print()
-            gs.ms.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
-            gs.ms.set_menu_display_coordinates(menu_ghost.BASE)
+            gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
+            gs.gv.set_menu_display_coordinates(menu_ghost.BASE)
 
     def install_outfits(gc, gs):
         pass

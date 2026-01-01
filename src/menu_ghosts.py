@@ -13,7 +13,7 @@ class MenuGhost(object):
         self.menu_item_list = ["Poop", "Pee", "Dragon Eggs", "Weasel Toe"]
         self.menu_images_list = []
         self.additional_information = []
-        self.menu_type = Types.BASE
+        self.menu_type = "base"
 
         self.cursor = "-"
         self.cursor_at = [0, 0]
@@ -141,7 +141,6 @@ class StartMenuGhost(MenuGhost):
     def __init__(self, gc_input):
         super().__init__(gc_input)
         self.menu_header = None
-
         self.menu_item_list = ["Bag", "Outfits", "Map", "Chore List", "Profile", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
@@ -150,7 +149,7 @@ class StartMenuGhost(MenuGhost):
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
-        self.gc_input.menu_manager.start_menu_selection(menu_selection)
+        self.gc_input.game_state.ms.start_menu_selection(menu_selection)
 
 
 class InventoryMenuGhost(MenuGhost):
@@ -201,10 +200,10 @@ class InventoryMenuGhost(MenuGhost):
             pass
 
     def cursor_left(self):
-        self.gc_input.menu_manager.previous_menu(self.BASE)
+        self.gc_input.game_state.ms.previous_menu(self.BASE)
 
     def cursor_right(self):
-        self.gc_input.menu_manager.next_menu(self.BASE)
+        self.gc_input.game_state.ms.next_menu(self.BASE)
 
     def update_menu_items_list(self):
         keys_list = []
@@ -257,9 +256,9 @@ class InventoryMenuGhost(MenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.menu_manager.exit_all_menus()
+            self.gc_input.game_state.ms.exit_all_menus()
         else:
-            self.gc_input.menu_manager.set_sub_menu("use_menu", self.BASE)
+            self.gc_input.game_state.ms.set_menu("use_menu", {"master_menu": self.BASE})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
@@ -272,10 +271,10 @@ class InventoryMenuGhost(MenuGhost):
             self.update_menu_items_list()
 
         elif sub_menu_selection == "Toss":
-            self.gc_input.menu_manager.exit_all_menus()
+            self.gc_input.game_state.ms.exit_all_menus()
 
         elif sub_menu_selection == "Cancel":
-            self.gc_input.menu_manager.exit_all_menus()
+            self.gc_input.game_state.ms.exit_all_menus()
 
 
 class SuppliesInventoryMenuGhost(InventoryMenuGhost):
@@ -489,10 +488,10 @@ class UseMenuGhost(MenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.menu_manager.exit_all_menus()
+            self.gc_input.game_state.ms.exit_all_menus()
         else:
             print(self.NAME)
-            self.gc_input.menu_manager.deactivate_menu(self.BASE)
+            self.gc_input.game_state.ms.deactivate_menu(self.BASE)
             self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
             # self.do_option(chosen_item_name)
             # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)
@@ -511,10 +510,10 @@ class UseMenuGhost(MenuGhost):
             self.update_menu_items_list()
 
         elif menu_selection == "Toss":
-            self.gc_input.menu_manager.exit_all_menus()
+            self.gc_input.game_state.ms.exit_all_menus()
 
         elif menu_selection == "Exit":
-            self.gc_input.menu_manager.exit_all_menus()
+            self.gc_input.game_state.ms.exit_all_menus()
 
 
 class YesNoMenuGhost(MenuGhost):
@@ -534,51 +533,3 @@ class YesNoMenuGhost(MenuGhost):
 
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
-
-#
-#
-# class YesnoMenu(SubMenu):
-#     NAME = "yes_no_menu"
-#
-#     def __init__(self, gc_input):
-#         super().__init__(gc_input)
-#         self.menu_item_list = ["Yes", "No"]
-#         self.cursor = "-"
-#         self.overlay_size_x = 15
-#         self.overlay_size_Y = 15
-#         self.fill_out_menu_info("right", "center")
-#         self.menu_type = "sub"
-#
-#     def do_option(self):
-#         menu_selection = self.get_current_menu_item()
-#         self.gc_input.menu_manager.exit_menu(self.name)
-#         self.master_menu.do_option(option=menu_selection)
-#
-#
-# class UseMenu(SubMenu):
-#     NAME = "use_menu"
-#
-#     def __init__(self, gc_input):
-#         super().__init__(gc_input)
-#         self.menu_item_list = ["Use", "Toss"]
-#         self.menu_item_list.append("Exit")
-#         self.cursor = "-"
-#         self.overlay_size_x = 16
-#         self.overlay_size_Y = 20
-#         self.fill_out_menu_info("right", "center")
-#         self.menu_type = "sub"
-#
-#     def choose_option(self):
-#         chosen_item_name = self.get_current_menu_item()
-#         if chosen_item_name == "Exit":
-#             self.gc_input.menu_manager.exit_all_menus()
-#         else:
-#             self.gc_input.menu_manager.set_sub_menu(YesnoMenu.NAME, self)
-#
-#     def do_option(self, option=None):
-#         menu_selection = self.get_current_menu_item()
-#         if option == "Yes":
-#             self.gc_input.menu_manager.exit_menu(self.name)
-#             self.master_menu.do_option(choice=menu_selection)
-#         elif option == "No":
-#             self.gc_input.menu_manager.exit_menu(self.name)

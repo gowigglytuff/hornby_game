@@ -37,7 +37,7 @@ class Cheese(TempItem):
         self.sell_price = 5
 
     def item_use(self):
-        self.gc_input.menu_manager.post_notice("The " + self.NAME + " healed 20 HP")
+        self.gc_input.game_state.ms.post_notice("The " + self.NAME + " healed 20 HP")
 
     def use_requirements(self):
         result = True
