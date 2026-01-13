@@ -156,7 +156,7 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc_input.attempt_move_object("John", Direction.DOWN)
 
     def key_space_pressed(self):
-        self.gc_input.inventory_manager.use_item(self.gc_input.game_state.gd.inventory_manager.item_data_list["Cheese"], 2)
+        self.gc_input.inventory_manager.use_item(self.gc_input.game_data.item_data_list["Cheese"], 2)
 
     def key_control_pressed(self):
         self.gc_input.game_state.ms.set_menu(StartMenuGhost.BASE, None)

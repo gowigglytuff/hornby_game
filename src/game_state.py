@@ -308,6 +308,7 @@ class MenuState(object):
         for item in list:
             self.exit_menu(item)
 
+
 class GameData(object):
     def __init__(self):
         self.prop_avatar_list = {}
@@ -367,6 +368,71 @@ class GameData(object):
     def add_outfit_data(self, outfit_name, outfit_object):
         self.outfit_data_list[outfit_name] = outfit_object
 
-    def build_overlay_image(self, name, x_size, y_size, header=None):
-        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
-        return image
+
+class ListMenu(object):  # TODO: Work on this!!
+    BASE = "every_menu_base"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__()
+        self.gc_input = gc_input
+
+        self.menu_header = "<Goodies>"
+        self.menu_item_list = ["Poop", "Pee", "Dragon Eggs", "Weasel Toe"]
+        self.menu_images_list = []
+        self.additional_information = []
+        self.menu_type = "base"
+
+        self.cursor = "-"
+        self.current_select = 0
+        self.name = self.NAME
+
+    def get_menu_items_to_print(self):
+        return self.menu_item_list
+
+    def get_current_menu_item(self):
+        menu_selection = self.menu_item_list[self.current_select]
+        return menu_selection
+
+    def choose_option(self):
+        self.do_option()
+
+    def do_option(self):
+        menu_selection = self.get_current_menu_item()
+
+    def send_menu_state(self):
+        source = self.get_menu_items_to_print().copy()
+        current_select = self.current_select
+        text_print_list = []
+
+        for item in range(len(source)):
+            text_print_list.append(source[item])
+
+        menu_information = {"header": self.menu_header,
+                            "text_print_list": text_print_list,
+                            "current_select": current_select}
+
+        return menu_information
+
+    def update_menu_items_list(self):
+        pass
+
+    def next_menu_item(self):
+        if self.current_select == len(self.menu_item_list) - 1:
+            self.current_select = 0
+        else:
+            self.current_select += 1
+
+    def previous_menu_item(self):
+        if self.current_select == 0:
+            self.current_select = len(self.menu_item_list) - 1
+        else:
+            self.current_select -= 1
+
+    def reset_current_select(self):
+        self.current_select = 0
+        self.current_select = 0
+
+    @property
+    def size(self):
+        return len(self.menu_item_list)

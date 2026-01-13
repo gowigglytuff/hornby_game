@@ -1,8 +1,8 @@
 import pygame
 
-from avatar_page import NpcAvatar, PlayerAvatar
+from avatar_page import NpcAvatar, PlayerAvatar, TreeAvatar
 from definitions import Direction
-from ghost_page import NpcGhost, PlayerGhost
+from ghost_page import NpcGhost, PlayerGhost, TreeGhost
 from item_page import *
 from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
 from menu_avatars import MenuAvatar
@@ -31,6 +31,7 @@ def new_game_procedures(gc, gs):
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
     gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "Basic_Room", 2, 1, Direction.DOWN))
     gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "Basic_Room", 1, 3, Direction.DOWN))
+    gs.add_npc_ghost("Tree", TreeGhost("Tree", gc.game.game_state, "Basic_Room", 4, 8, Direction.DOWN))
 
 
 def continue_game_procedures(gc, gs):
@@ -54,6 +55,11 @@ def install_all_data(gc, gs):
         npc_name_list = ["Clown", "Cowboy"]
         for npc_item in npc_name_list:
             gs.gv.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.npc_ghost_list[npc_item].x, gc.game_state.npc_ghost_list[npc_item].y))
+
+    def install_tree_avatar(gc, gs):
+        tree_name_list = ["Tree"]
+        for tree_item in tree_name_list:
+            gs.gv.add_character_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.npc_ghost_list[tree_item].x, gc.game_state.npc_ghost_list[tree_item].y))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -113,6 +119,7 @@ def install_all_data(gc, gs):
     install_goals(gc, gs)
     install_tileset(gc, gs)
     install_player_avatar(gc, gs)
+    install_tree_avatar(gc, gs)
     install_npc_avatar(gc, gs)
     install_spritesheets(gc, gs)
     install_rooms(gc, gs)

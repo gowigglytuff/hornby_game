@@ -1,3 +1,4 @@
+from graphics import BuiltOverlay
 from keyboard_manager_page import *
 from avatar_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
@@ -196,6 +197,11 @@ class GameView(object):
         drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
 
         return drawing_order
+
+    def build_overlay_image(self, name, x_size, y_size, header=None):
+        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
+        return image
+
 
 class AnimationManager(object):
     def __init__(self, gv_input):
