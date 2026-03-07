@@ -22,7 +22,7 @@ class GameState(object):
         self.decoration_ghost_list = {}
 
         self.new_game = True
-        self.current_room = "Basic_Room"
+        self.current_room = "New_Basic_Room"
 
         self.your_coins = 127
         self.your_seeds = 24
@@ -63,6 +63,7 @@ class GameState(object):
             self.player_ghost.x -= 1
         elif direction == Direction.RIGHT:
             self.player_ghost.x += 1
+        print( self.player_ghost.x, self.player_ghost.y)
 
     def move_player_avatar(self, direction):
         if direction == Direction.DOWN:

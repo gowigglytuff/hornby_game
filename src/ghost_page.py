@@ -15,6 +15,7 @@ class TreeGhost(object):
         self.type = Types.NPC
         self.x = x
         self.y = y
+        self.z = 1
         self.name = name
         self.cur_img = (0, 0)
         self.state = "idle"
@@ -27,6 +28,7 @@ class PlayerGhost(object):
         self.type = "Player"
         self.x = x
         self.y = y
+        self.z = 1
         self.name = "default"
         self.cur_img = (0, 0)
         self.state = "idle"
@@ -40,6 +42,7 @@ class NpcGhost(object):
         self.type = Types.NPC
         self.x = x
         self.y = y
+        self.z = 1
         self.name = name
         self.cur_img = (0, 0)
         self.state = "idle"

@@ -8,7 +8,7 @@ from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
 from menu_avatars import MenuAvatar
 from menu_ghosts import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
 # from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
-from room_page import BasicRoom
+from position_manager import NewBasicRoom
 
 from spritesheet import Spritesheet
 
@@ -29,9 +29,9 @@ def init_game(g):
 
 def new_game_procedures(gc, gs):
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
-    gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "Basic_Room", 2, 1, Direction.DOWN))
-    gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "Basic_Room", 1, 3, Direction.DOWN))
-    gs.add_npc_ghost("Tree", TreeGhost("Tree", gc.game.game_state, "Basic_Room", 4, 8, Direction.DOWN))
+    gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "New_Basic_Room", 2, 1, Direction.DOWN))
+    gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "New_Basic_Room", 5, 2, Direction.DOWN))
+    gs.add_npc_ghost("Tree", TreeGhost("Tree", gc.game.game_state, "New_Basic_Room", 4, 8, Direction.DOWN))
 
 
 def continue_game_procedures(gc, gs):
@@ -41,7 +41,7 @@ def continue_game_procedures(gc, gs):
 def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
-        gs.gd.add_room_data(BasicRoom.ID, (BasicRoom()))
+        gs.gd.add_room_data(NewBasicRoom.ID, (NewBasicRoom()))
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -107,7 +107,7 @@ def install_all_data(gc, gs):
         gs.gv.set_camera(gs.player_ghost.x, gs.player_ghost.y)
 
     def fill_initial_room(gc, gs):
-        gc.position_manager.fill_room_grid(gc.game.game_state.current_room)
+        gc.position_manager.fill_new_room_grid(gc.game.game_state.current_room)
 
     install_keyboard_managers(gc, gs)
     set_initial_keyboard_manager(gc, gs)

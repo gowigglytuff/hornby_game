@@ -8,7 +8,7 @@ class PositionManager(object):
 
     def check_if_player_can_move(self, direction, checker, room):
         result = True
-        if self.check_adjacent_tile(direction, checker, room).is_full:
+        if self.check_adjacent_tile(direction, checker, room):
             result = False
         if self.check_rooms_edges(direction, checker, room):
             result = False
@@ -18,6 +18,7 @@ class PositionManager(object):
     def check_adjacent_tile(self, direction, checker, room):
         x = checker.x
         y = checker.y
+        z = checker.z
         if direction == Direction.DOWN:
             y = y + 1
         elif direction == Direction.UP:
@@ -26,7 +27,23 @@ class PositionManager(object):
             x = x - 1
         elif direction == Direction.RIGHT:
             x = x + 1
-        return room.tiles_array[x][y]
+        cube_fill_status = room.check_cube_full(x, y, z)
+        return cube_fill_status
+
+    def get_adjacent_tile(self, direction, checker, room):
+        x = checker.x
+        y = checker.y
+        z = checker.z
+        if direction == Direction.DOWN:
+            y = y + 1
+        elif direction == Direction.UP:
+            y = y - 1
+        elif direction == Direction.LEFT:
+            x = x - 1
+        elif direction == Direction.RIGHT:
+            x = x + 1
+        chosen_cube = room.access_cube(x, y, z)
+        return chosen_cube
 
     def check_rooms_edges(self, direction, checker, room):
         result = False
@@ -56,6 +73,21 @@ class PositionManager(object):
         for item in fill_list:
             self.gc_input.game.game_view.game_data.room_data_list[room_to_fill].tiles_array[item.x][item.y].fill_tile(item.type, item.name)
 
+    def fill_new_room_grid(self, room_to_fill):
+        selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_fill]
+        fill_list = []
+        npc_ghost_list = self.gc_input.game.game_state.npc_ghost_list #ToDO: add a componenet that has lists of what is in what room
+        for npc in npc_ghost_list.keys():
+            npc_ghost = self.gc_input.game_state.get_npc_ghost(npc)
+            npc_avatar = self.gc_input.game_state.get_npc_avatar(npc)
+            if npc_ghost_list[npc].room == room_to_fill:
+                fill_list.append(npc_ghost)
+        fill_list.append(self.gc_input.game.game_state.player_ghost)
+        print(fill_list)
+        for item in fill_list:
+            selected_room.add_feature(item.name, item.x, item.y, item.z)
+            # self.gc_input.game.game_view.game_data.room_data_list[room_to_fill].tiles_array[item.x][item.y][item.z].fill_tile(item.type, item.name)
+
     def get_feature_location(self, feature_name):
         feature_data = self.gc_input.game_state.feature_location_dictionary[feature_name]
         return feature_data
@@ -76,26 +108,25 @@ class Room2(object):
         self.x_size = x_size
         self.y_size = y_size
         self.z_size = z_size
-        self.left_edge_x = 0
-        self.top_edge_y = 0
+        self.left_edge_x = 1
+        self.top_edge_y = 1
 
         self.tiles_array = []
         self.active_tiles = []
 
-        self.total_plots_x = 0
-        self.total_plots_y = 0
+        self.total_plots_x = 1
+        self.total_plots_y = 1
         self.plot_list = {}
         self.right_edge_x = 0
         self.bottom_edge_y = 0
         self.plot_size_x = 0
         self.plot_size_y = 0
-        # self.initiate_room()
         # self.access_cube(3, 3, 3).fill_cube("John")
 
     def generate_room_grid(self):
-        for section in range(self.x_size):
+        for section in range(self.x_size+2):
             section_name = []
-            for section2 in range(self.y_size):
+            for section2 in range(self.y_size+2):
                 section2_name = []
                 for section3 in range(self.z_size):
                     section3_name = Cube(self.name, section+1, section2+1, section3+1)
@@ -104,6 +135,29 @@ class Room2(object):
             print(section_name)
             self.tiles_array.append(section_name)
         print(self.access_cube(1, 1, 1).give_coordinates())
+
+    def display_room_grid(self):
+        for section3 in range(self.z_size):
+            print("level " +str(section3+1))
+            final_image = []
+            for section2 in range(self.y_size):
+                section2_name = []
+                list = []
+                for section1 in range(self.x_size):
+                    x_name = section1
+                    if section1+1<10:
+                        x_name = '0'+str(section1+1)
+                    else:
+                        x_name = str(section1+1)
+                    y_name = section2
+                    if section2+1<10:
+                        y_name = '0'+str(section2+1)
+                    else:
+                        y_name = str(section2+1)
+                    list.append([x_name, y_name])
+                final_image.append(list)
+                print(list)
+            print()
 
     def access_cube(self, x, y, z):
         chosen_cube = self.tiles_array[x-1][y-1][z-1]
@@ -163,6 +217,7 @@ class Room2(object):
         self.plot_size_x = int(self.x_size / self.total_plots_x)
         self.plot_size_y = int(self.y_size / self.total_plots_y)
         self.generate_room_grid()
+        self.display_room_grid()
         self.add_all_plots()
 
 class Cube(object):
@@ -199,7 +254,8 @@ class Plot(object):
 
 
 class NewBasicRoom(Room2):
-    ID = "Basic_Room"
+    ID = "New_Basic_Room"
 
     def __init__(self):
-        super().__init__(self.ID, 80, 33)
+        super().__init__(self.ID, 10, 10)
+        self.initiate_room()

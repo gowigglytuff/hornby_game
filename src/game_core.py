@@ -155,14 +155,12 @@ class GameController(object):
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def player_interact(self):
-        interact_tile = self.position_manager.check_adjacent_tile(self.game_state.get_player_ghost().facing, self.game_state.get_player_ghost(), self.game_state.get_current_room())
-        full = interact_tile.is_full
-        fill_type = interact_tile.filling_type
-        fill_object = interact_tile.object_filling
-        if fill_type == Types.NPC:
-            self.talk_to_npc(fill_object, self.game_state.get_player_ghost().facing)
-        if fill_type == Types.PROP:
-            pass
+        full = self.position_manager.check_adjacent_tile(self.game_state.get_player_ghost().facing, self.game_state.get_player_ghost(), self.game_state.get_current_room())
+        if full:
+            cube = self.position_manager.get_adjacent_tile(self.game_state.get_player_ghost().facing, self.game_state.get_player_ghost(), self.game_state.get_current_room())
+
+            self.talk_to_npc(cube.object_filling, self.game_state.get_player_ghost().facing)
+
 
     def get_stat_items(self):
         hour = self.game_state.hour_of_day
