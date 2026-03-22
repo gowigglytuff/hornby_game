@@ -107,7 +107,7 @@ class InGameKeyboardManager(KeyboardManager):
 
     def parse_key_input(self, event_type, key):
         if event_type == pygame.KEYDOWN:
-            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT]:
+            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
                 self.key_direction_pressed(key)
 
             if key == pygame.K_RETURN:
@@ -130,7 +130,7 @@ class InGameKeyboardManager(KeyboardManager):
                 self.key_escape_pressed()
 
         elif event_type == pygame.KEYUP:
-            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT]:
+            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
                 self.key_direction_released(key)
 
             if key == pygame.K_RETURN:

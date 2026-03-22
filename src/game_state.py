@@ -38,6 +38,12 @@ class GameState(object):
             "John": ["overworld", [3, 3, 3]],
             "Cowboy": ["New_Basic_Room", [5, 2, 1]]}
         self.menu_ghost_data_list = {}
+        self.current_animations_to_execute = []
+
+    def get_feature_animations_to_execute(self):
+        to_execute = copy.copy(self.current_animations_to_execute)
+        self.current_animations_to_execute = []
+        return to_execute
 
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
@@ -55,6 +61,10 @@ class GameState(object):
         self.player_ghost.facing = direction
         self.gv.player_avatar.face_character(direction)
 
+    def change_feature_facing(self, name, direction):
+        self.get_npc_ghost(name).facing = direction
+        self.get_npc_avatar(name).face_feature(direction)
+
     def move_player_avatar(self, direction):
         if direction == Direction.DOWN:
             self.gv.player_avatar.initiate_animation("walk_front")
@@ -64,6 +74,17 @@ class GameState(object):
             self.gv.player_avatar.initiate_animation("walk_left")
         elif direction == Direction.RIGHT:
             self.gv.player_avatar.initiate_animation("walk_right")
+
+    def move_feature_avatar(self, name, direction):
+        feature_avatar = self.gv.npc_avatar_list[name]
+        if direction == Direction.DOWN:
+            feature_avatar.initiate_animation("walk_front")
+        elif direction == Direction.UP:
+            feature_avatar.initiate_animation("walk_up")
+        elif direction == Direction.LEFT:
+            feature_avatar.initiate_animation("walk_left")
+        elif direction == Direction.RIGHT:
+            feature_avatar.initiate_animation("walk_right")
 
     def add_npc_ghost(self, npc_name, npc_object):
         self.npc_ghost_list[npc_name] = npc_object
@@ -76,7 +97,7 @@ class GameState(object):
 
     def change_npc_facing(self, direction, npc_name):
         self.get_npc_ghost(npc_name).facing = direction
-        self.get_npc_avatar(npc_name).face_character(direction)
+        self.get_npc_avatar(npc_name).face_feature(direction)
 
     def get_current_room(self):
         return self.gv.game_data.room_data_list[self.current_room]
@@ -153,6 +174,12 @@ class GameState(object):
         item_size_y = self.gd.key_item_data_list[item_name].image_size_y
         return [image, item_size_x, item_size_y]
 
+    def get_list_of_feature_names_in_room(self, room_name):
+        names_list =[]
+        for item in self.npc_ghost_list.values():
+            if item.room == room_name:
+                names_list.append(item.name)
+        return names_list
 
 class MenuState(object):
     def __init__(self, gs_input):

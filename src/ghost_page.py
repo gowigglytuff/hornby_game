@@ -12,7 +12,7 @@ class Feature(object):
 class TreeGhost(object):
     def __init__(self, name, gs_input, room, x, y, direction):
         self.gs_input = gs_input
-        self.type = Types.NPC
+        self.type = Types.PROP
         self.x = x
         self.y = y
         self.z = 1
@@ -26,7 +26,7 @@ class TreeGhost(object):
 class OldgodGhost(object):
     def __init__(self, name, gs_input, room, x, y, direction):
         self.gs_input = gs_input
-        self.type = Types.NPC
+        self.type = Types.PROP
         self.x = x
         self.y = y
         self.z = 1

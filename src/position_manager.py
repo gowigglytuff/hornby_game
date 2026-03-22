@@ -10,23 +10,50 @@ class PositionManager(object):
         result = True
         if self.check_adjacent_tile(direction, checker, room):
             result = False
+            print("adjacent_tile")
+        if self.check_rooms_edges(direction, checker, room):
+            result = False
+            print("room_edge")
+
+        print(result)
+        return result
+
+    def check_if_feature_can_move(self, direction, checker, room):
+        result = True
+        if self.check_adjacent_tile(direction, checker, room):
+            result = False
         if self.check_rooms_edges(direction, checker, room):
             result = False
 
+        print(result)
         return result
 
     def move_player_ghost(self, direction):
+        room_object = self.gc_input.game_data.room_data_list[self.gc_input.game_state.current_room]
+        current_cube = room_object.access_cube(self.gc_input.game_state.player_ghost.x, self.gc_input.game_state.player_ghost.y, self.gc_input.game_state.player_ghost.z)
+        new_cube_x = self.gc_input.game_state.player_ghost.x
+        new_cube_y = self.gc_input.game_state.player_ghost.y
+        new_cube_z = self.gc_input.game_state.player_ghost.z
         if direction == Direction.DOWN:
+            new_cube_y += 1
             self.gc_input.game_state.player_ghost.y += 1
         elif direction == Direction.UP:
+            new_cube_y -= 1
             self.gc_input.game_state.player_ghost.y -= 1
         elif direction == Direction.LEFT:
+            new_cube_x -= 1
             self.gc_input.game_state.player_ghost.x -= 1
         elif direction == Direction.RIGHT:
+            new_cube_x += 1
             self.gc_input.game_state.player_ghost.x += 1
+        new_cube = room_object.access_cube(new_cube_x, new_cube_y, new_cube_z)
+        current_cube.empty_cube()
+        new_cube.fill_cube("Player")
 
-    def move_feature(self, feature, avatar, room, direction):
-        current_cube = room.access_cube(feature.x, feature.y, feature.z)
+    def move_feature_ghost(self, name, direction):
+        feature = self.gc_input.game_state.get_npc_ghost(name)
+        room_object = self.gc_input.game_data.room_data_list[self.gc_input.game_state.current_room]
+        current_cube = room_object.access_cube(feature.x, feature.y, feature.z)
         new_cube_x = feature.x
         new_cube_y = feature.y
         new_cube_z = feature.z
@@ -42,7 +69,7 @@ class PositionManager(object):
         elif direction == Direction.RIGHT:
             new_cube_z += 1
             feature.x += 1
-        new_cube = room.access_cube(new_cube_x, new_cube_y, new_cube_z)
+        new_cube = room_object.access_cube(new_cube_x, new_cube_y, new_cube_z)
         current_cube.empty_cube()
         new_cube.fill_cube(feature.name)
 
@@ -134,6 +161,7 @@ class PositionManager(object):
 
     def check_location_full(self, room_name, cube_coordinates):
         return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
+
 
 class Room2(object):
     def __init__(self, room_name, x_size, y_size, z_size=4):
@@ -258,6 +286,7 @@ class Room2(object):
         self.generate_room_grid()
         self.display_room_grid()
         self.add_all_plots()
+
 
 class Cube(object):
     def __init__(self, room_name, x, y, z):

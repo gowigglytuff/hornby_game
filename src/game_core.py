@@ -44,36 +44,19 @@ class GameEvents(object):
 
         elif event.type in self.timer_list:
             if event.type == self.one_second_timer_id:
-                self.gc.attempt_move_object("Cowboy", Direction.DOWN)
+                # self.gc.attempt_move_object("Cowboy", Direction.DOWN)
                 # cowboy = self.gc.game_state.npc_ghost_list["Cowboy"]
                 # self.gc.position_manager.move_feature(cowboy, self.gc.game_data.room_data_list[self.gc.game_state.current_room], Direction.DOWN)
                 pass
             if event.type == self.fifth_second_timer_id:
                 pass
             if event.type == self.twentieth_second_timer_id:
-                if not self.gc.game_view.player_avatar.currently_animating:
-                    direction = []
-                    if self.gc.key_down_queue:
-                        if self.gc.key_down_queue == pygame.K_DOWN:
-                            direction = Direction.DOWN
-                        elif self.gc.key_down_queue == pygame.K_UP:
-                            direction = Direction.UP
-                        elif self.gc.key_down_queue == pygame.K_RIGHT:
-                            direction = Direction.RIGHT
-                        elif self.gc.key_down_queue == pygame.K_LEFT:
-                            direction = Direction.LEFT
-
-                        self.gc.game_state.change_player_facing(direction)
-                        if self.gc.position_manager.check_if_player_can_move(direction, self.gc.game_state.player_ghost, self.gc.game_view.game_data.room_data_list[self.gc.game_state.current_room]):
-                            self.gc.game_state.move_player_avatar(direction)
-                            self.gc.position_manager.move_player_ghost(direction)
-
-                if self.gc.game_view.player_avatar.currently_animating:
-                    self.gc.game_view.animation_manager.perform_animation(self.gc.game_view.player_avatar)
+                self.gc.act_on_key_down_cue()
+                self.gc.ask_animator_to_animate()
 
     def initiate_timers(self):
         twentieth_second_timer = self.twentieth_second_timer_id
-        pygame.time.set_timer(twentieth_second_timer, 2)
+        pygame.time.set_timer(twentieth_second_timer, 4)
 
         fifth_second_timer = self.fifth_second_timer_id
         pygame.time.set_timer(fifth_second_timer, 20)
@@ -106,6 +89,7 @@ class GameController(object):
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_manager = MenuManager(self)  # type:MenuManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
+        self.feature_animations_in_progress = []
 
     def set_active_keyboard_manager(self, active_manager_id):
         self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
@@ -163,7 +147,6 @@ class GameController(object):
 
             self.talk_to_npc(cube.object_filling, self.game_state.get_player_ghost().facing)
 
-
     def get_stat_items(self):
         hour = self.game_state.hour_of_day
         minute = self.game_state.minute_of_hour
@@ -175,6 +158,65 @@ class GameController(object):
                      "selected_tool": str(self.game_state.selected_tool)}
 
         return stat_dict
+
+    def act_on_key_down_cue(self):
+        if not self.check_if_player_already_animating():
+            direction = []
+            if self.key_down_queue:
+                if self.key_down_queue == pygame.K_DOWN:
+                    direction = Direction.DOWN
+                elif self.key_down_queue == pygame.K_UP:
+                    direction = Direction.UP
+                elif self.key_down_queue == pygame.K_RIGHT:
+                    direction = Direction.RIGHT
+                elif self.key_down_queue == pygame.K_LEFT:
+                    direction = Direction.LEFT
+
+                self.initiate_player_movement(direction)
+
+        for feature in self.game_state.get_feature_animations_to_execute():
+            feature_name = feature[0]
+            feature_direction = feature[1]
+            if not self.check_if_feature_already_animating(feature_name):
+                self.feature_animations_in_progress.append(feature_name)
+                self.initiate_feature_movement(feature_name, feature_direction)
+
+        if self.key_down_queue == pygame.K_z:
+            clown = self.game_state.get_npc_avatar("Clown")
+            self.game_state.current_animations_to_execute.append(("Cowboy", Direction.DOWN))
+            self.game_state.current_animations_to_execute.append(("Clown", clown.next_walk_pattern_step()))
+            self.key_down_queue = []
+
+    def check_if_player_already_animating(self):
+        return self.game_view.player_avatar.currently_animating
+
+    def initiate_player_movement(self, direction):
+        self.game_state.change_player_facing(direction)
+        if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, self.game_view.game_data.room_data_list[self.game_state.current_room]):
+            self.game_state.move_player_avatar(direction)
+            self.position_manager.move_player_ghost(direction)
+
+    def check_if_feature_already_animating(self, name):
+        avatar = self.game_view.npc_avatar_list[name]
+        return avatar.currently_animating
+
+    def initiate_feature_movement(self, name, direction):
+        self.game_state.change_feature_facing(name, direction)
+        if self.position_manager.check_if_feature_can_move(direction, self.game_state.get_npc_ghost(name), self.game_view.game_data.room_data_list[self.game_state.current_room]):
+            self.game_state.move_feature_avatar(name, direction)
+            self.position_manager.move_feature_ghost(name, direction)
+
+    def ask_animator_to_animate(self):
+        if self.check_if_player_already_animating():
+            self.game_view.animation_manager.perform_player_animation(self.game_view.player_avatar)
+
+        for feature_name in self.feature_animations_in_progress:
+            thing_avatar = self.game_state.get_npc_avatar(feature_name)
+            wrap_up = False
+            if self.check_if_feature_already_animating(feature_name):
+                wrap_up = self.game_view.animation_manager.perform_feature_animation(thing_avatar)
+            if wrap_up:
+                self.feature_animations_in_progress.remove(feature_name)
 
 
 class InventoryManager(object):

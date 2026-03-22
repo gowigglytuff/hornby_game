@@ -473,6 +473,7 @@ class SubMenuGhost(MenuGhost):
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
 
+
 class UseMenuGhost(MenuGhost):
     BASE = "use_menu"
     NAME = BASE + "_ghost"

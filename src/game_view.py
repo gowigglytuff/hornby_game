@@ -4,6 +4,7 @@ from avatar_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
 from position_manager import Room2, PositionManager
 
+
 class GameView(object):
     def __init__(self, game_data, game_state, menu_drawer):
         self.game_data = game_data  # type: GameData
@@ -207,7 +208,7 @@ class AnimationManager(object):
     def __init__(self, gv_input):
         self.gv = gv_input
 
-    def perform_animation(self, animator):
+    def perform_player_animation(self, animator):
         animation_result = (animator.animation_list[animator.current_animation].animate())
         animator.current_image_x = animation_result[2]
         animator.current_image_y = animation_result[3]
@@ -218,6 +219,18 @@ class AnimationManager(object):
             animator.currently_animating = False
             animator.current_animation = None
 
+    def perform_feature_animation(self, animator):
+        wrap_up = False
+        animation_result = (animator.animation_list[animator.current_animation].animate())
+        animator.current_image_x = animation_result[2]
+        animator.current_image_y = animation_result[3]
+        animator.move_avatar(animation_result[0], animation_result[1])
+        complete = animation_result[4]
+        if complete:
+            animator.currently_animating = False
+            animator.current_animation = None
+            wrap_up = True
+        return wrap_up
 
 class MenuDrawer(object):
     def __init__(self, gv_input):

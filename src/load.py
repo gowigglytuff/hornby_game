@@ -29,10 +29,17 @@ def init_game(g):
 
 def new_game_procedures(gc, gs):
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
-    gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "New_Basic_Room", 2, 1, Direction.DOWN))
-    gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "New_Basic_Room", 5, 2, Direction.DOWN))
-    gs.add_npc_ghost("Tree", TreeGhost("Tree", gc.game.game_state, "New_Basic_Room", 4, 8, Direction.DOWN))
-    gs.add_npc_ghost("Oldgod", OldgodGhost("Oldgod", gc.game.game_state, "New_Basic_Room", 7, 8, Direction.DOWN))
+    gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "New_Basic_Room", 3, 10, Direction.DOWN))
+    gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "New_Basic_Room", 8, 10, Direction.DOWN))
+    gs.add_npc_ghost("Tree1", TreeGhost("Tree1", gc.game.game_state, "New_Basic_Room", 3, 4, Direction.DOWN))
+    gs.add_npc_ghost("Tree2", TreeGhost("Tree2", gc.game.game_state, "New_Basic_Room", 3, 6, Direction.DOWN))
+    gs.add_npc_ghost("Tree3", TreeGhost("Tree3", gc.game.game_state, "New_Basic_Room", 3, 8, Direction.DOWN))
+    gs.add_npc_ghost("Tree4", TreeGhost("Tree4", gc.game.game_state, "New_Basic_Room", 7, 6, Direction.DOWN))
+    gs.add_npc_ghost("Tree5", TreeGhost("Tree5", gc.game.game_state, "New_Basic_Room", 7, 4, Direction.DOWN))
+    gs.add_npc_ghost("Tree6", TreeGhost("Tree6", gc.game.game_state, "New_Basic_Room", 7, 8, Direction.DOWN))
+    gs.add_npc_ghost("Tree7", TreeGhost("Tree7", gc.game.game_state, "New_Basic_Room", 3, 2, Direction.DOWN))
+    gs.add_npc_ghost("Tree8", TreeGhost("Tree8", gc.game.game_state, "New_Basic_Room", 7, 2, Direction.DOWN))
+    gs.add_npc_ghost("Oldgod", OldgodGhost("Oldgod", gc.game.game_state, "New_Basic_Room", 4, 0, Direction.DOWN))
 
 
 def continue_game_procedures(gc, gs):
@@ -58,7 +65,7 @@ def install_all_data(gc, gs):
             gs.gv.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.npc_ghost_list[npc_item].x, gc.game_state.npc_ghost_list[npc_item].y))
 
     def install_tree_avatar(gc, gs):
-        tree_name_list = ["Tree"]
+        tree_name_list = ["Tree1", "Tree2", "Tree3", "Tree4", "Tree5", "Tree6", "Tree7", "Tree8"]
         for tree_item in tree_name_list:
             gs.gv.add_character_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.npc_ghost_list[tree_item].x, gc.game_state.npc_ghost_list[tree_item].y))
         god_name_list = ["Oldgod"]
