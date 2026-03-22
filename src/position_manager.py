@@ -15,6 +15,37 @@ class PositionManager(object):
 
         return result
 
+    def move_player_ghost(self, direction):
+        if direction == Direction.DOWN:
+            self.gc_input.game_state.player_ghost.y += 1
+        elif direction == Direction.UP:
+            self.gc_input.game_state.player_ghost.y -= 1
+        elif direction == Direction.LEFT:
+            self.gc_input.game_state.player_ghost.x -= 1
+        elif direction == Direction.RIGHT:
+            self.gc_input.game_state.player_ghost.x += 1
+
+    def move_feature(self, feature, avatar, room, direction):
+        current_cube = room.access_cube(feature.x, feature.y, feature.z)
+        new_cube_x = feature.x
+        new_cube_y = feature.y
+        new_cube_z = feature.z
+        if direction == Direction.DOWN:
+            new_cube_y += 1
+            feature.y += 1
+        elif direction == Direction.UP:
+            new_cube_y -= 1
+            feature.y -= 1
+        elif direction == Direction.LEFT:
+            new_cube_x -= 1
+            feature.x -= 1
+        elif direction == Direction.RIGHT:
+            new_cube_z += 1
+            feature.x += 1
+        new_cube = room.access_cube(new_cube_x, new_cube_y, new_cube_z)
+        current_cube.empty_cube()
+        new_cube.fill_cube(feature.name)
+
     def check_adjacent_tile(self, direction, checker, room):
         x = checker.x
         y = checker.y
@@ -90,9 +121,11 @@ class PositionManager(object):
 
     def get_feature_location(self, feature_name):
         feature_data = self.gc_input.game_state.feature_location_dictionary[feature_name]
+        print(feature_data)
         return feature_data
 
     def update_feature_dictionary(self, feature_name, location):
+        print(feature_name)
         self.gc_input.game_state.feature_location_dictionary[feature_name][1] = location
 
     def update_locations(self, room_name, feature_name, previous_cube_coordinates, new_cube_coordinates):
@@ -100,7 +133,7 @@ class PositionManager(object):
         self.gc_input.game.game_data.room_data_list[room_name].add_feature(feature_name, new_cube_coordinates[0], new_cube_coordinates[1], new_cube_coordinates[2])
 
     def check_location_full(self, room_name, cube_coordinates):
-        return self.gc_input.game.game_data.room_dictionary[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
+        return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
 
 class Room2(object):
     def __init__(self, room_name, x_size, y_size, z_size=4):
@@ -146,6 +179,7 @@ class Room2(object):
                 for section1 in range(self.x_size):
                     x_name = section1
                     if section1+1<10:
+
                         x_name = '0'+str(section1+1)
                     else:
                         x_name = str(section1+1)
@@ -156,8 +190,6 @@ class Room2(object):
                         y_name = str(section2+1)
                     list.append([x_name, y_name])
                 final_image.append(list)
-                print(list)
-            print()
 
     def access_cube(self, x, y, z):
         chosen_cube = self.tiles_array[x-1][y-1][z-1]
@@ -175,16 +207,23 @@ class Room2(object):
             fill_status = True
         return fill_status
 
-    def move_feature(self, direction):
-        feature_cube = self.access_cube(1, 1, 1)
+    def move_feature(self, feature, direction):
+        feature_ghost = feature
+        current_cube = self.access_cube(feature.x, feature.y, feature.z)
+        new_cube_x = feature.x
+        new_cube_y = feature.y
+        new_cube_z = feature.z
         if direction == Direction.DOWN:
-            feature_cube.y += 1
+            new_cube_y += 1
         elif direction == Direction.UP:
-            feature_cube.y -= 1
+            new_cube_y -= 1
         elif direction == Direction.LEFT:
-            feature_cube.x -= 1
+            new_cube_x -= 1
         elif direction == Direction.RIGHT:
-            feature_cube.x += 1
+            new_cube_z += 1
+        new_cube = self.access_cube(new_cube_x, new_cube_y, new_cube_z)
+        current_cube.empty_cube()
+        new_cube.fill_cube(feature.name)
 
     def teleport_feature(self):
         boop = self.access_cube(1, 1, 1)

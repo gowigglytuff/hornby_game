@@ -27,7 +27,7 @@ class Game(object):
 
 class GameEvents(object):
     def __init__(self, game_controller):
-        self.gc = game_controller
+        self.gc = game_controller  # type: GameController
         self.five_second_timer_id = pygame.USEREVENT + 150
         self.ten_second_timer_id = pygame.USEREVENT + 151
         self.one_second_timer_id = pygame.USEREVENT + 152
@@ -44,6 +44,9 @@ class GameEvents(object):
 
         elif event.type in self.timer_list:
             if event.type == self.one_second_timer_id:
+                self.gc.attempt_move_object("Cowboy", Direction.DOWN)
+                # cowboy = self.gc.game_state.npc_ghost_list["Cowboy"]
+                # self.gc.position_manager.move_feature(cowboy, self.gc.game_data.room_data_list[self.gc.game_state.current_room], Direction.DOWN)
                 pass
             if event.type == self.fifth_second_timer_id:
                 pass
@@ -63,7 +66,7 @@ class GameEvents(object):
                         self.gc.game_state.change_player_facing(direction)
                         if self.gc.position_manager.check_if_player_can_move(direction, self.gc.game_state.player_ghost, self.gc.game_view.game_data.room_data_list[self.gc.game_state.current_room]):
                             self.gc.game_state.move_player_avatar(direction)
-                            self.gc.game_state.move_player_ghost(direction)
+                            self.gc.position_manager.move_player_ghost(direction)
 
                 if self.gc.game_view.player_avatar.currently_animating:
                     self.gc.game_view.animation_manager.perform_animation(self.gc.game_view.player_avatar)
@@ -126,15 +129,14 @@ class GameController(object):
             target_cube_location[0] += 1
 
         target_location_fill_status = self.position_manager.check_location_full(feature_room, target_cube_location)
+        print("yahoo")
 
         if target_location_fill_status:
-            # print("this location is full")
             pass
         else:
-            # print("moving!")
 
             self.position_manager.update_feature_dictionary(object_name, target_cube_location)
-            self.position_manager.update_locations("Room", object_name, target_cube_location, current_cube_location)
+            self.position_manager.update_locations(feature_room, object_name, current_cube_location, target_cube_location)
 
     def talk_to_npc(self, npc_talking_to, player_direction):
         direction_to_turn = Direction.DOWN

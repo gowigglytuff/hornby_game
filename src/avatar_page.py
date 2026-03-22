@@ -73,6 +73,24 @@ class TreeAvatar(object):
         self.currently_animating = False
         self.current_animation = None
 
+class OldgodAvatar(object):
+    def __init__(self, name, image_x, image_y):
+        self.name = name
+        self.drawing_priority = 1
+        self.type = "Npc"
+        self.character_frame_x = 96
+        self.character_frame_y = 96
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.image_x = image_x
+        self.image_y = image_y
+        self.size_x = 2
+        self.size_y = 1
+        self.image_offset_y = GameSettings.TILESIZE*4/3
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None
 
 class NpcAvatar(object):
     def __init__(self, name, image_x, image_y):

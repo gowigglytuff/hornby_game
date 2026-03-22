@@ -5,7 +5,7 @@ from menu_ghosts import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInven
 from keyboard_manager_page import *
 from avatar_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
-from position_manager import Room2, PositionManager
+from position_manager import Room2, PositionManager, NewBasicRoom
 
 
 class GameState(object):
@@ -35,7 +35,8 @@ class GameState(object):
         self.current_inventory_dictionary = {}
         self.current_key_inventory_dictionary = {}
         self.feature_location_dictionary = {
-            "John": ["overworld", [3, 3, 3]]}
+            "John": ["overworld", [3, 3, 3]],
+            "Cowboy": ["New_Basic_Room", [5, 2, 1]]}
         self.menu_ghost_data_list = {}
 
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
@@ -53,17 +54,6 @@ class GameState(object):
     def change_player_facing(self, direction):
         self.player_ghost.facing = direction
         self.gv.player_avatar.face_character(direction)
-
-    def move_player_ghost(self, direction):
-        if direction == Direction.DOWN:
-            self.player_ghost.y += 1
-        elif direction == Direction.UP:
-            self.player_ghost.y -= 1
-        elif direction == Direction.LEFT:
-            self.player_ghost.x -= 1
-        elif direction == Direction.RIGHT:
-            self.player_ghost.x += 1
-        print( self.player_ghost.x, self.player_ghost.y)
 
     def move_player_avatar(self, direction):
         if direction == Direction.DOWN:
@@ -327,8 +317,7 @@ class GameData(object):
 
         self.spritesheet_list = {}
         self.room_dictionary = {
-            "overworld": Room2("overworld", 5, 5),
-            "Basic_Room": Room2("Basic_Room", 5, 5)}
+            "overworld": Room2("overworld", 5, 5)}
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost]
         self.item_data_list = {}
         self.key_item_data_list = {}
