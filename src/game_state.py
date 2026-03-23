@@ -17,7 +17,7 @@ class GameState(object):
 
         self.selected_tool = "None"
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
-        self.npc_ghost_list = {}
+        self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.decoration_ghost_list = {}
 
@@ -62,7 +62,7 @@ class GameState(object):
         self.gv.player_avatar.face_character(direction)
 
     def change_feature_facing(self, name, direction):
-        self.get_npc_ghost(name).facing = direction
+        self.get_feature_ghost(name).facing = direction
         self.get_npc_avatar(name).face_feature(direction)
 
     def move_player_avatar(self, direction):
@@ -87,16 +87,16 @@ class GameState(object):
             feature_avatar.initiate_animation("walk_right")
 
     def add_npc_ghost(self, npc_name, npc_object):
-        self.npc_ghost_list[npc_name] = npc_object
+        self.feature_ghost_list[npc_name] = npc_object
 
-    def get_npc_ghost(self, name):
-        return self.npc_ghost_list[name]
+    def get_feature_ghost(self, name):
+        return self.feature_ghost_list[name]
 
     def get_npc_avatar(self, name):
         return self.gv.npc_avatar_list[name]
 
     def change_npc_facing(self, direction, npc_name):
-        self.get_npc_ghost(npc_name).facing = direction
+        self.get_feature_ghost(npc_name).facing = direction
         self.get_npc_avatar(npc_name).face_feature(direction)
 
     def get_current_room(self):
@@ -119,10 +119,10 @@ class GameState(object):
     def get_feature_locations(self):
         location_list = []
 
-        npc_ghost_list = self.npc_ghost_list
+        npc_ghost_list = self.feature_ghost_list
 
         for npc in npc_ghost_list.keys():
-            npc_ghost = self.get_npc_ghost(npc)
+            npc_ghost = self.get_feature_ghost(npc)
             npc_avatar = self.get_npc_avatar(npc)
             if npc_ghost_list[npc].room == self.current_room:
                 location_list.append([npc, npc_ghost.y, npc_ghost.x])
@@ -176,7 +176,7 @@ class GameState(object):
 
     def get_list_of_feature_names_in_room(self, room_name):
         names_list =[]
-        for item in self.npc_ghost_list.values():
+        for item in self.feature_ghost_list.values():
             if item.room == room_name:
                 names_list.append(item.name)
         return names_list

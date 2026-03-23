@@ -20,7 +20,7 @@ class PlayerAvatar(object):
         self.image_y = image_y
         self.size_x = 1
         self.size_y = 1
-        self.image_offset_y = self.character_frame_y/2
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
                                "walk_left": WalkAnimation(Direction.LEFT),
                                "walk_right": WalkAnimation(Direction.RIGHT),
@@ -54,44 +54,42 @@ class PlayerAvatar(object):
         self.current_image_y = image_y
 
 
-class TreeAvatar(object):
+class FeatureAvatar(object):
     def __init__(self, name, image_x, image_y):
         self.name = name
         self.drawing_priority = 1
-        self.type = "Npc"
-        self.character_frame_x = 48
-        self.character_frame_y = 72
-        self.spritesheet = Spritesheet("Tree" + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + "Tree" + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.current_image_x = 0
-        self.current_image_y = 0
-        self.image_x = image_x
-        self.image_y = image_y
-        self.size_x = 2
-        self.size_y = 1
-        self.image_offset_y = GameSettings.TILESIZE*4/3
-        self.animation_frame = 0
-        self.currently_animating = False
-        self.current_animation = None
-
-
-class OldgodAvatar(object):
-    def __init__(self, name, image_x, image_y):
-        self.name = name
-        self.drawing_priority = 1
-        self.type = "Npc"
-        self.character_frame_x = 96
-        self.character_frame_y = 96
+        self.type = "default"
+        self.character_frame_x = 24
+        self.character_frame_y = 36
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.current_image_x = 0
         self.current_image_y = 0
         self.image_x = image_x
         self.image_y = image_y
-        self.size_x = 2
-        self.size_y = 1
-        self.image_offset_y = GameSettings.TILESIZE*4/3
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
+
+
+class TreeAvatar(FeatureAvatar):
+    def __init__(self, name, image_x, image_y):
+        super().__init__(name, image_x, image_y)
+        self.type = "Npc"
+        self.character_frame_x = 48
+        self.character_frame_y = 72
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
+
+
+class OldgodAvatar(FeatureAvatar):
+    def __init__(self, name, image_x, image_y):
+        super().__init__(name, image_x, image_y)
+        self.type = "Npc"
+        self.character_frame_x = 96
+        self.character_frame_y = 108
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
 
 
 class MoveableFeature(object):

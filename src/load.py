@@ -31,15 +31,8 @@ def new_game_procedures(gc, gs):
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
     gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "New_Basic_Room", 3, 10, Direction.DOWN))
     gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "New_Basic_Room", 8, 10, Direction.DOWN))
-    gs.add_npc_ghost("Tree1", TreeGhost("Tree1", gc.game.game_state, "New_Basic_Room", 3, 4, Direction.DOWN))
-    gs.add_npc_ghost("Tree2", TreeGhost("Tree2", gc.game.game_state, "New_Basic_Room", 3, 6, Direction.DOWN))
-    gs.add_npc_ghost("Tree3", TreeGhost("Tree3", gc.game.game_state, "New_Basic_Room", 3, 8, Direction.DOWN))
-    gs.add_npc_ghost("Tree4", TreeGhost("Tree4", gc.game.game_state, "New_Basic_Room", 7, 6, Direction.DOWN))
-    gs.add_npc_ghost("Tree5", TreeGhost("Tree5", gc.game.game_state, "New_Basic_Room", 7, 4, Direction.DOWN))
-    gs.add_npc_ghost("Tree6", TreeGhost("Tree6", gc.game.game_state, "New_Basic_Room", 7, 8, Direction.DOWN))
-    gs.add_npc_ghost("Tree7", TreeGhost("Tree7", gc.game.game_state, "New_Basic_Room", 3, 2, Direction.DOWN))
-    gs.add_npc_ghost("Tree8", TreeGhost("Tree8", gc.game.game_state, "New_Basic_Room", 7, 2, Direction.DOWN))
-    gs.add_npc_ghost("Oldgod", OldgodGhost("Oldgod", gc.game.game_state, "New_Basic_Room", 4, 0, Direction.DOWN))
+    gs.add_npc_ghost("Tree", TreeGhost("Tree", gc.game.game_state, "New_Basic_Room", 3, 8, Direction.DOWN))
+    gs.add_npc_ghost("Oldgod", OldgodGhost("Oldgod", gc.game.game_state, "New_Basic_Room", 4, 4, Direction.DOWN))
 
 
 def continue_game_procedures(gc, gs):
@@ -62,15 +55,15 @@ def install_all_data(gc, gs):
     def install_npc_avatar(gc, gs):
         npc_name_list = ["Clown", "Cowboy"]
         for npc_item in npc_name_list:
-            gs.gv.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.npc_ghost_list[npc_item].x, gc.game_state.npc_ghost_list[npc_item].y))
+            gs.gv.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.feature_ghost_list[npc_item].x, gc.game_state.feature_ghost_list[npc_item].y))
 
     def install_tree_avatar(gc, gs):
-        tree_name_list = ["Tree1", "Tree2", "Tree3", "Tree4", "Tree5", "Tree6", "Tree7", "Tree8"]
+        tree_name_list = ["Tree"]
         for tree_item in tree_name_list:
-            gs.gv.add_character_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.npc_ghost_list[tree_item].x, gc.game_state.npc_ghost_list[tree_item].y))
+            gs.gv.add_character_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.feature_ghost_list[tree_item].x, gc.game_state.feature_ghost_list[tree_item].y))
         god_name_list = ["Oldgod"]
         for god_item in god_name_list:
-            gs.gv.add_character_avatar(god_item, OldgodAvatar(god_item, gc.game_state.npc_ghost_list[god_item].x, gc.game_state.npc_ghost_list[god_item].y))
+            gs.gv.add_character_avatar(god_item, OldgodAvatar(god_item, gc.game_state.feature_ghost_list[god_item].x, gc.game_state.feature_ghost_list[god_item].y))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -118,7 +111,7 @@ def install_all_data(gc, gs):
         gs.gv.set_camera(gs.player_ghost.x, gs.player_ghost.y)
 
     def fill_initial_room(gc, gs):
-        gc.position_manager.fill_new_room_grid(gc.game.game_state.current_room)
+        gc.position_manager.fill_room_grid(gc.game.game_state.current_room)
 
     install_keyboard_managers(gc, gs)
     set_initial_keyboard_manager(gc, gs)

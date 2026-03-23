@@ -51,7 +51,7 @@ class PositionManager(object):
         new_cube.fill_cube("Player")
 
     def move_feature_ghost(self, name, direction):
-        feature = self.gc_input.game_state.get_npc_ghost(name)
+        feature = self.gc_input.game_state.get_feature_ghost(name)
         room_object = self.gc_input.game_data.room_data_list[self.gc_input.game_state.current_room]
         current_cube = room_object.access_cube(feature.x, feature.y, feature.z)
         new_cube_x = feature.x
@@ -120,31 +120,19 @@ class PositionManager(object):
         return result
 
     def fill_room_grid(self, room_to_fill):
-        fill_list = []
-        npc_ghost_list = self.gc_input.game.game_state.npc_ghost_list
-        for npc in npc_ghost_list.keys():
-            npc_ghost = self.gc_input.game_state.get_npc_ghost(npc)
-            npc_avatar = self.gc_input.game_state.get_npc_avatar(npc)
-            if npc_ghost_list[npc].room == room_to_fill:
-                fill_list.append(npc_ghost)
-        fill_list.append(self.gc_input.game.game_state.player_ghost)
-        for item in fill_list:
-            self.gc_input.game.game_view.game_data.room_data_list[room_to_fill].tiles_array[item.x][item.y].fill_tile(item.type, item.name)
-
-    def fill_new_room_grid(self, room_to_fill):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_fill]
         fill_list = []
-        npc_ghost_list = self.gc_input.game.game_state.npc_ghost_list #ToDO: add a componenet that has lists of what is in what room
+        npc_ghost_list = self.gc_input.game.game_state.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
         for npc in npc_ghost_list.keys():
-            npc_ghost = self.gc_input.game_state.get_npc_ghost(npc)
+            npc_ghost = self.gc_input.game_state.get_feature_ghost(npc)
             npc_avatar = self.gc_input.game_state.get_npc_avatar(npc)
             if npc_ghost_list[npc].room == room_to_fill:
                 fill_list.append(npc_ghost)
         fill_list.append(self.gc_input.game.game_state.player_ghost)
-        print(fill_list)
+
         for item in fill_list:
-            selected_room.add_feature(item.name, item.x, item.y, item.z)
-            # self.gc_input.game.game_view.game_data.room_data_list[room_to_fill].tiles_array[item.x][item.y][item.z].fill_tile(item.type, item.name)
+            coordinates_list = item.return_base_coordinates_list(item.x, item.y)
+            selected_room.add_feature(item.name, coordinates_list)
 
     def get_feature_location(self, feature_name):
         feature_data = self.gc_input.game_state.feature_location_dictionary[feature_name]
@@ -263,10 +251,11 @@ class Room2(object):
         feature_cube.empty_cube()
         pass
 
-    def add_feature(self, feature_name, x, y, z):
-        feature_cube = self.access_cube(x, y, z)
-        feature_cube.fill_cube(feature_name)
-        pass
+    def add_feature(self, feature_name, coordinates_list):
+        for coordinates in coordinates_list:
+            feature_cube = self.access_cube(coordinates[0], coordinates[1], coordinates[2])
+            feature_cube.fill_cube(feature_name)
+            pass
 
     def add_all_plots(self):
         for x in range(self.total_plots_x):

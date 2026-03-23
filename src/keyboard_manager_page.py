@@ -2,7 +2,7 @@ import pygame
 
 import position_manager
 from definitions import Direction
-from menu_ghosts import StartMenuGhost
+from menu_ghosts import StartMenuGhost, ConversationOptionsMenuGhost
 from position_manager import Room2
 
 
@@ -162,7 +162,7 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.game_state.ms.set_menu(StartMenuGhost.BASE, None)
 
     def key_escape_pressed(self):
-        pass
+        self.gc_input.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, None)
 
     def key_lshift_pressed(self):
         pass
