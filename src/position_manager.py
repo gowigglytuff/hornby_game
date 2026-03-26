@@ -6,24 +6,15 @@ class PositionManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
 
+    # region PLAYER MOVEMENT
     def check_if_player_can_move(self, direction, checker, room):
         result = True
-        if self.check_adjacent_tile(direction, checker, room):
+        if self.check_if_adjacent_tile_full(checker, direction, room):
             result = False
             print("adjacent_tile")
-        if self.check_rooms_edges(direction, checker, room):
+        if self.check_rooms_edges(checker, direction, room):
             result = False
             print("room_edge")
-
-        print(result)
-        return result
-
-    def check_if_feature_can_move(self, direction, checker, room):
-        result = True
-        if self.check_adjacent_tile(direction, checker, room):
-            result = False
-        if self.check_rooms_edges(direction, checker, room):
-            result = False
 
         print(result)
         return result
@@ -49,6 +40,17 @@ class PositionManager(object):
         new_cube = room_object.access_cube(new_cube_x, new_cube_y, new_cube_z)
         current_cube.empty_cube()
         new_cube.fill_cube("Player")
+    # endregion
+
+    def check_if_feature_can_move(self, checker, direction, room):
+        result = True
+        if self.check_if_adjacent_tile_full(checker, direction, room):
+            result = False
+        if self.check_rooms_edges(checker, direction, room):
+            result = False
+
+        print(result)
+        return result
 
     def move_feature_ghost(self, name, direction):
         feature = self.gc_input.game_state.get_feature_ghost(name)
@@ -73,7 +75,8 @@ class PositionManager(object):
         current_cube.empty_cube()
         new_cube.fill_cube(feature.name)
 
-    def check_adjacent_tile(self, direction, checker, room):
+    def check_if_adjacent_tile_full(self, checker, direction, room):
+        room.access_adjacent_cube(checker, direction)
         x = checker.x
         y = checker.y
         z = checker.z
@@ -88,7 +91,7 @@ class PositionManager(object):
         cube_fill_status = room.check_cube_full(x, y, z)
         return cube_fill_status
 
-    def get_adjacent_tile(self, direction, checker, room):
+    def get_adjacent_tile(self, checker, direction, room):
         x = checker.x
         y = checker.y
         z = checker.z
@@ -103,7 +106,7 @@ class PositionManager(object):
         chosen_cube = room.access_cube(x, y, z)
         return chosen_cube
 
-    def check_rooms_edges(self, direction, checker, room):
+    def check_rooms_edges(self, checker, direction, room):
         result = False
         if direction == Direction.DOWN:
             if room.bottom_edge_y == checker.y:
@@ -134,9 +137,9 @@ class PositionManager(object):
             coordinates_list = item.return_base_coordinates_list(item.x, item.y)
             selected_room.add_feature(item.name, coordinates_list)
 
+    # region FEATURE DICTIONARY
     def get_feature_location(self, feature_name):
         feature_data = self.gc_input.game_state.feature_location_dictionary[feature_name]
-        print(feature_data)
         return feature_data
 
     def update_feature_dictionary(self, feature_name, location):
@@ -149,7 +152,7 @@ class PositionManager(object):
 
     def check_location_full(self, room_name, cube_coordinates):
         return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
-
+    # endregion
 
 class Room2(object):
     def __init__(self, room_name, x_size, y_size, z_size=4):
@@ -171,6 +174,8 @@ class Room2(object):
         self.plot_size_x = 0
         self.plot_size_y = 0
         # self.access_cube(3, 3, 3).fill_cube("John")
+
+    # region PLOTS AND ROOM INITIATION
 
     def generate_room_grid(self):
         for section in range(self.x_size+2):
@@ -207,56 +212,6 @@ class Room2(object):
                     list.append([x_name, y_name])
                 final_image.append(list)
 
-    def access_cube(self, x, y, z):
-        chosen_cube = self.tiles_array[x-1][y-1][z-1]
-        return chosen_cube
-
-    def tile(self, x, y, z):
-        chosen_cube = self.tiles_array[x-1][y-1][z-1]
-
-    def check_cube_full(self, x, y, z):
-        chosen_cube = self.access_cube(x, y, z)
-        fill_status = False
-        if not chosen_cube.object_filling:
-            fill_status = False
-        else:
-            fill_status = True
-        return fill_status
-
-    def move_feature(self, feature, direction):
-        feature_ghost = feature
-        current_cube = self.access_cube(feature.x, feature.y, feature.z)
-        new_cube_x = feature.x
-        new_cube_y = feature.y
-        new_cube_z = feature.z
-        if direction == Direction.DOWN:
-            new_cube_y += 1
-        elif direction == Direction.UP:
-            new_cube_y -= 1
-        elif direction == Direction.LEFT:
-            new_cube_x -= 1
-        elif direction == Direction.RIGHT:
-            new_cube_z += 1
-        new_cube = self.access_cube(new_cube_x, new_cube_y, new_cube_z)
-        current_cube.empty_cube()
-        new_cube.fill_cube(feature.name)
-
-    def teleport_feature(self):
-        boop = self.access_cube(1, 1, 1)
-        print(boop.object_filling)
-        pass
-
-    def remove_feature(self, x, y, z):
-        feature_cube = self.access_cube(x, y, z)
-        feature_cube.empty_cube()
-        pass
-
-    def add_feature(self, feature_name, coordinates_list):
-        for coordinates in coordinates_list:
-            feature_cube = self.access_cube(coordinates[0], coordinates[1], coordinates[2])
-            feature_cube.fill_cube(feature_name)
-            pass
-
     def add_all_plots(self):
         for x in range(self.total_plots_x):
             x += 1
@@ -275,6 +230,61 @@ class Room2(object):
         self.generate_room_grid()
         self.display_room_grid()
         self.add_all_plots()
+    # endregion
+
+    # region CUBE ACCESS FUNCTIONS
+    def access_cube(self, x, y, z):
+        chosen_cube = self.tiles_array[x-1][y-1][z-1]
+        return chosen_cube
+
+    def access_adjacent_cube(self, feature, direction):
+        new_cube_x = feature.x
+        new_cube_y = feature.y
+        new_cube_z = feature.z
+        if direction == Direction.DOWN:
+            new_cube_y += 1
+        elif direction == Direction.UP:
+            new_cube_y -= 1
+        elif direction == Direction.LEFT:
+            new_cube_x -= 1
+        elif direction == Direction.RIGHT:
+            new_cube_z += 1
+        new_cube = self.access_cube(new_cube_x, new_cube_y, new_cube_z)
+        return new_cube
+
+    def check_cube_full(self, x, y, z):
+        chosen_cube = self.access_cube(x, y, z)
+        fill_status = False
+        if not chosen_cube.object_filling:
+            fill_status = False
+        else:
+            fill_status = True
+        return fill_status
+
+    def move_feature(self, feature, direction):
+        current_cube = self.access_cube(feature.x, feature.y, feature.z)
+        new_cube = self.access_adjacent_cube(feature, direction)
+        current_cube.empty_cube()
+        new_cube.fill_cube(feature.name)
+
+    def teleport_feature(self, feature, new_x, new_y, new_z):
+        current_cube = self.access_cube(feature.x, feature.y, feature.z)
+        new_cube = self.access_cube(new_x, new_y, new_z)
+        current_cube.empty_cube()
+        new_cube.fill_cube(feature.name)
+
+    def remove_feature(self, x, y, z):
+        feature_cube = self.access_cube(x, y, z)
+        feature_cube.empty_cube()
+        pass
+
+    def add_feature(self, feature_name, coordinates_list):
+        for coordinates in coordinates_list:
+            feature_cube = self.access_cube(coordinates[0], coordinates[1], coordinates[2])
+            feature_cube.fill_cube(feature_name)
+            pass
+
+    # endregion
 
 
 class Cube(object):

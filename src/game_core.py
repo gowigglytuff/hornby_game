@@ -141,9 +141,9 @@ class GameController(object):
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def player_interact(self):
-        full = self.position_manager.check_adjacent_tile(self.game_state.get_player_ghost().facing, self.game_state.get_player_ghost(), self.game_state.get_current_room())
+        full = self.position_manager.check_if_adjacent_tile_full(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
         if full:
-            cube = self.position_manager.get_adjacent_tile(self.game_state.get_player_ghost().facing, self.game_state.get_player_ghost(), self.game_state.get_current_room())
+            cube = self.position_manager.get_adjacent_tile(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
             feature = self.game_state.get_feature_ghost(cube.object_filling)
             if feature.type == Types.NPC:
                 self.talk_to_npc(cube.object_filling, self.game_state.get_player_ghost().facing)
@@ -184,12 +184,6 @@ class GameController(object):
                 self.feature_animations_in_progress.append(feature_name)
                 self.initiate_feature_movement(feature_name, feature_direction)
 
-        # if self.key_down_queue == pygame.K_z:
-        #     clown = self.game_state.get_npc_avatar("Clown")
-        #     self.game_state.current_animations_to_execute.append(("Cowboy", Direction.DOWN))
-        #     self.game_state.current_animations_to_execute.append(("Clown", clown.next_walk_pattern_step()))
-        #     self.key_down_queue = []
-
     def check_if_player_already_animating(self):
         return self.game_view.player_avatar.currently_animating
 
@@ -205,7 +199,7 @@ class GameController(object):
 
     def initiate_feature_movement(self, name, direction):
         self.game_state.change_feature_facing(name, direction)
-        if self.position_manager.check_if_feature_can_move(direction, self.game_state.get_feature_ghost(name), self.game_view.game_data.room_data_list[self.game_state.current_room]):
+        if self.position_manager.check_if_feature_can_move(self.game_state.get_feature_ghost(name), direction, self.game_view.game_data.room_data_list[self.game_state.current_room]):
             self.game_state.move_feature_avatar(name, direction)
             self.position_manager.move_feature_ghost(name, direction)
 
@@ -287,7 +281,6 @@ class InventoryManager(object):
 class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
-
 
     def activate_menu(self):
         pass
