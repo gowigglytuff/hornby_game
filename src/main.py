@@ -1,5 +1,5 @@
-from position_manager import Room2
-from game_core import Game
+from position_manager_state_page import Room2
+from game_controller import Game
 from load import init_game
 import pygame
 

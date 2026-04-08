@@ -1,6 +1,7 @@
 from definitions import Direction, Types
 import pygame
 
+
 class FeatureGhost(object):
     def __init__(self, name, gs_input, room, x, y, direction):
         self.gs_input = gs_input
@@ -26,6 +27,7 @@ class FeatureGhost(object):
                 coordinates_list.append([x_coordinate, y_coordinate, self.z])
         print(coordinates_list)
         return coordinates_list
+
 
 class TreeGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, x, y, direction):
@@ -65,6 +67,7 @@ class PlayerGhost(object):
                 coordinates_list.append([x_coordinate, y_coordinate, self.z])
         print(coordinates_list)
         return coordinates_list
+
 
 class NpcGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, x, y, direction):

@@ -9,7 +9,7 @@ class PositionManager(object):
     # region PLAYER MOVEMENT
     def check_if_player_can_move(self, direction, checker, room):
         result = True
-        if self.check_if_adjacent_tile_full(checker, direction, room):
+        if self.check_if_adjacent_tiles_full(checker, direction, room):
             result = False
             print("adjacent_tile")
         if self.check_rooms_edges(checker, direction, room):
@@ -42,9 +42,10 @@ class PositionManager(object):
         new_cube.fill_cube("Player")
     # endregion
 
+    # region FEATURE MOVEMENT
     def check_if_feature_can_move(self, checker, direction, room):
         result = True
-        if self.check_if_adjacent_tile_full(checker, direction, room):
+        if self.check_if_adjacent_tiles_full(checker, direction, room):
             result = False
         if self.check_rooms_edges(checker, direction, room):
             result = False
@@ -74,22 +75,50 @@ class PositionManager(object):
         new_cube = room_object.access_cube(new_cube_x, new_cube_y, new_cube_z)
         current_cube.empty_cube()
         new_cube.fill_cube(feature.name)
+    # endregion
 
-    def check_if_adjacent_tile_full(self, checker, direction, room):
+    # region CHECKING FOR MOVEMENT
+    def check_if_adjacent_tiles_full(self, checker, direction, room):
         room.access_adjacent_cube(checker, direction)
         x = checker.x
         y = checker.y
         z = checker.z
-        if direction == Direction.DOWN:
-            y = y + 1
-        elif direction == Direction.UP:
-            y = y - 1
-        elif direction == Direction.LEFT:
-            x = x - 1
-        elif direction == Direction.RIGHT:
-            x = x + 1
-        cube_fill_status = room.check_cube_full(x, y, z)
-        return cube_fill_status
+        size_x = checker.base_size_x
+        size_y = checker.base_size_y
+
+        x_array = []
+        y_array = []
+
+        final_report = False
+
+        x_counter = 0
+        for size in range(size_x):
+            x_counter += 1
+            x_array.append(x_counter)
+
+        y_counter = 0
+        for size in range(size_y):
+            y_counter += 1
+            y_array.append(y_counter)
+
+        for x_space in range(size_x):
+            for y_space in range(size_y):
+                hold_x = x
+                hold_y = y
+                if direction == Direction.DOWN:
+                    hold_y = hold_y + y_array[y_space]
+                elif direction == Direction.UP:
+                    hold_y = hold_y - y_array[y_space]
+                elif direction == Direction.LEFT:
+                    hold_x = hold_x - x_array[x_space]
+                elif direction == Direction.RIGHT:
+                    hold_x = hold_x + x_array[x_space]
+                cube_fill_status = room.check_cube_full(hold_x, hold_y, z)
+
+                if cube_fill_status:
+                    final_report = True
+
+        return final_report
 
     def get_adjacent_tile(self, checker, direction, room):
         x = checker.x
@@ -121,6 +150,7 @@ class PositionManager(object):
             if room.right_edge_x == checker.x:
                 result = True
         return result
+    # endregion
 
     def fill_room_grid(self, room_to_fill):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_fill]
@@ -128,7 +158,6 @@ class PositionManager(object):
         npc_ghost_list = self.gc_input.game.game_state.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
         for npc in npc_ghost_list.keys():
             npc_ghost = self.gc_input.game_state.get_feature_ghost(npc)
-            npc_avatar = self.gc_input.game_state.get_npc_avatar(npc)
             if npc_ghost_list[npc].room == room_to_fill:
                 fill_list.append(npc_ghost)
         fill_list.append(self.gc_input.game.game_state.player_ghost)
@@ -153,6 +182,7 @@ class PositionManager(object):
     def check_location_full(self, room_name, cube_coordinates):
         return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
     # endregion
+
 
 class Room2(object):
     def __init__(self, room_name, x_size, y_size, z_size=4):
@@ -326,3 +356,25 @@ class NewBasicRoom(Room2):
     def __init__(self):
         super().__init__(self.ID, 10, 10)
         self.initiate_room()
+
+
+class RingsidePlot(Plot):
+    def __init__(self, room, plot_x, plot_y):
+        super().__init__(room, plot_x, plot_y)
+        self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
+        self.background_map = TileMap(self.background_csv_file).return_map()
+
+
+class Ringside(Room2):
+    ID = "Ringside"
+
+    def __init__(self):
+        super().__init__(self.ID, 55, 106)
+        self.initiate_room()
+
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), RingsidePlot(self.name, x, y))

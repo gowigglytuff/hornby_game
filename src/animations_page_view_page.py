@@ -1,4 +1,4 @@
-from definitions import Direction
+from definitions import Direction, GameSettings
 
 
 class Animation(object):
@@ -68,14 +68,14 @@ class WalkAnimation(Animation):
 
     def animate(self):
         print("closwn" + str(self.current_frame))
-        if self.current_frame <= 23:
+        if self.current_frame <= (GameSettings.TILESIZE-1):
             if self.current_frame == 0:
                 if self.foot == "left":
                     self.current_image_x = 3
                 elif self.foot == "right":
                     self.current_image_x = 1
 
-            elif self.current_frame == 23:
+            elif self.current_frame == (GameSettings.TILESIZE-1):
                 self.current_frame = 0
                 self.current_image_x = 0
                 self.complete = True

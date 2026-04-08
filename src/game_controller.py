@@ -1,11 +1,11 @@
 import copy
-from ghost_page import PlayerGhost
-from graphics import BuiltOverlay
-from menu_ghosts import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
-from keyboard_manager_page import *
-from avatar_page import PlayerAvatar
-from definitions import Direction, GameSettings, Types
-from position_manager import Room2, PositionManager
+import csv
+import os
+
+from feature_ghost_data_page import NpcGhost, TreeGhost, OldgodGhost
+from input_manager_controller_page import *
+from definitions import Direction, Types
+from position_manager_state_page import Room2, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, MenuDrawer
 
@@ -22,7 +22,6 @@ class Game(object):
         self.game_state.gd = self.game_data
         self.game_state.ms.gd = self.game_data
         self.game_events = GameEvents(self.game_controller)
-        self.game_input = GameInput(self.game_controller)
 
 
 class GameEvents(object):
@@ -71,11 +70,6 @@ class GameEvents(object):
         pygame.time.set_timer(ten_second_timer, 10000)
 
 
-class GameInput(object):
-    def __init__(self, game_controller):
-        self.gc = game_controller
-
-
 class GameController(object):
     def __init__(self, game, game_view, game_state, game_data):
         self.game = game  # type: Game
@@ -91,12 +85,19 @@ class GameController(object):
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
         self.feature_animations_in_progress = []
 
+    # region GAME CONTROLS
     def set_active_keyboard_manager(self, active_manager_id):
         self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
 
     def close_game(self):
         self.game.game_running = False
 
+    def load_feature(self, name, ghost_object, avatar_object):
+        self.game_state.add_feature_ghost(name, ghost_object)
+        self.game_view.add_feature_avatar(name, avatar_object)
+    # endregion
+
+    # region FEATURE MOVEMENT
     def attempt_move_object(self, object_name, movement_direction):
         feature_loc_info = self.position_manager.get_feature_location(object_name)
         feature_room = feature_loc_info[0]
@@ -122,6 +123,29 @@ class GameController(object):
             self.position_manager.update_feature_dictionary(object_name, target_cube_location)
             self.position_manager.update_locations(feature_room, object_name, current_cube_location, target_cube_location)
 
+    def check_if_feature_already_animating(self, name):
+        avatar = self.game_view.npc_avatar_list[name]
+        return avatar.currently_animating
+
+    def initiate_feature_movement(self, name, direction):
+        self.game_state.change_feature_facing(name, direction)
+        if self.position_manager.check_if_feature_can_move(self.game_state.get_feature_ghost(name), direction, self.game_view.game_data.room_data_list[self.game_state.current_room]):
+            self.game_state.move_feature_avatar(name, direction)
+            self.position_manager.move_feature_ghost(name, direction)
+
+    # endregion
+
+    # region PLAYER ACTIONS
+    def player_interact(self):
+        full = self.position_manager.check_if_adjacent_tiles_full(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
+        if full:
+            cube = self.position_manager.get_adjacent_tile(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
+            feature = self.game_state.get_feature_ghost(cube.object_filling)
+            if feature.type == Types.NPC:
+                self.talk_to_npc(cube.object_filling, self.game_state.get_player_ghost().facing)
+            else:
+                pass
+
     def talk_to_npc(self, npc_talking_to, player_direction):
         direction_to_turn = Direction.DOWN
         if player_direction == Direction.DOWN:
@@ -139,28 +163,6 @@ class GameController(object):
         self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
         # self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
-
-    def player_interact(self):
-        full = self.position_manager.check_if_adjacent_tile_full(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
-        if full:
-            cube = self.position_manager.get_adjacent_tile(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
-            feature = self.game_state.get_feature_ghost(cube.object_filling)
-            if feature.type == Types.NPC:
-                self.talk_to_npc(cube.object_filling, self.game_state.get_player_ghost().facing)
-            else:
-                pass
-
-    def get_stat_items(self):
-        hour = self.game_state.hour_of_day
-        minute = self.game_state.minute_of_hour
-
-        stat_dict = {"seeds": str(self.game_state.your_seeds),
-                     "Coins": str(self.game_state.your_coins),
-                     "time": str(hour) + ":" + str(minute) + "0",
-                     "day": str(self.game_state.day_of_summer),
-                     "selected_tool": str(self.game_state.selected_tool)}
-
-        return stat_dict
 
     def act_on_key_down_cue(self):
         if not self.check_if_player_already_animating():
@@ -193,15 +195,21 @@ class GameController(object):
             self.game_state.move_player_avatar(direction)
             self.position_manager.move_player_ghost(direction)
 
-    def check_if_feature_already_animating(self, name):
-        avatar = self.game_view.npc_avatar_list[name]
-        return avatar.currently_animating
+    # endregion
 
-    def initiate_feature_movement(self, name, direction):
-        self.game_state.change_feature_facing(name, direction)
-        if self.position_manager.check_if_feature_can_move(self.game_state.get_feature_ghost(name), direction, self.game_view.game_data.room_data_list[self.game_state.current_room]):
-            self.game_state.move_feature_avatar(name, direction)
-            self.position_manager.move_feature_ghost(name, direction)
+    # region INVENTORY
+    def get_stat_items(self):
+        hour = self.game_state.hour_of_day
+        minute = self.game_state.minute_of_hour
+
+        stat_dict = {"seeds": str(self.game_state.your_seeds),
+                     "Coins": str(self.game_state.your_coins),
+                     "time": str(hour) + ":" + str(minute) + "0",
+                     "day": str(self.game_state.day_of_summer),
+                     "selected_tool": str(self.game_state.selected_tool)}
+
+        return stat_dict
+    # endregion
 
     def ask_animator_to_animate(self):
         if self.check_if_player_already_animating():
@@ -214,6 +222,26 @@ class GameController(object):
                 wrap_up = self.game_view.animation_manager.perform_feature_animation(thing_avatar)
             if wrap_up:
                 self.feature_animations_in_progress.remove(feature_name)
+
+    def import_NPCs_from_csv(self, filename):
+        NPC_data = []
+        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                NPC_data.append(list(row))
+        print(NPC_data)
+        for NPC in NPC_data:
+            if NPC[0] == "NPC":
+                test = NpcGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
+                self.game_state.add_feature_ghost(NPC[1], test)
+            elif NPC[0] == "Tree":
+                test = TreeGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
+                self.game_state.add_feature_ghost(NPC[1], test)
+            elif NPC[0] == "Oldgod":
+                test = OldgodGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
+                self.game_state.add_feature_ghost(NPC[1], test)
+
+        return NPC_data
 
 
 class InventoryManager(object):

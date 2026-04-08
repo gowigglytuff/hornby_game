@@ -1,11 +1,11 @@
 import copy
-from ghost_page import PlayerGhost
+from feature_ghost_data_page import PlayerGhost
 from graphics import BuiltOverlay
-from menu_ghosts import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
-from keyboard_manager_page import *
-from avatar_page import PlayerAvatar
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
+from input_manager_controller_page import *
+from feature_avatar_view_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
-from position_manager import Room2, PositionManager, NewBasicRoom
+from position_manager_state_page import Room2, PositionManager, NewBasicRoom
 
 
 class GameState(object):
@@ -22,7 +22,7 @@ class GameState(object):
         self.decoration_ghost_list = {}
 
         self.new_game = True
-        self.current_room = "New_Basic_Room"
+        self.current_room = "Ringside"
 
         self.your_coins = 127
         self.your_seeds = 24
@@ -40,16 +40,20 @@ class GameState(object):
         self.menu_ghost_data_list = {}
         self.current_animations_to_execute = []
 
-    def get_feature_animations_to_execute(self):
-        to_execute = copy.copy(self.current_animations_to_execute)
-        self.current_animations_to_execute = []
-        return to_execute
-
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
 
     def add_player_ghost(self, player_object):
         self.player_ghost = player_object
+
+    def add_feature_ghost(self, npc_name, npc_object):
+        self.feature_ghost_list[npc_name] = npc_object
+
+    # region GETTERS
+    def get_feature_animations_to_execute(self):
+        to_execute = copy.copy(self.current_animations_to_execute)
+        self.current_animations_to_execute = []
+        return to_execute
 
     def get_player_ghost(self):
         return self.player_ghost
@@ -57,106 +61,14 @@ class GameState(object):
     def get_player_avatar(self):
         return self.gv.player_avatar
 
-    def change_player_facing(self, direction):
-        self.player_ghost.facing = direction
-        self.gv.player_avatar.face_character(direction)
-
-    def change_feature_facing(self, name, direction):
-        self.get_feature_ghost(name).facing = direction
-        self.get_npc_avatar(name).face_feature(direction)
-
-    def move_player_avatar(self, direction):
-        if direction == Direction.DOWN:
-            self.gv.player_avatar.initiate_animation("walk_front")
-        elif direction == Direction.UP:
-            self.gv.player_avatar.initiate_animation("walk_up")
-        elif direction == Direction.LEFT:
-            self.gv.player_avatar.initiate_animation("walk_left")
-        elif direction == Direction.RIGHT:
-            self.gv.player_avatar.initiate_animation("walk_right")
-
-    def move_feature_avatar(self, name, direction):
-        feature_avatar = self.gv.npc_avatar_list[name]
-        if direction == Direction.DOWN:
-            feature_avatar.initiate_animation("walk_front")
-        elif direction == Direction.UP:
-            feature_avatar.initiate_animation("walk_up")
-        elif direction == Direction.LEFT:
-            feature_avatar.initiate_animation("walk_left")
-        elif direction == Direction.RIGHT:
-            feature_avatar.initiate_animation("walk_right")
-
-    def add_npc_ghost(self, npc_name, npc_object):
-        self.feature_ghost_list[npc_name] = npc_object
-
     def get_feature_ghost(self, name):
         return self.feature_ghost_list[name]
 
     def get_npc_avatar(self, name):
         return self.gv.npc_avatar_list[name]
 
-    def change_npc_facing(self, direction, npc_name):
-        self.get_feature_ghost(npc_name).facing = direction
-        self.get_npc_avatar(npc_name).face_feature(direction)
-
     def get_current_room(self):
         return self.gv.game_data.room_data_list[self.current_room]
-
-    def update_view(self):
-        current_room = self.current_room
-        drawables_list = self.gv.get_drawables_list(self.get_feature_locations()[0], self.get_feature_locations()[1])
-        self.gv.draw_all(drawables_list, current_room)
-
-        for menu in self.ms.static_menus:
-            self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
-        for menu in self.ms.visible_menus:
-            if self.ms.menu_ghost_data_list[menu + "_ghost"].menu_type == "sub":
-                sub_menu = self.ms.menu_ghost_data_list[menu + "_ghost"]
-                self.gv.draw_sub_menu(menu, sub_menu.generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
-            else:
-                self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
-
-    def get_feature_locations(self):
-        location_list = []
-
-        npc_ghost_list = self.feature_ghost_list
-
-        for npc in npc_ghost_list.keys():
-            npc_ghost = self.get_feature_ghost(npc)
-            npc_avatar = self.get_npc_avatar(npc)
-            if npc_ghost_list[npc].room == self.current_room:
-                location_list.append([npc, npc_ghost.y, npc_ghost.x])
-
-        player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
-
-        return player_location, location_list
-
-    def perform_animation(self, animator):
-        animation_result = (animator.animation_list[animator.current_animation].animate())
-        animator.current_image_x = animation_result[2]
-        animator.current_image_y = animation_result[3]
-        self.gv.camera[0] += animation_result[0]
-        self.gv.camera[1] += animation_result[1]
-        complete = animation_result[4]
-        if complete:
-            animator.currently_animating = False
-            animator.current_animation = None
-
-    def get_menu_items(self, menu_name):
-        result = None
-        if menu_name == "supplies_inventory_menu":
-            result = self.current_inventory_dictionary
-
-        elif menu_name == "key_inventory_menu":
-            result = self.current_key_inventory_dictionary
-        return result
-
-    def acquire_item(self, item, quantity):
-        current_inventory = self.current_inventory_dictionary
-        if item.NAME in current_inventory:
-            current_inventory[item.NAME]["quantity"] += quantity
-        else:
-            current_inventory[item.NAME] = {"name": item.NAME, "quantity": quantity}
 
     def get_item_quantity(self, item_name):
         item_dict = self.get_menu_items("supplies_inventory_menu")
@@ -181,6 +93,101 @@ class GameState(object):
                 names_list.append(item.name)
         return names_list
 
+    def get_menu_items(self, menu_name):
+        result = None
+        if menu_name == "supplies_inventory_menu":
+            result = self.current_inventory_dictionary
+
+        elif menu_name == "key_inventory_menu":
+            result = self.current_key_inventory_dictionary
+        return result
+
+    def get_feature_locations(self):
+        location_list = []
+
+        npc_ghost_list = self.feature_ghost_list
+
+        for npc in npc_ghost_list.keys():
+            npc_ghost = self.get_feature_ghost(npc)
+            npc_avatar = self.get_npc_avatar(npc)
+            if npc_ghost_list[npc].room == self.current_room:
+                location_list.append([npc, npc_ghost.y, npc_ghost.x])
+
+        player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
+
+        return player_location, location_list
+    # endregion
+
+    # region PLAYER CONTROL
+    def change_player_facing(self, direction):
+        self.player_ghost.facing = direction
+        self.gv.player_avatar.face_character(direction)
+
+    def move_player_avatar(self, direction):
+        if direction == Direction.DOWN:
+            self.gv.player_avatar.initiate_animation("walk_front")
+        elif direction == Direction.UP:
+            self.gv.player_avatar.initiate_animation("walk_up")
+        elif direction == Direction.LEFT:
+            self.gv.player_avatar.initiate_animation("walk_left")
+        elif direction == Direction.RIGHT:
+            self.gv.player_avatar.initiate_animation("walk_right")
+    # endregion
+
+    # region FEATURE CONTROL
+    def change_feature_facing(self, name, direction):
+        self.get_feature_ghost(name).facing = direction
+        self.get_npc_avatar(name).face_feature(direction)
+
+    def move_feature_avatar(self, name, direction):
+        feature_avatar = self.gv.npc_avatar_list[name]
+        if direction == Direction.DOWN:
+            feature_avatar.initiate_animation("walk_front")
+        elif direction == Direction.UP:
+            feature_avatar.initiate_animation("walk_up")
+        elif direction == Direction.LEFT:
+            feature_avatar.initiate_animation("walk_left")
+        elif direction == Direction.RIGHT:
+            feature_avatar.initiate_animation("walk_right")
+
+    def change_npc_facing(self, direction, npc_name):
+        self.get_feature_ghost(npc_name).facing = direction
+        self.get_npc_avatar(npc_name).face_feature(direction)
+
+    def perform_animation(self, animator):
+        animation_result = (animator.animation_list[animator.current_animation].animate())
+        animator.current_image_x = animation_result[2]
+        animator.current_image_y = animation_result[3]
+        self.gv.camera[0] += animation_result[0]
+        self.gv.camera[1] += animation_result[1]
+        complete = animation_result[4]
+        if complete:
+            animator.currently_animating = False
+            animator.current_animation = None
+    # endregion
+
+    def update_view(self):
+        current_room = self.current_room
+        drawables_list = self.gv.get_drawables_list(self.get_feature_locations()[0], self.get_feature_locations()[1])
+        self.gv.draw_all(drawables_list, current_room)
+
+        for menu in self.ms.static_menus:
+            self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
+        for menu in self.ms.visible_menus:
+            if self.ms.menu_ghost_data_list[menu + "_ghost"].menu_type == "sub":
+                sub_menu = self.ms.menu_ghost_data_list[menu + "_ghost"]
+                self.gv.draw_sub_menu(menu, sub_menu.generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
+            else:
+                self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
+
+    def acquire_item(self, item, quantity):
+        current_inventory = self.current_inventory_dictionary
+        if item.NAME in current_inventory:
+            current_inventory[item.NAME]["quantity"] += quantity
+        else:
+            current_inventory[item.NAME] = {"name": item.NAME, "quantity": quantity}
+
+
 class MenuState(object):
     def __init__(self, gs_input):
         self.menu_ghost_data_list = {}
@@ -194,9 +201,13 @@ class MenuState(object):
         self.other_menus = ["special_menu_ghost", "stat_menu"]
         self.start_menu_stack = ["supplies_inventory_menu", "key_inventory_menu"]
 
+    def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
+        self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
+
     def get_menu_ghost(self, menu_name):
         return self.menu_ghost_data_list[menu_name + "_ghost"]
 
+    # region MENU DISPLAY LOGISTICS
     def get_menu_items(self, menu_name):
         result = None
         if menu_name == "supplies_inventory_menu":
@@ -210,9 +221,6 @@ class MenuState(object):
         items_list = self.get_menu_items(menu_name)
         return items_list
 
-    def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
-        self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
-
     def add_menu_to_stack(self, menu_to_add):
         self.menu_stack.insert(0, menu_to_add)
         self.add_menu_to_visible(menu_to_add)
@@ -225,6 +233,16 @@ class MenuState(object):
                 if (menu != menu_to_add) and (chosen_menu.menu_type == Types.BASE):
                     self.visible_menus.remove(menu)
 
+    def deactivate_menu(self, menu_to_deactivate):
+        self.menu_stack.remove(menu_to_deactivate)
+        if menu_to_deactivate in self.visible_menus:
+            self.visible_menus.remove(menu_to_deactivate)
+
+        if len(self.menu_stack) == 0:
+            self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+    # endregion
+
+    # region MENU NAVIGATION
     def set_menu(self, menu_name, details):
         selected_menu = self.get_menu_ghost(menu_name)
         menu_type = selected_menu.menu_type
@@ -245,6 +263,43 @@ class MenuState(object):
         self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
 
+    def next_menu(self, current_menu):
+        total_number_menus = len(self.start_menu_stack)
+        current_menu_index = self.start_menu_stack.index(current_menu)
+        self.exit_menu(self.start_menu_stack[current_menu_index])
+        next_menu = self.start_menu_stack[0]
+        if current_menu_index != (total_number_menus - 1):
+            next_menu = self.start_menu_stack[current_menu_index + 1]
+        else:
+            pass
+        self.set_menu(next_menu, None)
+
+    def previous_menu(self, current_menu):
+        total_number_menus = len(self.start_menu_stack)
+        current_menu_index = self.start_menu_stack.index(current_menu)
+        self.exit_menu(self.start_menu_stack[current_menu_index])
+        previous_menu = self.start_menu_stack[current_menu_index-1]
+        if current_menu_index == 0:
+            previous_menu = self.start_menu_stack[total_number_menus - 1]
+        else:
+            pass
+        self.set_menu(previous_menu, None)
+
+    def exit_menu(self, menu_name):
+        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
+        selected_menu.reset_cursor()
+        self.deactivate_menu(menu_name)
+
+    def exit_all_menus(self):
+        list = []
+        for x in self.menu_stack:
+            list.append(x)
+        for item in list:
+            self.exit_menu(item)
+
+    # endregion
+
+    # region MENU SELECTION RESULTS
     def start_menu_selection(self, item_selected):
         menu_selection = item_selected
         if menu_selection == "Bag":
@@ -283,48 +338,7 @@ class MenuState(object):
 
     def post_notice(self, phrase):
         self.menu_ghost_data_list["game_action_dialogue_menu_ghost"].show_dialogue(phrase)
-
-    def next_menu(self, current_menu):
-        total_number_menus = len(self.start_menu_stack)
-        current_menu_index = self.start_menu_stack.index(current_menu)
-        self.exit_menu(self.start_menu_stack[current_menu_index])
-        next_menu = self.start_menu_stack[0]
-        if current_menu_index != (total_number_menus - 1):
-            next_menu = self.start_menu_stack[current_menu_index + 1]
-        else:
-            pass
-        self.gc_input.game_state.ms.set_menu(next_menu, None)
-
-    def previous_menu(self, current_menu):
-        total_number_menus = len(self.start_menu_stack)
-        current_menu_index = self.start_menu_stack.index(current_menu)
-        self.exit_menu(self.start_menu_stack[current_menu_index])
-        previous_menu = self.start_menu_stack[current_menu_index-1]
-        if current_menu_index == 0:
-            previous_menu = self.start_menu_stack[total_number_menus - 1]
-        else:
-            pass
-        self.set_menu(previous_menu, None)
-
-    def deactivate_menu(self, menu_to_deactivate):
-        self.menu_stack.remove(menu_to_deactivate)
-        if menu_to_deactivate in self.visible_menus:
-            self.visible_menus.remove(menu_to_deactivate)
-
-        if len(self.menu_stack) == 0:
-            self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
-
-    def exit_menu(self, menu_name):
-        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
-        selected_menu.reset_cursor()
-        self.deactivate_menu(menu_name)
-
-    def exit_all_menus(self):
-        list = []
-        for x in self.menu_stack:
-            list.append(x)
-        for item in list:
-            self.exit_menu(item)
+    # endregion
 
 
 class GameData(object):
@@ -344,15 +358,16 @@ class GameData(object):
 
         self.spritesheet_list = {}
         self.room_dictionary = {
-            "overworld": Room2("overworld", 5, 5)}
+            "overworld": Room2("overworld", 5, 5),
+            "Ringside": Room2("Ringside", 5, 5)}
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost]
         self.item_data_list = {}
         self.key_item_data_list = {}
 
-    def install_key_item_data(self, item_name, item_object):
+    def add_key_item_data(self, item_name, item_object):
         self.key_item_data_list[item_name] = item_object
 
-    def install_item_data(self, item_name, item_object):
+    def add_item_data(self, item_name, item_object):
         self.item_data_list[item_name] = item_object
 
     def add_spritesheet(self, spritesheet_name, spritesheet_object):
@@ -372,9 +387,6 @@ class GameData(object):
 
     def add_temp_item_data(self, item_name, item_object):
         self.temp_item_data_list[item_name] = item_object
-
-    def add_key_item_data(self, item_name, item_object):
-        self.key_item_data_list[item_name] = item_object
 
     def add_overlay_data(self, overlay_name, overlay_object):
         self.overlay_data_list[overlay_name] = overlay_object

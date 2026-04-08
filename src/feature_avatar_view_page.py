@@ -1,6 +1,6 @@
 import pygame
 
-from animations_page import WalkAnimation
+from animations_page_view_page import WalkAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings
 

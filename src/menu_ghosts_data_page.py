@@ -1,5 +1,6 @@
 from definitions import GameSettings, Types
 
+
 class MenuGhost(object):
     BASE = "menu_base"
     NAME = BASE + "_ghost"

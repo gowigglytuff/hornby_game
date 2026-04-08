@@ -1,8 +1,8 @@
 from graphics import BuiltOverlay
-from keyboard_manager_page import *
-from avatar_page import PlayerAvatar
+from input_manager_controller_page import *
+from feature_avatar_view_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
-from position_manager import Room2, PositionManager
+from position_manager_state_page import Room2, PositionManager
 
 
 class GameView(object):
@@ -48,7 +48,13 @@ class GameView(object):
     def add_player_avatar(self, player_object):
         self.player_avatar = player_object
 
-    def add_character_avatar(self, character_name, character_object):
+    def get_player_avatar(self):
+        return self.player_avatar
+
+    def get_npc_avatar(self, name):
+        return self.npc_avatar_list[name]
+
+    def add_feature_avatar(self, character_name, character_object):
         self.npc_avatar_list[character_name] = character_object
 
     def add_prop_avatar(self, prop_name, prop_object):
@@ -63,6 +69,11 @@ class GameView(object):
     def add_menu_avatar(self, menu_avatar_name, menu_avatar_object):
         self.menu_avatar_data_list[menu_avatar_name] = menu_avatar_object
 
+    def build_overlay_image(self, name, x_size, y_size, header=None):
+        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
+        return image
+
+    # region DRAWING FEATURES
     def draw_npc(self, npc_name):
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
@@ -97,6 +108,22 @@ class GameView(object):
             elif drawable[0].type == "Npc":
                 self.draw_npc(drawable[0].name)
 
+    def get_drawables_list(self, player_location, feature_locations):
+        drawables_list = []
+
+        for npc in feature_locations:
+            npc_avatar = self.get_npc_avatar(npc[0])
+            drawables_list.append([npc_avatar, npc[1], npc_avatar.drawing_priority])
+
+        player_avatar = self.get_player_avatar()
+        drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
+
+        drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
+
+        return drawing_order
+    # endregion
+
+    # region DRAW MENUS
     def draw_special_menu(self, menu_name, menu_info, x, y):
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
@@ -140,10 +167,12 @@ class GameView(object):
                 final_image.blit(image, [item.x, item.y])
 
         return final_image
+    # endregion
 
+    # region DRAWING LOCATION
     def set_camera(self, player_ghost_x, player_ghost_y):
-        self.camera[0] = -(self.player_avatar.image_x - player_ghost_x) * 24
-        self.camera[1] = -(self.player_avatar.image_y - player_ghost_y) * 24
+        self.camera[0] = -(self.player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
+        self.camera[1] = -(self.player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
 
     def set_menu_display_coordinates(self, name):
         for item in self.menu_display_details:
@@ -178,31 +207,7 @@ class GameView(object):
         selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         self.menu_display_details[menu_name]["coordinates"][0] = self.menu_display_details[master_menu]["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
         self.menu_display_details[menu_name]["coordinates"][1] = self.menu_display_details[master_menu]["coordinates"][1]
-
-    def get_player_avatar(self):
-        return self.player_avatar
-
-    def get_npc_avatar(self, name):
-        return self.npc_avatar_list[name]
-
-    def get_drawables_list(self, player_location, feature_locations):
-        drawables_list = []
-
-        for npc in feature_locations:
-            npc_avatar = self.get_npc_avatar(npc[0])
-            drawables_list.append([npc_avatar, npc[1], npc_avatar.drawing_priority])
-
-        player_avatar = self.get_player_avatar()
-        drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
-
-        drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
-
-        return drawing_order
-
-    def build_overlay_image(self, name, x_size, y_size, header=None):
-        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
-        return image
-
+    # endregion
 
 class AnimationManager(object):
     def __init__(self, gv_input):

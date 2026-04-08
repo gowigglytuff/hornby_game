@@ -1,14 +1,14 @@
 import pygame
 
-from avatar_page import NpcAvatar, PlayerAvatar, TreeAvatar, OldgodAvatar
+from feature_avatar_view_page import NpcAvatar, PlayerAvatar, TreeAvatar, OldgodAvatar
 from definitions import Direction
-from ghost_page import NpcGhost, PlayerGhost, TreeGhost, OldgodGhost
+from feature_ghost_data_page import NpcGhost, PlayerGhost, TreeGhost, OldgodGhost
 from item_page import *
-from keyboard_manager_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_avatars import MenuAvatar
-from menu_ghosts import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
+from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager
+from menu_avatars_view_page import MenuAvatar
+from menu_ghosts_data_page import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
 # from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
-from position_manager import NewBasicRoom
+from position_manager_state_page import NewBasicRoom, Ringside
 
 from spritesheet import Spritesheet
 
@@ -28,12 +28,8 @@ def init_game(g):
 
 
 def new_game_procedures(gc, gs):
+    gc.import_NPCs_from_csv("assets/import_data/NPC_import.csv")
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
-    gs.add_npc_ghost("Clown", NpcGhost("Clown", gc.game.game_state, "New_Basic_Room", 3, 10, Direction.DOWN))
-    gs.add_npc_ghost("Cowboy", NpcGhost("Cowboy", gc.game.game_state, "New_Basic_Room", 8, 10, Direction.DOWN))
-    gs.add_npc_ghost("Tree", TreeGhost("Tree", gc.game.game_state, "New_Basic_Room", 3, 8, Direction.DOWN))
-    gs.add_npc_ghost("Oldgod", OldgodGhost("Oldgod", gc.game.game_state, "New_Basic_Room", 4, 4, Direction.DOWN))
-
 
 def continue_game_procedures(gc, gs):
     pass
@@ -43,6 +39,7 @@ def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
         gs.gd.add_room_data(NewBasicRoom.ID, (NewBasicRoom()))
+        gs.gd.add_room_data(Ringside.ID, (Ringside()))
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -52,18 +49,18 @@ def install_all_data(gc, gs):
         gs.gv.add_player_avatar(PlayerAvatar(gc.game_view.base_locator_x, gc.game_view.base_locator_y))
         pass
 
-    def install_npc_avatar(gc, gs):
-        npc_name_list = ["Clown", "Cowboy"]
+    def install_avatar_all(gc, gs):
+        npc_name_list = ["Cowboy"]
         for npc_item in npc_name_list:
-            gs.gv.add_character_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.feature_ghost_list[npc_item].x, gc.game_state.feature_ghost_list[npc_item].y))
+            gs.gv.add_feature_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.feature_ghost_list[npc_item].x, gc.game_state.feature_ghost_list[npc_item].y))
+        gs.gv.add_feature_avatar("Clown", NpcAvatar("Clown", gc.game_state.feature_ghost_list["Clown"].x, gc.game_state.feature_ghost_list["Clown"].y))
 
-    def install_tree_avatar(gc, gs):
         tree_name_list = ["Tree"]
         for tree_item in tree_name_list:
-            gs.gv.add_character_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.feature_ghost_list[tree_item].x, gc.game_state.feature_ghost_list[tree_item].y))
+            gs.gv.add_feature_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.feature_ghost_list[tree_item].x, gc.game_state.feature_ghost_list[tree_item].y))
         god_name_list = ["Oldgod"]
         for god_item in god_name_list:
-            gs.gv.add_character_avatar(god_item, OldgodAvatar(god_item, gc.game_state.feature_ghost_list[god_item].x, gc.game_state.feature_ghost_list[god_item].y))
+            gs.gv.add_feature_avatar(god_item, OldgodAvatar(god_item, gc.game_state.feature_ghost_list[god_item].x, gc.game_state.feature_ghost_list[god_item].y))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -76,14 +73,14 @@ def install_all_data(gc, gs):
         items_to_install = [Cheese, Milk, Cream, Banana, Apple, Orange, Mike, Spoon, Mouse, Match, Game, Card, Pizza, Meat, Egg]
         q = 1
         for item in items_to_install:
-            gs.gd.install_item_data(item.NAME, item(gc))
+            gs.gd.add_item_data(item.NAME, item(gc))
             gs.acquire_item(item, q)
             q *= 3
 
     def install_key_items(gc, gs):
         items_to_install = [Hammer, Shovel, Wrench]
         for item in items_to_install:
-            gs.gd.install_key_item_data(item.NAME, item(gc))
+            gs.gd.add_key_item_data(item.NAME, item(gc))
             gc.inventory_manager.get_key_item(item)
 
     def install_menus(gc, gs):
@@ -123,8 +120,7 @@ def install_all_data(gc, gs):
     install_goals(gc, gs)
     install_tileset(gc, gs)
     install_player_avatar(gc, gs)
-    install_tree_avatar(gc, gs)
-    install_npc_avatar(gc, gs)
+    install_avatar_all(gc, gs)
     install_spritesheets(gc, gs)
     install_rooms(gc, gs)
     set_camera_position(gc, gs)
