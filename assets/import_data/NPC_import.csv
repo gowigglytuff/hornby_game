@@ -1,0 +1,4 @@
+﻿NPC,Clown,Clown,New_Basic_Room,3,10,Direction.DOWN
+NPC,Cowboy,Cowboy,New_Basic_Room,8,10,Direction.DOWN
+Tree,Tree,Tree,New_Basic_Room,3,8,Direction.DOWN
+Oldgod,Oldgod,Oldgod,New_Basic_Room,4,4,Direction.DOWN
