@@ -261,7 +261,6 @@ class GameController(object):
         self.reset_room(current_room.name)
         self.load_up_room(room_going_to)
         current_room = self.game_state.get_current_room()
-        print(current_room)
 
 
 class InventoryManager(object):

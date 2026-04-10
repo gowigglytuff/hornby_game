@@ -21,6 +21,7 @@ class PlayerAvatar(object):
         self.size_x = 1
         self.size_y = 1
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
+        self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
                                "walk_left": WalkAnimation(Direction.LEFT),
                                "walk_right": WalkAnimation(Direction.RIGHT),
@@ -67,6 +68,7 @@ class FeatureAvatar(object):
         self.image_x = image_x
         self.image_y = image_y
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
+        self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
@@ -134,6 +136,7 @@ class MoveableFeature(object):
         self.size_x = 1
         self.size_y = 1
         self.image_offset_y = self.character_frame_y / 2
+        self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
         self.animation_list = {}
         self.animation_frame = 0
         self.currently_animating = False

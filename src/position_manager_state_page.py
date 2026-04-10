@@ -11,12 +11,9 @@ class PositionManager(object):
         result = True
         if self.check_if_adjacent_tiles_full(checker, direction, room):
             result = False
-            print("adjacent_tile")
         if self.check_rooms_edges(checker, direction, room):
             result = False
-            print("room_edge")
 
-        print(result)
         return result
 
     def move_player_ghost(self, direction):
@@ -50,7 +47,6 @@ class PositionManager(object):
         if self.check_rooms_edges(checker, direction, room):
             result = False
 
-        print(result)
         return result
 
     def move_feature_ghost(self, name, direction):
@@ -179,7 +175,6 @@ class PositionManager(object):
         return feature_data
 
     def update_feature_dictionary(self, feature_name, location):
-        print(feature_name)
         self.gc_input.game_state.feature_location_dictionary[feature_name][1] = location
 
     def update_locations(self, room_name, feature_name, previous_cube_coordinates, new_cube_coordinates):
@@ -223,9 +218,7 @@ class Room2(object):
                     section3_name = Cube(self.name, section+1, section2+1, section3+1)
                     section2_name.append(section3_name)
                 section_name.append(section2_name)
-            print(section_name)
             self.tiles_array.append(section_name)
-        print(self.access_cube(1, 1, 1).give_coordinates())
 
     def display_room_grid(self):
         for section3 in range(self.z_size):

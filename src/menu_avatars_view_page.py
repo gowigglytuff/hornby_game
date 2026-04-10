@@ -95,7 +95,6 @@ class MenuAvatar(object):
             space_height = space_size * number_of_spaces
             border_height = int(self.offset_y/segment_size) * 2
             menu_height = items_height + space_height + border_height
-            print(space_size, items_height, border_height)
 
         header_height = 0
         if header:

@@ -78,13 +78,13 @@ class GameView(object):
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
         chosen_npc_avatar = self.npc_avatar_list[npc_name]
-        npc_loc_x = camera_x + (self.npc_avatar_list[npc_name].image_x - 1) * self.square_size[0]
+        npc_loc_x = camera_x + (self.npc_avatar_list[npc_name].image_x - 1) * self.square_size[0] + self.npc_avatar_list[npc_name].image_offset_x
         npc_loc_y = camera_y + (self.npc_avatar_list[npc_name].image_y - 1) * self.square_size[1] - chosen_npc_avatar.image_offset_y
         self.screen.blit(chosen_npc_avatar.spritesheet.get_image(chosen_npc_avatar.current_image_x, chosen_npc_avatar.current_image_y), (npc_loc_x, npc_loc_y))
 
     def draw_player(self):
         player = self.player_avatar
-        play_loc_x = (player.image_x * self.square_size[0]) - self.square_size[0]
+        play_loc_x = (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
         play_loc_y = player.image_y * self.square_size[1] - (self.square_size[1] + player.image_offset_y)
         self.screen.blit(player.spritesheet.get_image(player.current_image_x, player.current_image_y), [play_loc_x, play_loc_y])
 
@@ -240,4 +240,3 @@ class AnimationManager(object):
 class MenuDrawer(object):
     def __init__(self, gv_input):
         self.font_size = GameSettings.FONT_SIZE
-        print("using this")

@@ -469,7 +469,6 @@ class SubMenuGhost(MenuGhost):
 
     def choose_option(self):
         self.do_option()
-        print("we did it!")
 
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
@@ -530,7 +529,6 @@ class YesNoMenuGhost(MenuGhost):
 
     def choose_option(self):
         self.do_option()
-        print("we did it!")
 
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
