@@ -8,7 +8,7 @@ from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardM
 from menu_avatars_view_page import MenuAvatar
 from menu_ghosts_data_page import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
 # from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
-from position_manager_state_page import NewBasicRoom, Ringside
+from position_manager_state_page import NewBasicRoom, Ringside, Island
 
 from spritesheet import Spritesheet
 
@@ -40,6 +40,7 @@ def install_all_data(gc, gs):
     def install_rooms(gc, gs):
         gs.gd.add_room_data(NewBasicRoom.ID, (NewBasicRoom()))
         gs.gd.add_room_data(Ringside.ID, (Ringside()))
+        gs.gd.add_room_data(Island.ID, (Island()))
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))

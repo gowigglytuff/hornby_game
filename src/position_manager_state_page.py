@@ -385,3 +385,23 @@ class Ringside(Room2):
             for y in range(self.total_plots_y):
                 y += 1
                 self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), RingsidePlot(self.name, x, y))
+
+class IslandPlot(Plot):
+    def __init__(self, room, plot_x, plot_y):
+        super().__init__(room, plot_x, plot_y)
+        self.background_csv_file = "assets/room_csv/background_csv/Island_1_1_Background.csv"
+        self.background_map = TileMap(self.background_csv_file).return_map()
+
+class Island(Room2):
+    ID = "Island"
+
+    def __init__(self):
+        super().__init__(self.ID, 13, 13)
+        self.initiate_room()
+
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), IslandPlot(self.name, x, y))
