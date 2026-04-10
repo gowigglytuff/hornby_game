@@ -7,6 +7,7 @@ class FeatureGhost(object):
         self.gs_input = gs_input
         self.type = "default"
         self.name = name
+        self.unique_id = self.gs_input.generate_unique_id
         self.state = "idle"
         self.spawn_x = spawn_x
         self.spawn_y = spawn_y

@@ -51,17 +51,19 @@ def install_all_data(gc, gs):
         pass
 
     def install_avatar_all(gc, gs):
-        npc_name_list = ["Cowboy"]
+        npc_name_list = ["Clown", "Cowboy"]
         for npc_item in npc_name_list:
-            gs.gv.add_feature_avatar(npc_item, NpcAvatar(npc_item, gc.game_state.feature_ghost_list[npc_item].x, gc.game_state.feature_ghost_list[npc_item].y))
-        gs.gv.add_feature_avatar("Clown", NpcAvatar("Clown", gc.game_state.feature_ghost_list["Clown"].x, gc.game_state.feature_ghost_list["Clown"].y))
+            related_ghost = gc.game_state.feature_ghost_list[npc_item]
+            gs.gv.add_feature_avatar(npc_item, NpcAvatar(npc_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
 
         tree_name_list = ["Tree"]
         for tree_item in tree_name_list:
-            gs.gv.add_feature_avatar(tree_item, TreeAvatar(tree_item, gc.game_state.feature_ghost_list[tree_item].x, gc.game_state.feature_ghost_list[tree_item].y))
+            related_ghost = gc.game_state.feature_ghost_list[tree_item]
+            gs.gv.add_feature_avatar(tree_item, TreeAvatar(tree_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
         god_name_list = ["Oldgod"]
         for god_item in god_name_list:
-            gs.gv.add_feature_avatar(god_item, OldgodAvatar(god_item, gc.game_state.feature_ghost_list[god_item].x, gc.game_state.feature_ghost_list[god_item].y))
+            related_ghost = gc.game_state.feature_ghost_list[god_item]
+            gs.gv.add_feature_avatar(god_item, OldgodAvatar(god_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))

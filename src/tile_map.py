@@ -78,6 +78,8 @@ class TileMap:
             data = csv.reader(data, delimiter=',')
             for row in data:
                 tile_map.append(list(row))
+
+        print(tile_map)
         return tile_map
 
     def load_tiles(self, filename, tile_source):
@@ -93,3 +95,28 @@ class TileMap:
         self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
         return tiles
 
+
+class ElevationMap:
+    def __init__(self, name, filename):
+        self.name = name
+        self.elevation_map = self.load_elevation_map(filename)
+
+    def load_elevation_map(self, filename):
+        return self.read_csv(filename)
+
+    def read_csv(self, filename):
+        map = []
+        int_map = []
+        with open(os.path.join(filename)) as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                map.append(list(row))
+        for row in map:
+            int_list = [int(i) for i in row]
+            int_map.append(int_list)
+        return int_map
+
+    def get_elevation(self, x, y):
+        print(self.elevation_map)
+        result = self.elevation_map[y-1][x-1]
+        return result

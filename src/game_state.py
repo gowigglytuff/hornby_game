@@ -20,9 +20,11 @@ class GameState(object):
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.decoration_ghost_list = {}
+        self.unique_idea_generator = 10000
 
         self.new_game = True
         self.current_room = "Ringside"
+        self.current_player_elevation = 3
 
         self.your_coins = 127
         self.your_seeds = 24
@@ -48,6 +50,11 @@ class GameState(object):
 
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
+
+    def generate_unique_id(self):
+        unique_id = copy.copy(self.unique_idea_generator)
+        self.unique_idea_generator += 1
+        return unique_id
 
     def get_all_features_in_room(self, room_name):
         feature_list = []
@@ -127,6 +134,16 @@ class GameState(object):
         player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
 
         return player_location, location_list
+
+    def get_player_location(self):
+        player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
+        return player_location
+
+    def get_current_player_elevation(self):
+        return self.current_player_elevation
+
+    def set_player_elevation(self, new_elevation):
+        self.current_player_elevation = new_elevation
     # endregion
 
     # region PLAYER CONTROL

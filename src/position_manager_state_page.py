@@ -1,5 +1,7 @@
+import math
+
 from definitions import Direction
-from tile_map import TileMap
+from tile_map import TileMap, ElevationMap
 
 
 class PositionManager(object):
@@ -9,10 +11,19 @@ class PositionManager(object):
     # region PLAYER MOVEMENT
     def check_if_player_can_move(self, direction, checker, room):
         result = True
-        if self.check_if_adjacent_tiles_full(checker, direction, room):
-            result = False
         if self.check_rooms_edges(checker, direction, room):
             result = False
+        elif not self.check_rooms_edges(checker, direction, room):
+            if self.check_if_adjacent_tiles_full(checker, direction, room):
+                result = False
+
+            current_elevation = self.gc_input.game_state.get_current_player_elevation()
+            print("running test")
+            print(current_elevation)
+            adjacent_elevation = self.get_adjacent_tile_elevation(checker, direction, room)
+            print(adjacent_elevation)
+            if abs(int(adjacent_elevation) - current_elevation) > 1:
+                result = False
 
         return result
 
@@ -37,6 +48,10 @@ class PositionManager(object):
         new_cube = room_object.access_cube(new_cube_x, new_cube_y, new_cube_z)
         current_cube.empty_cube()
         new_cube.fill_cube("Player")
+
+        # update player elevation
+        new_tile_elevation = self.get_tile_elevation(room_object.name, new_cube_x, new_cube_y)
+        self.gc_input.game_state.set_player_elevation(new_tile_elevation)
     # endregion
 
     # region FEATURE MOVEMENT
@@ -46,7 +61,6 @@ class PositionManager(object):
             result = False
         if self.check_rooms_edges(checker, direction, room):
             result = False
-
         return result
 
     def move_feature_ghost(self, name, direction):
@@ -115,6 +129,56 @@ class PositionManager(object):
                     final_report = True
 
         return final_report
+
+    def get_adjacent_tile_elevation(self, checker, direction, room):
+        target_tile_x = checker.x
+        target_tile_y = checker.y
+        print(direction)
+        if direction == Direction.DOWN:
+            target_tile_y = checker.y + 1
+        elif direction == Direction.UP:
+            target_tile_y = checker.y - 1
+        elif direction == Direction.LEFT:
+            target_tile_x = checker.x - 1
+        elif direction == Direction.RIGHT:
+            target_tile_x = checker.x + 1
+        elevation_result = self.get_tile_elevation(room.name, target_tile_x, target_tile_y)
+        return elevation_result
+
+    def get_tile_elevation(self, room_name, x, y):
+        chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
+        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
+        print("plot")
+        print(chosen_plot)
+        elevation_result = chosen_plot.get_elevation(x * chosen_plot_address[0], y * chosen_plot_address[1])
+        return elevation_result
+
+    def get_current_plot_address(self):
+        current_room = self.gc_input.game_state.get_current_room
+        plot_info_list = current_room.get_plot_information
+        player_coordinates = self.gc_input.game_state.get_player_location
+        total_room_x = plot_info_list[0] * plot_info_list[2]
+        total_room_y = plot_info_list[1] * plot_info_list[3]
+        proportion_x = total_room_x / player_coordinates[0]
+        proportion_y = total_room_y / player_coordinates[1]
+        result_x = int(proportion_x / plot_info_list[2])
+        result_y = int(proportion_y / plot_info_list[3])
+        return [result_x, result_y]
+
+    def get_chosen_plot_address(self, room_name, x, y):
+        chosen_room = self.gc_input.game_state.get_room(room_name)
+        plot_info_list = chosen_room.get_plot_information()
+
+        total_room_x = plot_info_list[0] * plot_info_list[2]
+        total_room_y = plot_info_list[1] * plot_info_list[3]
+        proportion_x = x / total_room_x
+        proportion_y = y / total_room_y
+
+        result_x = math.ceil(proportion_x * plot_info_list[0])
+        result_y = math.ceil(proportion_y * plot_info_list[1])
+
+        return [result_x, result_y]
 
     def get_adjacent_tile(self, checker, direction, room):
         x = checker.x
@@ -316,6 +380,17 @@ class Room2(object):
 
     # endregion
 
+    def get_plot_information(self):
+        plots_x = self.total_plots_x
+        plots_y = self.total_plots_y
+        plot_size_x = self.plot_size_x
+        plot_size_y = self.plot_size_y
+        return [plots_x, plots_y, plot_size_x, plot_size_y]
+
+    def get_plot(self, plot_x, plot_y):
+        chosen_plot = self.plot_list[self.name + "_" + str(plot_x) + "_" + str(plot_y)]
+        return chosen_plot
+
 
 class Cube(object):
     def __init__(self, room_name, x, y, z):
@@ -347,8 +422,19 @@ class Plot(object):
         self.background_csv_file = "assets/room_csv/background_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
         self.terrain_csv_file = "assets/room_csv/terrain_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+        self.elevation_map = None
         self.background_map = TileMap(self.background_csv_file).return_map()
+        self.try_elevation_map()
 
+    def try_elevation_map(self):
+        try:
+            self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
+        except:
+            pass
+
+    def get_elevation(self, x, y):
+        elevation = self.elevation_map.get_elevation(x, y)
+        return elevation
 
 class NewBasicRoom(Room2):
     ID = "New_Basic_Room"
@@ -379,11 +465,14 @@ class Ringside(Room2):
                 y += 1
                 self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), RingsidePlot(self.name, x, y))
 
+
 class IslandPlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Island_1_1_Background.csv"
         self.background_map = TileMap(self.background_csv_file).return_map()
+        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+
 
 class Island(Room2):
     ID = "Island"

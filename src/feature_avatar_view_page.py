@@ -56,7 +56,7 @@ class PlayerAvatar(object):
 
 
 class FeatureAvatar(object):
-    def __init__(self, name, image_x, image_y):
+    def __init__(self, name, image_x, image_y, unique_id):
         self.name = name
         self.drawing_priority = 1
         self.type = "default"
@@ -103,8 +103,8 @@ class FeatureAvatar(object):
 
 
 class TreeAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y):
-        super().__init__(name, image_x, image_y)
+    def __init__(self, name, image_x, image_y, unique_id):
+        super().__init__(name, image_x, image_y, unique_id)
         self.type = "Npc"
         self.character_frame_x = 48
         self.character_frame_y = 72
@@ -113,8 +113,8 @@ class TreeAvatar(FeatureAvatar):
 
 
 class OldgodAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y):
-        super().__init__(name, image_x, image_y)
+    def __init__(self, name, image_x, image_y, unique_id):
+        super().__init__(name, image_x, image_y, unique_id)
         self.type = "Npc"
         self.character_frame_x = 96
         self.character_frame_y = 108
@@ -123,7 +123,7 @@ class OldgodAvatar(FeatureAvatar):
 
 
 class MoveableFeature(object):
-    def __init__(self, name, image_x, image_y):
+    def __init__(self, name, image_x, image_y, unique_id):
         self.name = name
         self.drawing_priority = 1
         self.character_frame_x = 24
@@ -171,8 +171,8 @@ class MoveableFeature(object):
         self.current_animation = None
 
 class NpcAvatar(MoveableFeature):
-    def __init__(self, name, image_x, image_y):
-        super().__init__(name, image_x, image_y)
+    def __init__(self, name, image_x, image_y, unique_id):
+        super().__init__(name, image_x, image_y, unique_id)
         self.type = "Npc"
         self.face_image = self.get_face_image()
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
