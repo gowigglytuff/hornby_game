@@ -114,7 +114,6 @@ class GameController(object):
             target_cube_location[0] += 1
 
         target_location_fill_status = self.position_manager.check_location_full(feature_room, target_cube_location)
-        print("yahoo")
 
         if target_location_fill_status:
             pass
@@ -133,6 +132,9 @@ class GameController(object):
             self.game_state.move_feature_avatar(name, direction)
             self.position_manager.move_feature_ghost(name, direction)
 
+    def reset_feature_to_spawn(self, feature):
+        chosen_feature = self.game_state.get_feature_ghost(feature)
+        chosen_feature.reset_to_spawn()
     # endregion
 
     # region PLAYER ACTIONS
@@ -229,7 +231,6 @@ class GameController(object):
             data = csv.reader(data, delimiter=',')
             for row in data:
                 NPC_data.append(list(row))
-        print(NPC_data)
         for NPC in NPC_data:
             if NPC[0] == "NPC":
                 test = NpcGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
@@ -242,6 +243,25 @@ class GameController(object):
                 self.game_state.add_feature_ghost(NPC[1], test)
 
         return NPC_data
+
+    def reset_room(self, room_name):
+        room = self.game_state.get_room(room_name)
+        for feature_ghost in self.game_state.get_all_features_in_room(room_name):
+            feature_ghost.reset_to_spawn()
+            avatar = self.game_view.get_npc_avatar(feature_ghost.name)
+            avatar.reset_to_base(feature_ghost.facing)
+        self.position_manager.clear_room_grid(room_name)
+
+    def load_up_room(self, room_name):
+        self.position_manager.fill_room_grid(room_name)
+        self.game_state.set_room(room_name)
+
+    def change_room(self, room_going_to):
+        current_room = self.game_state.get_current_room()
+        self.reset_room(current_room.name)
+        self.load_up_room(room_going_to)
+        current_room = self.game_state.get_current_room()
+        print(current_room)
 
 
 class InventoryManager(object):

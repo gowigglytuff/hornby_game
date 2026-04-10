@@ -49,6 +49,14 @@ class GameState(object):
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
 
+    def get_all_features_in_room(self, room_name):
+        feature_list = []
+        for feature in self.feature_ghost_list.values():
+            if feature.room == room_name:
+                feature_list.append(feature)
+        return feature_list
+
+
     # region GETTERS
     def get_feature_animations_to_execute(self):
         to_execute = copy.copy(self.current_animations_to_execute)
@@ -69,6 +77,9 @@ class GameState(object):
 
     def get_current_room(self):
         return self.gv.game_data.room_data_list[self.current_room]
+
+    def get_room(self, room_name):
+        return self.gv.game_data.room_data_list[room_name]
 
     def get_item_quantity(self, item_name):
         item_dict = self.get_menu_items("supplies_inventory_menu")
@@ -165,6 +176,9 @@ class GameState(object):
             animator.currently_animating = False
             animator.current_animation = None
     # endregion
+
+    def set_room(self, room_name):
+        self.current_room = room_name
 
     def update_view(self):
         current_room = self.current_room
@@ -396,6 +410,8 @@ class GameData(object):
 
     def add_outfit_data(self, outfit_name, outfit_object):
         self.outfit_data_list[outfit_name] = outfit_object
+
+
 
 
 class ListMenu(object):  # TODO: Work on this!!

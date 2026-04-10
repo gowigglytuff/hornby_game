@@ -67,7 +67,6 @@ class WalkAnimation(Animation):
             self.current_image_y = 2
 
     def animate(self):
-        print("closwn" + str(self.current_frame))
         if self.current_frame <= (GameSettings.TILESIZE-1):
             if self.current_frame == 0:
                 if self.foot == "left":

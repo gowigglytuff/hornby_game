@@ -71,6 +71,34 @@ class FeatureAvatar(object):
         self.currently_animating = False
         self.current_animation = None
 
+    def face_feature(self, direction):
+        if direction == Direction.DOWN:
+            self.update_avatar_image(0, 0)
+        elif direction == Direction.UP:
+            self.update_avatar_image(0, 1)
+        elif direction == Direction.LEFT:
+            self.update_avatar_image(0, 3)
+        elif direction == Direction.RIGHT:
+            self.update_avatar_image(0, 2)
+
+    def initiate_animation(self, animation_name):
+        self.current_animation = animation_name
+        self.currently_animating = True
+
+    def update_avatar_image(self, image_x, image_y):
+        self.current_image_x = image_x
+        self.current_image_y = image_y
+
+    def move_avatar(self, x_change, y_change):
+        self.image_x += x_change/GameSettings.TILESIZE
+        self.image_y += y_change/GameSettings.TILESIZE
+
+    def reset_to_base(self, direction):
+        self.face_feature(direction)
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None
+
 
 class TreeAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y):
@@ -133,6 +161,11 @@ class MoveableFeature(object):
         self.image_x += x_change/GameSettings.TILESIZE
         self.image_y += y_change/GameSettings.TILESIZE
 
+    def reset_to_base(self, direction):
+        self.face_feature(direction)
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None
 
 class NpcAvatar(MoveableFeature):
     def __init__(self, name, image_x, image_y):

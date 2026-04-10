@@ -165,7 +165,7 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, None)
 
     def key_lshift_pressed(self):
-        pass
+        self.gc_input.change_room("New_Basic_Room")
 
     def key_caps_pressed(self):
         pass

@@ -166,6 +166,13 @@ class PositionManager(object):
             coordinates_list = item.return_base_coordinates_list(item.x, item.y)
             selected_room.add_feature(item.name, coordinates_list)
 
+    def clear_room_grid(self, room_to_clear):
+        selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_clear]
+        for x in range(selected_room.x_size):
+            for y in range(selected_room.y_size):
+                for z in range(selected_room.z_size):
+                    selected_room.remove_feature(x, y, z)
+
     # region FEATURE DICTIONARY
     def get_feature_location(self, feature_name):
         feature_data = self.gc_input.game_state.feature_location_dictionary[feature_name]
