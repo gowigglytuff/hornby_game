@@ -18,16 +18,27 @@ class PositionManager(object):
                 result = False
 
             current_elevation = self.gc_input.game_state.get_current_player_elevation()
-            print("running test")
-            print(current_elevation)
             adjacent_elevation = self.get_adjacent_tile_elevation(checker, direction, room)
-            print(adjacent_elevation)
             if abs(int(adjacent_elevation) - current_elevation) > 1:
                 result = False
 
         return result
 
-    def move_player_ghost(self, direction):
+    def check_for_door(self, room_name, x, y):
+        door = False
+        print(self.gc_input.game_data.door_data_list.keys())
+        try:
+            print(room_name + "_" + str(x) + "_" + str(y))
+            check = self.gc_input.game_data.door_data_list[room_name + "_" + str(x) + "_" + str(y)]
+            if check:
+                door = True
+            print("there's the door")
+        except:
+            print("no door found")
+            pass
+        return door
+
+    def nudge_player_ghost(self, direction):
         room_object = self.gc_input.game_data.room_data_list[self.gc_input.game_state.current_room]
         current_cube = room_object.access_cube(self.gc_input.game_state.player_ghost.x, self.gc_input.game_state.player_ghost.y, self.gc_input.game_state.player_ghost.z)
         new_cube_x = self.gc_input.game_state.player_ghost.x
@@ -52,6 +63,23 @@ class PositionManager(object):
         # update player elevation
         new_tile_elevation = self.get_tile_elevation(room_object.name, new_cube_x, new_cube_y)
         self.gc_input.game_state.set_player_elevation(new_tile_elevation)
+
+    def move_player_ghost(self, target_room_name, target_x, target_y, target_z):
+        x_from = self.gc_input.game_state.get_player_location()[0]
+        y_from = self.gc_input.game_state.get_player_location()[1]
+
+        room = self.gc_input.game_state.get_room(target_room_name)
+        room.access_cube(target_x, target_y, target_z).fill_cube("Player")
+        target_tile_elevation = self.get_tile_elevation(target_room_name, target_x, target_y)
+        self.gc_input.game_state.set_player_elevation(target_tile_elevation)
+        player_ghost = self.gc_input.game_state.get_player_ghost()
+        player_ghost.x = target_x
+        player_ghost.y = target_y
+        player_ghost.z = target_z
+        self.gc_input.game_view.update_player_avatar_location(target_x, target_y)
+
+        self.gc_input.game_view.manually_update_camera((target_x - x_from), (target_y -  y_from))
+
     # endregion
 
     # region FEATURE MOVEMENT
@@ -133,7 +161,6 @@ class PositionManager(object):
     def get_adjacent_tile_elevation(self, checker, direction, room):
         target_tile_x = checker.x
         target_tile_y = checker.y
-        print(direction)
         if direction == Direction.DOWN:
             target_tile_y = checker.y + 1
         elif direction == Direction.UP:
@@ -149,8 +176,6 @@ class PositionManager(object):
         chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
         chosen_room = self.gc_input.game_state.get_room(room_name)
         chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
-        print("plot")
-        print(chosen_plot)
         elevation_result = chosen_plot.get_elevation(x * chosen_plot_address[0], y * chosen_plot_address[1])
         return elevation_result
 
@@ -413,6 +438,15 @@ class Cube(object):
         self.object_filling = None
 
 
+class Door(object):
+    def __init__(self, room_from, room_to, x_from, y_from, x_to, y_to):
+        self.room_from = room_from
+        self.room_to = room_to
+        self. x_from = x_from
+        self.y_from = y_from
+        self.x_to = x_to
+        self.y_to = y_to
+
 class Plot(object):
     def __init__(self, room, plot_x, plot_y):
         self.plot_x = plot_x
@@ -427,14 +461,13 @@ class Plot(object):
         self.try_elevation_map()
 
     def try_elevation_map(self):
-        try:
-            self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
-        except:
-            pass
+         self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
+
 
     def get_elevation(self, x, y):
         elevation = self.elevation_map.get_elevation(x, y)
         return elevation
+
 
 class NewBasicRoom(Room2):
     ID = "New_Basic_Room"
@@ -448,7 +481,9 @@ class RingsidePlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
+        self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
         self.background_map = TileMap(self.background_csv_file).return_map()
+        self.try_elevation_map()
 
 
 class Ringside(Room2):

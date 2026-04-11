@@ -73,6 +73,10 @@ class GameView(object):
         image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
         return image
 
+    def update_player_avatar_location(self, player_ghost_x, player_ghost_y):
+        self.get_player_avatar().x_image = self.base_locator_x * player_ghost_x
+        self.get_player_avatar().y_image = self.base_locator_y * player_ghost_y
+
     # region DRAWING FEATURES
     def draw_npc(self, npc_name):
         camera_x = -self.camera[0]
@@ -173,6 +177,10 @@ class GameView(object):
     def set_camera(self, player_ghost_x, player_ghost_y):
         self.camera[0] = -(self.player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
         self.camera[1] = -(self.player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
+
+    def manually_update_camera(self, x_change, y_change):
+        self.camera[0] += (x_change * GameSettings.TILESIZE)
+        self.camera[1] += (y_change * GameSettings.TILESIZE)
 
     def set_menu_display_coordinates(self, name):
         for item in self.menu_display_details:

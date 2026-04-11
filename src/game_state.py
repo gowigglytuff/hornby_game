@@ -136,7 +136,7 @@ class GameState(object):
         return player_location, location_list
 
     def get_player_location(self):
-        player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
+        player_location = [self.get_player_ghost().x, self.get_player_ghost().y]
         return player_location
 
     def get_current_player_elevation(self):
@@ -427,8 +427,6 @@ class GameData(object):
 
     def add_outfit_data(self, outfit_name, outfit_object):
         self.outfit_data_list[outfit_name] = outfit_object
-
-
 
 
 class ListMenu(object):  # TODO: Work on this!!

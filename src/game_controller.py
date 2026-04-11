@@ -118,9 +118,9 @@ class GameController(object):
         if target_location_fill_status:
             pass
         else:
-
             self.position_manager.update_feature_dictionary(object_name, target_cube_location)
             self.position_manager.update_locations(feature_room, object_name, current_cube_location, target_cube_location)
+
 
     def check_if_feature_already_animating(self, name):
         avatar = self.game_view.npc_avatar_list[name]
@@ -192,10 +192,18 @@ class GameController(object):
         return self.game_view.player_avatar.currently_animating
 
     def initiate_player_movement(self, direction):
+        room = self.game_view.game_data.room_data_list[self.game_state.current_room]
+        target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room)
+        door_status = self.position_manager.check_for_door(room.name, target_tile.x, target_tile.y)
+        print(door_status)
         self.game_state.change_player_facing(direction)
-        if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, self.game_view.game_data.room_data_list[self.game_state.current_room]):
-            self.game_state.move_player_avatar(direction)
-            self.position_manager.move_player_ghost(direction)
+        if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room):
+            if not door_status:
+                self.game_state.move_player_avatar(direction)
+                self.position_manager.nudge_player_ghost(direction)
+            elif door_status:
+                print("ping")
+                self.go_through_door(room.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
 
     # endregion
 
@@ -260,7 +268,15 @@ class GameController(object):
         current_room = self.game_state.get_current_room()
         self.reset_room(current_room.name)
         self.load_up_room(room_going_to)
-        current_room = self.game_state.get_current_room()
+
+    def get_door(self, door_name):
+        return self.game_data.door_data_list[door_name]
+
+    def go_through_door(self, door_name):
+        door = self.get_door(door_name)
+        self.position_manager.move_player_ghost(door.room_to, door.x_to, door.y_to, 1)
+        self.change_room(door.room_to)
+        pass
 
 
 class InventoryManager(object):
