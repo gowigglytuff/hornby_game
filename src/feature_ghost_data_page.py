@@ -13,7 +13,6 @@ class FeatureGhost(object):
         self.spawn_y = spawn_y
         self.x = spawn_x
         self.y = spawn_y
-        self.z = 1
         self.base_size_x = 1
         self.base_size_y = 1
         self.spawn_facing = direction
@@ -28,7 +27,7 @@ class FeatureGhost(object):
             for y in range(self.base_size_y):
                 x_coordinate = bottom_left_x + x
                 y_coordinate = bottom_left_y - y
-                coordinates_list.append([x_coordinate, y_coordinate, self.z])
+                coordinates_list.append([x_coordinate, y_coordinate])
         return coordinates_list
 
     def reset_to_spawn(self):
@@ -58,10 +57,9 @@ class PlayerGhost(object):
         self.type = "Player"
         self.x = x
         self.y = y
-        self.z = 1
         self.base_size_x = 1
         self.base_size_y = 1
-        self.name = "default"
+        self.name = "Player"
         self.cur_img = (0, 0)
         self.state = "idle"
         self.facing = Direction.DOWN
@@ -73,7 +71,7 @@ class PlayerGhost(object):
             for y in range(self.base_size_y):
                 x_coordinate = bottom_left_x + x
                 y_coordinate = bottom_left_y - y
-                coordinates_list.append([x_coordinate, y_coordinate, self.z])
+                coordinates_list.append([x_coordinate, y_coordinate])
         return coordinates_list
 
 

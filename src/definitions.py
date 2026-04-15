@@ -8,6 +8,8 @@ class Direction(Enum):
     RIGHT = _ENUM_BASE + 2
     UP = _ENUM_BASE + 3
     DOWN = _ENUM_BASE + 4
+    MATCH = _ENUM_BASE + 5
+    SWITCH = _ENUM_BASE + 6
 
 
 class GameSettings(object):

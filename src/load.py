@@ -44,10 +44,10 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data(Mountain.ID, (Mountain()))
 
     def install_doors(gc, gs):
-        gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Island", 1, 3, 6, 2))
-        gs.gd.add_door_data("Island_8_2", Door("Island", "Ringside", 8, 2, 1, 3))
-        gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 11, 12))
-        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Island", 5, 12, 2, 5))
+        gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Island", 1, 3, 8, 2, Direction.MATCH))
+        gs.gd.add_door_data("Island_8_2", Door("Island", "Ringside", 8, 2, 1, 3, Direction.MATCH))
+        gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 5, 13, Direction.DOWN))
+        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Island", 5, 12, 2, 2, Direction.MATCH))
 
 
     def install_spritesheets(gc, gs):

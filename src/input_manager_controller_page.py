@@ -166,6 +166,7 @@ class InGameKeyboardManager(KeyboardManager):
 
     def key_lshift_pressed(self):
         self.gc_input.change_room("Island")
+        print("moves" + str(self.gc_input.move_counter))
 
     def key_caps_pressed(self):
         pass

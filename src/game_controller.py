@@ -84,7 +84,7 @@ class GameController(object):
         self.menu_manager = MenuManager(self)  # type:MenuManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
         self.feature_animations_in_progress = []
-
+        self.move_counter = 0
     # region GAME CONTROLS
     def set_active_keyboard_manager(self, active_manager_id):
         self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
@@ -166,6 +166,9 @@ class GameController(object):
         # self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
+    def clear_key_down_cue(self):
+        self.key_down_queue = []
+
     def act_on_key_down_cue(self):
         if not self.check_if_player_already_animating():
             direction = []
@@ -192,18 +195,21 @@ class GameController(object):
         return self.game_view.player_avatar.currently_animating
 
     def initiate_player_movement(self, direction):
-        room = self.game_view.game_data.room_data_list[self.game_state.current_room]
-        target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room)
-        door_status = self.position_manager.check_for_door(room.name, target_tile.x, target_tile.y)
-        print(door_status)
+        room_object = self.game_view.game_data.room_data_list[self.game_state.current_room]
+        target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room_object)
         self.game_state.change_player_facing(direction)
-        if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room):
+        door_status = self.position_manager.check_for_door(room_object.name, target_tile.x, target_tile.y)
+        print(str(door_status))
+        if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object):
             if not door_status:
                 self.game_state.move_player_avatar(direction)
-                self.position_manager.nudge_player_ghost(direction)
+                self.position_manager.nudge_ghost(self.game_state.get_player_ghost(), room_object, direction)
+                # self.position_manager.move_ghost(self.game_state.get_player_ghost(), room_object, room_object, self.game_state.player_ghost.x + 1, self.game_state.get_player_ghost().y)
             elif door_status:
-                print("ping")
-                self.go_through_door(room.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
+                print("ping2")
+                self.go_through_door(room_object.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
+            else:
+                print("all failed")
 
     # endregion
 
@@ -255,7 +261,7 @@ class GameController(object):
     def reset_room(self, room_name):
         room = self.game_state.get_room(room_name)
         for feature_ghost in self.game_state.get_all_features_in_room(room_name):
-            if feature_ghost.name == "Player":
+            if feature_ghost.type == "Player":
                 pass
             else:
                 feature_ghost.reset_to_spawn()
@@ -277,9 +283,18 @@ class GameController(object):
         return self.game_data.door_data_list[door_name]
 
     def go_through_door(self, door_name):
+        player_object = self.game_state.get_player_ghost()
+        self.clear_key_down_cue()
         door = self.get_door(door_name)
+        x_change = door.x_to - player_object.x
+        y_change = door.y_to - player_object.y
+        self.game_state.change_player_facing(door.exit_direction)
+        current_room_object = self.game_state.get_room(door.room_from)
+        new_room_object = self.game_state.get_room(door.room_to)
+        self.position_manager.move_ghost(player_object, current_room_object, new_room_object, door.x_to, door.y_to)
+        self.position_manager.match_player_elevation_to_target(new_room_object, door.x_to, door.y_to)
+        self.game_view.manually_update_camera(x_change, y_change)
         self.change_room(door.room_to)
-        self.position_manager.move_player_ghost(door.room_to, door.x_to, door.y_to, 1)
         pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
 
 

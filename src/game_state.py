@@ -62,7 +62,7 @@ class GameState(object):
         for feature in self.feature_ghost_list.values():
             if feature.room == room_name:
                 feature_list.append(feature)
-        return feature_listL
+        return feature_list
 
 
     # region GETTERS
@@ -149,8 +149,28 @@ class GameState(object):
 
     # region PLAYER CONTROL
     def change_player_facing(self, direction):
-        self.player_ghost.facing = direction
-        self.gv.player_avatar.face_character(direction)
+        final_facing = direction
+        current_facing = self.player_ghost.facing
+        if direction == Direction.MATCH:
+            if current_facing == Direction.DOWN:
+                final_facing = Direction.DOWN
+            elif current_facing == Direction.UP:
+                final_facing = Direction.UP
+            elif current_facing == Direction.LEFT:
+                final_facing = Direction.LEFT
+            elif current_facing == Direction.RIGHT:
+                final_facing = Direction.RIGHT
+        elif direction == Direction.SWITCH:
+            if current_facing == Direction.DOWN:
+                final_facing = Direction.UP
+            elif current_facing == Direction.UP:
+                final_facing = Direction.DOWN
+            elif current_facing == Direction.LEFT:
+                final_facing = Direction.RIGHT
+            elif current_facing == Direction.RIGHT:
+                final_facing = Direction.LEFT
+        self.player_ghost.facing = final_facing
+        self.gv.player_avatar.face_character(final_facing)
 
     def move_player_avatar(self, direction):
         if direction == Direction.DOWN:
