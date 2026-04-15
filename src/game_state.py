@@ -58,10 +58,11 @@ class GameState(object):
 
     def get_all_features_in_room(self, room_name):
         feature_list = []
+        feature_list.append(self.get_player_ghost())
         for feature in self.feature_ghost_list.values():
             if feature.room == room_name:
                 feature_list.append(feature)
-        return feature_list
+        return feature_listL
 
 
     # region GETTERS
@@ -289,7 +290,8 @@ class MenuState(object):
             selected_menu.update_menu_items_list(details["phrases"], details["speaker_name"], details["friendship_level"], details["friendship_level"])
 
         if menu_type == "conversation":
-            selected_menu.update_menu_items_list(details["speaker_name"], details["friendship_level"], details["face_image"])
+            selected_menu.update_menu_items_list()
+            # selected_menu.update_menu_items_list(details["speaker_name"], details["friendship_level"], details["face_image"])
 
         self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)

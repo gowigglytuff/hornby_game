@@ -39,7 +39,7 @@ class GameView(object):
                                      "special_menu": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                                      "supplies_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                                      "key_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "conversation_options_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                                     "conversation_options_menu": {"default_width": 100, "default_height": 30, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
                                      "game_action_dialogue_menu": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "use_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "yes_no_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},

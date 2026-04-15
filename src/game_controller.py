@@ -255,13 +255,17 @@ class GameController(object):
     def reset_room(self, room_name):
         room = self.game_state.get_room(room_name)
         for feature_ghost in self.game_state.get_all_features_in_room(room_name):
-            feature_ghost.reset_to_spawn()
-            avatar = self.game_view.get_npc_avatar(feature_ghost.name)
-            avatar.reset_to_base(feature_ghost.facing)
+            if feature_ghost.name == "Player":
+                pass
+            else:
+                feature_ghost.reset_to_spawn()
+                avatar = self.game_view.get_npc_avatar(feature_ghost.name)
+                avatar.reset_to_base(feature_ghost.facing)
         self.position_manager.clear_room_grid(room_name)
 
     def load_up_room(self, room_name):
         self.position_manager.fill_room_grid(room_name)
+        self.position_manager.add_player_to_grid(room_name)
         self.game_state.set_room(room_name)
 
     def change_room(self, room_going_to):
@@ -274,9 +278,9 @@ class GameController(object):
 
     def go_through_door(self, door_name):
         door = self.get_door(door_name)
-        self.position_manager.move_player_ghost(door.room_to, door.x_to, door.y_to, 1)
         self.change_room(door.room_to)
-        pass
+        self.position_manager.move_player_ghost(door.room_to, door.x_to, door.y_to, 1)
+        pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
 
 
 class InventoryManager(object):

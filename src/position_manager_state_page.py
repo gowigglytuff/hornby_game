@@ -245,11 +245,16 @@ class PositionManager(object):
             npc_ghost = self.gc_input.game_state.get_feature_ghost(npc)
             if npc_ghost_list[npc].room == room_to_fill:
                 fill_list.append(npc_ghost)
-        fill_list.append(self.gc_input.game.game_state.player_ghost)
 
         for item in fill_list:
             coordinates_list = item.return_base_coordinates_list(item.x, item.y)
             selected_room.add_feature(item.name, coordinates_list)
+
+    def add_player_to_grid(self, room_name):
+        selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_name]
+        player = self.gc_input.game_state.get_player_ghost()
+        player_coordinates = [[player.x, player.y, player.z]]
+        selected_room.add_feature("Player", player_coordinates)
 
     def clear_room_grid(self, room_to_clear):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_clear]
@@ -522,3 +527,26 @@ class Island(Room2):
             for y in range(self.total_plots_y):
                 y += 1
                 self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), IslandPlot(self.name, x, y))
+
+
+class MountainPlot(Plot):
+    def __init__(self, room, plot_x, plot_y):
+        super().__init__(room, plot_x, plot_y)
+        self.background_csv_file = "assets/room_csv/background_csv/Mountain_1_1_Background.csv"
+        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+
+
+class Mountain(Room2):
+    ID = "Mountain"
+
+    def __init__(self):
+        super().__init__(self.ID, 13, 13)
+        self.initiate_room()
+
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), MountainPlot(self.name, x, y))

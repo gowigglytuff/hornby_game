@@ -155,3 +155,88 @@ class MenuAvatar(object):
             final_menu_text.append(TextPrint(text_print_list[position_y], loc_x, loc_y))
 
         return final_menu_text
+
+
+class ConversationMenuAvatar(object):
+    NAME = "Conversation_Menu_Avatar"
+
+    def __init__(self, gc_input, items, display_details, name):
+        self.gc_input = gc_input
+
+        self.overlay_body_x = 0
+        self.overlay_body_Y = 0
+        self.overlay_header_x = 0
+        self.overlay_header_y = 0
+
+        self.x = 0
+        self.y = 0
+        self.offset_x = 15
+        self.offset_y = 15
+        self.cursor_offset_x = 5
+        self.header_spacing = 0
+        self.cursor_at = 0
+
+        self.y_space_size = 15
+
+        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
+        self.menu_spread_x = 0
+        self.name = name
+        self.menu_type = None
+
+        self.set_menu_width = None
+        self.set_menu_height = None
+
+        self.spritesheet_width = 0
+        self.spritesheet_height = 0
+
+        self.overlay_image = None
+        self.fill_out_menu_info(items)
+
+    def fill_out_menu_info(self, menu_information):
+        menu_items_list = menu_information["text_print_list"]
+        header = menu_information["header"]
+        cursor_at = menu_information["cursor_at"]
+
+        font_size = GameSettings.FONT_SIZE
+        segment_size = GameSettings.MENUSEGMENTSIZE
+        segment_proportion = font_size/segment_size
+
+
+        menu_width = 10
+        menu_height = 5
+        header_height = 0
+
+        # Update class info
+        self.overlay_body_x = menu_width
+        self.overlay_body_Y = menu_height
+
+        total_width = menu_width
+        self.spritesheet_width = menu_width * segment_size
+
+        total_height = menu_height + header_height
+        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
+
+        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
+
+        self.name = self.NAME
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_print_list = menu_info["text_print_list"]
+        cursor_img = menu_info["cursor_img"]
+        cursor_at = menu_info["cursor_at"]
+
+        final_menu_text = []
+
+
+        if cursor_img:
+            cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
+            cursor_loc_y = (cursor_at[1] * self.menu_spread_y) + self.header_spacing + self.offset_y
+            final_menu_text.append(TextPrint(cursor_img, cursor_loc_x, cursor_loc_y))
+
+        for position_y in range(len(text_print_list)):
+            loc_x = 200
+            loc_y = 200
+            final_menu_text.append(TextPrint(text_print_list[position_y], loc_x, loc_y))
+
+        return final_menu_text

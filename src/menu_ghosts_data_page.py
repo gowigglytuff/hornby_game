@@ -335,8 +335,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
     def __init__(self, gc_input):
         super().__init__(gc_input)
         self.menu_header = None
-        self.menu_item_list = []
-        self.menu_header = "<   ITEMS   >"
+        self.menu_item_list = ["Talk", "Give Gift", "Exit"]
         self.menu_images_list = []
         self.cursor = "-"
         self.shifts = 0
@@ -344,10 +343,9 @@ class ConversationOptionsMenuGhost(MenuGhost):
         self.currently_displayed_items = []
         self.update_menu_items_list()
         self.update_currently_displayed()
+        self.menu_type = "conversation"
 
     def cursor_down(self):
-        # print(self.size)
-        # print(self.cursor_at[1])
         if self.size > 1:
             if (self.cursor_at[1] + self.shifts) < self.size - 1:
                 if self.size > self.max_displayed_items:
@@ -372,46 +370,6 @@ class ConversationOptionsMenuGhost(MenuGhost):
                 self.cursor_at[1] -= 1
             else:
                 pass
-
-    def update_menu_items_list(self):
-        # keys_list = []
-        # current_inventory = self.gc_input.game_state.current_inventory
-        # for item in current_inventory:
-        #     keys_list.append(item)
-        # self.menu_item_list = keys_list
-        # self.menu_item_list.append("Exit")
-        # self.update_currently_displayed()
-        pass
-
-    def get_menu_items_to_print(self):
-        menu_length_calc = 0
-        if self.size >= self.max_displayed_items:
-            menu_length_calc = self.max_displayed_items
-        elif self.size < self.max_displayed_items:
-            menu_length_calc = self.size
-
-        printable_item_list = []
-
-        for option in range(menu_length_calc):
-            item = self.currently_displayed_items[option]
-            if item == "Exit":
-                printable_item_list.append(self.currently_displayed_items[option])
-
-            else:
-                available_spaces = 13
-                item_word_length = len(item)
-                quantity = str(self.gc_input.game_state.get_item_quantity(item))
-                quantity_word_length = len(quantity)
-                total_length = item_word_length + quantity_word_length
-
-                number_of_spaces = available_spaces - total_length
-                spaces_str = ""
-                for x in range(number_of_spaces):
-                    spaces_str = spaces_str + " "
-                final_item = item + spaces_str + "x" + quantity
-                printable_item_list.append(final_item)
-
-        return printable_item_list
 
     def update_currently_displayed(self):
         self.currently_displayed_items = []

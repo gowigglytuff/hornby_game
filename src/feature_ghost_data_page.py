@@ -37,6 +37,7 @@ class FeatureGhost(object):
         self.state = "idle"
         self.facing = self.spawn_facing
 
+
 class TreeGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction):
         super().__init__(name, gs_input, room, spawn_x, spawn_y, direction)

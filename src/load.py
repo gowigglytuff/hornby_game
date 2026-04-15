@@ -5,10 +5,10 @@ from definitions import Direction
 from feature_ghost_data_page import NpcGhost, PlayerGhost, TreeGhost, OldgodGhost
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_avatars_view_page import MenuAvatar
+from menu_avatars_view_page import MenuAvatar, ConversationMenuAvatar
 from menu_ghosts_data_page import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
 # from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
-from position_manager_state_page import NewBasicRoom, Ringside, Island, Door
+from position_manager_state_page import NewBasicRoom, Ringside, Island, Door, Mountain
 
 from spritesheet import Spritesheet
 
@@ -41,11 +41,14 @@ def install_all_data(gc, gs):
         # gs.gd.add_room_data(NewBasicRoom.ID, (NewBasicRoom()))
         gs.gd.add_room_data(Ringside.ID, (Ringside()))
         gs.gd.add_room_data(Island.ID, (Island()))
+        gs.gd.add_room_data(Mountain.ID, (Mountain()))
 
     def install_doors(gc, gs):
-        gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Island", 1, 3, 8, 2))
+        gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Island", 1, 3, 6, 2))
         gs.gd.add_door_data("Island_8_2", Door("Island", "Ringside", 8, 2, 1, 3))
-        gs.gd.add_door_data("Island_2_2", Door("Island", "Island", 2, 2, 11, 12))
+        gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 11, 12))
+        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Island", 5, 12, 2, 5))
+
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -97,11 +100,18 @@ def install_all_data(gc, gs):
 
         for menu in gs.ms.menu_ghost_data_list:
             menu_ghost = gs.ms.menu_ghost_data_list[menu]
-            avatar_name = menu_ghost.BASE + "_avatar"
-            display_details = gs.gv.menu_display_details[menu_ghost.BASE]
-            items = menu_ghost.generate_text_print()
-            gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
-            gs.gv.set_menu_display_coordinates(menu_ghost.BASE)
+            if menu_ghost.menu_type == "base" or "static":
+                avatar_name = menu_ghost.BASE + "_avatar"
+                display_details = gs.gv.menu_display_details[menu_ghost.BASE]
+                items = menu_ghost.generate_text_print()
+                gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
+                gs.gv.set_menu_display_coordinates(menu_ghost.BASE)
+            elif menu_ghost.menu_type == "conversation":
+                avatar_name = menu_ghost.BASE + "_avatar"
+                display_details = gs.gv.menu_display_details[menu_ghost.BASE]
+                items = menu_ghost.generate_text_print()
+                gs.gv.add_menu_avatar(avatar_name, ConversationMenuAvatar(gc, avatar_name, items, display_details))
+                gs.gv.set_menu_display_coordinates(menu_ghost.BASE)
 
     def install_outfits(gc, gs):
         pass
@@ -117,6 +127,13 @@ def install_all_data(gc, gs):
 
     def fill_initial_room(gc, gs):
         gc.position_manager.fill_room_grid(gc.game.game_state.current_room)
+        gc.position_manager.add_player_to_grid(gc.game.game_state.current_room)
+
+    def initiate_mixer():
+        pygame.mixer.init()
+        pygame.mixer.music.load("assets/sound_effects/popping_sound.mp3")
+        pygame.mixer.music.load("assets/music/flute_song.mp3")
+        pygame.mixer.music.play(-1)
 
     install_keyboard_managers(gc, gs)
     set_initial_keyboard_manager(gc, gs)
@@ -133,6 +150,7 @@ def install_all_data(gc, gs):
     install_rooms(gc, gs)
     install_doors(gc, gs)
     set_camera_position(gc, gs)
+    initiate_mixer()
     fill_initial_room(gc, gs)
 
 
