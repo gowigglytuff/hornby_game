@@ -546,3 +546,26 @@ class Mountain(Room2):
             for y in range(self.total_plots_y):
                 y += 1
                 self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), MountainPlot(self.name, x, y))
+
+
+class CavePlot(Plot):
+    def __init__(self, room, plot_x, plot_y):
+        super().__init__(room, plot_x, plot_y)
+        self.background_csv_file = "assets/room_csv/background_csv/Cave_1_1_Background.csv"
+        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+
+
+class Cave(Room2):
+    ID = "Cave"
+
+    def __init__(self):
+        super().__init__(self.ID, 13, 13)
+        self.initiate_room()
+
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), CavePlot(self.name, x, y))

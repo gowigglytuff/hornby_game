@@ -8,7 +8,7 @@ from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardM
 from menu_avatars_view_page import MenuAvatar, ConversationMenuAvatar
 from menu_ghosts_data_page import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
 # from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
-from position_manager_state_page import NewBasicRoom, Ringside, Island, Door, Mountain
+from position_manager_state_page import NewBasicRoom, Ringside, Island, Door, Mountain, Cave
 
 from spritesheet import Spritesheet
 
@@ -42,12 +42,18 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data(Ringside.ID, (Ringside()))
         gs.gd.add_room_data(Island.ID, (Island()))
         gs.gd.add_room_data(Mountain.ID, (Mountain()))
+        gs.gd.add_room_data(Cave.ID, (Cave()))
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Island", 1, 3, 8, 2, Direction.MATCH))
         gs.gd.add_door_data("Island_8_2", Door("Island", "Ringside", 8, 2, 1, 3, Direction.MATCH))
-        gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 5, 13, Direction.DOWN))
-        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Island", 5, 12, 2, 2, Direction.MATCH))
+        gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 10, 2, Direction.MATCH))
+        gs.gd.add_door_data("Mountain_10_2", Door("Mountain", "Island", 10, 2, 2, 2, Direction.DOWN))
+        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Island", 5, 12, 8, 2, Direction.MATCH))
+        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Cave", 5, 12, 4, 9, Direction.SWITCH))
+        gs.gd.add_door_data("Mountain_10_10", Door("Mountain", "Cave", 10, 10, 10, 7, Direction.SWITCH))
+        gs.gd.add_door_data("Cave_4_8", Door("Cave", "Mountain", 4, 8, 5, 13, Direction.SWITCH))
+        gs.gd.add_door_data("Cave_10_6", Door("Cave", "Mountain", 10, 6, 10, 11, Direction.SWITCH))
 
 
     def install_spritesheets(gc, gs):
