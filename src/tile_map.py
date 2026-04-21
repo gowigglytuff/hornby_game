@@ -59,9 +59,6 @@ class TileMap:
     def __init__(self, filename):
         self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
         self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
-        print(self.tile_set_1)
-        print()
-        print(self.tile_set_2)
         self.tile_size = GameSettings.TILESIZE
         self.start_x, self.start_y = 0, 0
         self.tiles_1 = self.load_tiles(filename, self.tile_set_1)

@@ -8,7 +8,7 @@ from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardM
 from menu_avatars_view_page import MenuAvatar, ConversationMenuAvatar
 from menu_ghosts_data_page import SpecialMenuGhost, StatMenuGhost, StartMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueGhost, SubMenuGhost, UseMenuGhost
 # from menu_page import GameActionDialogue, CharacterDialogue, ConversationOptionsMenu, Overlay, KeyInventoryMenu, YesnoMenu, UseMenu
-from position_manager_state_page import NewBasicRoom, Ringside, Island, Door, Mountain, Cave
+from position_manager_state_page import NewBasicRoom, Ringside, Island, Door, Mountain, Cave, BigIsland
 
 from spritesheet import Spritesheet
 
@@ -43,9 +43,11 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data(Island.ID, (Island()))
         gs.gd.add_room_data(Mountain.ID, (Mountain()))
         gs.gd.add_room_data(Cave.ID, (Cave()))
+        gs.gd.add_room_data(BigIsland.ID, (BigIsland()))
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Island", 1, 3, 8, 2, Direction.MATCH))
+        gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Big_Island", 1, 3, 30, 30, Direction.MATCH))
         gs.gd.add_door_data("Island_8_2", Door("Island", "Ringside", 8, 2, 1, 3, Direction.MATCH))
         gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 10, 2, Direction.MATCH))
         gs.gd.add_door_data("Mountain_10_2", Door("Mountain", "Island", 10, 2, 2, 2, Direction.DOWN))
@@ -65,22 +67,24 @@ def install_all_data(gc, gs):
         pass
 
     def install_avatar_all(gc, gs):
-        npc_name_list = ["Clown", "Cowboy"]
+        npc_name_list = gs.get_all_feature_unique_names()
+        print("Here come the names")
+        print(npc_name_list)
+        # npc_name_list = ["Clown", "Cowboy"]
         for npc_item in npc_name_list:
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
-            gs.gv.add_feature_avatar(npc_item, NpcAvatar(npc_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
+            print(related_ghost.feature_type)
+            print("Cheese")
+            if related_ghost.feature_type == "NPC":
+                print("adding ghost " + related_ghost.name)
+                gs.gv.add_feature_avatar(related_ghost.unique_name, NpcAvatar(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name))
+            if related_ghost.feature_type == "Tree":
+                gs.gv.add_feature_avatar(related_ghost.unique_name, TreeAvatar(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name))
+            if related_ghost.feature_type == "Oldgod":
+                gs.gv.add_feature_avatar(related_ghost.unique_name, OldgodAvatar(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name))
 
-        tree_name_list = ["Tree"]
-        for tree_item in tree_name_list:
-            related_ghost = gc.game_state.feature_ghost_list[tree_item]
-            gs.gv.add_feature_avatar(tree_item, TreeAvatar(tree_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
-        god_name_list = ["Oldgod"]
-        for god_item in god_name_list:
-            related_ghost = gc.game_state.feature_ghost_list[god_item]
-            gs.gv.add_feature_avatar(god_item, OldgodAvatar(god_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
-
-        gs.gv.add_feature_avatar("grass", Deco("grass", 2, 10))
-
+        # gs.gv.add_feature_avatar("grass", Deco("grass", 2, 10))
+        one = gc.game_view.get_npc_avatar("Clown_1")
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))

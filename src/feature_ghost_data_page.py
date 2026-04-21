@@ -1,20 +1,21 @@
-from definitions import Direction, Types
+from definitions import Direction, Types, GameSettings
 import pygame
 
 
 class FeatureGhost(object):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
         self.gs_input = gs_input
         self.type = "default"
         self.name = name
-        self.unique_id = self.gs_input.generate_unique_id
+        self.unique_name = unique_name
+        self.feature_type = feature_type
         self.state = "idle"
         self.spawn_x = spawn_x
         self.spawn_y = spawn_y
         self.x = spawn_x
         self.y = spawn_y
-        self.base_size_x = 1
-        self.base_size_y = 1
+        self.base_size_x = base_size_x
+        self.base_size_y = base_size_y
         self.spawn_facing = direction
         self.facing = direction
         self.cur_img = (0, 0)
@@ -38,17 +39,15 @@ class FeatureGhost(object):
 
 
 class TreeGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction):
-        super().__init__(name, gs_input, room, spawn_x, spawn_y, direction)
-        self.type = Types.PROP
-        self.base_size_x = 2
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+
 
 
 class OldgodGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction):
-        super().__init__(name, gs_input, room, spawn_x, spawn_y, direction)
-        self.type = Types.PROP
-        self.base_size_x = 3
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+
 
 
 class PlayerGhost(object):
@@ -59,7 +58,7 @@ class PlayerGhost(object):
         self.y = y
         self.base_size_x = 1
         self.base_size_y = 1
-        self.name = "Player"
+        self.unique_name = "Player"
         self.cur_img = (0, 0)
         self.state = "idle"
         self.facing = Direction.DOWN
@@ -76,7 +75,6 @@ class PlayerGhost(object):
 
 
 class NpcGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction)
-        self.type = Types.NPC
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
 

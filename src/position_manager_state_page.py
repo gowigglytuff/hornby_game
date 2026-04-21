@@ -74,7 +74,7 @@ class PositionManager(object):
         feature_object.y = target_y
 
         new_cube = target_room_object.access_cube(target_x, target_y)
-        new_cube.fill_cube(feature_object.name)
+        new_cube.fill_cube(feature_object.unique_name)
 
         if feature_object.type == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
@@ -117,7 +117,7 @@ class PositionManager(object):
             feature.x += 1
         new_cube = room_object.access_cube(new_cube_x, new_cube_y)
         current_cube.empty_cube()
-        new_cube.fill_cube(feature.name)
+        new_cube.fill_cube(feature.unique_name)
     # endregion
 
     # region CHECKING FOR MOVEMENT
@@ -251,7 +251,7 @@ class PositionManager(object):
 
         for item in fill_list:
             coordinates_list = item.return_base_coordinates_list(item.x, item.y)
-            selected_room.add_feature(item.name, coordinates_list)
+            selected_room.add_feature(item.unique_name, coordinates_list)
 
     def add_player_to_grid(self, room_name):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_name]
@@ -568,3 +568,26 @@ class Cave(Room2):
             for y in range(self.total_plots_y):
                 y += 1
                 self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), CavePlot(self.name, x, y))
+
+
+class BigIslandPlot(Plot):
+    def __init__(self, room, plot_x, plot_y):
+        super().__init__(room, plot_x, plot_y)
+        self.background_csv_file = "assets/room_csv/background_csv/Big_Island_1_1_Background.csv"
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
+        self.elevation_csv_file = "assets/room_csv/elevation_csv/Big_Island_1_1_elevation.csv"
+
+
+class BigIsland(Room2):
+    ID = "Big_Island"
+
+    def __init__(self):
+        super().__init__(self.ID, 40, 40)
+        self.initiate_room()
+
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), BigIslandPlot(self.name, x, y))

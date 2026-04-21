@@ -4,7 +4,7 @@ import os
 
 from feature_ghost_data_page import NpcGhost, TreeGhost, OldgodGhost
 from input_manager_controller_page import *
-from definitions import Direction, Types
+from definitions import Direction, Types, GameSettings
 from position_manager_state_page import Room2, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, MenuDrawer
@@ -102,9 +102,9 @@ class GameController(object):
     def close_game(self):
         self.game.game_running = False
 
-    def load_feature(self, name, ghost_object, avatar_object):
-        self.game_state.add_feature_ghost(name, ghost_object)
-        self.game_view.add_feature_avatar(name, avatar_object)
+    def load_feature(self, unique_name, ghost_object, avatar_object):
+        self.game_state.add_feature_ghost(unique_name, ghost_object)
+        self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
 
     def switch_tile_frame(self):
@@ -113,6 +113,7 @@ class GameController(object):
             self.game_view.tile_frame = 0
         elif ref == 0:
             self.game_view.tile_frame = 1
+
 
     # region FEATURE MOVEMENT
     def attempt_move_object(self, object_name, movement_direction):
@@ -263,15 +264,16 @@ class GameController(object):
             for row in data:
                 NPC_data.append(list(row))
         for NPC in NPC_data:
+            unique_name = NPC[2] + "_" + str(GameSettings.get_unique_ID())
             if NPC[0] == "NPC":
-                test = NpcGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
-                self.game_state.add_feature_ghost(NPC[1], test)
-            elif NPC[0] == "Tree":
-                test = TreeGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
-                self.game_state.add_feature_ghost(NPC[1], test)
-            elif NPC[0] == "Oldgod":
-                test = OldgodGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
-                self.game_state.add_feature_ghost(NPC[1], test)
+                test = NpcGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN, NPC[7], int(NPC[8]), int(NPC[9]), unique_name)
+                self.game_state.add_feature_ghost(unique_name, test)
+            # elif NPC[0] == "Tree":
+            #     test = TreeGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
+            #     self.game_state.add_feature_ghost(NPC[1], test)
+            # elif NPC[0] == "Oldgod":
+            #     test = OldgodGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
+            #     self.game_state.add_feature_ghost(NPC[1], test)
 
         return NPC_data
 
@@ -282,7 +284,7 @@ class GameController(object):
                 pass
             else:
                 feature_ghost.reset_to_spawn()
-                avatar = self.game_view.get_npc_avatar(feature_ghost.name)
+                avatar = self.game_view.get_npc_avatar(feature_ghost.unique_name)
                 avatar.reset_to_base(feature_ghost.facing)
         self.position_manager.clear_room_grid(room_name)
 

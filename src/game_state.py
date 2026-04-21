@@ -20,7 +20,6 @@ class GameState(object):
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.decoration_ghost_list = {}
-        self.unique_idea_generator = 10000
 
         self.new_game = True
         self.current_room = "Ringside"
@@ -51,11 +50,6 @@ class GameState(object):
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
 
-    def generate_unique_id(self):
-        unique_id = copy.copy(self.unique_idea_generator)
-        self.unique_idea_generator += 1
-        return unique_id
-
     def get_all_features_in_room(self, room_name):
         feature_list = []
         feature_list.append(self.get_player_ghost())
@@ -79,6 +73,13 @@ class GameState(object):
 
     def get_feature_ghost(self, name):
         return self.feature_ghost_list[name]
+
+    def get_all_feature_unique_names(self):
+        key_list =[]
+        for item in self.feature_ghost_list:
+            print(item)
+            key_list.append(item)
+        return key_list
 
     def get_npc_avatar(self, name):
         return self.gv.npc_avatar_list[name]
@@ -127,8 +128,9 @@ class GameState(object):
         npc_ghost_list = self.feature_ghost_list
 
         for npc in npc_ghost_list.keys():
+            print("look here")
+            print(npc)
             npc_ghost = self.get_feature_ghost(npc)
-            npc_avatar = self.get_npc_avatar(npc)
             if npc_ghost_list[npc].room == self.current_room:
                 location_list.append([npc, npc_ghost.y, npc_ghost.x])
 

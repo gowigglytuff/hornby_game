@@ -56,8 +56,9 @@ class PlayerAvatar(object):
 
 
 class FeatureAvatar(object):
-    def __init__(self, name, image_x, image_y, unique_id):
+    def __init__(self, name, image_x, image_y, unique_name):
         self.name = name
+        self.unique_name = unique_name
         self.drawing_priority = 1
         self.type = "default"
         self.character_frame_x = 24
@@ -110,6 +111,7 @@ class TreeAvatar(FeatureAvatar):
         self.character_frame_y = 72
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
+        self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
 
 
 class OldgodAvatar(FeatureAvatar):
@@ -120,11 +122,14 @@ class OldgodAvatar(FeatureAvatar):
         self.character_frame_y = 108
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
+        self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
+
 
 
 class MoveableFeature(object):
-    def __init__(self, name, image_x, image_y, unique_id):
+    def __init__(self, name, image_x, image_y, unique_name):
         self.name = name
+        self.unique_name = unique_name
         self.drawing_priority = 1
         self.character_frame_x = 24
         self.character_frame_y = 36

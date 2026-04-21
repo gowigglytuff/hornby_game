@@ -1,3 +1,4 @@
+import copy
 from enum import Enum
 
 _ENUM_BASE = 83571983457
@@ -21,9 +22,15 @@ class GameSettings(object):
     RESOLUTION = (312*4, 312*3)
     MENUSEGMENTSIZE = 5
     MENUEDGE = 50
+    UNIQUEID = 1
 
     FONT_SIZE = 10
 
+    @classmethod
+    def get_unique_ID(cls):
+        ID = copy.copy(GameSettings.UNIQUEID)
+        GameSettings.UNIQUEID += 1
+        return ID
 
 class Types(Enum):
     PROP = "Prop"

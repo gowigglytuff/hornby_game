@@ -1,5 +1,7 @@
-﻿NPC,Clown,Clown,Ringside,3,10,Direction.DOWN
-NPC,Cowboy,Cowboy,Ringside,8,10,Direction.DOWN
-Tree,Tree,Tree,Ringside,3,8,Direction.DOWN
-Oldgod,Oldgod,Oldgod,Ringside,4,4,Direction.DOWN
-NPC,Cowboy,Cowboy,Island,11,11,Direction.DOWN
+﻿NPC,Clown,Clown,Ringside,3,10,Direction.DOWN,NPC, 1, 1
+NPC,Cowboy,Cowboy,Ringside,8,10,Direction.DOWN,NPC, 1, 1
+NPC,Tree,Tree,Ringside,3,8,Direction.DOWN,NPC, 2, 1
+NPC,Oldgod,Oldgod,Ringside,4,4,Direction.DOWN,Oldgod, 3, 1
+NPC,Cowboy,Cowboy,Island,11,11,Direction.DOWN,NPC, 1, 1
+NPC,Tree,Tree,Big_Island,35,12,Direction.DOWN,Tree, 2, 1
+NPC,Tree,Tree,Big_Island,32,12,Direction.DOWN,Tree, 2, 1

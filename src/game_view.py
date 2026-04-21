@@ -56,6 +56,9 @@ class GameView(object):
     def get_npc_avatar(self, name):
         return self.npc_avatar_list[name]
 
+    def get_all_avatar_names(self):
+        print(self.npc_avatar_list.keys())
+
     def add_feature_avatar(self, character_name, character_object):
         self.npc_avatar_list[character_name] = character_object
 
@@ -123,18 +126,21 @@ class GameView(object):
             if drawable[0].type == "Player":
                 self.draw_player()
             elif drawable[0].type == "Npc":
-                self.draw_npc(drawable[0].name)
+                self.draw_npc(drawable[0].unique_name)
             elif drawable[0].type == "Deco":
-                self.draw_deco(drawable[0].name)
+                self.draw_deco(drawable[0].unique_name)
                 print("ding ding ding")
 
     def get_drawables_list(self, player_location, feature_locations):
         drawables_list = []
 
-        for deco in self.deco_avatar_list: #TODO: Fix this
-            drawables_list.append([deco, self.deco_avatar_list[deco], deco.drawing_priority])
+        # for deco in self.deco_avatar_list: #TODO: Fix this
+        #     drawables_list.append([deco, self.deco_avatar_list[deco], deco.drawing_priority])
+
+        self.get_all_avatar_names()
 
         for npc in feature_locations:
+            print(npc[0] + "woooooo")
             npc_avatar = self.get_npc_avatar(npc[0])
             drawables_list.append([npc_avatar, npc[1], npc_avatar.drawing_priority])
 
