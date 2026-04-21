@@ -30,9 +30,11 @@ class GameEvents(object):
         self.five_second_timer_id = pygame.USEREVENT + 150
         self.ten_second_timer_id = pygame.USEREVENT + 151
         self.one_second_timer_id = pygame.USEREVENT + 152
+        self.half_second_timer_id = pygame.USEREVENT + 155
+        self.quarter_second_timer_id = pygame.USEREVENT + 156
         self.fifth_second_timer_id = pygame.USEREVENT + 153
         self.twentieth_second_timer_id = pygame.USEREVENT + 154
-        self.timer_list = [self.one_second_timer_id, self.five_second_timer_id, self.ten_second_timer_id, self.fifth_second_timer_id, self.twentieth_second_timer_id]
+        self.timer_list = [self.one_second_timer_id, self.half_second_timer_id, self.five_second_timer_id, self.ten_second_timer_id, self.fifth_second_timer_id, self.twentieth_second_timer_id, self.quarter_second_timer_id]
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -47,11 +49,13 @@ class GameEvents(object):
                 # cowboy = self.gc.game_state.npc_ghost_list["Cowboy"]
                 # self.gc.position_manager.move_feature(cowboy, self.gc.game_data.room_data_list[self.gc.game_state.current_room], Direction.DOWN)
                 pass
-            if event.type == self.fifth_second_timer_id:
-                pass
+
+            if event.type == self.quarter_second_timer_id:
+                self.gc.switch_tile_frame()
             if event.type == self.twentieth_second_timer_id:
                 self.gc.act_on_key_down_cue()
                 self.gc.ask_animator_to_animate()
+
 
     def initiate_timers(self):
         twentieth_second_timer = self.twentieth_second_timer_id
@@ -59,6 +63,12 @@ class GameEvents(object):
 
         fifth_second_timer = self.fifth_second_timer_id
         pygame.time.set_timer(fifth_second_timer, 20)
+
+        quarter_second_timer = self.quarter_second_timer_id
+        pygame.time.set_timer(quarter_second_timer, 500)
+
+        half_second_timer = self.half_second_timer_id
+        pygame.time.set_timer(half_second_timer, 500)
 
         one_second_timer = self.one_second_timer_id
         pygame.time.set_timer(one_second_timer, 1000)
@@ -96,6 +106,13 @@ class GameController(object):
         self.game_state.add_feature_ghost(name, ghost_object)
         self.game_view.add_feature_avatar(name, avatar_object)
     # endregion
+
+    def switch_tile_frame(self):
+        ref = self.game_view.tile_frame
+        if ref == 1:
+            self.game_view.tile_frame = 0
+        elif ref == 0:
+            self.game_view.tile_frame = 1
 
     # region FEATURE MOVEMENT
     def attempt_move_object(self, object_name, movement_direction):

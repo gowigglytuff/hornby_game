@@ -232,6 +232,7 @@ class GameState(object):
             else:
                 self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
 
+
     def acquire_item(self, item, quantity):
         current_inventory = self.current_inventory_dictionary
         if item.NAME in current_inventory:

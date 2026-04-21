@@ -24,6 +24,7 @@ class GameView(object):
 
         self.font_medium = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
 
+        self.tile_frame = 0
         self.night_filter = pygame.Surface(pygame.Rect((0, 0, self.resolution[0], self.resolution[1])).size)
         self.sky_change_increments = 6
         self.fully_dark_hours = 4
@@ -32,6 +33,7 @@ class GameView(object):
         self.player_avatar = None
         self.menu_avatar_data_list = {}
         self.npc_avatar_list = {}
+        self.deco_avatar_list = {}
         self.prop_avatar_list = {}
         self.decoration_avatar_list = {}
         self.menu_display_details = {"start_menu": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
@@ -56,6 +58,9 @@ class GameView(object):
 
     def add_feature_avatar(self, character_name, character_object):
         self.npc_avatar_list[character_name] = character_object
+
+    def add_deco_avatar(self, deco_name, deco_object):
+        self.deco_avatar_list[deco_name] = deco_object
 
     def add_prop_avatar(self, prop_name, prop_object):
         self.prop_avatar_list[prop_name] = prop_object
@@ -86,6 +91,14 @@ class GameView(object):
         npc_loc_y = camera_y + (self.npc_avatar_list[npc_name].image_y - 1) * self.square_size[1] - chosen_npc_avatar.image_offset_y
         self.screen.blit(chosen_npc_avatar.spritesheet.get_image(chosen_npc_avatar.current_image_x, chosen_npc_avatar.current_image_y), (npc_loc_x, npc_loc_y))
 
+    def draw_deco(self, deco_name):
+        camera_x = -self.camera[0]
+        camera_y = -self.camera[1]
+        chosen_deco_avatar = self.deco_avatar_list[deco_name]
+        deco_loc_x = camera_x + (self.npc_avatar_list[deco_name].image_x - 1) * self.square_size[0] + self.npc_avatar_list[deco_name].image_offset_x
+        deco_loc_y = camera_y + (self.npc_avatar_list[deco_name].image_y - 1) * self.square_size[1] - chosen_deco_avatar.image_offset_y
+        self.screen.blit(chosen_deco_avatar.spritesheet.get_image(chosen_deco_avatar.current_image_x, chosen_deco_avatar.current_image_y), (deco_loc_x, deco_loc_y))
+
     def draw_player(self):
         player = self.player_avatar
         play_loc_x = (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
@@ -101,7 +114,7 @@ class GameView(object):
             selected_plot = room.plot_list[plot]
             plot_location_x = room.plot_size_x * (selected_plot.plot_x - 1) * self.square_size[0]
             plot_location_y = room.plot_size_y * (selected_plot.plot_y - 1) * self.square_size[1]
-            self.screen.blit(selected_plot.background_map, (camera_x + plot_location_x, camera_y + plot_location_y))
+            self.screen.blit(selected_plot.background_map[self.tile_frame], (camera_x + plot_location_x, camera_y + plot_location_y))
 
     def draw_all(self, drawables_list, current_room):
         self.draw_bg(current_room)
@@ -111,9 +124,15 @@ class GameView(object):
                 self.draw_player()
             elif drawable[0].type == "Npc":
                 self.draw_npc(drawable[0].name)
+            elif drawable[0].type == "Deco":
+                self.draw_deco(drawable[0].name)
+                print("ding ding ding")
 
     def get_drawables_list(self, player_location, feature_locations):
         drawables_list = []
+
+        for deco in self.deco_avatar_list: #TODO: Fix this
+            drawables_list.append([deco, self.deco_avatar_list[deco], deco.drawing_priority])
 
         for npc in feature_locations:
             npc_avatar = self.get_npc_avatar(npc[0])

@@ -197,3 +197,25 @@ class NpcAvatar(MoveableFeature):
         face = face.subsurface(0, 0, 24, 24)
         face = pygame.transform.scale(face, [24 * 5, 24 * 5])
         return face
+
+
+class Deco(object):
+    def __init__(self, name, image_x, image_y):
+        self.type = "Deco"
+        self.name = name
+        self.drawing_priority = 1
+        self.character_frame_x = 24
+        self.character_frame_y = 36
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/decos/grass_deco.png", 20, 20)
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.image_x = image_x
+        self.image_y = image_y
+        self.size_x = 1
+        self.size_y = 1
+        self.image_offset_y = self.character_frame_y / 2
+        self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
+        self.animation_list = {}
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None

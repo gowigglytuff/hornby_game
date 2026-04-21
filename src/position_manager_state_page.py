@@ -458,12 +458,11 @@ class Plot(object):
         self.terrain_csv_file = "assets/room_csv/terrain_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.elevation_map = None
-        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
         self.try_elevation_map()
 
     def try_elevation_map(self):
          self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
-
 
     def get_elevation(self, x, y):
         elevation = self.elevation_map.get_elevation(x, y)
@@ -483,7 +482,7 @@ class RingsidePlot(Plot):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
-        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
         self.try_elevation_map()
 
 
@@ -506,7 +505,7 @@ class IslandPlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Island_1_1_Background.csv"
-        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
 
 
@@ -529,7 +528,7 @@ class MountainPlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Mountain_1_1_Background.csv"
-        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
 
 
@@ -552,7 +551,7 @@ class CavePlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Cave_1_1_Background.csv"
-        self.background_map = TileMap(self.background_csv_file).return_map()
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
 
 

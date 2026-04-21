@@ -1,6 +1,6 @@
 import pygame
 
-from feature_avatar_view_page import NpcAvatar, PlayerAvatar, TreeAvatar, OldgodAvatar
+from feature_avatar_view_page import NpcAvatar, PlayerAvatar, TreeAvatar, OldgodAvatar, Deco
 from definitions import Direction
 from feature_ghost_data_page import NpcGhost, PlayerGhost, TreeGhost, OldgodGhost
 from item_page import *
@@ -49,7 +49,7 @@ def install_all_data(gc, gs):
         gs.gd.add_door_data("Island_8_2", Door("Island", "Ringside", 8, 2, 1, 3, Direction.MATCH))
         gs.gd.add_door_data("Island_2_2", Door("Island", "Mountain", 2, 2, 10, 2, Direction.MATCH))
         gs.gd.add_door_data("Mountain_10_2", Door("Mountain", "Island", 10, 2, 2, 2, Direction.DOWN))
-        gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Island", 5, 12, 8, 2, Direction.MATCH))
+        gs.gd.add_door_data("Mountain_5_1 2", Door("Mountain", "Island", 5, 12, 8, 2, Direction.MATCH))
         gs.gd.add_door_data("Mountain_5_12", Door("Mountain", "Cave", 5, 12, 4, 9, Direction.SWITCH))
         gs.gd.add_door_data("Mountain_10_10", Door("Mountain", "Cave", 10, 10, 10, 7, Direction.SWITCH))
         gs.gd.add_door_data("Cave_4_8", Door("Cave", "Mountain", 4, 8, 5, 13, Direction.SWITCH))
@@ -78,6 +78,9 @@ def install_all_data(gc, gs):
         for god_item in god_name_list:
             related_ghost = gc.game_state.feature_ghost_list[god_item]
             gs.gv.add_feature_avatar(god_item, OldgodAvatar(god_item, related_ghost.x, related_ghost.y, related_ghost.unique_id))
+
+        gs.gv.add_feature_avatar("grass", Deco("grass", 2, 10))
+
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
