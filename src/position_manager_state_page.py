@@ -282,7 +282,7 @@ class PositionManager(object):
     # endregion
 
 
-class Room2(object):
+class Room(object):
     def __init__(self, room_name, x_size, y_size):
         self.name = room_name
         self.x_size = x_size
@@ -448,6 +448,7 @@ class Door(object):
         self.y_to = y_to
         self.exit_direction = exit_direction
 
+
 class Plot(object):
     def __init__(self, room, plot_x, plot_y):
         self.plot_x = plot_x
@@ -459,22 +460,14 @@ class Plot(object):
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.elevation_map = None
         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
-        self.try_elevation_map()
+        self.make_elevation_map()
 
-    def try_elevation_map(self):
-         self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
+    def make_elevation_map(self):
+        self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
 
     def get_elevation(self, x, y):
         elevation = self.elevation_map.get_elevation(x, y)
         return elevation
-
-
-class NewBasicRoom(Room2):
-    ID = "New_Basic_Room"
-
-    def __init__(self):
-        super().__init__(self.ID, 10, 10)
-        self.initiate_room()
 
 
 class RingsidePlot(Plot):
@@ -482,11 +475,11 @@ class RingsidePlot(Plot):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
-        self.try_elevation_map()
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3()]
+        self.make_elevation_map()
 
 
-class Ringside(Room2):
+class Ringside(Room):
     ID = "Ringside"
 
     def __init__(self):
@@ -500,20 +493,20 @@ class Ringside(Room2):
                 y += 1
                 self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), RingsidePlot(self.name, x, y))
 
-
-class IslandPlot(Plot):
+class ConsolidatedPlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv/Island_1_1_Background.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
-        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+        self.background_csv_file = "assets/room_csv/background_csv/" + self.name + "_Background.csv"
+        self.elevation_csv_file = "assets/room_csv/elevation_csv/" + self.name + "_Elevation.csv"
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3()]
+        self.make_elevation_map()
 
 
-class Island(Room2):
-    ID = "Island"
-
-    def __init__(self):
-        super().__init__(self.ID, 13, 13)
+class Consolidated(Room):
+    def __init__(self, room_name, x_size, y_size, total_plots_x, total_plots_y):
+        super().__init__(room_name, x_size, y_size)
+        self.total_plots_x = total_plots_x
+        self.total_plots_y = total_plots_y
         self.initiate_room()
 
     def add_all_plots(self):
@@ -521,73 +514,4 @@ class Island(Room2):
             x += 1
             for y in range(self.total_plots_y):
                 y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), IslandPlot(self.name, x, y))
-
-
-class MountainPlot(Plot):
-    def __init__(self, room, plot_x, plot_y):
-        super().__init__(room, plot_x, plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv/Mountain_1_1_Background.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
-        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
-
-
-class Mountain(Room2):
-    ID = "Mountain"
-
-    def __init__(self):
-        super().__init__(self.ID, 13, 13)
-        self.initiate_room()
-
-    def add_all_plots(self):
-        for x in range(self.total_plots_x):
-            x += 1
-            for y in range(self.total_plots_y):
-                y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), MountainPlot(self.name, x, y))
-
-
-class CavePlot(Plot):
-    def __init__(self, room, plot_x, plot_y):
-        super().__init__(room, plot_x, plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv/Cave_1_1_Background.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
-        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
-
-
-class Cave(Room2):
-    ID = "Cave"
-
-    def __init__(self):
-        super().__init__(self.ID, 13, 13)
-        self.initiate_room()
-
-    def add_all_plots(self):
-        for x in range(self.total_plots_x):
-            x += 1
-            for y in range(self.total_plots_y):
-                y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), CavePlot(self.name, x, y))
-
-
-class BigIslandPlot(Plot):
-    def __init__(self, room, plot_x, plot_y):
-        super().__init__(room, plot_x, plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv/Big_Island_1_1_Background.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
-        self.elevation_csv_file = "assets/room_csv/elevation_csv/Big_Island_1_1_elevation.csv"
-
-
-class BigIsland(Room2):
-    ID = "Big_Island"
-
-    def __init__(self):
-        super().__init__(self.ID, 40, 40)
-        self.initiate_room()
-
-    def add_all_plots(self):
-        for x in range(self.total_plots_x):
-            x += 1
-            for y in range(self.total_plots_y):
-                y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), BigIslandPlot(self.name, x, y))
+                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.name, x, y))

@@ -1,5 +1,6 @@
 import pygame
 
+
 class Spritesheet(object):
     def __init__(self, name, filename, width, height, max_img_num=None):
         self.sheet = pygame.image.load(filename).convert_alpha()
@@ -12,6 +13,8 @@ class Spritesheet(object):
         else:
             self.max_img_num = (self.sheet.get_width()/self.width) * (self.sheet.get_height()/self.height)
 
+        print(self.sheet.get_width())
+        print(self.width)
         assert self.sheet.get_width() % self.width == 0
         assert self.sheet.get_height() % self.height == 0
 

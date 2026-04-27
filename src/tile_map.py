@@ -57,18 +57,25 @@ class TileSet(object):
 
 class TileMap:
     def __init__(self, filename):
-        self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
-        self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
-        self.tile_size = GameSettings.TILESIZE
+        self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE1, 16, 16, 21, 23).load_tile_images()
+        self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, 16, 16, 21 , 23).load_tile_images()
+        self.tile_set_3 = TileSet(GameSettings.TILESET_IMAGE3, 16, 16, 21 , 23).load_tile_images()
+        # self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
+        # self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
+        self.tile_size = 16
         self.start_x, self.start_y = 0, 0
         self.tiles_1 = self.load_tiles(filename, self.tile_set_1)
         self.tiles_2 = self.load_tiles(filename, self.tile_set_2)
+        self.tiles_3 = self.load_tiles(filename, self.tile_set_3)
         self.map_surface_1 = pygame.Surface((self.map_w, self.map_h))
         self.map_surface_1.set_colorkey((0, 0, 0))
         self.map_surface_2 = pygame.Surface((self.map_w, self.map_h))
         self.map_surface_2.set_colorkey((0, 0, 0))
+        self.map_surface_3 = pygame.Surface((self.map_w, self.map_h))
+        self.map_surface_3.set_colorkey((0, 0, 0))
         self.load_map()
         self.load_map_2()
+        self.load_map_3()
 
     def return_map(self):
         return self.map_surface_1
@@ -83,6 +90,13 @@ class TileMap:
     def load_map_2(self):
         for tile in self.tiles_2:
             tile.draw_tile(self.map_surface_2)
+
+    def return_map_3(self):
+        return self.map_surface_3
+
+    def load_map_3(self):
+        for tile in self.tiles_3:
+            tile.draw_tile(self.map_surface_3)
 
     def read_csv(self, filename):
         tile_map = []

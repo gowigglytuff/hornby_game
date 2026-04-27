@@ -40,6 +40,7 @@ class WalkAnimation(Animation):
     def __init__(self, direction):
         super().__init__(direction)
         self.foot = "left"
+        self.current_frame = 0
         self.current_image_x = 0
         self.current_image_y = 0
         self.x_vector = 0
@@ -73,13 +74,15 @@ class WalkAnimation(Animation):
                     self.current_image_x = 3
                 elif self.foot == "right":
                     self.current_image_x = 1
+                self.current_frame += 1
 
             elif self.current_frame == (GameSettings.TILESIZE-1):
                 self.current_frame = 0
                 self.current_image_x = 0
                 self.complete = True
+            else:
+                self.current_frame += 1
 
-            self.current_frame += 1
         return self.result()
 
     def reset(self):

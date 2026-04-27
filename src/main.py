@@ -1,4 +1,4 @@
-from position_manager_state_page import Room2
+from position_manager_state_page import Room
 from game_controller import Game
 from load import init_game
 import pygame

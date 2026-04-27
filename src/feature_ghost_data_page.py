@@ -1,5 +1,27 @@
-from definitions import Direction, Types, GameSettings
-import pygame
+from definitions import Direction
+
+class PlayerGhost(object):
+    def __init__(self, gs_input, x, y):
+        self.gs_input = gs_input
+        self.type = "Player"
+        self.x = x
+        self.y = y
+        self.base_size_x = 1
+        self.base_size_y = 1
+        self.unique_name = "Player"
+        self.cur_img = (0, 0)
+        self.state = "idle"
+        self.facing = Direction.DOWN
+        self.current_outfit = "Normal Outfit"
+
+    def return_base_coordinates_list(self, bottom_left_x, bottom_left_y):
+        coordinates_list = []
+        for x in range(self.base_size_x):
+            for y in range(self.base_size_y):
+                x_coordinate = bottom_left_x + x
+                y_coordinate = bottom_left_y - y
+                coordinates_list.append([x_coordinate, y_coordinate])
+        return coordinates_list
 
 
 class FeatureGhost(object):
@@ -36,42 +58,6 @@ class FeatureGhost(object):
         self.y = self.spawn_y
         self.state = "idle"
         self.facing = self.spawn_facing
-
-
-class TreeGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
-
-
-
-class OldgodGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
-
-
-
-class PlayerGhost(object):
-    def __init__(self, gs_input, x, y):
-        self.gs_input = gs_input
-        self.type = "Player"
-        self.x = x
-        self.y = y
-        self.base_size_x = 1
-        self.base_size_y = 1
-        self.unique_name = "Player"
-        self.cur_img = (0, 0)
-        self.state = "idle"
-        self.facing = Direction.DOWN
-        self.current_outfit = "Normal Outfit"
-
-    def return_base_coordinates_list(self, bottom_left_x, bottom_left_y):
-        coordinates_list = []
-        for x in range(self.base_size_x):
-            for y in range(self.base_size_y):
-                x_coordinate = bottom_left_x + x
-                y_coordinate = bottom_left_y - y
-                coordinates_list.append([x_coordinate, y_coordinate])
-        return coordinates_list
 
 
 class NpcGhost(FeatureGhost):

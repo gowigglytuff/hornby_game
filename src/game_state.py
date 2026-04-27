@@ -1,11 +1,11 @@
 import copy
-from feature_ghost_data_page import PlayerGhost
+from feature_ghost_data_page import PlayerGhost, NpcGhost
 from graphics import BuiltOverlay
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
 from input_manager_controller_page import *
 from feature_avatar_view_page import PlayerAvatar
 from definitions import Direction, GameSettings, Types
-from position_manager_state_page import Room2, PositionManager, NewBasicRoom
+from position_manager_state_page import Room, PositionManager, NewBasicRoom
 
 
 class GameState(object):
@@ -14,6 +14,7 @@ class GameState(object):
         self.gc = game_controller  # type: GameController
         self.gd = game_data  # type: GameData
         self.ms = MenuState(self)  # type: MenuState
+        self.ghost_classes = {"NPC": NpcGhost}
 
         self.selected_tool = "None"
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
@@ -414,8 +415,8 @@ class GameData(object):
 
         self.spritesheet_list = {}
         self.room_dictionary = {
-            "overworld": Room2("overworld", 5, 5),
-            "Ringside": Room2("Ringside", 5, 5)}
+            "overworld": Room("overworld", 5, 5),
+            "Ringside": Room("Ringside", 5, 5)}
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost]
         self.item_data_list = {}
         self.key_item_data_list = {}

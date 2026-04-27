@@ -2,10 +2,9 @@ import copy
 import csv
 import os
 
-from feature_ghost_data_page import NpcGhost, TreeGhost, OldgodGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings
-from position_manager_state_page import Room2, PositionManager
+from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, MenuDrawer
 
@@ -110,12 +109,16 @@ class GameController(object):
     def switch_tile_frame(self):
         ref = self.game_view.tile_frame
         if ref == 1:
-            self.game_view.tile_frame = 0
+            self.game_view.tile_frame = 2
         elif ref == 0:
             self.game_view.tile_frame = 1
-
-
+        elif ref == 2:
+            self.game_view.tile_frame = 0
     # region FEATURE MOVEMENT
+
+    def get_avatar_class(self, avatar_type):
+        return self.game_view.avatar_classes[avatar_type]
+
     def attempt_move_object(self, object_name, movement_direction):
         feature_loc_info = self.position_manager.get_feature_location(object_name)
         feature_room = feature_loc_info[0]
@@ -266,14 +269,9 @@ class GameController(object):
         for NPC in NPC_data:
             unique_name = NPC[2] + "_" + str(GameSettings.get_unique_ID())
             if NPC[0] == "NPC":
-                test = NpcGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN, NPC[7], int(NPC[8]), int(NPC[9]), unique_name)
+                test = self.game_state.ghost_classes["NPC"](NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN, NPC[7], int(NPC[8]), int(NPC[9]), unique_name)
                 self.game_state.add_feature_ghost(unique_name, test)
-            # elif NPC[0] == "Tree":
-            #     test = TreeGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
-            #     self.game_state.add_feature_ghost(NPC[1], test)
-            # elif NPC[0] == "Oldgod":
-            #     test = OldgodGhost(NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN)
-            #     self.game_state.add_feature_ghost(NPC[1], test)
+
 
         return NPC_data
 

@@ -3,7 +3,7 @@ import pygame
 import position_manager_state_page
 from definitions import Direction
 from menu_ghosts_data_page import StartMenuGhost, ConversationOptionsMenuGhost
-from position_manager_state_page import Room2
+from position_manager_state_page import Room
 
 
 class KeyboardManager(object):

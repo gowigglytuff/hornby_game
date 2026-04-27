@@ -1,8 +1,8 @@
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import PlayerAvatar
+from feature_avatar_view_page import PlayerAvatar, NPCAvatar, TreeAvatar, OldgodAvatar
 from definitions import Direction, GameSettings, Types
-from position_manager_state_page import Room2, PositionManager
+from position_manager_state_page import Room, PositionManager
 
 
 class GameView(object):
@@ -17,6 +17,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
+        self.avatar_classes = {"NPC": NPCAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)

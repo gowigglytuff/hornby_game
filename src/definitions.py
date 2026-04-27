@@ -15,8 +15,9 @@ class Direction(Enum):
 
 class GameSettings(object):
     TILESIZE = 32
-    TILESET_IMAGE = "assets/tile_set/MapTilesetFrame1.png"
-    TILESET_IMAGE2 = "assets/tile_set/MapTilesetFrame2.png"
+    TILESET_IMAGE1 = "assets/tile_set/16x16tileset_frame1.png"
+    TILESET_IMAGE2 = "assets/tile_set/16x16tileset_frame2.png"
+    TILESET_IMAGE3 = "assets/tile_set/16x16tileset_frame3.png"
     MENU_STYLE = "assets/spritesheets/menu_spritesheets/menu_structure_gray.png"
     TILESET_SIZE = 40
     RESOLUTION = (312*4, 312*3)
