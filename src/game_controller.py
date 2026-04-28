@@ -113,6 +113,8 @@ class GameController(object):
         elif ref == 0:
             self.game_view.tile_frame = 1
         elif ref == 2:
+            self.game_view.tile_frame = 3
+        elif ref == 3:
             self.game_view.tile_frame = 0
     # region FEATURE MOVEMENT
 

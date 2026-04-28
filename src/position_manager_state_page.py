@@ -475,7 +475,7 @@ class RingsidePlot(Plot):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3()]
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
         self.make_elevation_map()
 
 
@@ -498,7 +498,7 @@ class ConsolidatedPlot(Plot):
         super().__init__(room, plot_x, plot_y)
         self.background_csv_file = "assets/room_csv/background_csv/" + self.name + "_Background.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv/" + self.name + "_Elevation.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3()]
+        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
         self.make_elevation_map()
 
 

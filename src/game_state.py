@@ -1,11 +1,9 @@
 import copy
 from feature_ghost_data_page import PlayerGhost, NpcGhost
-from graphics import BuiltOverlay
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
 from input_manager_controller_page import *
-from feature_avatar_view_page import PlayerAvatar
-from definitions import Direction, GameSettings, Types
-from position_manager_state_page import Room, PositionManager, NewBasicRoom
+from definitions import Direction, Types
+from position_manager_state_page import Room
 
 
 class GameState(object):

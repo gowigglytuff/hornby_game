@@ -41,7 +41,6 @@ def install_all_data(gc, gs):
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Test_Room", 1, 5, 10, 10, Direction.MATCH))
-        gs.gd.add_door_data("Ringside_1_5", Door("Ringside", "Little_Room", 1, 5, 10, 10, Direction.MATCH))
         gs.gd.add_door_data("Test_Room_8_12", Door("Test_Room", "Cave", 8, 12, 8, 11, Direction.MATCH))
         gs.gd.add_door_data("Cave_8_12", Door("Cave", "Test_Room", 8, 12, 8, 13, Direction.MATCH))
 
