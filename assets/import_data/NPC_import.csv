@@ -12,3 +12,4 @@ NPC,Tree,Tree,Big_Island,36,5,Direction.DOWN,Tree, 1, 1
 NPC,Tree,Tree,Big_Island,37,11,Direction.DOWN,Tree, 1, 1
 NPC,Tree,Tree,Big_Island,39,13,Direction.DOWN,Tree, 1, 1
 NPC,Tree,Tree,Test_Room,12,12,Direction.DOWN,Tree, 1, 1
+NPC,House,House,Test_Room,4, 17,Direction.DOWN,House, 6, 3

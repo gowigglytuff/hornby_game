@@ -31,11 +31,8 @@ class PositionManager(object):
         door = False
         hypothetical_door = room_name + "_" + str(x) + "_" + str(y)
         for door_name in self.gc_input.game_data.door_data_list.keys():
-            print(door_name)
             if door_name == hypothetical_door:
                 door = True
-                print("there's the door")
-        print(door)
         return door
 
     def get_adjacent_cube_coordinates(self, feature, direction):
@@ -58,7 +55,6 @@ class PositionManager(object):
         adjacent_coordinates = self.get_adjacent_cube_coordinates(feature_object, direction)
         target_x = adjacent_coordinates[0]
         target_y = adjacent_coordinates[1]
-        print(adjacent_coordinates[1], adjacent_coordinates[1])
         self.move_ghost(feature_object, room_object, room_object, target_x, target_y)
 
     def move_ghost(self, feature, current_room, target_room, target_x, target_y):
@@ -97,7 +93,6 @@ class PositionManager(object):
         return result
 
     def move_feature_ghost(self, name, direction):
-        print("moved feature ghost")
         feature = self.gc_input.game_state.get_feature_ghost(name)
         room_object = self.gc_input.game_data.room_data_list[self.gc_input.game_state.current_room]
         current_cube = room_object.access_cube(feature.x, feature.y)

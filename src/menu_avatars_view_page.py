@@ -17,6 +17,13 @@ class TextPrint(object):
         self.x = x
         self.y = y
 
+class ImagePrint(object):
+    def __init__(self, image, x, y):
+        self.image = image
+        self.x = x
+        self.y = y
+
+
 
 class MenuAvatar(object):
     NAME = "Menu_Base_Avatar"
@@ -156,6 +163,115 @@ class MenuAvatar(object):
 
         return final_menu_text
 
+    def get_menu_image_drawing_instructions(self, menu_info):
+        return None
+
+class ConversationOptionsMenuAvatar(MenuAvatar):
+    NAME = "conversation_options_menu_avatar"
+
+    def __init__(self, gc_input, name,  items, display_details):
+        super().__init__(gc_input, name,  items, display_details)
+        self.gc_input = gc_input
+
+        self.overlay_body_x = 0
+        self.overlay_body_Y = 0
+        self.overlay_header_x = 0
+        self.overlay_header_y = 0
+
+        self.x = 0
+        self.y = 0
+        self.offset_x = 175
+        self.offset_y = 20
+        self.cursor_offset_x = self.offset_x - 10
+        self.header_spacing = 0
+        self.cursor_at = 0
+
+        self.y_space_size = 15
+
+        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
+        self.menu_spread_x = 0
+        self.name = name
+        self.menu_type = None
+
+        self.set_menu_width = None
+        self.set_menu_height = None
+
+        self.spritesheet_width = 0
+        self.spritesheet_height = 0
+
+        self.overlay_image = None
+        self.fill_out_menu_info(items)
+
+    def fill_out_menu_info(self, menu_information):
+        menu_items_list = menu_information["text_print_list"]
+        header = menu_information["header"]
+        cursor_at = menu_information["cursor_at"]
+
+        font_size = GameSettings.FONT_SIZE
+        segment_size = GameSettings.MENUSEGMENTSIZE
+        segment_proportion = font_size/segment_size
+
+
+        menu_width = 64
+        menu_height = 25
+        header_height = 0
+
+        # Update class info
+        self.overlay_body_x = menu_width
+        self.overlay_body_Y = menu_height
+
+        total_width = menu_width
+        self.spritesheet_width = menu_width * segment_size
+
+        total_height = menu_height + header_height
+        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
+
+        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
+
+        self.name = self.NAME
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_print_list = menu_info["text_print_list"]
+        cursor_img = menu_info["cursor_img"]
+        cursor_at = menu_info["cursor_at"]
+        speaker_name = menu_info["speaker_name"]
+        friendship_level = menu_info["friendship_level"]
+
+        final_menu_text = []
+
+
+        if cursor_img:
+            cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
+            cursor_loc_y = (cursor_at[1] * self.menu_spread_y) + self.menu_spread_y + self.offset_y
+            final_menu_text.append(TextPrint(cursor_img, cursor_loc_x, cursor_loc_y))
+
+        for position_y in range(len(text_print_list)):
+            loc_x = self.menu_spread_x + self.offset_x
+            loc_y = (position_y * self.menu_spread_y) + self.menu_spread_y + self.offset_y
+            text = TextPrint(text_print_list[position_y], loc_x, loc_y)
+            final_menu_text.append(text)
+
+        # name and Friendship
+        loc_x = self.menu_spread_x + self.offset_x
+        loc_y = self.offset_y
+        text = TextPrint(speaker_name + " [" + str(friendship_level) + "]", loc_x, loc_y)
+        final_menu_text.append(text)
+
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        face = menu_info["face_image"]
+
+        final_menu_images = []
+
+        loc_x = 5
+        loc_y = 0
+        image = ImagePrint(face, loc_x, loc_y)
+        final_menu_images.append(image)
+
+        return final_menu_images
+
 
 class ConversationMenuAvatar(object):
     NAME = "Conversation_Menu_Avatar"
@@ -170,7 +286,7 @@ class ConversationMenuAvatar(object):
 
         self.x = 0
         self.y = 0
-        self.offset_x = 15
+        self.offset_x = 50
         self.offset_y = 15
         self.cursor_offset_x = 5
         self.header_spacing = 0
@@ -235,8 +351,9 @@ class ConversationMenuAvatar(object):
             final_menu_text.append(TextPrint(cursor_img, cursor_loc_x, cursor_loc_y))
 
         for position_y in range(len(text_print_list)):
-            loc_x = 200
-            loc_y = 200
+            print("grabbing")
+            loc_x = self.offset_x
+            loc_y = self.offset_y
             final_menu_text.append(TextPrint(text_print_list[position_y], loc_x, loc_y))
 
         return final_menu_text

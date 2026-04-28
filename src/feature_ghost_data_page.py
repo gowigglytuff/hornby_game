@@ -1,4 +1,5 @@
-from definitions import Direction
+from definitions import Direction, Types
+
 
 class PlayerGhost(object):
     def __init__(self, gs_input, x, y):
@@ -27,7 +28,7 @@ class PlayerGhost(object):
 class FeatureGhost(object):
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
         self.gs_input = gs_input
-        self.type = "default"
+        self.type = Types.NPC
         self.name = name
         self.unique_name = unique_name
         self.feature_type = feature_type

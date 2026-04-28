@@ -162,12 +162,16 @@ class GameController(object):
 
     # region PLAYER ACTIONS
     def player_interact(self):
-        full = self.position_manager.check_if_adjacent_tiles_full(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
+        player = self.game_state.get_player_ghost()
+        room = self.game_state.get_current_room()
+        full = self.position_manager.check_if_adjacent_tiles_full(player, player.facing, room)
         if full:
-            cube = self.position_manager.get_adjacent_tile(self.game_state.get_player_ghost(), self.game_state.get_player_ghost().facing, self.game_state.get_current_room())
+            print("it's full")
+            cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.game_state.get_feature_ghost(cube.object_filling)
+            print(feature.type)
             if feature.type == Types.NPC:
-                self.talk_to_npc(cube.object_filling, self.game_state.get_player_ghost().facing)
+                self.talk_to_npc(cube.object_filling, player.facing)
             else:
                 pass
 
@@ -186,7 +190,11 @@ class GameController(object):
         npc_talking_to_avatar = self.game_view.npc_avatar_list[npc_talking_to]
         self.game_state.change_npc_facing(direction_to_turn, npc_talking_to)
         self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
-        # self.menu_manager.set_conversation_menu(npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
+        details = {"speaker_name": npc_talking_to_ghost.name,
+                   "friendship_level": 11,
+                   "face_image": npc_talking_to_avatar.face_image}
+
+        self.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, details)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def clear_key_down_cue(self):
@@ -222,14 +230,12 @@ class GameController(object):
         target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room_object)
         self.game_state.change_player_facing(direction)
         door_status = self.position_manager.check_for_door(room_object.name, target_tile.x, target_tile.y)
-        print(str(door_status))
         if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object):
             if not door_status:
                 self.game_state.move_player_avatar(direction)
                 self.position_manager.nudge_ghost(self.game_state.get_player_ghost(), room_object, direction)
                 # self.position_manager.move_ghost(self.game_state.get_player_ghost(), room_object, room_object, self.game_state.player_ghost.x + 1, self.game_state.get_player_ghost().y)
             elif door_status:
-                print("ping2")
                 self.go_through_door(room_object.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
             else:
                 print("all failed")

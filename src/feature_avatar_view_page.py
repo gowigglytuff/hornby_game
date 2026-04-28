@@ -33,7 +33,7 @@ class PlayerAvatar(object):
     def get_face_image(self):
         face = self.spritesheet.get_image(0, 0)
         face = face.subsurface(0, 0, 24, 24)
-        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        face = pygame.transform.scale(face, [24 * 4, 24 * 4])
         return face
 
     def face_character(self, direction):
@@ -106,7 +106,13 @@ class FeatureAvatar(object):
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+        self.face_image = self.get_face_image()
 
+    def get_face_image(self):
+        face = self.spritesheet.get_image(0, 0)
+        face = face.subsurface(0, 0, 24, 24)
+        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        return face
 
 class TreeAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y):
@@ -155,6 +161,16 @@ class OldgodAvatar(FeatureAvatar):
         self.character_frame_y = 108
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
+        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+
+class HouseAvatar(FeatureAvatar):
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y)
+        self.type = "Npc"
+        self.character_frame_x = 192
+        self.character_frame_y = 128
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.image_offset_y = (self.character_frame_y - GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 class Deco(object):

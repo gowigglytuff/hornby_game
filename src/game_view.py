@@ -1,6 +1,6 @@
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import PlayerAvatar, NPCAvatar, TreeAvatar, OldgodAvatar
+from feature_avatar_view_page import PlayerAvatar, NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar
 from definitions import Direction, GameSettings, Types
 from position_manager_state_page import Room, PositionManager
 
@@ -17,7 +17,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
-        self.avatar_classes = {"NPC": NPCAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar}
+        self.avatar_classes = {"NPC": NPCAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
@@ -42,7 +42,7 @@ class GameView(object):
                                      "special_menu": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                                      "supplies_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                                      "key_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "conversation_options_menu": {"default_width": 100, "default_height": 30, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
+                                     "conversation_options_menu": {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
                                      "game_action_dialogue_menu": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "use_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                                      "yes_no_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
@@ -130,7 +130,6 @@ class GameView(object):
                 self.draw_npc(drawable[0].unique_name)
             elif drawable[0].type == "Deco":
                 self.draw_deco(drawable[0].unique_name)
-                print("ding ding ding")
 
     def get_drawables_list(self, player_location, feature_locations):
         drawables_list = []
@@ -138,10 +137,7 @@ class GameView(object):
         # for deco in self.deco_avatar_list: #TODO: Fix this
         #     drawables_list.append([deco, self.deco_avatar_list[deco], deco.drawing_priority])
 
-        self.get_all_avatar_names()
-
         for npc in feature_locations:
-            print(npc[0] + "woooooo")
             npc_avatar = self.get_npc_avatar(npc[0])
             drawables_list.append([npc_avatar, npc[1], npc_avatar.drawing_priority])
 
@@ -157,7 +153,8 @@ class GameView(object):
     def draw_special_menu(self, menu_name, menu_info, x, y):
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
-        full_menu = self.compile_special_menu(final_menu_text, None, menu_avatar.overlay_image)
+        final_menu_images = menu_avatar.get_menu_image_drawing_instructions(menu_info)
+        full_menu = self.compile_special_menu(final_menu_text, final_menu_images, menu_avatar.overlay_image)
         self.screen.blit(full_menu, (x, y))
 
     def draw_sub_menu(self, menu_name, menu_info, x, y):
@@ -170,8 +167,8 @@ class GameView(object):
         final_image = pygame.Surface((overlay.get_width(), overlay.get_height()))
         final_image.blit(overlay, [0, 0])
         # print("using compile")
-
         for item in text_print_list:
+            # print(item.text, item.x, item.y)
             my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
             item_text = my_font.render(item.text, True, (0, 0, 0))
             final_image.blit(item_text, [item.x, item.y])
