@@ -4,6 +4,7 @@ import os
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings
+from menu_ghosts_data_page import ConversationOptionsMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, MenuDrawer

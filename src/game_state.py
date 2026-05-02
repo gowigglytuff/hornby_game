@@ -3,7 +3,7 @@ from feature_ghost_data_page import PlayerGhost, NpcGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
-from position_manager_state_page import Room
+from position_manager_state_page import Room, Door
 
 
 class GameState(object):
@@ -21,7 +21,7 @@ class GameState(object):
         self.decoration_ghost_list = {}
 
         self.new_game = True
-        self.current_room = "Ringside"
+        self.current_room = "Staging_Area"
         self.current_player_elevation = 3
 
         self.your_coins = 127
@@ -223,13 +223,16 @@ class GameState(object):
         self.gv.draw_all(drawables_list, current_room)
 
         for menu in self.ms.static_menus:
-            self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
+            ghost = self.ms.menu_ghost_data_list[menu + "_ghost"]
+            avatar_display_details = self.gv.menu_avatar_data_list[menu + "_avatar"].menu_display_details
+            self.gv.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
         for menu in self.ms.visible_menus:
+            ghost = self.ms.menu_ghost_data_list[menu + "_ghost"]
+            avatar_display_details = self.gv.menu_avatar_data_list[menu + "_avatar"].menu_display_details
             if self.ms.menu_ghost_data_list[menu + "_ghost"].menu_type == "sub":
-                sub_menu = self.ms.menu_ghost_data_list[menu + "_ghost"]
-                self.gv.draw_sub_menu(menu, sub_menu.generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
+                self.gv.draw_sub_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
             else:
-                self.gv.draw_special_menu(menu, self.ms.menu_ghost_data_list[menu + "_ghost"].generate_text_print(), self.gv.menu_display_details[menu]["coordinates"][0], self.gv.menu_display_details[menu]["coordinates"][1])
+                self.gv.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
 
 
     def acquire_item(self, item, quantity):
@@ -315,6 +318,10 @@ class MenuState(object):
 
         if menu_type == "conversation_options":
             selected_menu.update_menu_items_list(details)
+            print(menu_name)
+
+        if menu_type == "quiz_menu":
+            selected_menu.update_menu_items_list()
             print(menu_name)
 
         self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
@@ -417,7 +424,7 @@ class GameData(object):
         self.room_dictionary = {
             "overworld": Room("overworld", 5, 5),
             "Ringside": Room("Ringside", 5, 5)}
-        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost]
+        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, QuizMenuGhost]
         self.item_data_list = {}
         self.key_item_data_list = {}
 
@@ -439,8 +446,29 @@ class GameData(object):
     def add_room_data(self, room_name, room_object):
         self.room_data_list[room_name] = room_object
 
-    def add_door_data(self, door_name, door_object):
-        self.door_data_list[door_name] = door_object
+    def add_door_data(self, door_type, room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y):
+        if door_type == "Ladder":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            print(door1_name)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.MATCH)
+            self.door_data_list[door1_name] = door1_object
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y, Direction.MATCH)
+            self.door_data_list[door2_name] = door2_object
+
+        elif door_type == "Passage":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.MATCH)
+            self.door_data_list[door1_name] = door1_object
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
+            self.door_data_list[door2_name] = door2_object
 
     def add_temp_item_data(self, item_name, item_object):
         self.temp_item_data_list[item_name] = item_object

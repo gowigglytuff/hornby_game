@@ -2,6 +2,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import PlayerAvatar, NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar
 from definitions import Direction, GameSettings, Types
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar
 from position_manager_state_page import Room, PositionManager
 
 
@@ -37,16 +38,8 @@ class GameView(object):
         self.deco_avatar_list = {}
         self.prop_avatar_list = {}
         self.decoration_avatar_list = {}
-        self.menu_display_details = {"start_menu": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "stat_menu": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "top", "coordinates": [0, 0]},
-                                     "special_menu": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
-                                     "supplies_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "key_inventory_menu": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                                     "conversation_options_menu": {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "game_action_dialogue_menu": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "use_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "yes_no_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                                     "sub_menu": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]}}
+        self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
+                                 "conversation_options_menu": ConversationOptionsMenuAvatar}
 
     def add_player_avatar(self, player_object):
         self.player_avatar = player_object
@@ -151,6 +144,7 @@ class GameView(object):
 
     # region DRAW MENUS
     def draw_special_menu(self, menu_name, menu_info, x, y):
+        # print(menu_info)
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
         final_menu_images = menu_avatar.get_menu_image_drawing_instructions(menu_info)
@@ -164,6 +158,7 @@ class GameView(object):
         self.screen.blit(full_menu, (x, y))
 
     def compile_special_menu(self, text_print_list, image_print_list, overlay):
+        # print(image_print_list)
         final_image = pygame.Surface((overlay.get_width(), overlay.get_height()))
         final_image.blit(overlay, [0, 0])
         # print("using compile")
@@ -175,6 +170,7 @@ class GameView(object):
 
         if image_print_list:
             for item in image_print_list:
+                print(item)
                 image = item.image
                 final_image.blit(image, [item.x, item.y])
 
@@ -206,38 +202,43 @@ class GameView(object):
         self.camera[1] += (y_change * GameSettings.TILESIZE)
 
     def set_menu_display_coordinates(self, name):
-        for item in self.menu_display_details:
-            menu_avatar = self.menu_avatar_data_list[name + "_avatar"]
-            x_instruction = self.menu_display_details[name]["align_x"]
-            y_instruction = self.menu_display_details[name]["align_y"]
-            x = 0
-            y = 0
+        name = name + "_avatar"
+        menu_avatar = self.menu_avatar_data_list[name]
+        x_instruction = menu_avatar.menu_display_details["align_x"]
+        y_instruction = menu_avatar.menu_display_details["align_y"]
+        x = 0
+        y = 0
 
-            if x_instruction == "center":
-                x = GameSettings.RESOLUTION[0] / 2 - menu_avatar.spritesheet_width / 2
-            elif x_instruction == "left":
-                x = 0 + GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
-            elif x_instruction == "right":
-                x = GameSettings.RESOLUTION[0] - menu_avatar.spritesheet_width - GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
-            else:
-                x = x_instruction
+        if x_instruction == "center":
+            x = GameSettings.RESOLUTION[0] / 2 - menu_avatar.spritesheet_width / 2
+        elif x_instruction == "left":
+            x = 0 + GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
+        elif x_instruction == "right":
+            x = GameSettings.RESOLUTION[0] - menu_avatar.spritesheet_width - GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
+        else:
+            x = x_instruction
 
-            if y_instruction == "center":
-                y = GameSettings.RESOLUTION[1] / 2 - menu_avatar.spritesheet_height / 2
-            elif y_instruction == "top":
-                y = 0 + GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
-            elif y_instruction == "bottom":
-                y = GameSettings.RESOLUTION[1] - menu_avatar.spritesheet_height - GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
-            else:
-                y = y_instruction
+        if y_instruction == "center":
+            y = GameSettings.RESOLUTION[1] / 2 - menu_avatar.spritesheet_height / 2
+        elif y_instruction == "top":
+            y = 0 + GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+        elif y_instruction == "bottom":
+            y = GameSettings.RESOLUTION[1] - menu_avatar.spritesheet_height - GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+        else:
+            y = y_instruction
 
-            self.menu_display_details[name]["coordinates"][0] = x
-            self.menu_display_details[name]["coordinates"][1] = y
+        menu_avatar.menu_display_details["coordinates"][0] = x
+        menu_avatar.menu_display_details["coordinates"][1] = y
 
     def update_sub_menu_display_details(self, menu_name, master_menu):
         selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
-        self.menu_display_details[menu_name]["coordinates"][0] = self.menu_display_details[master_menu]["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
-        self.menu_display_details[menu_name]["coordinates"][1] = self.menu_display_details[master_menu]["coordinates"][1]
+        selected_menu_display_details = selected_menu_avatar.menu_display_details
+
+        master_menu_avatar = self.menu_avatar_data_list[master_menu + "_avatar"]
+        master_menu_display_details = master_menu_avatar.menu_display_details
+
+        selected_menu_display_details["coordinates"][0] = master_menu_display_details["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
+        selected_menu_display_details["coordinates"][1] = master_menu_display_details["coordinates"][1]
     # endregion
 
 class AnimationManager(object):

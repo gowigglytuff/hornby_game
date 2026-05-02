@@ -1,5 +1,15 @@
 from definitions import GameSettings, Types
+from spritesheet import Spritesheet
+from text_input import get_input
 
+
+class MenuInformation(object):
+    def __init__(self, header, text_print_list, cursor_image, cursor_at, menu_specific_details_dict):
+        self.header = header
+        self. text_print_list = text_print_list
+        self.cursor_image = cursor_image
+        self.cursor_at = cursor_at
+        self.menu_specific_details_dict = menu_specific_details_dict
 
 class MenuGhost(object):
     BASE = "menu_base"
@@ -32,10 +42,10 @@ class MenuGhost(object):
     def do_option(self):
         menu_selection = self.get_current_menu_item()
 
-    def generate_text_print(self):
+    def generate_menu_information_package(self):
         source = self.get_menu_items_to_print().copy()
         cursor_at = self.cursor_at
-        cursor_img = self.cursor
+        cursor_image = self.cursor
         text_print_list = []
 
         for item in range(len(source)):
@@ -43,7 +53,7 @@ class MenuGhost(object):
 
         menu_information = {"header": self.menu_header,
                             "text_print_list": text_print_list,
-                            "cursor_img": cursor_img,
+                            "cursor_image": cursor_image,
                             "cursor_at": cursor_at}
 
         return menu_information
@@ -53,6 +63,9 @@ class MenuGhost(object):
         for image in range(len(self.menu_images_list)):
             image_print_list["Item_" + str(image)] = self.menu_images_list[image]
         return image_print_list
+
+    def update_currently_displayed(self):
+        pass
 
     def update_menu_items_list(self):
         pass
@@ -387,24 +400,22 @@ class ConversationOptionsMenuGhost(MenuGhost):
         self.friendship = details["friendship_level"]
         self.face_image = details["face_image"]
 
-    def generate_text_print(self):
+    def generate_menu_information_package(self):
         source = self.get_menu_items_to_print().copy()
         cursor_at = self.cursor_at
-        cursor_img = self.cursor
+        cursor_image = self.cursor
         text_print_list = []
 
         for item in range(len(source)):
             text_print_list.append(source[item])
 
-        menu_information = {"header": self.menu_header,
-                            "text_print_list": text_print_list,
-                            "cursor_img": cursor_img,
-                            "cursor_at": cursor_at,
-                            "speaker_name": self.talking_to,
-                            "friendship_level": self.friendship,
-                            "face_image": self.face_image}
+        menu_specific = {"friendship_level": self.friendship,
+                         "face_image": self.face_image,
+                         "speaker_name": self.talking_to}
 
+        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
         return menu_information
+
 
 class GameActionDialogueGhost(MenuGhost):
     BASE = "game_action_dialogue_menu"
@@ -514,3 +525,51 @@ class YesNoMenuGhost(MenuGhost):
 
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
+
+
+class QuizMenuGhost(MenuGhost):
+    BASE = "quiz_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_type = "base"
+        self.menu_item_list = ["Talk", "Give Gift", "Exit"]
+        self.menu_images_list = []
+        self.currently_displayed_items = []
+        self.update_menu_items_list()
+        self.update_currently_displayed()
+        spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
+        face = spritesheet.get_image(0, 0)
+        face = face.subsurface(0, 0, 224, 224)
+        self.image = face
+
+    def update_menu_items_list(self):
+        spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
+        face = spritesheet.get_image(0, 0)
+        face = face.subsurface(0, 0, 224, 224)
+        self.image = face
+        self.menu_item_list = ["What type of dog is this?"]
+
+    def update_currently_displayed(self):
+        self.currently_displayed_items = []
+        self.currently_displayed_items.append(self.menu_item_list)
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_print().copy()
+        text_print_list = []
+
+        for item in range(len(source)):
+            text_print_list.append(source[item])
+
+        menu_specific = {"image": self.image}
+
+        menu_information = MenuInformation(self.menu_header, text_print_list, " ", [0, 0], menu_specific)
+
+        return menu_information
+
+    def do_option(self):
+        info = get_input()
+        print(info)
+

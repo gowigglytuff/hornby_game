@@ -5,7 +5,7 @@ from definitions import Direction
 from feature_ghost_data_page import PlayerGhost
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager
-from menu_avatars_view_page import MenuAvatar, ConversationMenuAvatar, ConversationOptionsMenuAvatar
+from menu_avatars_view_page import MenuAvatar
 from position_manager_state_page import Ringside, Door, Consolidated
 
 
@@ -37,17 +37,16 @@ def install_all_data(gc, gs):
     def install_rooms(gc, gs):
         gs.gd.add_room_data(Ringside.ID, (Ringside()))
         gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
+        gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 7, 1, 1)))
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
 
     def install_doors(gc, gs):
-        gs.gd.add_door_data("Ringside_1_3", Door("Ringside", "Test_Room", 1, 5, 10, 10, Direction.MATCH))
-        gs.gd.add_door_data("Test_Room_8_12", Door("Test_Room", "Cave", 8, 12, 8, 11, Direction.MATCH))
-        gs.gd.add_door_data("Test_Room_15_10", Door("Test_Room", "Cave", 15, 10, 15, 9, Direction.MATCH))
-        gs.gd.add_door_data("Cave_15_10", Door("Cave", "Test_Room", 15, 10, 15, 11, Direction.MATCH))
-        gs.gd.add_door_data("Cave_8_12", Door("Cave", "Test_Room", 8, 12, 8, 13, Direction.MATCH))
-        gs.gd.add_door_data("Cave_5_7", Door("Cave", "Cave", 5, 7, 15, 8, Direction.MATCH))
-        gs.gd.add_door_data("Cave_15_8", Door("Cave", "Cave", 15, 8, 5, 7, Direction.MATCH))
-        gs.gd.add_door_data("Test_Room_5_17", Door("Test_Room", "Cave", 5, 17, 8, 11, Direction.MATCH))
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 10, 10)
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
+        gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
+        gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
+        gs.gd.add_door_data("Ladder", "Cave", "Cave", 15, 8, 5, 7)
+
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -91,19 +90,16 @@ def install_all_data(gc, gs):
         for menu in gs.ms.menu_ghost_data_list.values():
             print(menu.NAME, menu.menu_type)
             if menu.menu_type == "base" or "static":
-                if menu.NAME == "conversation_options_menu_ghost":
-                    print("we did hit this menu too")
+                if menu.BASE in gc.game_view.menu_avatar_names.keys():
                     avatar_name = menu.BASE + "_avatar"
-                    display_details = gs.gv.menu_display_details[menu.BASE]
-                    items = menu.generate_text_print()
-                    gs.gv.add_menu_avatar(avatar_name, ConversationOptionsMenuAvatar(gc, avatar_name, items, display_details))
+                    items = menu.generate_menu_information_package()
+                    gs.gv.add_menu_avatar(avatar_name, gc.game_view.menu_avatar_names[menu.BASE](gc, avatar_name, items))
                     gs.gv.set_menu_display_coordinates(menu.BASE)
                 else:
                     avatar_name = menu.BASE + "_avatar"
                     print(avatar_name)
-                    display_details = gs.gv.menu_display_details[menu.BASE]
-                    items = menu.generate_text_print()
-                    gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items, display_details))
+                    items = menu.generate_menu_information_package()
+                    gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
                     gs.gv.set_menu_display_coordinates(menu.BASE)
             elif menu.menu_type == "conversation_options":
                 pass

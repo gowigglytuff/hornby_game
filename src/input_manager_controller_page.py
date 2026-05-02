@@ -1,9 +1,8 @@
 import pygame
 
-import position_manager_state_page
 from definitions import Direction
-from menu_ghosts_data_page import StartMenuGhost, ConversationOptionsMenuGhost
-from position_manager_state_page import Room
+from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost
+
 
 
 class KeyboardManager(object):
@@ -162,7 +161,9 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.game_state.ms.set_menu(StartMenuGhost.BASE, None)
 
     def key_escape_pressed(self):
-        self.gc_input.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, None)
+        # self.gc_input.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, None)
+        self.gc_input.game_state.ms.set_menu(QuizMenuGhost.BASE, None)
+
 
     def key_lshift_pressed(self):
         self.gc_input.change_room("Island")
