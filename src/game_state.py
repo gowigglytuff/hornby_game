@@ -1,18 +1,25 @@
 import copy
 from feature_ghost_data_page import PlayerGhost, NpcGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, SpecialMenuGhost, YesNoMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
 
 
 class GameState(object):
+    '''
+    :type gv: GameView
+    :type gc: GameController
+    :type gd: GameData
+    :type ms: MenuState
+    '''
     def __init__(self, game_view, game_data, game_controller):
-        self.gv = game_view  # type: GameView
-        self.gc = game_controller  # type: GameController
-        self.gd = game_data  # type: GameData
-        self.ms = MenuState(self)  # type: MenuState
+        self.gv = game_view
+        self.gc = game_controller
+        self.gd = game_data
+        self.ms = MenuState(self)
         self.ghost_classes = {"NPC": NpcGhost}
+        self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "None"
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
@@ -113,10 +120,10 @@ class GameState(object):
 
     def get_menu_items(self, menu_name):
         result = None
-        if menu_name == "supplies_inventory_menu":
+        if menu_name == SuppliesInventoryMenuGhost.BASE:
             result = self.current_inventory_dictionary
 
-        elif menu_name == "key_inventory_menu":
+        elif menu_name == KeyInventoryMenuGhost.BASE:
             result = self.current_key_inventory_dictionary
         return result
 
@@ -222,18 +229,10 @@ class GameState(object):
         drawables_list = self.gv.get_drawables_list(self.get_feature_locations()[0], self.get_feature_locations()[1])
         self.gv.draw_all(drawables_list, current_room)
 
-        for menu in self.ms.static_menus:
+        for menu in (self.ms.static_menus + self.ms.visible_menus):
             ghost = self.ms.menu_ghost_data_list[menu + "_ghost"]
             avatar_display_details = self.gv.menu_avatar_data_list[menu + "_avatar"].menu_display_details
             self.gv.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
-        for menu in self.ms.visible_menus:
-            ghost = self.ms.menu_ghost_data_list[menu + "_ghost"]
-            avatar_display_details = self.gv.menu_avatar_data_list[menu + "_avatar"].menu_display_details
-            if self.ms.menu_ghost_data_list[menu + "_ghost"].menu_type == "sub":
-                self.gv.draw_sub_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
-            else:
-                self.gv.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
-
 
     def acquire_item(self, item, quantity):
         current_inventory = self.current_inventory_dictionary
@@ -249,12 +248,11 @@ class MenuState(object):
         self.gs = gs_input
         self.gc_input = self.gs.gc  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = ["game_action_dialogue_menu", "special_menu", "stat_menu"]
+        self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
         self.active_menu = []
         self.menu_stack = []
         self.visible_menus = []
-        self.other_menus = ["special_menu_ghost", "stat_menu"]
-        self.start_menu_stack = ["supplies_inventory_menu", "key_inventory_menu"]
+        self.start_menu_stack = [SuppliesInventoryMenuGhost.BASE, KeyInventoryMenuGhost.BASE]
 
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
@@ -265,10 +263,10 @@ class MenuState(object):
     # region MENU DISPLAY LOGISTICS
     def get_menu_items(self, menu_name):
         result = None
-        if menu_name == "supplies_inventory_menu":
+        if menu_name == SuppliesInventoryMenuGhost.BASE:
             result = self.gs.current_inventory_dictionary
 
-        elif menu_name == "key_inventory_menu":
+        elif menu_name == KeyInventoryMenuGhost.BASE:
             result = self.gs.current_key_inventory_dictionary
         return result
 
@@ -302,27 +300,13 @@ class MenuState(object):
         selected_menu = self.get_menu_ghost(menu_name)
         menu_type = selected_menu.menu_type
 
-        if menu_type == "base":
-            selected_menu.update_menu_items_list()
+        if menu_type == Types.BASE:
+            selected_menu.update_menu_items_list(details)
 
-        if menu_type == "sub":
+        elif menu_type == Types.SUB:
+            print("set it boss")
             selected_menu.set_master_menu(details["master_menu"])
             self.gs.gv.update_sub_menu_display_details(menu_name, details["master_menu"])
-
-        if menu_type == "dialogue":
-            selected_menu.update_menu_items_list(details["phrases"], details["speaker_name"], details["friendship_level"], details["friendship_level"])
-
-        if menu_type == "conversation":
-            selected_menu.update_menu_items_list()
-            selected_menu.update_menu_items_list(details["speaker_name"], details["friendship_level"], details["face_image"])
-
-        if menu_type == "conversation_options":
-            selected_menu.update_menu_items_list(details)
-            print(menu_name)
-
-        if menu_type == "quiz_menu":
-            selected_menu.update_menu_items_list()
-            print(menu_name)
 
         self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
@@ -367,8 +351,8 @@ class MenuState(object):
     def start_menu_selection(self, item_selected):
         menu_selection = item_selected
         if menu_selection == "Bag":
-            self.exit_menu("start_menu")
-            self.set_menu("supplies_inventory_menu", None)
+            self.exit_menu(StartMenuGhost.BASE)
+            self.set_menu(SuppliesInventoryMenuGhost.BASE, None)
 
         elif menu_selection == "Key Items":
             pass
@@ -400,8 +384,37 @@ class MenuState(object):
         else:
             self.exit_all_menus()
 
+    def conversation_options_menu_selection(self, item_selected):
+        menu_selection = item_selected
+        current_menu = self.get_menu_ghost(ConversationOptionsMenuGhost.BASE)
+        selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).phrase
+        print("selected phrase", selected_phrase)
+
+        if menu_selection == "Talk":
+            details = {"speaker_name": current_menu.talking_to,
+                        "friendship_level": current_menu.friendship,
+                        "face_image": current_menu.face_image,
+                        "speaker_unique_name": current_menu.speaker_unique_name,
+                        "phrase": [selected_phrase]}
+            print(details.values())
+            self.exit_menu(ConversationOptionsMenuGhost.BASE)
+
+            self.set_menu(ChatMenuGhost.BASE, details)
+
+        elif menu_selection == "Give Gift":
+            pass
+
+        elif menu_selection == "Exit":
+            self.exit_all_menus()
+
+        else:
+            self.exit_all_menus()
+
+    def chat_menu_selection(self, item_selected):
+        self.exit_all_menus()
+
     def post_notice(self, phrase):
-        self.menu_ghost_data_list["game_action_dialogue_menu_ghost"].show_dialogue(phrase)
+        self.menu_ghost_data_list[GameActionDialogueMenuGhost.NAME].show_dialogue(phrase)
     # endregion
 
 
@@ -424,7 +437,9 @@ class GameData(object):
         self.room_dictionary = {
             "overworld": Room("overworld", 5, 5),
             "Ringside": Room("Ringside", 5, 5)}
-        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueGhost, QuizMenuGhost]
+        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
+                               UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
+                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost]
         self.item_data_list = {}
         self.key_item_data_list = {}
 

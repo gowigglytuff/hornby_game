@@ -39,7 +39,7 @@ class Cheese(TempItem):
     def item_use(self):
         self.gc_input.game_state.ms.post_notice("The " + self.NAME + " healed 20 HP")
 
-    def use_requirements(self):
+    def use_requirements_met(self):
         result = True
         # if self.gc_input.game_state.current_inventory[self.NAME]["quantity"] > 0:
         #     result = True
@@ -175,10 +175,10 @@ class KeyItem(object):
         base.blit(spritesheet, [30, 20])
         self.menu_image = base
 
-    def item_use(self):
+    def item_use(self, details):
         pass
 
-    def use_requirements(self):
+    def use_requirements_met(self, details):
         result = True
         return result
 
@@ -205,3 +205,18 @@ class Wrench(KeyItem):
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
+
+class Axe(KeyItem):
+    NAME = "Axe"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+
+    def item_use(self, details):
+        details["room"].empty_cube()  # TODO: Make this remvove avatar too
+
+    def use_requirements_met(self, details):
+        result = False
+        if details["filling_type"] == "Tree":
+            result = True
+        return result

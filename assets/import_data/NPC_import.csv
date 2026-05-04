@@ -1,15 +1,7 @@
-﻿NPC,Clown,Clown,Ringside,3,10,Direction.DOWN,NPC, 1, 1
-NPC,Cowboy,Cowboy,Ringside,8,10,Direction.DOWN,NPC, 1, 1
-NPC,Oldgod,Oldgod,Ringside,4,4,Direction.DOWN,Oldgod, 3, 1
-NPC,Cowboy,Cowboy,Island,11,11,Direction.DOWN,NPC, 1, 1
-NPC,Tree,Tree,Big_Island,35,12,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,32,13,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,29,10,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,30,7,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,38,7,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,32,4,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,36,5,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,37,11,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Big_Island,39,13,Direction.DOWN,Tree, 1, 1
-NPC,Tree,Tree,Test_Room,12,12,Direction.DOWN,Tree, 1, 1
-NPC,House,House,Test_Room,4, 17,Direction.DOWN,House, 6, 3
+﻿NPC,Clown,Clown,Staging_Area,2,4,Down,NPC, 1, 1,How are you?
+NPC,Cowboy,Cowboy,Staging_Area,4,4,Down,NPC, 1, 1,How are you?
+NPC,Tree,Tree,Staging_Area,6,4,Down,Tree, 1, 1,How are you?
+NPC,Oldgod,Oldgod,Ringside,4,4,Down,Oldgod, 3, 1,How are you?
+NPC,Tree,Tree,Test_Room,12,12,Down,Tree, 1, 1,How are you?
+NPC,House,House,Test_Room,4,17,Down,House, 6, 3,How are you?
+NPC,Cowboy,Cowboy,Test_Room,4,4,Up,NPC, 1, 1,It's beautiful today.

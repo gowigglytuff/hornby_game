@@ -11,21 +11,31 @@ class PositionManager(object):
 
     # region PLAYER MOVEMENT
     def check_if_player_can_move(self, direction, checker, room):
-        result = True
+        move_result = True
+        door_result = False
+
+        # check basics
         if self.gc_input.check_if_player_already_animating():
-            result = False
+            move_result = False
         if self.check_rooms_edges(checker, direction, room):
-            result = False
+            move_result = False
+
+        # check logistics
         elif not self.check_rooms_edges(checker, direction, room):
             if self.check_if_adjacent_tiles_full(checker, direction, room):
-                result = False
+                move_result = False
 
             current_elevation = self.gc_input.game_state.get_current_player_elevation()
             adjacent_elevation = self.get_adjacent_tile_elevation(checker, direction, room)
             if abs(int(adjacent_elevation) - current_elevation) > 1:
-                result = False
+                move_result = False
 
-        return result
+        # check for door
+        target_tile = self.get_adjacent_tile(self.gc_input.game_state.player_ghost, direction, room)
+        door_result = self.check_for_door(room.name, target_tile.x, target_tile.y)
+
+
+        return move_result, door_result
 
     def check_for_door(self, room_name, x, y):
         door = False
@@ -70,7 +80,7 @@ class PositionManager(object):
         feature_object.y = target_y
 
         new_cube = target_room_object.access_cube(target_x, target_y)
-        new_cube.fill_cube(feature_object.unique_name)
+        new_cube.fill_cube(feature_object.unique_name, feature_object.name)
 
         if feature_object.type == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
@@ -112,7 +122,7 @@ class PositionManager(object):
             feature.x += 1
         new_cube = room_object.access_cube(new_cube_x, new_cube_y)
         current_cube.empty_cube()
-        new_cube.fill_cube(feature.unique_name)
+        new_cube.fill_cube(feature.unique_name, feature.name)
     # endregion
 
     # region CHECKING FOR MOVEMENT
@@ -246,13 +256,13 @@ class PositionManager(object):
 
         for item in fill_list:
             coordinates_list = item.return_base_coordinates_list(item.x, item.y)
-            selected_room.add_feature(item.unique_name, coordinates_list)
+            selected_room.add_feature(item.unique_name, item.name, coordinates_list)
 
     def add_player_to_grid(self, room_name):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_name]
         player = self.gc_input.game_state.get_player_ghost()
         player_coordinates = [[player.x, player.y]]
-        selected_room.add_feature("Player", player_coordinates)
+        selected_room.add_feature("Player", "Player", player_coordinates)
 
     def clear_room_grid(self, room_to_clear):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_clear]
@@ -268,9 +278,9 @@ class PositionManager(object):
     def update_feature_dictionary(self, feature_name, location):
         self.gc_input.game_state.feature_location_dictionary[feature_name][1] = location
 
-    def update_locations(self, room_name, feature_name, previous_cube_coordinates, new_cube_coordinates):
+    def update_locations(self, room_name, feature_name, feature_type, previous_cube_coordinates, new_cube_coordinates):
         self.gc_input.game.game_data.room_data_list[room_name].remove_feature(previous_cube_coordinates[0], previous_cube_coordinates[1], previous_cube_coordinates[2])
-        self.gc_input.game.game_data.room_data_list[room_name].add_feature(feature_name, new_cube_coordinates[0], new_cube_coordinates[1], new_cube_coordinates[2])
+        self.gc_input.game.game_data.room_data_list[room_name].add_feature(feature_name, feature_type, new_cube_coordinates[0], new_cube_coordinates[1], new_cube_coordinates[2])
 
     def check_location_full(self, room_name, cube_coordinates):
         return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
@@ -392,10 +402,10 @@ class Room(object):
         feature_cube.empty_cube()
         pass
 
-    def add_feature(self, feature_name, coordinates_list):
+    def add_feature(self, feature_name, feature_type, coordinates_list):
         for coordinates in coordinates_list:
             feature_cube = self.access_cube(coordinates[0], coordinates[1])
-            feature_cube.fill_cube(feature_name)
+            feature_cube.fill_cube(feature_name, feature_type)
             pass
 
     # endregion
@@ -421,16 +431,19 @@ class Cube(object):
         self.name = self.room_name + "_" + "tile" + str(x) + "_" + str(y)
 
         self.object_filling = None
+        self.filling_type = None
 
     def give_coordinates(self):
         coords = [self.x, self.y]
         return coords
 
-    def fill_cube(self, object_name):
+    def fill_cube(self, object_name, object_type):
         self.object_filling = object_name
+        self.filling_type = object_type
 
     def empty_cube(self):
         self.object_filling = None
+        self.filling_type = None
 
 
 class Door(object):

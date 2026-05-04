@@ -2,7 +2,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import PlayerAvatar, NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar
 from definitions import Direction, GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar
 from position_manager_state_page import Room, PositionManager
 
 
@@ -39,7 +39,8 @@ class GameView(object):
         self.prop_avatar_list = {}
         self.decoration_avatar_list = {}
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
-                                 "conversation_options_menu": ConversationOptionsMenuAvatar}
+                                 "conversation_options_menu": ConversationOptionsMenuAvatar,
+                                 "chat_menu": ChatMenuAvatar,}
 
     def add_player_avatar(self, player_object):
         self.player_avatar = player_object
@@ -144,17 +145,26 @@ class GameView(object):
 
     # region DRAW MENUS
     def draw_special_menu(self, menu_name, menu_info, x, y):
-        # print(menu_info)
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
         final_menu_images = menu_avatar.get_menu_image_drawing_instructions(menu_info)
-        full_menu = self.compile_special_menu(final_menu_text, final_menu_images, menu_avatar.overlay_image)
-        self.screen.blit(full_menu, (x, y))
 
-    def draw_sub_menu(self, menu_name, menu_info, x, y):
-        menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
-        final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
-        full_menu = self.compile_special_menu(final_menu_text, None, menu_avatar.overlay_image)
+        # compile menu
+        final_image = pygame.Surface((menu_avatar.overlay_image.get_width(), menu_avatar.overlay_image.get_height()))
+        final_image.blit(menu_avatar.overlay_image, [0, 0])
+
+        for item in final_menu_text:
+            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
+            item_text = my_font.render(item.text, True, (0, 0, 0))
+            final_image.blit(item_text, [item.x, item.y])
+
+        if final_menu_images:
+            for item in final_menu_images:
+                image = item.image
+                final_image.blit(image, [item.x, item.y])
+
+        full_menu = final_image
+
         self.screen.blit(full_menu, (x, y))
 
     def compile_special_menu(self, text_print_list, image_print_list, overlay):
@@ -176,20 +186,6 @@ class GameView(object):
 
         return final_image
 
-    def compile_menu(self, text_print_list, image_print_list, overlay):
-        final_image = pygame.Surface((overlay.image.get_width(), overlay.image.get_height()))
-        final_image.blit(overlay.image, [0, 0])
-        for item in text_print_list:
-            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
-            item_text = my_font.render(item.text, True, (0, 0, 0))
-            final_image.blit(item_text, [item.x, item.y])
-
-        if image_print_list:
-            for item in image_print_list:
-                image = item.image
-                final_image.blit(image, [item.x, item.y])
-
-        return final_image
     # endregion
 
     # region DRAWING LOCATION

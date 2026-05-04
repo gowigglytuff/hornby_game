@@ -10,6 +10,7 @@ class PlayerGhost(object):
         self.base_size_x = 1
         self.base_size_y = 1
         self.unique_name = "Player"
+        self.name = "Player"
         self.cur_img = (0, 0)
         self.state = "idle"
         self.facing = Direction.DOWN
@@ -26,6 +27,9 @@ class PlayerGhost(object):
 
 
 class FeatureGhost(object):
+    '''
+    :type gs_input: GameState
+    '''
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
         self.gs_input = gs_input
         self.type = Types.NPC
@@ -62,6 +66,6 @@ class FeatureGhost(object):
 
 
 class NpcGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
         super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
-
+        self.phrase = phrase

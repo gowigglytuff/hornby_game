@@ -81,6 +81,12 @@ class GameEvents(object):
 
 
 class GameController(object):
+    '''
+    :type game_view: GameView
+    :type game_state: GameState
+    :type game_data: GameData
+    :type inventory_manager: InventoryManager
+    '''
     def __init__(self, game, game_view, game_state, game_data):
         self.game = game  # type: Game
         self.game = game  # type: Game
@@ -122,7 +128,7 @@ class GameController(object):
     def get_avatar_class(self, avatar_type):
         return self.game_view.avatar_classes[avatar_type]
 
-    def attempt_move_object(self, object_name, movement_direction):
+    def attempt_move_object(self, object_name, object_type, movement_direction):
         feature_loc_info = self.position_manager.get_feature_location(object_name)
         feature_room = feature_loc_info[0]
         current_cube_location = feature_loc_info[1]
@@ -143,7 +149,7 @@ class GameController(object):
             pass
         else:
             self.position_manager.update_feature_dictionary(object_name, target_cube_location)
-            self.position_manager.update_locations(feature_room, object_name, current_cube_location, target_cube_location)
+            self.position_manager.update_locations(feature_room, object_name, object_type, current_cube_location, target_cube_location)
 
 
     def check_if_feature_already_animating(self, name):
@@ -193,7 +199,8 @@ class GameController(object):
         self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
         details = {"speaker_name": npc_talking_to_ghost.name,
                    "friendship_level": 11,
-                   "face_image": npc_talking_to_avatar.face_image}
+                   "face_image": npc_talking_to_avatar.face_image,
+                   "speaker_unique_name": npc_talking_to_ghost.unique_name}
 
         self.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, details)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
@@ -230,18 +237,18 @@ class GameController(object):
         room_object = self.game_view.game_data.room_data_list[self.game_state.current_room]
         target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room_object)
         self.game_state.change_player_facing(direction)
-        door_status = self.position_manager.check_for_door(room_object.name, target_tile.x, target_tile.y)
-        if self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object):
-            if not door_status:
+        move_status = self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object)[0]
+        door_status = self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object)[1]
+        if door_status:
+            self.go_through_door(room_object.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
+        elif not door_status:
+            if move_status:
                 self.game_state.move_player_avatar(direction)
                 self.position_manager.nudge_ghost(self.game_state.get_player_ghost(), room_object, direction)
-                # self.position_manager.move_ghost(self.game_state.get_player_ghost(), room_object, room_object, self.game_state.player_ghost.x + 1, self.game_state.get_player_ghost().y)
-            elif door_status:
-                self.go_through_door(room_object.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
             else:
                 print("all failed")
 
-    # endregion
+    # endregionj
 
     # region INVENTORY
     def get_stat_items(self):
@@ -278,7 +285,7 @@ class GameController(object):
         for NPC in NPC_data:
             unique_name = NPC[2] + "_" + str(GameSettings.get_unique_ID())
             if NPC[0] == "NPC":
-                test = self.game_state.ghost_classes["NPC"](NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), Direction.DOWN, NPC[7], int(NPC[8]), int(NPC[9]), unique_name)
+                test = self.game_state.ghost_classes["NPC"](NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), self.game_state.direction_translations[NPC[6]], NPC[7], int(NPC[8]), int(NPC[9]), unique_name, str(NPC[10]))
                 self.game_state.add_feature_ghost(unique_name, test)
 
 
@@ -292,7 +299,7 @@ class GameController(object):
             else:
                 feature_ghost.reset_to_spawn()
                 avatar = self.game_view.get_npc_avatar(feature_ghost.unique_name)
-                avatar.reset_to_base(feature_ghost.facing)
+                avatar.reset_to_base()
         self.position_manager.clear_room_grid(room_name)
 
     def load_up_room(self, room_name):
@@ -355,15 +362,14 @@ class InventoryManager(object):
         success = True
         if quantity > self.gc_input.game_state.get_item_quantity(item.name):
             success = False
-        if not self.gc_input.game_state.gd.item_data_list[item.NAME].use_requirements():
+        if not self.gc_input.game_state.gd.item_data_list[item.NAME].use_requirements_met():
             success = False
         return success
 
-    def check_if_can_use_key_item(self, item):
-        success = True
-
-        if not self.gc_input.game_state.gd.key_item_data_list[item.NAME].use_requirements():
-            success = False
+    def check_if_can_use_key_item(self, item, details):
+        success = False
+        if self.gc_input.game_state.gd.key_item_data_list[item.NAME].use_requirements_met(details):
+            success = True
         return success
 
     def get_key_item(self, item):
@@ -376,8 +382,15 @@ class InventoryManager(object):
     def use_key_item(self, item):
         current_key_inventory = self.gc_input.game_state.ms.get_menu_items_list("key_inventory_menu")
         successes = 0
-        if self.check_if_can_use_key_item(item):
-            self.gc_input.game_state.gd.key_item_data_list[item.NAME].item_use()
+
+        room = self.gc_input.game_state.get_current_room()
+        player = self.gc_input.game_state.get_player_ghost()
+        cube = room.access_adjacent_cube(player, player.facing)
+        details = {"room": room, "cube": cube, "adjacent_tile_filling": cube.object_filling, "filling_type": cube.filling_type}
+        print("it was filled with", cube.object_filling)
+
+        if self.check_if_can_use_key_item(item, details):
+            self.gc_input.game_state.gd.key_item_data_list[item.NAME].item_use(details)
             successes += 1
 
         if successes == 0:

@@ -1,7 +1,7 @@
 import pygame
 
 from feature_avatar_view_page import PlayerAvatar
-from definitions import Direction
+from definitions import Direction, Types
 from feature_ghost_data_page import PlayerGhost
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager
@@ -39,13 +39,15 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 7, 1, 1)))
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
+        gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
 
     def install_doors(gc, gs):
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 10, 10)
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
         gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
         gs.gd.add_door_data("Ladder", "Cave", "Cave", 15, 8, 5, 7)
+        gs.gd.add_door_data("Passage", "Test_Room", "My_House", 5, 17, 2, 5)
 
 
     def install_spritesheets(gc, gs):
@@ -60,7 +62,7 @@ def install_all_data(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
-            gs.gv.add_feature_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y))
+            gs.gv.add_feature_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -78,7 +80,7 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, Shovel, Wrench]
+        items_to_install = [Hammer, Shovel, Wrench, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
             gc.inventory_manager.get_key_item(item)
@@ -89,7 +91,7 @@ def install_all_data(gc, gs):
 
         for menu in gs.ms.menu_ghost_data_list.values():
             print(menu.NAME, menu.menu_type)
-            if menu.menu_type == "base" or "static":
+            if menu.menu_type == Types.BASE or Types.STATIC:
                 if menu.BASE in gc.game_view.menu_avatar_names.keys():
                     avatar_name = menu.BASE + "_avatar"
                     items = menu.generate_menu_information_package()
@@ -101,8 +103,6 @@ def install_all_data(gc, gs):
                     items = menu.generate_menu_information_package()
                     gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
                     gs.gv.set_menu_display_coordinates(menu.BASE)
-            elif menu.menu_type == "conversation_options":
-                pass
             else:
                 pass
 

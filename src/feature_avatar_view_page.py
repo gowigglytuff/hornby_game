@@ -56,8 +56,9 @@ class PlayerAvatar(object):
 
 
 class FeatureAvatar(object):
-    def __init__(self, name, image_x, image_y, unique_name, base_size_x, base_size_y):
+    def __init__(self, name, image_x, image_y, unique_name, base_size_x, base_size_y, spawn_facing):
         self.name = name
+        self.spawn_facing = spawn_facing
         self.unique_name = unique_name
         self.drawing_priority = 1
         self.type = "default"
@@ -96,8 +97,8 @@ class FeatureAvatar(object):
         self.image_x += x_change/GameSettings.TILESIZE
         self.image_y += y_change/GameSettings.TILESIZE
 
-    def reset_to_base(self, direction):
-        self.face_feature(direction)
+    def reset_to_base(self):
+        self.face_feature(self.spawn_facing)
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
@@ -107,6 +108,8 @@ class FeatureAvatar(object):
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
         self.face_image = self.get_face_image()
+        self.face_feature(self.spawn_facing)
+        print(self.name, self.spawn_facing)
 
     def get_face_image(self):
         face = self.spritesheet.get_image(0, 0)
@@ -115,8 +118,8 @@ class FeatureAvatar(object):
         return face
 
 class TreeAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y)
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.type = "Npc"
         self.character_frame_x = 32
         self.character_frame_y = 48
@@ -124,8 +127,8 @@ class TreeAvatar(FeatureAvatar):
 
 
 class NPCAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y)
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.type = "Npc"
         self.character_frame_x = 24
         self.character_frame_y = 36
@@ -154,8 +157,8 @@ class NPCAvatar(FeatureAvatar):
 
 
 class OldgodAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y)
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.type = "Npc"
         self.character_frame_x = 96
         self.character_frame_y = 108
@@ -164,8 +167,8 @@ class OldgodAvatar(FeatureAvatar):
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 class HouseAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y)
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.type = "Npc"
         self.character_frame_x = 192
         self.character_frame_y = 128
