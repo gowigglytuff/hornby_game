@@ -1,7 +1,12 @@
-﻿NPC,Clown,Clown,Staging_Area,2,4,Down,NPC, 1, 1,How are you?
-NPC,Cowboy,Cowboy,Staging_Area,4,4,Down,NPC, 1, 1,How are you?
-NPC,Tree,Tree,Staging_Area,6,4,Down,Tree, 1, 1,How are you?
-NPC,Oldgod,Oldgod,Ringside,4,4,Down,Oldgod, 3, 1,How are you?
-NPC,Tree,Tree,Test_Room,12,12,Down,Tree, 1, 1,How are you?
-NPC,House,House,Test_Room,4,17,Down,House, 6, 3,How are you?
-NPC,Cowboy,Cowboy,Test_Room,4,4,Up,NPC, 1, 1,It's beautiful today.
+﻿NPC,Clown,Staging_Area,2,4,Down,NPC, 1, 1,How are you?
+NPC,Cowboy,Staging_Area,4,4,Down,NPC, 1, 1,How are you?
+Prop,Tree,Staging_Area,6,4,Down,Prop, 1, 1,How are you?
+Prop,Tree,Test_Room,12,12,Down,Prop, 1, 1,How are you?
+House,House,Test_Room,4,17,Down,House, 6, 3,How are you?
+NPC,Cowboy,Test_Room,4,4,Up,NPC, 1, 1,It's beautiful today.
+Prop,Clock,My_House,2,2,Down,Tree, 1, 1,Tick Tock
+Prop,Chair,My_House,6,2,Down,Prop, 1, 1,Creek
+Prop,Table,My_House,6,3,Down,Prop, 1, 1,Creek
+Prop,ElephantPicture,My_House,1,1,Down,Prop, 1, 1,toooot
+Prop,ChickenPicture,My_House,3,1,Down,Prop, 1, 1,bock bock
+Prop,ChairSide,My_House,5,3,Down,Prop, 1, 1,bock bock

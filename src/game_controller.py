@@ -176,8 +176,7 @@ class GameController(object):
             print("it's full")
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.game_state.get_feature_ghost(cube.object_filling)
-            print(feature.type)
-            if feature.type == Types.NPC:
+            if feature.feature_type == Types.NPC:
                 self.talk_to_npc(cube.object_filling, player.facing)
             else:
                 pass
@@ -282,19 +281,32 @@ class GameController(object):
             data = csv.reader(data, delimiter=',')
             for row in data:
                 NPC_data.append(list(row))
-        for NPC in NPC_data:
-            unique_name = NPC[2] + "_" + str(GameSettings.get_unique_ID())
-            if NPC[0] == "NPC":
-                test = self.game_state.ghost_classes["NPC"](NPC[2], self.game_state, NPC[3], int(NPC[4]), int(NPC[5]), self.game_state.direction_translations[NPC[6]], NPC[7], int(NPC[8]), int(NPC[9]), unique_name, str(NPC[10]))
+        for Feature in NPC_data:
+            feature_type = self.game_state.type_translator[Feature[0]]
+            unique_name = Feature[2] + "_" + str(GameSettings.get_unique_ID())
+            print(feature_type)
+            if feature_type == Types.NPC:
+                test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
+                                                            self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                            int(Feature[8]), unique_name, str(Feature[9]))
                 self.game_state.add_feature_ghost(unique_name, test)
-
+            if feature_type == Types.PROP:
+                test = self.game_state.ghost_classes["Prop"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
+                                                            self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                            int(Feature[8]), unique_name, str(Feature[9]))
+                self.game_state.add_feature_ghost(unique_name, test)
+            if feature_type == Types.HOUSE:
+                test = self.game_state.ghost_classes["House"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
+                                                            self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                            int(Feature[8]), unique_name, str(Feature[9]))
+                self.game_state.add_feature_ghost(unique_name, test)
 
         return NPC_data
 
     def reset_room(self, room_name):
         room = self.game_state.get_room(room_name)
         for feature_ghost in self.game_state.get_all_features_in_room(room_name):
-            if feature_ghost.type == "Player":
+            if feature_ghost.feature_type == "Player":
                 pass
             else:
                 feature_ghost.reset_to_spawn()

@@ -2,13 +2,13 @@ import pygame
 
 from animations_page_view_page import WalkAnimation
 from spritesheet import Spritesheet
-from definitions import Direction, GameSettings
+from definitions import Direction, GameSettings, Types
 
 
 class PlayerAvatar(object):
     def __init__(self, image_x, image_y):
         self.name = "Player"
-        self.type = "Player"
+        self.feature_type = "Player"
         self.drawing_priority = 1
         self.character_frame_x = 24
         self.character_frame_y = 36
@@ -61,7 +61,7 @@ class FeatureAvatar(object):
         self.spawn_facing = spawn_facing
         self.unique_name = unique_name
         self.drawing_priority = 1
-        self.type = "default"
+        self.feature_type = Types.DEFAULT
         self.character_frame_x = 24
         self.character_frame_y = 36
         self.current_image_x = 0
@@ -117,19 +117,43 @@ class FeatureAvatar(object):
         face = pygame.transform.scale(face, [24 * 5, 24 * 5])
         return face
 
+
 class TreeAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.type = "Npc"
+        self.feature_type = Types.NPC
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y)
 
 
+class PropAvatar(FeatureAvatar):
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+        self.feature_type = Types.PROP
+        self.character_frame_x = 32
+        self.character_frame_y = 48
+        self.run_setup(base_size_x, base_size_y)
+
+
+class HouseAvatar(FeatureAvatar):
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+        self.feature_type = Types.PROP
+        self.character_frame_x = 192
+        self.character_frame_y = 128
+        self.run_setup(base_size_x, base_size_y)
+
+    def run_setup(self, base_size_x, base_size_y):
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.image_offset_y = (self.character_frame_y - GameSettings.TILESIZE)
+        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+
+
 class NPCAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.type = "Npc"
+        self.feature_type = Types.NPC
         self.character_frame_x = 24
         self.character_frame_y = 36
         self.run_setup(base_size_x, base_size_y)
@@ -159,26 +183,17 @@ class NPCAvatar(FeatureAvatar):
 class OldgodAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.type = "Npc"
+        self.feature_type = Types.NPC
         self.character_frame_x = 96
         self.character_frame_y = 108
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
-class HouseAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.type = "Npc"
-        self.character_frame_x = 192
-        self.character_frame_y = 128
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.image_offset_y = (self.character_frame_y - GameSettings.TILESIZE)
-        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 class Deco(object):
     def __init__(self, name, image_x, image_y, base_size_x, base_size_y):
-        self.type = "Deco"
+        self.feature_type = Types.DECO
         self.name = name
         self.drawing_priority = 1
         self.character_frame_x = 24

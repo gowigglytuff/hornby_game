@@ -4,7 +4,7 @@ from definitions import Direction, Types
 class PlayerGhost(object):
     def __init__(self, gs_input, x, y):
         self.gs_input = gs_input
-        self.type = "Player"
+        self.feature_type = "Player"
         self.x = x
         self.y = y
         self.base_size_x = 1
@@ -32,10 +32,9 @@ class FeatureGhost(object):
     '''
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
         self.gs_input = gs_input
-        self.type = Types.NPC
+        self.feature_type = feature_type
         self.name = name
         self.unique_name = unique_name
-        self.feature_type = feature_type
         self.state = "idle"
         self.spawn_x = spawn_x
         self.spawn_y = spawn_y
@@ -69,3 +68,16 @@ class NpcGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
         super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
         self.phrase = phrase
+        self.feature_type = Types.NPC
+
+
+class PropGhost(FeatureGhost):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+        self.feature_type = Types.PROP
+
+
+class HouseGhost(FeatureGhost):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+        self.feature_type = Types.HOUSE

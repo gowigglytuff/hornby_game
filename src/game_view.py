@@ -1,9 +1,8 @@
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import PlayerAvatar, NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar
-from definitions import Direction, GameSettings, Types
+from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar
+from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar
-from position_manager_state_page import Room, PositionManager
 
 
 class GameView(object):
@@ -18,7 +17,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
-        self.avatar_classes = {"NPC": NPCAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar}
+        self.avatar_classes = {Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
@@ -118,11 +117,15 @@ class GameView(object):
         self.draw_bg(current_room)
         for drawable in drawables_list:
 
-            if drawable[0].type == "Player":
+            if drawable[0].feature_type == "Player":
                 self.draw_player()
-            elif drawable[0].type == "Npc":
+            elif drawable[0].feature_type == Types.NPC:
                 self.draw_npc(drawable[0].unique_name)
-            elif drawable[0].type == "Deco":
+            elif drawable[0].feature_type == Types.PROP:
+                self.draw_npc(drawable[0].unique_name)
+            elif drawable[0].feature_type == Types.HOUSE:
+                self.draw_npc(drawable[0].unique_name)
+            elif drawable[0].feature_type == Types.DECO:
                 self.draw_deco(drawable[0].unique_name)
 
     def get_drawables_list(self, player_location, feature_locations):

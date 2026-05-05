@@ -1,5 +1,5 @@
 import copy
-from feature_ghost_data_page import PlayerGhost, NpcGhost
+from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
@@ -18,7 +18,8 @@ class GameState(object):
         self.gc = game_controller
         self.gd = game_data
         self.ms = MenuState(self)
-        self.ghost_classes = {"NPC": NpcGhost}
+        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost}
+        self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "None"

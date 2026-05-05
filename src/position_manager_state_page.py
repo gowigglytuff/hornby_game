@@ -82,7 +82,7 @@ class PositionManager(object):
         new_cube = target_room_object.access_cube(target_x, target_y)
         new_cube.fill_cube(feature_object.unique_name, feature_object.name)
 
-        if feature_object.type == "Player":
+        if feature_object.feature_type == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
             self.gc_input.game_state.set_player_elevation(target_tile_elevation)
         else:

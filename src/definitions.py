@@ -36,7 +36,10 @@ class GameSettings(object):
 
 class Types(Enum):
     PROP = "Prop"
-    NPC = "Npc"
+    NPC = "NPC"
+    DECO = "Deco"
+    DEFAULT = "Default"
+    HOUSE = "House"
     BASE = "Base"
     STATIC = "Static"
     SUB = "Sub"

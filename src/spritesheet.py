@@ -12,7 +12,7 @@ class Spritesheet(object):
             self.max_img_num = max_img_num
         else:
             self.max_img_num = (self.sheet.get_width()/self.width) * (self.sheet.get_height()/self.height)
-
+        print(name)
         assert self.sheet.get_width() % self.width == 0
         assert self.sheet.get_height() % self.height == 0
 
