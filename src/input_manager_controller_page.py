@@ -1,17 +1,16 @@
+from typing import TYPE_CHECKING
+
 import pygame
 
 from definitions import Direction
 from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost
-
+if TYPE_CHECKING:
+    from game_controller import GameController
 
 
 class KeyboardManager(object):
-    """
-    :type gc_input: GameController
-    """
-
     def __init__(self, gc_input):
-        self.gc_input = gc_input
+        self.gc_input = gc_input  # type: GameController
 
     def parse_key_input(self, event_type, key):
         if event_type == pygame.KEYDOWN:
@@ -63,7 +62,7 @@ class KeyboardManager(object):
             if key == pygame.K_CAPSLOCK:
                 self.key_caps_released()
 
-
+    # region KEYS
     def key_return_pressed(self):
         pass
 
@@ -74,6 +73,12 @@ class KeyboardManager(object):
         pass
 
     def key_lshift_pressed(self):
+        pass
+
+    def key_alt_pressed(self):
+        pass
+
+    def key_alt_release(self):
         pass
 
     def key_caps_pressed(self):
@@ -96,7 +101,7 @@ class KeyboardManager(object):
 
     def key_caps_released(self):
         pass
-
+    # endregion
 
 class InGameKeyboardManager(KeyboardManager):
     ID = "InGame"
@@ -106,6 +111,9 @@ class InGameKeyboardManager(KeyboardManager):
 
     def parse_key_input(self, event_type, key):
         if event_type == pygame.KEYDOWN:
+
+            self.gc_input.add_to_held_key(key)
+
             if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
                 self.key_direction_pressed(key)
 
@@ -125,10 +133,16 @@ class InGameKeyboardManager(KeyboardManager):
             if key == pygame.K_CAPSLOCK:
                 self.key_caps_pressed()
 
+            if key == pygame.K_CAPSLOCK:
+                self.key_caps_pressed()
+
             if key == pygame.K_ESCAPE:
                 self.key_escape_pressed()
+                print(self.gc_input.held_keys)
 
         elif event_type == pygame.KEYUP:
+            self.gc_input.remove_from_held_key(key)
+
             if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
                 self.key_direction_released(key)
 
@@ -151,6 +165,7 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.key_down_queue = key
 
     def key_return_pressed(self):
+        self.gc_input.clear_key_down_cue()
         self.gc_input.player_interact()
         # self.gc_input.attempt_move_object("John", Direction.DOWN)
 
@@ -158,18 +173,22 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.inventory_manager.use_item(self.gc_input.game_data.item_data_list["Cheese"], 2)
 
     def key_control_pressed(self):
+        self.gc_input.clear_key_down_cue()
         self.gc_input.game_state.ms.set_menu(StartMenuGhost.BASE, None)
 
     def key_escape_pressed(self):
-        # self.gc_input.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, None)
-        self.gc_input.game_state.ms.set_menu(QuizMenuGhost.BASE, None)
-
+        pass
 
     def key_lshift_pressed(self):
-        self.gc_input.change_room("Island")
-        print("moves" + str(self.gc_input.move_counter))
+        pass
 
     def key_caps_pressed(self):
+        pass
+
+    def key_alt_pressed(self):
+        pass
+
+    def key_alt_release(self):
         pass
 
     def key_direction_released(self, key):
@@ -201,6 +220,9 @@ class InMenuKeyboardManager(KeyboardManager):
     def parse_key_input(self, event_type, key):
         active_menu = self.gc_input.game_state.ms.menu_ghost_data_list[self.gc_input.game_state.ms.menu_stack[0] + "_ghost"]
         if event_type == pygame.KEYDOWN:
+
+            self.gc_input.add_to_held_key(key)
+
             if key == pygame.K_RIGHT:
                 active_menu.cursor_right()
 
@@ -232,6 +254,9 @@ class InMenuKeyboardManager(KeyboardManager):
                 self.gc_input.game_state.ms.exit_all_menus()
 
         elif event_type == pygame.KEYUP:
+
+            self.gc_input.remove_from_held_key(key)
+
             if key == pygame.K_RIGHT:
                 self.key_direction_released(Direction.RIGHT)
 

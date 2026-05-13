@@ -1,3 +1,4 @@
+from definitions import Types
 from spritesheet import Spritesheet
 
 
@@ -13,10 +14,12 @@ class TempItem(object):
         self.sell_price = 0
         self.image_size_x = 90
         self.image_size_y = 76
-        spritesheet = Spritesheet("items", "assets/spritesheets/item_spritesheets/food_images.png", 24, 24).get_image(0, 0)
-        base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", self.image_size_x, self.image_size_y).get_image(0, 0)
-        base.blit(spritesheet, [30, 20])
-        self.menu_image = base
+        # spritesheet = Spritesheet("items", "assets/spritesheets/item_spritesheets/food_images.png", 24, 24).get_image(0, 0)
+        # base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", self.image_size_x, self.image_size_y).get_image(0, 0)
+        spritesheet = None
+        base = None
+        # base.blit(spritesheet, [30, 20])
+        # self.menu_image = base
 
     def item_use(self):
         pass
@@ -192,6 +195,26 @@ class Hammer(KeyItem):
     def __init__(self, gc_input):
         super().__init__(gc_input)
 
+    def item_use(self, details):
+        self.gc_input.position_manager.remove_feature_from_map(details["adjacent_tile_filling"], details["room"])
+
+    def use_requirements_met(self, details):
+        result = False
+        if details["filling_type"] == "Rock":
+            result = True
+        return result
+
+    def get_success_message(self, details):
+        return "You used the Hammer"
+
+    def get_failure_message(self, details):
+        message = None
+        if details["filling_type"] == Types.NPC:
+            message = "That's a disgusting idea."
+        else:
+            message = "You can't use the Hammer now"
+
+        return message
 
 class Shovel(KeyItem):
     NAME = "Shovel"
@@ -213,10 +236,22 @@ class Axe(KeyItem):
         super().__init__(gc_input)
 
     def item_use(self, details):
-        details["room"].empty_cube()  # TODO: Make this remvove avatar too
+        self.gc_input.position_manager.remove_feature_from_map(details["adjacent_tile_filling"], details["room"])
 
     def use_requirements_met(self, details):
         result = False
         if details["filling_type"] == "Tree":
             result = True
         return result
+
+    def get_success_message(self, details):
+        return "You used the Axe"
+
+    def get_failure_message(self, details):
+        message = None
+        if details["filling_type"] == Types.NPC:
+            message = "That's a disgusting idea."
+        else:
+            message = "You can't use the Axe now"
+
+        return message

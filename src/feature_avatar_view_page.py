@@ -191,10 +191,11 @@ class OldgodAvatar(FeatureAvatar):
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 
-class Deco(object):
-    def __init__(self, name, image_x, image_y, base_size_x, base_size_y):
+class DecoAvatar(object):
+    def __init__(self, name, image_x, image_y, unique_name, base_size_x, base_size_y):
         self.feature_type = Types.DECO
         self.name = name
+        unique_name = unique_name
         self.drawing_priority = 1
         self.character_frame_x = 24
         self.character_frame_y = 36

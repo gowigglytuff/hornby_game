@@ -96,6 +96,7 @@ class GameController(object):
 
         self.active_keyboard_manager = None
         self.key_down_queue = []
+        self.held_keys = []
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_manager = MenuManager(self)  # type:MenuManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
@@ -178,6 +179,8 @@ class GameController(object):
             feature = self.game_state.get_feature_ghost(cube.object_filling)
             if feature.feature_type == Types.NPC:
                 self.talk_to_npc(cube.object_filling, player.facing)
+            if feature.feature_type == Types.PROP:
+                self.talk_to_prop(cube.object_filling, player.facing)
             else:
                 pass
 
@@ -204,8 +207,24 @@ class GameController(object):
         self.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, details)
         # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
+    def talk_to_prop(self, prop_talking_to, player_direction):
+        prop_talking_to_ghost = self.game_state.feature_ghost_list[prop_talking_to]
+        prop_talking_to_avatar = self.game_view.npc_avatar_list[prop_talking_to]
+        self.game_state.ms.post_notice("You talked to " + prop_talking_to_ghost.name)
+        details = {}
+        # self.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, details)
+
     def clear_key_down_cue(self):
         self.key_down_queue = []
+
+    def add_to_held_key(self, key):
+        self.held_keys.append(key)
+
+    def get_held_keys(self):
+        return self.held_keys
+
+    def remove_from_held_key(self, key):
+        self.held_keys.remove(key)
 
     def act_on_key_down_cue(self):
         if not self.check_if_player_already_animating():
@@ -379,10 +398,15 @@ class InventoryManager(object):
         return success
 
     def check_if_can_use_key_item(self, item, details):
+        chosen_item = self.gc_input.game_state.gd.key_item_data_list[item.NAME]
         success = False
-        if self.gc_input.game_state.gd.key_item_data_list[item.NAME].use_requirements_met(details):
+        message = None
+        if chosen_item.use_requirements_met(details):
             success = True
-        return success
+            message = chosen_item.get_success_message(details)
+        else:
+            message = chosen_item.get_failure_message(details)
+        return success, message
 
     def get_key_item(self, item):
         current_key_inventory = self.gc_input.game_state.ms.get_menu_items_list("key_inventory_menu")
@@ -401,14 +425,15 @@ class InventoryManager(object):
         details = {"room": room, "cube": cube, "adjacent_tile_filling": cube.object_filling, "filling_type": cube.filling_type}
         print("it was filled with", cube.object_filling)
 
-        if self.check_if_can_use_key_item(item, details):
+        result = self.check_if_can_use_key_item(item, details)[0]
+        message = self.check_if_can_use_key_item(item, details)[1]
+
+        if result:
             self.gc_input.game_state.gd.key_item_data_list[item.NAME].item_use(details)
             successes += 1
 
-        if successes == 0:
-            self.gc_input.game_state.ms.post_notice("Could not use " + item.NAME)
-        elif successes > 0:
-            self.gc_input.game_state.ms.post_notice("used " + item.NAME)
+        self.gc_input.game_state.ms.post_notice(message)
+
 
 
 class MenuManager(object):

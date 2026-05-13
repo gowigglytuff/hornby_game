@@ -337,6 +337,7 @@ class MenuState(object):
     def exit_menu(self, menu_name):
         selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
         selected_menu.reset_cursor()
+        print(menu_name)
         self.deactivate_menu(menu_name)
 
     def exit_all_menus(self):
@@ -354,9 +355,6 @@ class MenuState(object):
         if menu_selection == "Bag":
             self.exit_menu(StartMenuGhost.BASE)
             self.set_menu(SuppliesInventoryMenuGhost.BASE, None)
-
-        elif menu_selection == "Key Items":
-            pass
 
         elif menu_selection == "Chore List":
             pass

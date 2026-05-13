@@ -282,6 +282,7 @@ class InventoryMenuGhost(MenuGhost):
             chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_item(chosen_item, 1)
             self.update_menu_items_list(None)
+            self.gc_input.game_state.ms.exit_all_menus()
 
         elif sub_menu_selection == "Toss":
             self.gc_input.game_state.ms.exit_all_menus()
@@ -361,6 +362,7 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
 
         elif sub_menu_selection == "Cancel":
             self.gc_input.game_state.ms.exit_all_menus()
+
 
 class ConversationOptionsMenuGhost(MenuGhost):
     BASE = "conversation_options_menu"
@@ -442,6 +444,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
     def do_option(self):
         menu_selection = self.get_current_menu_item()
         self.gc_input.game_state.ms.conversation_options_menu_selection(menu_selection)
+
 
 class ChatMenuGhost(MenuGhost):
     BASE = "chat_menu"
@@ -574,6 +577,7 @@ class UseMenuGhost(MenuGhost):
             self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
             # self.do_option(chosen_item_name)
             # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)
+        self.reset_cursor()
 
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu

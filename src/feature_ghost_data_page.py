@@ -81,3 +81,10 @@ class HouseGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
         super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
         self.feature_type = Types.HOUSE
+
+
+class DecoGhost(FeatureGhost):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+        self.phrase = phrase
+        self.feature_type = Types.DECO
