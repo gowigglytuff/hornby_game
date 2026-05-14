@@ -105,7 +105,9 @@ class FeatureAvatar(object):
 
     def run_setup(self, base_size_x, base_size_y):
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
+        # self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
+        basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4 + GameSettings.TILESIZE*1/4
+        self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
         self.face_image = self.get_face_image()
         self.face_feature(self.spawn_facing)
@@ -131,8 +133,8 @@ class PropAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.PROP
-        self.character_frame_x = 32
-        self.character_frame_y = 48
+        self.character_frame_x = 32 * base_size_x
+        self.character_frame_y = 32 * base_size_y + 16
         self.run_setup(base_size_x, base_size_y)
 
 
@@ -144,10 +146,10 @@ class HouseAvatar(FeatureAvatar):
         self.character_frame_y = 128
         self.run_setup(base_size_x, base_size_y)
 
-    def run_setup(self, base_size_x, base_size_y):
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.image_offset_y = (self.character_frame_y - GameSettings.TILESIZE)
-        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+    # def run_setup(self, base_size_x, base_size_y):
+    #     self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+    #     self.image_offset_y = (self.character_frame_y - GameSettings.TILESIZE)
+    #     self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 
 class NPCAvatar(FeatureAvatar):
@@ -164,6 +166,14 @@ class NPCAvatar(FeatureAvatar):
                                "walk_up": WalkAnimation(Direction.UP)}
         self.step_of_walk_pattern = 0
         self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
+
+    def run_setup(self, base_size_x, base_size_y):
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
+        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+        self.face_image = self.get_face_image()
+        self.face_feature(self.spawn_facing)
+        print(self.name, self.spawn_facing)
 
     def next_walk_pattern_step(self):
         current_step = self.walk_pattern[self.step_of_walk_pattern]

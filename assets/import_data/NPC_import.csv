@@ -11,4 +11,5 @@ Prop,Table,My_House,6,3,Down,Prop, 1, 1,Creek
 Prop,ElephantPicture,My_House,1,1,Down,Prop, 1, 1,toooot
 Prop,ChickenPicture,My_House,3,1,Down,Prop, 1, 1,bock bock
 Prop,ChairSide,My_House,5,3,Down,Prop, 1, 1,bock bock
-Prop,Bed,My_House,1,3,Down,Prop, 1, 1,creek
+Prop,Bed,My_House,1,4,Down,Prop, 1, 1,creek
+Prop,LongBed,Test_Room,11,16,Down,Prop, 1, 2,creek
