@@ -104,6 +104,8 @@ class SpecialMenuGhost(MenuGhost):
     def __init__(self, gc_input):
         super().__init__(gc_input)
 
+    def update_menu_items_list(self):
+        pass
 
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
@@ -536,6 +538,8 @@ class GameActionDialogueMenuGhost(MenuGhost):
         image_print_list = []
         return image_print_list
 
+    def update_menu_items_list(self):
+        pass
 
 class SubMenuGhost(MenuGhost):
     BASE = "sub_menu"

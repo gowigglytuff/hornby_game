@@ -146,18 +146,13 @@ class HouseAvatar(FeatureAvatar):
         self.character_frame_y = 128
         self.run_setup(base_size_x, base_size_y)
 
-    # def run_setup(self, base_size_x, base_size_y):
-    #     self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-    #     self.image_offset_y = (self.character_frame_y - GameSettings.TILESIZE)
-    #     self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
-
 
 class NPCAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.NPC
-        self.character_frame_x = 24
-        self.character_frame_y = 36
+        self.character_frame_x = 32
+        self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y)
 
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
@@ -166,14 +161,6 @@ class NPCAvatar(FeatureAvatar):
                                "walk_up": WalkAnimation(Direction.UP)}
         self.step_of_walk_pattern = 0
         self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
-
-    def run_setup(self, base_size_x, base_size_y):
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
-        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
-        self.face_image = self.get_face_image()
-        self.face_feature(self.spawn_facing)
-        print(self.name, self.spawn_facing)
 
     def next_walk_pattern_step(self):
         current_step = self.walk_pattern[self.step_of_walk_pattern]
@@ -185,7 +172,7 @@ class NPCAvatar(FeatureAvatar):
 
     def get_face_image(self):
         face = self.spritesheet.get_image(0, 0)
-        face = face.subsurface(0, 0, 24, 24)
+        face = face.subsurface(4, 11, 24, 24)
         face = pygame.transform.scale(face, [24 * 5, 24 * 5])
         return face
 
@@ -202,14 +189,14 @@ class OldgodAvatar(FeatureAvatar):
 
 
 class DecoAvatar(object):
-    def __init__(self, name, image_x, image_y, unique_name, base_size_x, base_size_y):
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         self.feature_type = Types.DECO
         self.name = name
-        unique_name = unique_name
+        self.unique_name = unique_id
         self.drawing_priority = 1
-        self.character_frame_x = 24
-        self.character_frame_y = 36
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/decos/grass_deco.png", 20, 20)
+        self.character_frame_x = 32
+        self.character_frame_y = 48
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/deco_spritesheets/Grass_spritesheet.png", 32, 48)
         self.current_image_x = 0
         self.current_image_y = 0
         self.image_x = image_x
@@ -222,3 +209,10 @@ class DecoAvatar(object):
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
+        self.run_setup(base_size_x, base_size_y)
+
+    def run_setup(self, base_size_x, base_size_y):
+        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/deco_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4
+        self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
+        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2

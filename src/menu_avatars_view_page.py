@@ -17,12 +17,12 @@ class TextPrint(object):
         self.x = x
         self.y = y
 
+
 class ImagePrint(object):
     def __init__(self, image, x, y):
         self.image = image
         self.x = x
         self.y = y
-
 
 
 class MenuAvatar(object):
@@ -295,6 +295,7 @@ class ConversationOptionsMenuAvatar(MenuAvatar):
         final_menu_images.append(image)
 
         return final_menu_images
+
 
 class ChatMenuAvatar(MenuAvatar):
     NAME = "chat_menu_avatar"

@@ -49,9 +49,12 @@ class GameEvents(object):
                 # cowboy = self.gc.game_state.npc_ghost_list["Cowboy"]
                 # self.gc.position_manager.move_feature(cowboy, self.gc.game_data.room_data_list[self.gc.game_state.current_room], Direction.DOWN)
                 pass
+            if event.type == self.ten_second_timer_id:
+                pass
 
             if event.type == self.quarter_second_timer_id:
                 self.gc.switch_tile_frame()
+                self.gc.game_clock_pass_1_minute()
             if event.type == self.twentieth_second_timer_id:
                 self.gc.act_on_key_down_cue()
                 self.gc.ask_animator_to_animate()
@@ -81,12 +84,7 @@ class GameEvents(object):
 
 
 class GameController(object):
-    '''
-    :type game_view: GameView
-    :type game_state: GameState
-    :type game_data: GameData
-    :type inventory_manager: InventoryManager
-    '''
+
     def __init__(self, game, game_view, game_state, game_data):
         self.game = game  # type: Game
         self.game = game  # type: Game
@@ -268,19 +266,49 @@ class GameController(object):
 
     # endregionj
 
-    # region INVENTORY
+    def game_clock_pass_1_minute(self):
+        if self.game_state.minute_of_hour < 59:
+            self.game_state.minute_of_hour += 1
+        else:
+            self.game_state.minute_of_hour = 0
+            if self.game_state.hour_of_day < 23:
+                self.game_state.hour_of_day += 1
+            else:
+                self.game_state.hour_of_day = 0
+
+    def get_game_time_string(self):
+        hour = self.game_state.hour_of_day
+        minute = self.game_state.minute_of_hour
+        print_hour = 0
+        print_minute = 0
+        if hour < 10:
+            print_hour = "0" + str(hour)
+        else:
+            print_hour = str(hour)
+
+        if minute < 10:
+            print_minute = "0" + str(minute)
+        else:
+            print_minute = str(minute)
+        final_time = print_hour + ":" + print_minute
+        return final_time
+
     def get_stat_items(self):
         hour = self.game_state.hour_of_day
         minute = self.game_state.minute_of_hour
 
         stat_dict = {"seeds": str(self.game_state.your_seeds),
                      "Coins": str(self.game_state.your_coins),
-                     "time": str(hour) + ":" + str(minute) + "0",
+                     "time": self.get_game_time_string(),
                      "day": str(self.game_state.day_of_summer),
                      "selected_tool": str(self.game_state.selected_tool)}
 
         return stat_dict
-    # endregion
+
+    def update_stat_menus(self):
+        for menu in self.game_state.ms.static_menus:
+            ghost = self.game_state.ms.get_menu_ghost(menu)
+            ghost.update_menu_items_list()
 
     def ask_animator_to_animate(self):
         if self.check_if_player_already_animating():
@@ -302,7 +330,7 @@ class GameController(object):
                 NPC_data.append(list(row))
         for Feature in NPC_data:
             feature_type = self.game_state.type_translator[Feature[0]]
-            unique_name = Feature[2] + "_" + str(GameSettings.get_unique_ID())
+            unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
             print(feature_type)
             if feature_type == Types.NPC:
                 test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
@@ -319,8 +347,30 @@ class GameController(object):
                                                             self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
                                                             int(Feature[8]), unique_name, str(Feature[9]))
                 self.game_state.add_feature_ghost(unique_name, test)
+            if feature_type == Types.DECO:
+                test = self.game_state.ghost_classes["Deco"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
+                                                              self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                              int(Feature[8]), unique_name, str(Feature[9]))
+                self.game_state.add_feature_ghost(unique_name, test)
 
         return NPC_data
+
+    def import_decos_from_csv(self, filename):
+        deco_data = []
+        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                deco_data.append(list(row))
+        for Feature in deco_data:
+            feature_type = self.game_state.type_translator[Feature[0]]
+            unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
+            if feature_type == Types.DECO:
+                test = self.game_state.ghost_classes["Deco"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
+                                                             self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                             int(Feature[8]), unique_name, str(Feature[9]))
+                self.game_state.add_deco_ghost(unique_name, test)
+
+        return deco_data
 
     def reset_room(self, room_name):
         room = self.game_state.get_room(room_name)

@@ -1,6 +1,6 @@
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar
+from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar
 
@@ -17,7 +17,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
-        self.avatar_classes = {Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar}
+        self.avatar_classes = {Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
@@ -49,6 +49,9 @@ class GameView(object):
 
     def get_npc_avatar(self, name):
         return self.npc_avatar_list[name]
+
+    def get_deco_avatar(self, name):
+        return self.deco_avatar_list[name]
 
     def get_all_avatar_names(self):
         print(self.npc_avatar_list.keys())
@@ -92,8 +95,8 @@ class GameView(object):
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
         chosen_deco_avatar = self.deco_avatar_list[deco_name]
-        deco_loc_x = camera_x + (self.npc_avatar_list[deco_name].image_x - 1) * self.square_size[0] + self.npc_avatar_list[deco_name].image_offset_x
-        deco_loc_y = camera_y + (self.npc_avatar_list[deco_name].image_y - 1) * self.square_size[1] - chosen_deco_avatar.image_offset_y
+        deco_loc_x = camera_x + (self.deco_avatar_list[deco_name].image_x - 1) * self.square_size[0] + self.deco_avatar_list[deco_name].image_offset_x
+        deco_loc_y = camera_y + (self.deco_avatar_list[deco_name].image_y - 1) * self.square_size[1] - chosen_deco_avatar.image_offset_y
         self.screen.blit(chosen_deco_avatar.spritesheet.get_image(chosen_deco_avatar.current_image_x, chosen_deco_avatar.current_image_y), (deco_loc_x, deco_loc_y))
 
     def draw_player(self):
@@ -116,6 +119,9 @@ class GameView(object):
     def draw_all(self, drawables_list, current_room):
         self.draw_bg(current_room)
         for drawable in drawables_list:
+            if not drawable[0].feature_type == "Player":
+                print(drawable[0].unique_name)
+        for drawable in drawables_list:
 
             if drawable[0].feature_type == "Player":
                 self.draw_player()
@@ -128,11 +134,12 @@ class GameView(object):
             elif drawable[0].feature_type == Types.DECO:
                 self.draw_deco(drawable[0].unique_name)
 
-    def get_drawables_list(self, player_location, feature_locations):
+    def get_drawables_list(self, player_location, feature_locations, deco_locations):
         drawables_list = []
 
-        # for deco in self.deco_avatar_list: #TODO: Fix this
-        #     drawables_list.append([deco, self.deco_avatar_list[deco], deco.drawing_priority])
+        for deco in deco_locations: #TODO: Fix this
+            deco_avatar = self.get_deco_avatar(deco[0])
+            drawables_list.append([deco_avatar, deco[1], deco_avatar.drawing_priority])
 
         for npc in feature_locations:
             npc_avatar = self.get_npc_avatar(npc[0])

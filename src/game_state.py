@@ -1,5 +1,5 @@
 import copy
-from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost
+from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
@@ -18,7 +18,7 @@ class GameState(object):
         self.gc = game_controller
         self.gd = game_data
         self.ms = MenuState(self)
-        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost}
+        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost}
         self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
@@ -26,7 +26,7 @@ class GameState(object):
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
-        self.decoration_ghost_list = {}
+        self.deco_ghost_list = {}
 
         self.new_game = True
         self.current_room = "Staging_Area"
@@ -37,8 +37,8 @@ class GameState(object):
         self.total_seeds_found = 26
 
         self.day_of_summer = 12
-        self.hour_of_day = 14
-        self.minute_of_hour = 00
+        self.hour_of_day = 1
+        self.minute_of_hour = 0
         self.night_filter_current_alpha = 0
         self.current_inventory_dictionary = {}
         self.current_key_inventory_dictionary = {}
@@ -56,6 +56,9 @@ class GameState(object):
 
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
+
+    def add_deco_ghost(self, deco_name, deco_object):
+        self.deco_ghost_list[deco_name] = deco_object
 
     def get_all_features_in_room(self, room_name):
         feature_list = []
@@ -81,9 +84,18 @@ class GameState(object):
     def get_feature_ghost(self, name):
         return self.feature_ghost_list[name]
 
+    def get_deco_ghost(self, name):
+        return self.deco_ghost_list[name]
+
     def get_all_feature_unique_names(self):
         key_list =[]
         for item in self.feature_ghost_list:
+            key_list.append(item)
+        return key_list
+
+    def get_all_deco_unique_names(self):
+        key_list =[]
+        for item in self.deco_ghost_list:
             key_list.append(item)
         return key_list
 
@@ -129,18 +141,26 @@ class GameState(object):
         return result
 
     def get_feature_locations(self):
-        location_list = []
+        feature_location_list = []
+        deco_location_list = []
 
         npc_ghost_list = self.feature_ghost_list
 
         for npc in npc_ghost_list.keys():
             npc_ghost = self.get_feature_ghost(npc)
             if npc_ghost_list[npc].room == self.current_room:
-                location_list.append([npc, npc_ghost.y, npc_ghost.x])
+                feature_location_list.append([npc, npc_ghost.y, npc_ghost.x])
+
+        deco_ghost_list = self.deco_ghost_list
+
+        for deco in deco_ghost_list.keys():
+            deco_ghost = self.get_deco_ghost(deco)
+            if deco_ghost_list[deco].room == self.current_room:
+                deco_location_list.append([deco, deco_ghost.y, deco_ghost.x])
 
         player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
 
-        return player_location, location_list
+        return player_location, feature_location_list, deco_location_list
 
     def get_player_location(self):
         player_location = [self.get_player_ghost().x, self.get_player_ghost().y]
@@ -227,9 +247,10 @@ class GameState(object):
 
     def update_view(self):
         current_room = self.current_room
-        drawables_list = self.gv.get_drawables_list(self.get_feature_locations()[0], self.get_feature_locations()[1])
+        drawables_list = self.gv.get_drawables_list(self.get_feature_locations()[0], self.get_feature_locations()[1], self.get_feature_locations()[2])
         self.gv.draw_all(drawables_list, current_room)
 
+        self.gc.update_stat_menus()
         for menu in (self.ms.static_menus + self.ms.visible_menus):
             ghost = self.ms.menu_ghost_data_list[menu + "_ghost"]
             avatar_display_details = self.gv.menu_avatar_data_list[menu + "_avatar"].menu_display_details

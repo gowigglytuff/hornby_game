@@ -1,11 +1,10 @@
 import copy
 import math
 from typing import TYPE_CHECKING
-
 import pygame
-
 from definitions import Direction
 from tile_map import TileMap, ElevationMap
+
 if TYPE_CHECKING:
     from game_controller import GameController
 
