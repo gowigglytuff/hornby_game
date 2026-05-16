@@ -120,7 +120,7 @@ class GameView(object):
         self.draw_bg(current_room)
         for drawable in drawables_list:
             if not drawable[0].feature_type == "Player":
-                print(drawable[0].unique_name)
+                pass
         for drawable in drawables_list:
 
             if drawable[0].feature_type == "Player":

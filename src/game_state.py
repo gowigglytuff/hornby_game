@@ -330,6 +330,9 @@ class MenuState(object):
             selected_menu.set_master_menu(details["master_menu"])
             self.gs.gv.update_sub_menu_display_details(menu_name, details["master_menu"])
 
+        if menu_name == ChatMenuGhost.BASE:
+            selected_menu.set_current_phrase(details["phrase"])
+
         self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
 
@@ -408,7 +411,6 @@ class MenuState(object):
         menu_selection = item_selected
         current_menu = self.get_menu_ghost(ConversationOptionsMenuGhost.BASE)
         selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).phrase
-        print("selected phrase", selected_phrase)
 
         if menu_selection == "Talk":
             details = {"speaker_name": current_menu.talking_to,
@@ -416,7 +418,6 @@ class MenuState(object):
                         "face_image": current_menu.face_image,
                         "speaker_unique_name": current_menu.speaker_unique_name,
                         "phrase": [selected_phrase]}
-            print(details.values())
             self.exit_menu(ConversationOptionsMenuGhost.BASE)
 
             self.set_menu(ChatMenuGhost.BASE, details)

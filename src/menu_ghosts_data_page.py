@@ -1,3 +1,5 @@
+import textwrap
+
 from definitions import GameSettings, Types
 from spritesheet import Spritesheet
 from text_input import get_input
@@ -10,6 +12,7 @@ class MenuInformation(object):
         self.cursor_image = cursor_image
         self.cursor_at = cursor_at
         self.menu_specific_details_dict = menu_specific_details_dict
+
 
 class MenuGhost(object):
     BASE = "menu_base"
@@ -423,7 +426,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
 
     def update_menu_items_list(self, details):
         self.talking_to = details["speaker_name"]
-        self.friendship = details["friendship_level"]
+        self.friendship = self.get_friendship(int(details["friendship_level"]))
         self.face_image = details["face_image"]
         self.speaker_unique_name = details["speaker_unique_name"]
 
@@ -447,6 +450,19 @@ class ConversationOptionsMenuGhost(MenuGhost):
         menu_selection = self.get_current_menu_item()
         self.gc_input.game_state.ms.conversation_options_menu_selection(menu_selection)
 
+    def get_friendship(self, friendship):
+        friendship_counter = " - - - - "
+        if friendship == 0:
+            friendship_counter = " - - - - "
+        elif 5 >= friendship >= 1 :
+            friendship_counter = " \u2665 - - - "
+        elif 10 >= friendship >= 6:
+            friendship_counter = " \u2665 \u2665 - - "
+        elif 15 >= friendship >= 11:
+            friendship_counter = " \u2665 \u2665 \u2665 - "
+        elif friendship >= 16:
+            friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
+        return friendship_counter
 
 class ChatMenuGhost(MenuGhost):
     BASE = "chat_menu"
@@ -463,10 +479,12 @@ class ChatMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
         self.talking_to = None
-        self.friendship = None
+        self.friendship = 0
         self.face_image = None
         self.phrase = None
         self.update_currently_displayed()
+        self.speaking_queue = []
+        self.current_phrase = []
 
 
     def update_currently_displayed(self):
@@ -502,8 +520,29 @@ class ChatMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        menu_selection = None
-        self.gc_input.game_state.ms.chat_menu_selection(menu_selection)
+        self.set_speaking_queue()
+
+    def set_current_phrase(self, phrases):
+        self.current_phrase = textwrap.wrap(phrases[0], width=25)
+        self.set_speaking_queue()
+        print(self.current_phrase, phrases)
+
+
+    def set_speaking_queue(self):
+        print("set the queue")
+        phrase_counter = 0
+        self.menu_item_list = []
+        if len(self.current_phrase) > 2:
+            for line in range(3):
+                self.menu_item_list.append(self.current_phrase.pop(0))
+
+        elif (len(self.current_phrase) <= 2) and (len(self.current_phrase) > 0):
+            for line in range(len(self.current_phrase)):
+                self.menu_item_list.append(self.current_phrase.pop(0))
+
+        elif len(self.current_phrase) == 0:
+            menu_selection = None
+            self.gc_input.game_state.ms.chat_menu_selection(menu_selection)
 
 
 class GameActionDialogueMenuGhost(MenuGhost):

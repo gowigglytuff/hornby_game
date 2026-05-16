@@ -198,7 +198,7 @@ class GameController(object):
         self.game_state.change_npc_facing(direction_to_turn, npc_talking_to)
         self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
         details = {"speaker_name": npc_talking_to_ghost.name,
-                   "friendship_level": 11,
+                   "friendship_level": 3,
                    "face_image": npc_talking_to_avatar.face_image,
                    "speaker_unique_name": npc_talking_to_ghost.unique_name}
 

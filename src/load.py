@@ -70,7 +70,6 @@ def install_all_data(gc, gs):
             related_ghost = gc.game_state.deco_ghost_list[deco_item]
             gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
 
-
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
