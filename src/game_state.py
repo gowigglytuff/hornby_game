@@ -1,6 +1,6 @@
 import copy
-from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost
+from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
@@ -18,8 +18,9 @@ class GameState(object):
         self.gc = game_controller
         self.gd = game_data
         self.ms = MenuState(self)
-        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost}
-        self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE}
+        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost}
+        self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE, "Basket": Types.BASKET}
+        self.sub_type_translator = {"None": None, "Basket": Types.BASKET}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "None"
@@ -207,6 +208,7 @@ class GameState(object):
             self.gv.player_avatar.initiate_animation("walk_left")
         elif direction == Direction.RIGHT:
             self.gv.player_avatar.initiate_animation("walk_right")
+
     # endregion
 
     # region FEATURE CONTROL
@@ -458,7 +460,7 @@ class GameData(object):
         self.room_dictionary = {
             "overworld": Room("overworld", 5, 5),
             "Ringside": Room("Ringside", 5, 5)}
-        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
+        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
                                UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost]
         self.item_data_list = {}

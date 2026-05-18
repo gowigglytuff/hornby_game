@@ -66,6 +66,7 @@ class MenuAvatar(object):
 
     def set_menu_display_coordinates(self):
         dictionary = {"start_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "acquire_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "stat_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "top", "coordinates": [0, 0]},
                          "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                          "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},

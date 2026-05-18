@@ -110,6 +110,7 @@ class SpecialMenuGhost(MenuGhost):
     def update_menu_items_list(self):
         pass
 
+
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
     NAME = BASE + "_ghost"
@@ -160,6 +161,24 @@ class StartMenuGhost(MenuGhost):
         super().__init__(gc_input)
         self.menu_header = None
         self.menu_item_list = ["Bag", "Outfits", "Map", "Chore List", "Profile", "Save", "Options", "Vibes"]
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.update_menu_items_list(None)
+
+    def do_option(self):
+        menu_selection = self.get_current_menu_item()
+        self.gc_input.game_state.ms.start_menu_selection(menu_selection)
+
+
+class AcquireMenuGhost(MenuGhost):
+    BASE = "acquire_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_item_list = ["Cheese", "Hat", "Rock"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
@@ -464,6 +483,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
             friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
         return friendship_counter
 
+
 class ChatMenuGhost(MenuGhost):
     BASE = "chat_menu"
     NAME = BASE + "_ghost"
@@ -579,6 +599,7 @@ class GameActionDialogueMenuGhost(MenuGhost):
 
     def update_menu_items_list(self):
         pass
+
 
 class SubMenuGhost(MenuGhost):
     BASE = "sub_menu"

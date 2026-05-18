@@ -170,7 +170,7 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc_input.attempt_move_object("John", Direction.DOWN)
 
     def key_space_pressed(self):
-        self.gc_input.inventory_manager.use_item(self.gc_input.game_data.item_data_list["Cheese"], 2)
+        self.gc_input.snap_photo()
 
     def key_control_pressed(self):
         self.gc_input.clear_key_down_cue()

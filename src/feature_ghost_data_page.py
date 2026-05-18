@@ -1,4 +1,5 @@
 from definitions import Direction, Types
+from menu_ghosts_data_page import AcquireMenuGhost
 
 
 class PlayerGhost(object):
@@ -30,9 +31,10 @@ class FeatureGhost(object):
     '''
     :type gs_input: GameState
     '''
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype):
         self.gs_input = gs_input
         self.feature_type = feature_type
+        self.feature_subtype = feature_subtype
         self.name = name
         self.unique_name = unique_name
         self.state = "idle"
@@ -65,26 +67,37 @@ class FeatureGhost(object):
 
 
 class NpcGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
         self.phrase = phrase
         self.feature_type = Types.NPC
 
 
 class PropGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
         self.feature_type = Types.PROP
 
+    def get_interacted_with(self):
+        pass
+
+
+class BasketGhost(PropGhost):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype)
+        self.feature_type = Types.PROP
+
+    def get_interacted_with(self):
+        self.gs_input.ms.set_menu(AcquireMenuGhost.BASE, None)
 
 class HouseGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
         self.feature_type = Types.HOUSE
 
 
 class DecoGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
         self.phrase = phrase
         self.feature_type = Types.DECO

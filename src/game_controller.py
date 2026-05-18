@@ -209,6 +209,7 @@ class GameController(object):
         prop_talking_to_ghost = self.game_state.feature_ghost_list[prop_talking_to]
         prop_talking_to_avatar = self.game_view.npc_avatar_list[prop_talking_to]
         self.game_state.ms.post_notice("You talked to " + prop_talking_to_ghost.name)
+        prop_talking_to_ghost.get_interacted_with()
         details = {}
         # self.game_state.ms.set_menu(ConversationOptionsMenuGhost.BASE, details)
 
@@ -265,6 +266,52 @@ class GameController(object):
                 print("all failed")
 
     # endregionj
+
+    def snap_photo(self):
+        facing = self.game_state.get_player_ghost().facing
+        if not self.check_if_player_already_animating():
+            direction = "up"
+            vector_x = 0
+            vector_y = 0
+            if facing == Direction.DOWN:
+                direction = "down"
+                vector_y = 1
+            elif facing == Direction.UP:
+                direction = "up"
+                vector_y = -1
+            elif facing == Direction.LEFT:
+                direction = "left"
+                vector_x = -1
+            elif facing == Direction.RIGHT:
+                direction = "right"
+                vector_x = 1
+            self.game_view.player_avatar.initiate_animation("snap_photo_" + direction)
+
+            camera_range = 3
+            pl = self.game_state.get_player_location()
+            success = False
+            check_x = pl[0] + vector_x
+            check_y = pl[1] + vector_y
+            result = None
+            for x in range(camera_range): #TODO: make this so it can't go out of the room range
+                print(x)
+                if success:
+                    break
+                cube = self.position_manager.access_cube(check_x, check_y)
+                result = cube.object_filling
+                print(result)
+                if cube.object_filling:
+                    success = True
+                check_x += vector_x
+                check_y += vector_y
+                print(vector_x, vector_y)
+                print(check_x, check_y)
+
+            if success:
+                self.game_state.ms.post_notice("Snapped a pic of " + result)
+
+            else:
+                self.game_state.ms.post_notice("There was nothing there")
 
     def game_clock_pass_1_minute(self):
         if self.game_state.minute_of_hour < 59:
@@ -330,27 +377,34 @@ class GameController(object):
                 NPC_data.append(list(row))
         for Feature in NPC_data:
             feature_type = self.game_state.type_translator[Feature[0]]
+            feature_subtype = self.game_state.sub_type_translator[Feature[10]]
             unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
             print(feature_type)
             if feature_type == Types.NPC:
-                test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
+                test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
                                                             self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                            int(Feature[8]), unique_name, str(Feature[9]))
+                                                            int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
             if feature_type == Types.PROP:
-                test = self.game_state.ghost_classes["Prop"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
-                                                            self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                            int(Feature[8]), unique_name, str(Feature[9]))
+                if feature_subtype == Types.BASKET:
+                    print("wooooo", Feature[1])
+                    test = self.game_state.ghost_classes["Basket"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
+                                                                self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                                int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
+                else:
+                    test = self.game_state.ghost_classes["Prop"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
+                                                                 self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                                 int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
             if feature_type == Types.HOUSE:
-                test = self.game_state.ghost_classes["House"](Feature[1], self.game_state, Feature[2],int(Feature[3]), int(Feature[4]),
+                test = self.game_state.ghost_classes["House"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
                                                             self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                            int(Feature[8]), unique_name, str(Feature[9]))
+                                                            int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
             if feature_type == Types.DECO:
                 test = self.game_state.ghost_classes["Deco"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
                                                               self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                              int(Feature[8]), unique_name, str(Feature[9]))
+                                                              int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
 
         return NPC_data
@@ -363,11 +417,12 @@ class GameController(object):
                 deco_data.append(list(row))
         for Feature in deco_data:
             feature_type = self.game_state.type_translator[Feature[0]]
+            feature_subtype = self.game_state.sub_type_translator[Feature[10]]
             unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
             if feature_type == Types.DECO:
                 test = self.game_state.ghost_classes["Deco"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
                                                              self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                             int(Feature[8]), unique_name, str(Feature[9]))
+                                                             int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_deco_ghost(unique_name, test)
 
         return deco_data

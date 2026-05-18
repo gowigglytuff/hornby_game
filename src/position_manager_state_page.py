@@ -160,7 +160,6 @@ class PositionManager(object):
 
         del feature_list[feature_name]
 
-
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker, direction, room):
         room.access_adjacent_cube(checker, direction)
@@ -322,6 +321,10 @@ class PositionManager(object):
         return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
     # endregion
 
+    def access_cube(self, x, y):
+        current_room = self.gc_input.game_state.get_current_room()
+        cube = current_room.access_cube(x, y)
+        return cube
 
 class Room(object):
     def __init__(self, room_name, x_size, y_size):

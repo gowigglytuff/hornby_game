@@ -44,6 +44,7 @@ class Types(Enum):
     STATIC = "Static"
     SUB = "Sub"
     OVERWORLD = "Overworld"
+    BASKET = "Basket"
 
 class Names(Enum):
     BASICMENU = "Basic Menu"

@@ -41,6 +41,7 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 7, 1, 1)))
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
         gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
+        gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
@@ -49,6 +50,8 @@ def install_all_data(gc, gs):
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
         gs.gd.add_door_data("Ladder", "Cave", "Cave", 15, 8, 5, 7)
         gs.gd.add_door_data("Passage", "Test_Room", "My_House", 5, 17, 2, 5)
+        gs.gd.add_door_data("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
 
 
     def install_spritesheets(gc, gs):

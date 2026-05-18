@@ -1,6 +1,6 @@
 import pygame
 
-from animations_page_view_page import WalkAnimation
+from animations_page_view_page import WalkAnimation, StationaryAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types
 
@@ -10,8 +10,8 @@ class PlayerAvatar(object):
         self.name = "Player"
         self.feature_type = "Player"
         self.drawing_priority = 1
-        self.character_frame_x = 24
-        self.character_frame_y = 36
+        self.character_frame_x = 32
+        self.character_frame_y = 48
         self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.face_image = self.get_face_image()
         self.current_image_x = 0
@@ -25,7 +25,11 @@ class PlayerAvatar(object):
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
                                "walk_left": WalkAnimation(Direction.LEFT),
                                "walk_right": WalkAnimation(Direction.RIGHT),
-                               "walk_up": WalkAnimation(Direction.UP)}
+                               "walk_up": WalkAnimation(Direction.UP),
+                               "snap_photo_down": StationaryAnimation(Direction.DOWN),
+                               "snap_photo_left": StationaryAnimation(Direction.LEFT),
+                               "snap_photo_right": StationaryAnimation(Direction.RIGHT),
+                               "snap_photo_up": StationaryAnimation(Direction.UP)}
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
