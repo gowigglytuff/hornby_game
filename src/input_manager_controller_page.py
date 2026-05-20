@@ -138,7 +138,6 @@ class InGameKeyboardManager(KeyboardManager):
 
             if key == pygame.K_ESCAPE:
                 self.key_escape_pressed()
-                print(self.gc_input.held_keys)
 
         elif event_type == pygame.KEYUP:
             self.gc_input.remove_from_held_key(key)

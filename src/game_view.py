@@ -190,7 +190,6 @@ class GameView(object):
 
         if image_print_list:
             for item in image_print_list:
-                print(item)
                 image = item.image
                 final_image.blit(image, [item.x, item.y])
 

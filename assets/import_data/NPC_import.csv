@@ -32,7 +32,7 @@ Prop,Tree,Bird_Room,15,8,Down,Prop, 1, 1,How are you?,None
 Prop,Tree,Bird_Room,14,4,Down,Prop, 1, 1,How are you?,None
 Prop,Tree,Bird_Room,16,3,Down,Prop, 1, 1,How are you?,None
 NPC,Robin,Bird_Room,12,10,Down,NPC, 1, 1,sup,Bird
-NPC,Crow,Bird_Room,15,15,Down,NPC, 1, 1,sup,Bird
+NPC,Crow,Bird_Room,10,6,Down,NPC, 1, 1,sup,Bird
 NPC,Starling,Bird_Room,8,12,Down,NPC, 1, 1,sup,Bird
 NPC,Tanager,Bird_Room,10,17,Down,NPC, 1, 1,sup,Bird
 NPC,Blackbird,Bird_Room,17,8,Down,NPC, 1, 1,sup,Bird

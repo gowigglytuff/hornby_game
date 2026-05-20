@@ -102,7 +102,6 @@ def install_all_data(gc, gs):
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
-            print(menu.NAME, menu.menu_type)
             if menu.menu_type == Types.BASE or Types.STATIC:
                 if menu.BASE in gc.game_view.menu_avatar_names.keys():
                     avatar_name = menu.BASE + "_avatar"
@@ -111,7 +110,6 @@ def install_all_data(gc, gs):
                     gs.gv.set_menu_display_coordinates(menu.BASE)
                 else:
                     avatar_name = menu.BASE + "_avatar"
-                    print(avatar_name)
                     items = menu.generate_menu_information_package()
                     gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
                     gs.gv.set_menu_display_coordinates(menu.BASE)

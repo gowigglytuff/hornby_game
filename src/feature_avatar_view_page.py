@@ -116,7 +116,6 @@ class FeatureAvatar(object):
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
         self.face_image = self.get_face_image()
         self.face_feature(self.spawn_facing)
-        print(self.name, self.spawn_facing)
 
     def get_face_image(self):
         face = self.spritesheet.get_image(0, 0)

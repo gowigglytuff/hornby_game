@@ -1,5 +1,5 @@
 import copy
-from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost
+from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
@@ -18,7 +18,7 @@ class GameState(object):
         self.gc = game_controller
         self.gd = game_data
         self.ms = MenuState(self)
-        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost}
+        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost, "Bird": BirdGhost}
         self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE, "Basket": Types.BASKET}
         self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
@@ -28,6 +28,7 @@ class GameState(object):
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.deco_ghost_list = {}
+        self.map_trigger_list = {}
 
         self.new_game = True
         self.current_room = "Staging_Area"
@@ -57,6 +58,15 @@ class GameState(object):
 
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
+
+    def add_map_trigger(self, room_name, triggers_name, trigger_object):
+        if room_name in self.map_trigger_list.keys():
+            self.map_trigger_list[room_name][triggers_name] = trigger_object
+        else:
+            self.map_trigger_list[room_name] = {triggers_name: trigger_object}
+
+    def remove_map_trigger(self, room_name, triggers_name):
+        self.map_trigger_list[room_name].pop(triggers_name, None)
 
     def add_deco_ghost(self, deco_name, deco_object):
         self.deco_ghost_list[deco_name] = deco_object
@@ -265,7 +275,6 @@ class GameState(object):
         else:
             current_inventory[item.NAME] = {"name": item.NAME, "quantity": quantity}
 
-
 class MenuState(object):
     def __init__(self, gs_input):
         self.menu_ghost_data_list = {}
@@ -363,7 +372,6 @@ class MenuState(object):
     def exit_menu(self, menu_name):
         selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
         selected_menu.reset_cursor()
-        print(menu_name)
         self.deactivate_menu(menu_name)
 
     def exit_all_menus(self):
@@ -488,7 +496,6 @@ class GameData(object):
         if door_type == "Ladder":
             # Door 1
             door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            print(door1_name)
             door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.MATCH)
             self.door_data_list[door1_name] = door1_object
 

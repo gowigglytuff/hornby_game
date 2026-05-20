@@ -476,8 +476,8 @@ class Cube(object):
         coords = [self.x, self.y]
         return coords
 
-    def fill_cube(self, object_name, object_type):
-        self.object_filling = object_name
+    def fill_cube(self, object_unique_name, object_type):
+        self.object_filling = object_unique_name
         self.filling_type = object_type
 
     def empty_cube(self):

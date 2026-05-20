@@ -545,11 +545,9 @@ class ChatMenuGhost(MenuGhost):
     def set_current_phrase(self, phrases):
         self.current_phrase = textwrap.wrap(phrases[0], width=25)
         self.set_speaking_queue()
-        print(self.current_phrase, phrases)
 
 
     def set_speaking_queue(self):
-        print("set the queue")
         phrase_counter = 0
         self.menu_item_list = []
         if len(self.current_phrase) > 2:
@@ -636,8 +634,6 @@ class UseMenuGhost(MenuGhost):
             self.gc_input.game_state.ms.exit_all_menus()
         else:
             self.gc_input.game_state.ms.deactivate_menu(self.BASE)
-            print(self.master_menu)
-            print(chosen_item_name)
             self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
             # self.do_option(chosen_item_name)
             # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)

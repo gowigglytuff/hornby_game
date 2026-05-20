@@ -183,9 +183,9 @@ class GameController(object):
         room = self.game_state.get_current_room()
         full = self.position_manager.check_if_adjacent_tiles_full(player, player.facing, room)
         if full:
-            print("it's full")
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.game_state.get_feature_ghost(cube.object_filling)
+            print(feature.feature_type)
             if feature.feature_type == Types.NPC:
                 self.talk_to_npc(cube.object_filling, player.facing)
             if feature.feature_type == Types.PROP:
@@ -271,10 +271,12 @@ class GameController(object):
             self.go_through_door(room_object.name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
         elif not door_status:
             if move_status:
+                player = self.game_state.get_player_ghost()
                 self.game_state.move_player_avatar(direction)
-                self.position_manager.nudge_ghost(self.game_state.get_player_ghost(), room_object, direction)
+                self.position_manager.nudge_ghost(player, room_object, direction)
+                self.player_moved_followup(player.x, player.y)
             else:
-                print("all failed")
+                pass
 
     # endregionj
 
@@ -305,21 +307,18 @@ class GameController(object):
             check_y = pl[1] + vector_y
             result = None
             for x in range(camera_range): #TODO: make this so it can't go out of the room range
-                print(x)
                 if success:
                     break
                 cube = self.position_manager.access_cube(check_x, check_y)
                 result = cube.object_filling
-                print(result)
                 if cube.object_filling:
                     success = True
                 check_x += vector_x
                 check_y += vector_y
-                print(vector_x, vector_y)
-                print(check_x, check_y)
 
             if success:
-                self.game_state.ms.post_notice("Snapped a pic of " + result)
+                ghost = self.game_state.get_feature_ghost(result)
+                self.game_state.ms.post_notice("Snapped a pic of a " + ghost.name)
 
             else:
                 self.game_state.ms.post_notice("There was nothing there")
@@ -390,31 +389,41 @@ class GameController(object):
             feature_type = self.game_state.type_translator[Feature[0]]
             feature_subtype = self.game_state.sub_type_translator[Feature[10]]
             unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
-            print(feature_type)
             if feature_type == Types.NPC:
-                test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                            self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                            int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                self.game_state.add_feature_ghost(unique_name, test)
+                if feature_subtype == Types.BIRD:
+                    test = self.game_state.ghost_classes["Bird"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
+                                                                self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
+                                                                int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
+                    self.game_state.add_feature_ghost(unique_name, test)
+
+                    # produce initial triggers
+                    triggers_object = test.produce_map_trigger(int(Feature[3]), int(Feature[4]))
+                    print(unique_name, triggers_object.coords_list)
+                    self.game_state.add_map_trigger(Feature[2], triggers_object.triggers_name, triggers_object)
+
+                else:
+                    test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
+                                                                self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
+                                                                int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
+                    self.game_state.add_feature_ghost(unique_name, test)
             if feature_type == Types.PROP:
                 if feature_subtype == Types.BASKET:
-                    print("wooooo", Feature[1])
                     test = self.game_state.ghost_classes["Basket"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                                self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                                self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
                                                                 int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 else:
                     test = self.game_state.ghost_classes["Prop"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                                 self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                                 self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
                                                                  int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
             if feature_type == Types.HOUSE:
                 test = self.game_state.ghost_classes["House"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                            self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                            self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
                                                             int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
             if feature_type == Types.DECO:
                 test = self.game_state.ghost_classes["Deco"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                              self.game_state.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
+                                                              self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
                                                               int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                 self.game_state.add_feature_ghost(unique_name, test)
 
@@ -477,11 +486,28 @@ class GameController(object):
         self.change_room(door.room_to)
         pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
 
-    def player_moved_followup(self):
-        self.check_for_triggers()
-
-    def check_for_triggers(self):
+    def player_moved_followup(self, player_x, player_y):
+        self.check_for_map_triggers(player_x, player_y)
         pass
+
+    def check_for_map_triggers(self, player_x, player_y):
+        room = self.game_state.get_current_room()
+        if room.name in self.game_state.map_trigger_list.keys():
+            fetch_list = self.game_state.map_trigger_list[self.game_state.get_current_room().name]
+            birds_to_trigger = []
+            for map_trigger in fetch_list.values():
+                for x in map_trigger.coords_list:
+                    if x[0] == player_x and x[1] == player_y:
+                        triggered_feature_name = map_trigger.trigger_owner_unique_name
+                        birds_to_trigger.append(triggered_feature_name)
+            for bird_unique_name in birds_to_trigger:
+                self.trigger_a_bird(bird_unique_name, room)
+
+    def trigger_a_bird(self, unique_name, room):
+        print(unique_name)
+        self.game_state.remove_map_trigger(room.name, unique_name)
+        self.position_manager.remove_feature_from_map(unique_name, room)
+
 
 class InventoryManager(object):
     def __init__(self, gc_input):
