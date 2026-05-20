@@ -45,6 +45,7 @@ class Types(Enum):
     SUB = "Sub"
     OVERWORLD = "Overworld"
     BASKET = "Basket"
+    BIRD = "Bird"
 
 class Names(Enum):
     BASICMENU = "Basic Menu"

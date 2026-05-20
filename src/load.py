@@ -66,7 +66,10 @@ def install_all_data(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
-            gs.gv.add_feature_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
+            if related_ghost.feature_subtype == Types.BIRD:
+                gs.gv.add_feature_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
+            else:
+                gs.gv.add_feature_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
 
         deco_name_list = gs.get_all_deco_unique_names()
         for deco_item in deco_name_list:

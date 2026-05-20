@@ -20,7 +20,7 @@ class GameState(object):
         self.ms = MenuState(self)
         self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost}
         self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE, "Basket": Types.BASKET}
-        self.sub_type_translator = {"None": None, "Basket": Types.BASKET}
+        self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "None"

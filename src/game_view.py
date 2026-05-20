@@ -1,6 +1,6 @@
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar
+from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar
 
@@ -17,7 +17,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
-        self.avatar_classes = {Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
+        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)

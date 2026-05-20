@@ -1,6 +1,6 @@
 import pygame
 
-from animations_page_view_page import WalkAnimation, StationaryAnimation
+from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types
 
@@ -29,7 +29,8 @@ class PlayerAvatar(object):
                                "snap_photo_down": StationaryAnimation(Direction.DOWN),
                                "snap_photo_left": StationaryAnimation(Direction.LEFT),
                                "snap_photo_right": StationaryAnimation(Direction.RIGHT),
-                               "snap_photo_up": StationaryAnimation(Direction.UP)}
+                               "snap_photo_up": StationaryAnimation(Direction.UP),
+                               "peck": BirdAnimation(Direction.DOWN)}
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
@@ -179,6 +180,37 @@ class NPCAvatar(FeatureAvatar):
         face = face.subsurface(4, 11, 24, 24)
         face = pygame.transform.scale(face, [24 * 5, 24 * 5])
         return face
+
+
+class BirdAvatar(FeatureAvatar):
+    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+        self.feature_type = Types.NPC
+        self.character_frame_x = 32
+        self.character_frame_y = 48
+        self.run_setup(base_size_x, base_size_y)
+
+        self.animation_list = {"peck": BirdAnimation(Direction.DOWN)}
+        self.step_of_walk_pattern = 0
+        self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
+
+    def next_walk_pattern_step(self):
+        current_step = self.walk_pattern[self.step_of_walk_pattern]
+        if self.step_of_walk_pattern < 7:
+            self.step_of_walk_pattern += 1
+        else:
+            self.step_of_walk_pattern = 0
+        return current_step
+
+    def get_face_image(self):
+        face = self.spritesheet.get_image(0, 0)
+        face = face.subsurface(4, 11, 24, 24)
+        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        return face
+
+    def initiate_animation(self, animation_name):
+        self.current_animation = animation_name
+        self.currently_animating = True
 
 
 class OldgodAvatar(FeatureAvatar):

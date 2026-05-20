@@ -29,12 +29,13 @@ class GameEvents(object):
         self.gc = game_controller  # type: GameController
         self.five_second_timer_id = pygame.USEREVENT + 150
         self.ten_second_timer_id = pygame.USEREVENT + 151
+        self.two_second_timer_id = pygame.USEREVENT + 157
         self.one_second_timer_id = pygame.USEREVENT + 152
         self.half_second_timer_id = pygame.USEREVENT + 155
         self.quarter_second_timer_id = pygame.USEREVENT + 156
         self.fifth_second_timer_id = pygame.USEREVENT + 153
         self.twentieth_second_timer_id = pygame.USEREVENT + 154
-        self.timer_list = [self.one_second_timer_id, self.half_second_timer_id, self.five_second_timer_id, self.ten_second_timer_id, self.fifth_second_timer_id, self.twentieth_second_timer_id, self.quarter_second_timer_id]
+        self.timer_list = [self.two_second_timer_id, self.one_second_timer_id, self.half_second_timer_id, self.five_second_timer_id, self.ten_second_timer_id, self.fifth_second_timer_id, self.twentieth_second_timer_id, self.quarter_second_timer_id]
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -51,6 +52,13 @@ class GameEvents(object):
                 pass
             if event.type == self.ten_second_timer_id:
                 pass
+            if event.type == self.five_second_timer_id:
+                pass
+            if event.type == self.two_second_timer_id:
+                robin = self.gc.game_view.get_npc_avatar("Robin_34")
+                robin.initiate_animation("peck")
+                self.gc.feature_animations_in_progress.append(robin.unique_name)
+
 
             if event.type == self.quarter_second_timer_id:
                 self.gc.switch_tile_frame()
@@ -81,6 +89,9 @@ class GameEvents(object):
 
         ten_second_timer = self.ten_second_timer_id
         pygame.time.set_timer(ten_second_timer, 10000)
+
+        two_second_timer = self.two_second_timer_id
+        pygame.time.set_timer(two_second_timer, 2000)
 
 
 class GameController(object):
@@ -466,6 +477,11 @@ class GameController(object):
         self.change_room(door.room_to)
         pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
 
+    def player_moved_followup(self):
+        self.check_for_triggers()
+
+    def check_for_triggers(self):
+        pass
 
 class InventoryManager(object):
     def __init__(self, gc_input):

@@ -181,3 +181,152 @@ class StationaryAnimation(object):
     def reset(self):
         self.current_frame = 0
         self.complete = False
+
+
+class BirdAnimation(object):
+    def __init__(self, direction):
+        self.direction = direction
+        self.current_frame = 0
+        self.frequency = 0
+
+        self.complete = False
+
+        self.y_change = 0
+        self.x_change = 0
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.changing_variable = self.x_change
+
+    def direction_to_y_image(self):
+        if self.direction == Direction.UP:
+            self.current_image_y = 1
+
+        elif self.direction == Direction.LEFT:
+            self.current_image_y = 4
+
+        elif self.direction == Direction.DOWN:
+            self.current_image_y = 0
+
+        elif self.direction == Direction.RIGHT:
+            self.current_image_y = 3
+
+    def direction_y_to_return_to(self):
+        if self.direction == Direction.UP:
+            self.current_image_y = 1
+
+        elif self.direction == Direction.LEFT:
+            self.current_image_y = 3
+
+        elif self.direction == Direction.DOWN:
+            self.current_image_y = 0
+
+        elif self.direction == Direction.RIGHT:
+            self.current_image_y = 2
+
+    def animate(self):
+        self.direction_to_y_image()
+        if self.current_frame == 0:
+            self.current_image_x = 0
+        elif self.current_frame == 20:
+            self.current_image_x = 1
+        elif self.current_frame == 40:
+            self.current_image_x = 2
+        elif self.current_frame == 60:
+            self.current_image_x = 3
+        self.current_frame += 1
+        if self.current_frame == 80:
+            self.current_frame = 0
+            self.complete = True
+            self.current_image_x = 0
+            self.direction_y_to_return_to()
+
+        return self.result()
+
+    def result(self):
+        y_change = 0
+        x_change = 0
+        sheet_x = self.current_image_x
+        sheet_y = self.current_image_y
+        complete = self.complete
+        if self.complete:
+            self.reset()
+
+        return x_change, y_change, sheet_x, sheet_y, complete
+
+    def reset(self):
+        self.current_frame = 0
+        self.complete = False
+
+class HopAnimation(object):
+    def __init__(self, direction):
+        self.direction = direction
+        self.current_frame = 0
+        self.frequency = 0
+
+        self.complete = False
+
+        self.y_change = 0
+        self.x_change = 0
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.changing_variable = self.x_change
+
+    def direction_to_y_image(self):
+        if self.direction == Direction.UP:
+            self.current_image_y = 1
+
+        elif self.direction == Direction.LEFT:
+            self.current_image_y = 4
+
+        elif self.direction == Direction.DOWN:
+            self.current_image_y = 0
+
+        elif self.direction == Direction.RIGHT:
+            self.current_image_y = 3
+
+    def direction_y_to_return_to(self):
+        if self.direction == Direction.UP:
+            self.current_image_y = 1
+
+        elif self.direction == Direction.LEFT:
+            self.current_image_y = 3
+
+        elif self.direction == Direction.DOWN:
+            self.current_image_y = 0
+
+        elif self.direction == Direction.RIGHT:
+            self.current_image_y = 2
+
+    def animate(self):
+        self.direction_to_y_image()
+        if self.current_frame == 0:
+            self.current_image_x = 0
+        elif self.current_frame == 20:
+            self.current_image_x = 1
+        elif self.current_frame == 40:
+            self.current_image_x = 2
+        elif self.current_frame == 60:
+            self.current_image_x = 3
+        self.current_frame += 1
+        if self.current_frame == 80:
+            self.current_frame = 0
+            self.complete = True
+            self.current_image_x = 0
+            self.direction_y_to_return_to()
+
+        return self.result()
+
+    def result(self):
+        y_change = 0
+        x_change = 0
+        sheet_x = self.current_image_x
+        sheet_y = self.current_image_y
+        complete = self.complete
+        if self.complete:
+            self.reset()
+
+        return x_change, y_change, sheet_x, sheet_y, complete
+
+    def reset(self):
+        self.current_frame = 0
+        self.complete = False
