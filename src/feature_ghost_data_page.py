@@ -79,8 +79,8 @@ class BirdGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
         super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
         self.phrase = phrase
-        self.proximity_x_trigger = 3
-        self.proximity_y_trigger = 3
+        self.proximity_x_trigger = 2
+        self.proximity_y_trigger = 2
 
     def trigger_for_proximity(self):
         pass

@@ -171,7 +171,7 @@ class StartMenuGhost(MenuGhost):
         self.gc_input.game_state.ms.start_menu_selection(menu_selection)
 
 
-class AcquireMenuGhost(MenuGhost):
+class AcquireMenuGhost(MenuGhost): #TODO: Work on this
     BASE = "acquire_menu"
     NAME = BASE + "_ghost"
 
@@ -244,7 +244,7 @@ class InventoryMenuGhost(MenuGhost):
 
     def update_menu_items_list(self, details):
         keys_list = []
-        current_inventory = self.gc_input.game_state.get_menu_items(self.BASE)
+        current_inventory = self.gc_input.game_state.get_inventory_items(self.BASE)
         for item in current_inventory:
             keys_list.append(item)
         self.menu_item_list = keys_list

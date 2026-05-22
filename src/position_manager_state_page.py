@@ -226,7 +226,7 @@ class PositionManager(object):
     def get_current_plot_address(self):
         current_room = self.gc_input.game_state.get_current_room
         plot_info_list = current_room.get_plot_information
-        player_coordinates = self.gc_input.game_state.get_player_location
+        player_coordinates = self.gc_input.game_state.get_player_ghost_location
         total_room_x = plot_info_list[0] * plot_info_list[2]
         total_room_y = plot_info_list[1] * plot_info_list[3]
         proportion_x = total_room_x / player_coordinates[0]
@@ -306,17 +306,6 @@ class PositionManager(object):
                 selected_room.remove_feature(x, y)
 
     # region FEATURE DICTIONARY
-    def get_feature_location(self, feature_name):
-        feature_data = self.gc_input.game_state.feature_location_dictionary[feature_name]
-        return feature_data
-
-    def update_feature_dictionary(self, feature_name, location):
-        self.gc_input.game_state.feature_location_dictionary[feature_name][1] = location
-
-    def update_locations(self, room_name, feature_name, feature_type, previous_cube_coordinates, new_cube_coordinates):
-        self.gc_input.game.game_data.room_data_list[room_name].remove_feature(previous_cube_coordinates[0], previous_cube_coordinates[1], previous_cube_coordinates[2])
-        self.gc_input.game.game_data.room_data_list[room_name].add_feature(feature_name, feature_type, new_cube_coordinates[0], new_cube_coordinates[1], new_cube_coordinates[2])
-
     def check_location_full(self, room_name, cube_coordinates):
         return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
     # endregion

@@ -6,10 +6,9 @@ from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar
 
 
 class GameView(object):
-    def __init__(self, game_data, game_state, menu_drawer):
+    def __init__(self, game_data, game_state):
         self.game_data = game_data  # type: GameData
         self.gs = game_state  # type: GameState
-        self.menu_drawer = menu_drawer  # type: MenuDrawer
         self.animation_manager = AnimationManager(self)
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
@@ -36,51 +35,12 @@ class GameView(object):
         self.npc_avatar_list = {}
         self.deco_avatar_list = {}
         self.prop_avatar_list = {}
-        self.decoration_avatar_list = {}
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
-                                 "chat_menu": ChatMenuAvatar,}
-
-    def add_player_avatar(self, player_object):
-        self.player_avatar = player_object
-
-    def get_player_avatar(self):
-        return self.player_avatar
-
-    def get_npc_avatar(self, name):
-        return self.npc_avatar_list[name]
-
-    def get_deco_avatar(self, name):
-        return self.deco_avatar_list[name]
-
-    def get_all_avatar_names(self):
-        print(self.npc_avatar_list.keys())
-
-    def add_feature_avatar(self, character_name, character_object):
-        self.npc_avatar_list[character_name] = character_object
-
-    def add_deco_avatar(self, deco_name, deco_object):
-        self.deco_avatar_list[deco_name] = deco_object
-
-    def add_prop_avatar(self, prop_name, prop_object):
-        self.prop_avatar_list[prop_name] = prop_object
-
-    def add_decoration_avatar(self, decoration_name, decoration_object):
-        self.decoration_avatar_list[decoration_name] = decoration_object
+                                 "chat_menu": ChatMenuAvatar}
 
     def tick(self):
         self.clock.tick(self.FPS)
-
-    def add_menu_avatar(self, menu_avatar_name, menu_avatar_object):
-        self.menu_avatar_data_list[menu_avatar_name] = menu_avatar_object
-
-    def build_overlay_image(self, name, x_size, y_size, header=None):
-        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
-        return image
-
-    def update_player_avatar_location(self, player_ghost_x, player_ghost_y):
-        self.get_player_avatar().x_image = self.base_locator_x * player_ghost_x
-        self.get_player_avatar().y_image = self.base_locator_y * player_ghost_y
 
     # region DRAWING FEATURES
     def draw_npc(self, npc_name):
@@ -153,7 +113,14 @@ class GameView(object):
         return drawing_order
     # endregion
 
-    # region DRAW MENUS
+    # region MENU AVATARS and DRAWING
+    def add_menu_avatar(self, menu_avatar_name, menu_avatar_object):
+        self.menu_avatar_data_list[menu_avatar_name] = menu_avatar_object
+
+    def build_overlay_image(self, name, x_size, y_size, header=None):
+        image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
+        return image
+
     def draw_special_menu(self, menu_name, menu_info, x, y):
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
@@ -195,17 +162,6 @@ class GameView(object):
 
         return final_image
 
-    # endregion
-
-    # region DRAWING LOCATION
-    def set_camera(self, player_ghost_x, player_ghost_y):
-        self.camera[0] = -(self.player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
-        self.camera[1] = -(self.player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
-
-    def manually_update_camera(self, x_change, y_change):
-        self.camera[0] += (x_change * GameSettings.TILESIZE)
-        self.camera[1] += (y_change * GameSettings.TILESIZE)
-
     def set_menu_display_coordinates(self, name):
         name = name + "_avatar"
         menu_avatar = self.menu_avatar_data_list[name]
@@ -244,7 +200,82 @@ class GameView(object):
 
         selected_menu_display_details["coordinates"][0] = master_menu_display_details["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
         selected_menu_display_details["coordinates"][1] = master_menu_display_details["coordinates"][1]
+
     # endregion
+
+    # region CAMERA
+    def set_camera(self, player_ghost_x, player_ghost_y):
+        self.camera[0] = -(self.player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
+        self.camera[1] = -(self.player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
+
+    def manually_update_camera(self, x_change, y_change):
+        self.camera[0] += (x_change * GameSettings.TILESIZE)
+        self.camera[1] += (y_change * GameSettings.TILESIZE)
+    # endregion
+
+    # region PLAYER AVATAR
+    def add_player_avatar(self, player_object):
+        self.player_avatar = player_object
+
+    def get_player_avatar(self):
+        return self.player_avatar
+
+    def update_player_avatar_location(self, player_ghost_x, player_ghost_y):
+        self.get_player_avatar().x_image = self.base_locator_x * player_ghost_x
+        self.get_player_avatar().y_image = self.base_locator_y * player_ghost_y
+
+    def walk_player_avatar(self, direction):
+        if direction == Direction.DOWN:
+            self.player_avatar.initiate_animation("walk_front")
+        elif direction == Direction.UP:
+            self.player_avatar.initiate_animation("walk_up")
+        elif direction == Direction.LEFT:
+            self.player_avatar.initiate_animation("walk_left")
+        elif direction == Direction.RIGHT:
+            self.player_avatar.initiate_animation("walk_right")
+    # endregion
+
+    #region FEATURE AVATARS
+    def get_npc_avatar(self, name):
+        return self.npc_avatar_list[name]
+
+    def get_deco_avatar(self, name):
+        return self.deco_avatar_list[name]
+
+    def add_npc_avatar(self, character_name, character_object):
+        self.npc_avatar_list[character_name] = character_object
+
+    def add_deco_avatar(self, deco_name, deco_object):
+        self.deco_avatar_list[deco_name] = deco_object
+
+    def add_prop_avatar(self, prop_name, prop_object):
+        self.prop_avatar_list[prop_name] = prop_object
+
+    def change_feature_avatar_facing(self, name, direction):
+        self.get_npc_avatar(name).face_feature(direction)
+
+    def walk_feature_avatar(self, name, direction):
+        feature_avatar = self.npc_avatar_list[name]
+        if direction == Direction.DOWN:
+            feature_avatar.initiate_animation("walk_front")
+        elif direction == Direction.UP:
+            feature_avatar.initiate_animation("walk_up")
+        elif direction == Direction.LEFT:
+            feature_avatar.initiate_animation("walk_left")
+        elif direction == Direction.RIGHT:
+            feature_avatar.initiate_animation("walk_right")
+    #endregion
+
+    def perform_animation(self, animator):
+        animation_result = (animator.animation_list[animator.current_animation].animate())
+        animator.current_image_x = animation_result[2]
+        animator.current_image_y = animation_result[3]
+        self.camera[0] += animation_result[0]
+        self.camera[1] += animation_result[1]
+        complete = animation_result[4]
+        if complete:
+            animator.currently_animating = False
+            animator.current_animation = None
 
 class AnimationManager(object):
     def __init__(self, gv_input):
@@ -273,7 +304,3 @@ class AnimationManager(object):
             animator.current_animation = None
             wrap_up = True
         return wrap_up
-
-class MenuDrawer(object):
-    def __init__(self, gv_input):
-        self.font_size = GameSettings.FONT_SIZE

@@ -24,7 +24,7 @@ def run_game_loop():
 
         pygame.display.update()
         g.game_view.tick()
-        g.game_state.update_view()
+        g.game_controller.update_view()
 
 
 if __name__ == "__main__":

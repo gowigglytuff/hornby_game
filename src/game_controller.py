@@ -4,10 +4,10 @@ import os
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings
-from menu_ghosts_data_page import ConversationOptionsMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
-from game_view import GameView, MenuDrawer
+from game_view import GameView
 
 
 class Game(object):
@@ -15,7 +15,7 @@ class Game(object):
         self.game_running = True
         self.game_state = GameState(None, None, None)  # type: GameState
         self.game_data = GameData()  # type: GameData
-        self.game_view = GameView(self.game_data, self.game_state, MenuDrawer(self))  # type: GameView
+        self.game_view = GameView(self.game_data, self.game_state)  # type: GameView
         self.game_controller = GameController(self, self.game_view, self.game_state, self.game_data)  # type: GameController
         self.game_state.gc = self.game_controller
         self.game_state.gv = self.game_view
@@ -120,7 +120,7 @@ class GameController(object):
 
     def load_feature(self, unique_name, ghost_object, avatar_object):
         self.game_state.add_feature_ghost(unique_name, ghost_object)
-        self.game_view.add_feature_avatar(unique_name, avatar_object)
+        self.game_view.add_npc_avatar(unique_name, avatar_object)
     # endregion
 
     def switch_tile_frame(self):
@@ -138,44 +138,31 @@ class GameController(object):
     def get_avatar_class(self, avatar_type):
         return self.game_view.avatar_classes[avatar_type]
 
-    def attempt_move_object(self, object_name, object_type, movement_direction):
-        feature_loc_info = self.position_manager.get_feature_location(object_name)
-        feature_room = feature_loc_info[0]
-        current_cube_location = feature_loc_info[1]
-        target_cube_location = copy.deepcopy(current_cube_location)
-
-        if movement_direction == Direction.DOWN:
-            target_cube_location[1] += 1
-        elif movement_direction == Direction.UP:
-            target_cube_location[1] -= 1
-        elif movement_direction == Direction.LEFT:
-            target_cube_location[0] -= 1
-        elif movement_direction == Direction.RIGHT:
-            target_cube_location[0] += 1
-
-        target_location_fill_status = self.position_manager.check_location_full(feature_room, target_cube_location)
-
-        if target_location_fill_status:
-            pass
-        else:
-            self.position_manager.update_feature_dictionary(object_name, target_cube_location)
-            self.position_manager.update_locations(feature_room, object_name, object_type, current_cube_location, target_cube_location)
-
-
     def check_if_feature_already_animating(self, name):
         avatar = self.game_view.npc_avatar_list[name]
         return avatar.currently_animating
 
     def initiate_feature_movement(self, name, direction):
-        self.game_state.change_feature_facing(name, direction)
+        self.change_feature_facing(name, direction)
         if self.position_manager.check_if_feature_can_move(self.game_state.get_feature_ghost(name), direction, self.game_view.game_data.room_data_list[self.game_state.current_room]):
-            self.game_state.move_feature_avatar(name, direction)
+            self.game_view.walk_feature_avatar(name, direction)
             self.position_manager.move_feature_ghost(name, direction)
 
     def reset_feature_to_spawn(self, feature):
         chosen_feature = self.game_state.get_feature_ghost(feature)
         chosen_feature.reset_to_spawn()
     # endregion
+
+    def update_view(self):
+        current_room = self.game_state.get_current_room().name
+        drawables_list = self.game_view.get_drawables_list(self.game_state.get_feature_locations()[0], self.game_state.get_feature_locations()[1], self.game_state.get_feature_locations()[2])
+        self.game_view.draw_all(drawables_list, current_room)
+
+        self.update_stat_menus()
+        for menu in (self.game_state.ms.static_menus + self.game_state.ms.visible_menus):
+            ghost = self.game_state.ms.menu_ghost_data_list[menu + "_ghost"]
+            avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
+            self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
 
     # region PLAYER ACTIONS
     def player_interact(self):
@@ -206,7 +193,7 @@ class GameController(object):
 
         npc_talking_to_ghost = self.game_state.feature_ghost_list[npc_talking_to]
         npc_talking_to_avatar = self.game_view.npc_avatar_list[npc_talking_to]
-        self.game_state.change_npc_facing(direction_to_turn, npc_talking_to)
+        self.change_feature_facing(npc_talking_to, direction_to_turn)
         self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
         details = {"speaker_name": npc_talking_to_ghost.name,
                    "friendship_level": 3,
@@ -264,7 +251,7 @@ class GameController(object):
     def initiate_player_movement(self, direction):
         room_object = self.game_view.game_data.room_data_list[self.game_state.current_room]
         target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room_object)
-        self.game_state.change_player_facing(direction)
+        self.change_player_facing(direction)
         move_status = self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object)[0]
         door_status = self.position_manager.check_if_player_can_move(direction, self.game_state.player_ghost, room_object)[1]
         if door_status:
@@ -272,7 +259,7 @@ class GameController(object):
         elif not door_status:
             if move_status:
                 player = self.game_state.get_player_ghost()
-                self.game_state.move_player_avatar(direction)
+                self.game_view.walk_player_avatar(direction)
                 self.position_manager.nudge_ghost(player, room_object, direction)
                 self.player_moved_followup(player.x, player.y)
             else:
@@ -301,7 +288,7 @@ class GameController(object):
             self.game_view.player_avatar.initiate_animation("snap_photo_" + direction)
 
             camera_range = 3
-            pl = self.game_state.get_player_location()
+            pl = self.game_state.get_player_ghost_location()
             success = False
             check_x = pl[0] + vector_x
             check_y = pl[1] + vector_y
@@ -372,12 +359,40 @@ class GameController(object):
             self.game_view.animation_manager.perform_player_animation(self.game_view.player_avatar)
 
         for feature_name in self.feature_animations_in_progress:
-            thing_avatar = self.game_state.get_npc_avatar(feature_name)
+            thing_avatar = self.game_view.get_npc_avatar(feature_name)
             wrap_up = False
             if self.check_if_feature_already_animating(feature_name):
                 wrap_up = self.game_view.animation_manager.perform_feature_animation(thing_avatar)
             if wrap_up:
                 self.feature_animations_in_progress.remove(feature_name)
+
+    def change_feature_facing(self, name, direction):
+        self.game_state.change_feature_ghost_facing(name, direction)
+        self.game_view.change_feature_avatar_facing(name, direction)
+
+    def change_player_facing(self, direction):
+        final_facing = direction
+        current_facing = self.game_state.player_ghost.facing
+        if direction == Direction.MATCH:
+            if current_facing == Direction.DOWN:
+                final_facing = Direction.DOWN
+            elif current_facing == Direction.UP:
+                final_facing = Direction.UP
+            elif current_facing == Direction.LEFT:
+                final_facing = Direction.LEFT
+            elif current_facing == Direction.RIGHT:
+                final_facing = Direction.RIGHT
+        elif direction == Direction.SWITCH:
+            if current_facing == Direction.DOWN:
+                final_facing = Direction.UP
+            elif current_facing == Direction.UP:
+                final_facing = Direction.DOWN
+            elif current_facing == Direction.LEFT:
+                final_facing = Direction.RIGHT
+            elif current_facing == Direction.RIGHT:
+                final_facing = Direction.LEFT
+        self.game_state.change_player_ghost_facing(final_facing)
+        self.game_view.player_avatar.face_character(final_facing)
 
     def import_NPCs_from_csv(self, filename):
         NPC_data = []
@@ -477,7 +492,7 @@ class GameController(object):
         door = self.get_door(door_name)
         x_change = door.x_to - player_object.x
         y_change = door.y_to - player_object.y
-        self.game_state.change_player_facing(door.exit_direction)
+        self.change_player_facing(door.exit_direction)
         current_room_object = self.game_state.get_room(door.room_from)
         new_room_object = self.game_state.get_room(door.room_to)
         self.position_manager.move_ghost(player_object, current_room_object, new_room_object, door.x_to, door.y_to)
@@ -586,6 +601,9 @@ class InventoryManager(object):
 class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
+        self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
+                               UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
+                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost]
 
     def activate_menu(self):
         pass
