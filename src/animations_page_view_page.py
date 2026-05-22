@@ -410,4 +410,4 @@ class BirdDisappearAnimation(IndependentAnimation):
         self.room = room
         self.frame_counter = 0
         self.total_images = 22
-        self.frame_speed = 10
+        self.frame_speed = 11
