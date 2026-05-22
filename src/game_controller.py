@@ -155,7 +155,7 @@ class GameController(object):
 
     def update_view(self):
         current_room = self.game_state.get_current_room().name
-        drawables_list = self.game_view.get_drawables_list(self.game_state.get_feature_locations()[0], self.game_state.get_feature_locations()[1], self.game_state.get_feature_locations()[2])
+        drawables_list = self.game_view.get_drawables_list(self.game_state.get_feature_locations()[0], self.game_state.get_feature_locations()[1], self.game_state.get_feature_locations()[2], self.game_view.get_independent_anim_locations())
         self.game_view.draw_all(drawables_list, current_room)
 
         self.update_stat_menus()
@@ -366,6 +366,14 @@ class GameController(object):
             if wrap_up:
                 self.feature_animations_in_progress.remove(feature_name)
 
+        complete_animation_names = []
+        for animation_name in self.game_view.active_independent_animations.keys():
+            animation = self.game_view.active_independent_animations[animation_name].animate()
+            if animation[4]:
+                complete_animation_names.append(animation_name)
+        for item in complete_animation_names:
+            self.game_view.complete_independent_animation(item)
+
     def change_feature_facing(self, name, direction):
         self.game_state.change_feature_ghost_facing(name, direction)
         self.game_view.change_feature_avatar_facing(name, direction)
@@ -519,9 +527,12 @@ class GameController(object):
                 self.trigger_a_bird(bird_unique_name, room)
 
     def trigger_a_bird(self, unique_name, room):
+        bird_ghost = self.game_state.get_feature_ghost(unique_name)
+        bird_avatar = self.game_view.get_npc_avatar(unique_name)
         print(unique_name)
         self.game_state.remove_map_trigger(room.name, unique_name)
         self.position_manager.remove_feature_from_map(unique_name, room)
+        self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
 
 
 class InventoryManager(object):

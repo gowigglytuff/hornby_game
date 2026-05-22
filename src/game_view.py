@@ -1,3 +1,6 @@
+import copy
+
+from animations_page_view_page import IndependentAnimation, BirdDisappearAnimation
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
@@ -39,6 +42,10 @@ class GameView(object):
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
                                  "chat_menu": ChatMenuAvatar}
 
+        self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
+        self.independent_animation_trigger_queue = []
+        self.active_independent_animations = {}
+
     def tick(self):
         self.clock.tick(self.FPS)
 
@@ -76,6 +83,14 @@ class GameView(object):
             plot_location_y = room.plot_size_y * (selected_plot.plot_y - 1) * self.square_size[1]
             self.screen.blit(selected_plot.background_map[self.tile_frame], (camera_x + plot_location_x, camera_y + plot_location_y))
 
+    def draw_independent_animation(self, animation_ob):
+        camera_x = -self.camera[0]
+        camera_y = -self.camera[1]
+        anim_loc_x = camera_x + (animation_ob.image_x - 1) * self.square_size[0] + animation_ob.image_offset_x
+        anim_loc_y = camera_y + (animation_ob.image_y - 1) * self.square_size[1] - animation_ob.image_offset_y
+        self.screen.blit(animation_ob.spritesheet.get_image(animation_ob.current_image_x, animation_ob.current_image_y), (anim_loc_x, anim_loc_y))
+
+
     def draw_all(self, drawables_list, current_room):
         self.draw_bg(current_room)
         for drawable in drawables_list:
@@ -93,8 +108,11 @@ class GameView(object):
                 self.draw_npc(drawable[0].unique_name)
             elif drawable[0].feature_type == Types.DECO:
                 self.draw_deco(drawable[0].unique_name)
+            elif drawable[0].feature_type == Types.INDANIM:
+                self.draw_independent_animation(drawable[0])
 
-    def get_drawables_list(self, player_location, feature_locations, deco_locations):
+
+    def get_drawables_list(self, player_location, feature_locations, deco_locations, anim_locations):
         drawables_list = []
 
         for deco in deco_locations: #TODO: Fix this
@@ -104,6 +122,9 @@ class GameView(object):
         for npc in feature_locations:
             npc_avatar = self.get_npc_avatar(npc[0])
             drawables_list.append([npc_avatar, npc[1], npc_avatar.drawing_priority])
+
+        for ind_anim in anim_locations:
+            drawables_list.append([ind_anim[0], ind_anim[1], ind_anim[2]])
 
         player_avatar = self.get_player_avatar()
         drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
@@ -265,6 +286,21 @@ class GameView(object):
         elif direction == Direction.RIGHT:
             feature_avatar.initiate_animation("walk_right")
     #endregion
+
+    # region INDEPENDENT ANIMATION
+    def get_independent_anim_locations(self):
+        anim_location_list = []
+        for anim in self.active_independent_animations.values():
+            anim_location_list.append([anim, anim.image_y, anim.image_x])
+        return anim_location_list
+
+    def trigger_independent_animation(self, animation_type, animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y):
+        self.active_independent_animations[animation_name] = (self.independent_animation_name_translator[animation_type](animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y))
+
+    def complete_independent_animation(self, animation_name):
+        self.active_independent_animations.pop(animation_name)
+
+    # endregion
 
     def perform_animation(self, animator):
         animation_result = (animator.animation_list[animator.current_animation].animate())

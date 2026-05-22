@@ -12,6 +12,23 @@ class Direction(Enum):
     MATCH = "Match"
     SWITCH = "Switch"
 
+    def get_vector_from_direction(self, direction):
+        vector_x = 0
+        vector_y = 0
+        if direction == Direction.UP:
+            vector_y = -1
+
+        elif direction == Direction.LEFT:
+            vector_x = -1
+
+        elif direction == Direction.DOWN:
+            vector_y = 1
+
+        elif direction == Direction.RIGHT:
+            vector_x = 1
+        return vector_x, vector_y
+
+
 
 class GameSettings(object):
     TILESIZE = 32
@@ -46,6 +63,7 @@ class Types(Enum):
     OVERWORLD = "Overworld"
     BASKET = "Basket"
     BIRD = "Bird"
+    INDANIM = "independent_animation"
 
 class Names(Enum):
     BASICMENU = "Basic Menu"

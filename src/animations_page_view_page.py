@@ -1,4 +1,5 @@
-from definitions import Direction, GameSettings
+from definitions import Direction, GameSettings, Types
+from spritesheet import Spritesheet
 
 
 class Animation(object):
@@ -257,6 +258,7 @@ class BirdAnimation(object):
         self.current_frame = 0
         self.complete = False
 
+
 class HopAnimation(object):
     def __init__(self, direction):
         self.direction = direction
@@ -330,3 +332,82 @@ class HopAnimation(object):
     def reset(self):
         self.current_frame = 0
         self.complete = False
+
+
+class IndependentAnimation(object):
+    def __init__(self, animation_name):
+        self.unique_name = animation_name
+        self.direction = None
+        self.current_frame = 0
+        self.frequency = 0
+        self.drawing_priority = 1
+        self.feature_type = Types.INDANIM
+        self.unique_name = None
+
+        self.complete = False
+
+        self.y_change = 0
+        self.x_change = 0
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.spritesheet = None
+
+        self.image_offset_x = 0
+        self.image_offset_y = 0
+
+        self.room = None
+        self.frame_counter = 0
+        self.total_images = 0
+        self.frame_speed = 0
+
+    def animate(self):
+        if self.frame_counter >= self.frame_speed:
+            self.frame_counter = 0
+            self.current_image_x += 1
+
+        else:
+            self.frame_counter += 1
+        self.current_frame += 1
+
+        if self.current_image_x == (self.total_images + 1):
+            self.complete = True
+
+        return self.result()
+
+    def result(self):
+        y_change = 0
+        x_change = 0
+        sheet_x = self.current_image_x
+        sheet_y = self.current_image_y
+        complete = self.complete
+        if self.complete:
+            self.reset()
+
+        return x_change, y_change, sheet_x, sheet_y, complete
+
+    def reset(self):
+        self.current_frame = 0
+        self.complete = False
+
+
+class BirdDisappearAnimation(IndependentAnimation):
+    def __init__(self, animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y):
+        super().__init__(animation_name)
+        self.drawing_priority = drawing_priority
+        self.complete = False
+        self.y_change = 0
+        self.x_change = 0
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.spritesheet = Spritesheet("bird_disappear", "assets/spritesheets/independent_animation_spritesheets/bird_disappear_animation_spritesheet.png", 32, 48)
+
+        self.image_x = image_x
+        self.image_y = image_y
+
+        self.image_offset_x = image_offset_x
+        self.image_offset_y = image_offset_y
+
+        self.room = room
+        self.frame_counter = 0
+        self.total_images = 22
+        self.frame_speed = 10
