@@ -6,7 +6,15 @@ from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar
+from spritesheet import Spritesheet
 
+
+class OutfitManager(object): #TODO: work on this
+    def __init__(self):
+        self.character_frame_x = 32
+        self.character_frame_y = 48
+        self.red = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_red_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.green = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
 
 class GameView(object):
     def __init__(self, game_data, game_state):
@@ -26,6 +34,7 @@ class GameView(object):
         self.font_file = "assets/fonts/PressStart.ttf"
 
         self.font_medium = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
+        self.outfit_manager = OutfitManager() # type: OutfitManager
 
         self.tile_frame = 0
         self.night_filter = pygame.Surface(pygame.Rect((0, 0, self.resolution[0], self.resolution[1])).size)
@@ -35,9 +44,8 @@ class GameView(object):
 
         self.player_avatar = None
         self.menu_avatar_data_list = {}
-        self.npc_avatar_list = {}
+        self.feature_avatar_list = {}
         self.deco_avatar_list = {}
-        self.prop_avatar_list = {}
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
                                  "chat_menu": ChatMenuAvatar}
@@ -49,22 +57,27 @@ class GameView(object):
     def tick(self):
         self.clock.tick(self.FPS)
 
-    # region DRAWING FEATURES
-    def draw_npc(self, npc_name):
-        camera_x = -self.camera[0]
-        camera_y = -self.camera[1]
-        chosen_npc_avatar = self.npc_avatar_list[npc_name]
-        npc_loc_x = camera_x + (self.npc_avatar_list[npc_name].image_x - 1) * self.square_size[0] + self.npc_avatar_list[npc_name].image_offset_x
-        npc_loc_y = camera_y + (self.npc_avatar_list[npc_name].image_y - 1) * self.square_size[1] - chosen_npc_avatar.image_offset_y
-        self.screen.blit(chosen_npc_avatar.spritesheet.get_image(chosen_npc_avatar.current_image_x, chosen_npc_avatar.current_image_y), (npc_loc_x, npc_loc_y))
+    def translate_feature_type(self, type):
+        list = None
+        if type == Types.NPC:
+            list = self.feature_avatar_list
+        elif type == Types.DECO:
+            list = self.deco_avatar_list
+        elif type == Types.PROP:
+            list = self.feature_avatar_list
+        elif type == Types.HOUSE:
+            list = self.feature_avatar_list
+        return list
 
-    def draw_deco(self, deco_name):
+    # region DRAWING FEATURES
+    def draw_feature(self, feature_name, feature_type):
+        feature_list = self.translate_feature_type(feature_type)
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
-        chosen_deco_avatar = self.deco_avatar_list[deco_name]
-        deco_loc_x = camera_x + (self.deco_avatar_list[deco_name].image_x - 1) * self.square_size[0] + self.deco_avatar_list[deco_name].image_offset_x
-        deco_loc_y = camera_y + (self.deco_avatar_list[deco_name].image_y - 1) * self.square_size[1] - chosen_deco_avatar.image_offset_y
-        self.screen.blit(chosen_deco_avatar.spritesheet.get_image(chosen_deco_avatar.current_image_x, chosen_deco_avatar.current_image_y), (deco_loc_x, deco_loc_y))
+        chosen_avatar = feature_list[feature_name]
+        feature_loc_x = camera_x + (feature_list[feature_name].image_x - 1) * self.square_size[0] + feature_list[feature_name].image_offset_x
+        feature = camera_y + (feature_list[feature_name].image_y - 1) * self.square_size[1] - chosen_avatar.image_offset_y
+        self.screen.blit(chosen_avatar.spritesheet.get_image(chosen_avatar.current_image_x, chosen_avatar.current_image_y), (feature_loc_x, feature))
 
     def draw_player(self):
         player = self.player_avatar
@@ -100,17 +113,10 @@ class GameView(object):
 
             if drawable[0].feature_type == "Player":
                 self.draw_player()
-            elif drawable[0].feature_type == Types.NPC:
-                self.draw_npc(drawable[0].unique_name)
-            elif drawable[0].feature_type == Types.PROP:
-                self.draw_npc(drawable[0].unique_name)
-            elif drawable[0].feature_type == Types.HOUSE:
-                self.draw_npc(drawable[0].unique_name)
-            elif drawable[0].feature_type == Types.DECO:
-                self.draw_deco(drawable[0].unique_name)
             elif drawable[0].feature_type == Types.INDANIM:
                 self.draw_independent_animation(drawable[0])
-
+            else:
+                self.draw_feature(drawable[0].unique_name, drawable[0].feature_type)
 
     def get_drawables_list(self, player_location, feature_locations, deco_locations, anim_locations):
         drawables_list = []
@@ -258,25 +264,22 @@ class GameView(object):
 
     #region FEATURE AVATARS
     def get_npc_avatar(self, name):
-        return self.npc_avatar_list[name]
+        return self.feature_avatar_list[name]
 
     def get_deco_avatar(self, name):
         return self.deco_avatar_list[name]
 
     def add_npc_avatar(self, character_name, character_object):
-        self.npc_avatar_list[character_name] = character_object
+        self.feature_avatar_list[character_name] = character_object
 
     def add_deco_avatar(self, deco_name, deco_object):
         self.deco_avatar_list[deco_name] = deco_object
-
-    def add_prop_avatar(self, prop_name, prop_object):
-        self.prop_avatar_list[prop_name] = prop_object
 
     def change_feature_avatar_facing(self, name, direction):
         self.get_npc_avatar(name).face_feature(direction)
 
     def walk_feature_avatar(self, name, direction):
-        feature_avatar = self.npc_avatar_list[name]
+        feature_avatar = self.feature_avatar_list[name]
         if direction == Direction.DOWN:
             feature_avatar.initiate_animation("walk_front")
         elif direction == Direction.UP:

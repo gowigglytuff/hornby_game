@@ -1,6 +1,7 @@
 import copy
 import csv
 import os
+import random
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings
@@ -55,9 +56,14 @@ class GameEvents(object):
             if event.type == self.five_second_timer_id:
                 pass
             if event.type == self.two_second_timer_id:
-                robin = self.gc.game_view.get_npc_avatar("Robin_34")
-                robin.initiate_animation("peck")
-                self.gc.feature_animations_in_progress.append(robin.unique_name)
+                for npc in self.gc.game_state.feature_ghost_list.values():
+                    print(npc)
+                    if npc.feature_subtype == Types.BIRD:
+                        chance = random.randint(1, 3)
+                        if chance == 1:
+                            avatar = self.gc.game_view.get_npc_avatar(npc.unique_name)
+                            avatar.initiate_animation("deedle")
+                            self.gc.feature_animations_in_progress.append(avatar.unique_name)
 
 
             if event.type == self.quarter_second_timer_id:
@@ -139,7 +145,7 @@ class GameController(object):
         return self.game_view.avatar_classes[avatar_type]
 
     def check_if_feature_already_animating(self, name):
-        avatar = self.game_view.npc_avatar_list[name]
+        avatar = self.game_view.feature_avatar_list[name]
         return avatar.currently_animating
 
     def initiate_feature_movement(self, name, direction):
@@ -192,7 +198,7 @@ class GameController(object):
             direction_to_turn = Direction.LEFT
 
         npc_talking_to_ghost = self.game_state.feature_ghost_list[npc_talking_to]
-        npc_talking_to_avatar = self.game_view.npc_avatar_list[npc_talking_to]
+        npc_talking_to_avatar = self.game_view.feature_avatar_list[npc_talking_to]
         self.change_feature_facing(npc_talking_to, direction_to_turn)
         self.game_state.ms.post_notice("You talked to " + npc_talking_to_ghost.name)
         details = {"speaker_name": npc_talking_to_ghost.name,
@@ -205,7 +211,7 @@ class GameController(object):
 
     def talk_to_prop(self, prop_talking_to, player_direction):
         prop_talking_to_ghost = self.game_state.feature_ghost_list[prop_talking_to]
-        prop_talking_to_avatar = self.game_view.npc_avatar_list[prop_talking_to]
+        prop_talking_to_avatar = self.game_view.feature_avatar_list[prop_talking_to]
         self.game_state.ms.post_notice("You talked to " + prop_talking_to_ghost.name)
         prop_talking_to_ghost.get_interacted_with()
         details = {}
@@ -366,6 +372,7 @@ class GameController(object):
             if wrap_up:
                 self.feature_animations_in_progress.remove(feature_name)
 
+        # independent animations
         complete_animation_names = []
         for animation_name in self.game_view.active_independent_animations.keys():
             animation = self.game_view.active_independent_animations[animation_name].animate()

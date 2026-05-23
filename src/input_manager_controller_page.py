@@ -181,7 +181,9 @@ class InGameKeyboardManager(KeyboardManager):
     def key_lshift_pressed(self):
         # go = self.gc_input.game_state.cc.check_if_word_in_posted_notice("CowboyBig")
         # print(go)
-        self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
+        # self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
+        player = self.gc_input.game_view.get_player_avatar()
+        player.spritesheet = self.gc_input.game_view.outfit_manager.red
 
     def key_caps_pressed(self):
         pass

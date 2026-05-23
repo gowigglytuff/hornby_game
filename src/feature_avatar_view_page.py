@@ -1,6 +1,6 @@
 import pygame
 
-from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation
+from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation, DeedleAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types
 
@@ -189,7 +189,7 @@ class BirdAvatar(FeatureAvatar):
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y)
 
-        self.animation_list = {"peck": BirdAnimation(Direction.DOWN)}
+        self.animation_list = {"peck": BirdAnimation(Direction.DOWN), "deedle": DeedleAnimation(Direction.DOWN)}
         self.step_of_walk_pattern = 0
         self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
 
@@ -251,3 +251,4 @@ class DecoAvatar(object):
         basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4
         self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+
