@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 import pygame
 
 from definitions import Direction
-from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost
+from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost
+
 if TYPE_CHECKING:
     from game_controller import GameController
 
@@ -182,8 +183,9 @@ class InGameKeyboardManager(KeyboardManager):
         # go = self.gc_input.game_state.cc.check_if_word_in_posted_notice("CowboyBig")
         # print(go)
         # self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
-        player = self.gc_input.game_view.get_player_avatar()
-        player.spritesheet = self.gc_input.game_view.outfit_manager.red
+        # player = self.gc_input.game_view.get_player_avatar()
+        # player.spritesheet = self.gc_input.game_view.outfit_manager.lab
+        self.gc_input.game_state.ms.set_menu(OutfitMenuGhost.BASE, None)
 
     def key_caps_pressed(self):
         pass

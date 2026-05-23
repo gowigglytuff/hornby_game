@@ -12,7 +12,7 @@ class PlayerAvatar(object):
         self.drawing_priority = 1
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_green_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.face_image = self.get_face_image()
         self.current_image_x = 0
         self.current_image_y = 0

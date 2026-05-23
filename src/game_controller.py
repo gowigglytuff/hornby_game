@@ -621,7 +621,7 @@ class MenuManager(object):
         self.gc_input = gc_input  # type: GameController
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
                                UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost]
+                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, OutfitMenuGhost]
 
     def activate_menu(self):
         pass

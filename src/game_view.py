@@ -5,7 +5,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar
 from spritesheet import Spritesheet
 
 
@@ -13,8 +13,9 @@ class OutfitManager(object): #TODO: work on this
     def __init__(self):
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.red = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_red_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.green = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_base_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.red_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_red_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.green_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_green_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.lab_coat = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_lab_coat_spritesheet.png", self.character_frame_x, self.character_frame_y)
 
 class GameView(object):
     def __init__(self, game_data, game_state):
@@ -48,7 +49,8 @@ class GameView(object):
         self.deco_avatar_list = {}
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
-                                 "chat_menu": ChatMenuAvatar}
+                                 "chat_menu": ChatMenuAvatar,
+                                  "outfit_menu": OutfitMenuAvatar}
 
         self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
         self.independent_animation_trigger_queue = []

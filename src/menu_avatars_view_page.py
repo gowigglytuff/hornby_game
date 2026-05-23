@@ -1,6 +1,7 @@
 import textwrap
 
-from definitions import GameSettings
+from definitions import GameSettings, Types
+from spritesheet import Spritesheet
 
 
 class DisplayText(object):
@@ -77,7 +78,8 @@ class MenuAvatar(object):
                          "game_action_dialogue_menu_avatar": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                          "use_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                          "yes_no_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                         "sub_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]}}
+                         "sub_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
+                         "outfit_menu_avatar": {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}}
 
         generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
@@ -408,6 +410,109 @@ class ChatMenuAvatar(MenuAvatar):
         return final_menu_images
 
 
+class OutfitMenuAvatar(MenuAvatar):
+    NAME = "outfit_menu_avatar"
+
+    def __init__(self, gc_input, name,  items):
+        super().__init__(gc_input, name,  items)
+        self.gc_input = gc_input
+
+        self.overlay_body_x = 0
+        self.overlay_body_Y = 0
+        self.overlay_header_x = 0
+        self.overlay_header_y = 0
+
+        self.x = 0
+        self.y = 0
+        self.offset_x = 175
+        self.offset_y = 20
+        self.name = name
+        self.menu_type = Types.BASE
+
+        self.set_menu_width = None
+        self.set_menu_height = None
+
+        self.spritesheet_width = 0
+        self.spritesheet_height = 0
+
+        self.overlay_image = None
+        self.fill_out_menu_info(items)
+
+
+    def fill_out_menu_info(self, menu_information):
+        menu_items_list = menu_information.text_print_list
+        header = menu_information.header
+        cursor_at = menu_information.cursor_at
+
+        font_size = GameSettings.FONT_SIZE
+        segment_size = GameSettings.MENUSEGMENTSIZE
+        segment_proportion = font_size/segment_size
+
+
+        menu_width = 30
+        menu_height = 20
+        header_height = 0
+
+        # Update class info
+        self.overlay_body_x = menu_width
+        self.overlay_body_Y = menu_height
+
+        total_width = menu_width
+        self.spritesheet_width = menu_width * segment_size
+
+        total_height = menu_height + header_height
+        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
+
+        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
+
+        self.name = self.NAME
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_print_list = menu_info.text_print_list
+        outfit_name = menu_info.menu_specific_details_dict["outfit_name"]
+
+        final_menu_text = []
+
+
+
+        # outfit name
+        loc_x = self.menu_spread_x + self.offset_x
+        loc_y = self.offset_y
+        text = TextPrint(menu_info.menu_specific_details_dict["outfit_name"], 20, 75)
+        final_menu_text.append(text)
+
+        is_first_outfit = True
+        is_last_outfit = False
+
+        # # Header
+        # text = TextPrint("Outfits", 40, 10)
+        # final_menu_text.append(text)
+
+        if not menu_info.menu_specific_details_dict["is_first_outfit"]:
+            # left arrow
+            text = TextPrint("<", 10, 45)
+            final_menu_text.append(text)
+
+        if not menu_info.menu_specific_details_dict["is_last_outfit"]:
+            # left arrow
+            text = TextPrint(">", 130, 45)
+            final_menu_text.append(text)
+
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        chosen_outfit = menu_info.menu_specific_details_dict["outfit_image"]
+        final_menu_images = []
+        #
+        loc_x = 60
+        loc_y = 15
+        image = ImagePrint(chosen_outfit, loc_x, loc_y)
+        final_menu_images.append(image)
+
+        return final_menu_images
+
+
 # class ConversationMenuAvatar(object):
 #     NAME = "Conversation_Menu_Avatar"
 #
@@ -506,6 +611,7 @@ class ChatMenuAvatar(MenuAvatar):
 #             final_menu_text.append(TextPrint(text_print_list[position_y], loc_x, loc_y))
 #
 #         return final_menu_text
+
 
 class QuizMenuAvatar(MenuAvatar):
     NAME = "quiz_menu_avatar"

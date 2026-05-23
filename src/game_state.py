@@ -331,7 +331,8 @@ class MenuState(object):
             pass
 
         elif menu_selection == "Outfits":
-            pass
+            self.exit_menu(StartMenuGhost.BASE)
+            self.set_menu(OutfitMenuGhost.BASE, None)
 
         elif menu_selection == "Save":
             pass

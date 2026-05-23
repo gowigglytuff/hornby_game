@@ -1,3 +1,4 @@
+import copy
 import textwrap
 
 from definitions import GameSettings, Types
@@ -483,8 +484,9 @@ class ConversationOptionsMenuGhost(MenuGhost):
             friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
         return friendship_counter
 
-class OutfitOptionsMenuGhost(MenuGhost):
-    BASE = "outfit_options_menu"
+
+class OutfitMenuGhost(MenuGhost):
+    BASE = "outfit_menu"
     NAME = BASE + "_ghost"
 
     def __init__(self, gc_input):
@@ -498,6 +500,15 @@ class OutfitOptionsMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
         self.update_currently_displayed()
+        self.outfit_list = {"green_shirt": ["green_shirt", "Green Shirt"],
+                            "red_shirt": ["red_shirt", "Red Shirt"],
+                            "lab_coat": ["lab", "Lab Coat"],
+                            "ninja_shinobi": ["ninja_shinobi", "Ninja Shinobi"],
+                            "au_naturel": ["au_naturel", "Au Naturel"]}
+        self.selected_outfit = "green_shirt"
+        self.is_last_outfit = False
+        self.is_first_outfit = False
+        self.outfit_number = 0
 
     def update_currently_displayed(self):
         self.currently_displayed_items = []
@@ -509,7 +520,7 @@ class OutfitOptionsMenuGhost(MenuGhost):
                 self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
 
     def update_menu_items_list(self, details):
-        self.menu_item_list = ["red", "green"]
+        self.make_main_outfit(0)
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_print().copy()
@@ -520,16 +531,59 @@ class OutfitOptionsMenuGhost(MenuGhost):
         for item in range(len(source)):
             text_print_list.append(source[item])
 
-        menu_specific = {"friendship_level": self.friendship,
-                         "face_image": self.face_image,
-                         "speaker_name": self.talking_to}
+        outfit_sprite_code = self.selected_outfit
+
+        is_first_outfit = self.is_first_outfit
+        is_last_outfit = self.is_last_outfit
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_sprite_code + "_spritesheet.png",  32, 48)
+        image_choice = image.get_image(0, 0)
+
+        menu_specific = {"outfit_name": self.outfit_list[self.selected_outfit][1],
+                         "is_first_outfit": is_first_outfit,
+                         "is_last_outfit": is_last_outfit,
+                         "outfit_image": image_choice}
 
         menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
-        menu_selection = self.get_current_menu_item()
-        self.gc_input.game_state.ms.conversation_options_menu_selection(menu_selection)
+        player = self.gc_input.game_view.get_player_avatar()
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + self.selected_outfit + "_spritesheet.png",  32, 48)
+        player.spritesheet = image
+        self.gc_input.game_state.ms.exit_all_menus()
+
+
+    def cursor_left(self):
+        length = len(self.outfit_list)
+        if 0 < self.outfit_number:
+            new_number = self.outfit_number - 1
+            self.make_main_outfit(new_number)
+        else:
+            pass
+
+    def cursor_right(self):
+        length = len(self.outfit_list)
+        if (length - 1) > self.outfit_number:
+            new_number = self.outfit_number + 1
+            self.make_main_outfit(new_number)
+        else:
+            pass
+
+    def make_main_outfit(self, number):
+        self.outfit_number = number
+        outfit_keys = self.outfit_list.keys()
+        sorted_keys = sorted(outfit_keys)
+        self.selected_outfit = sorted_keys[number]
+
+        length = len(sorted_keys)
+        if number == (length - 1):
+            self.is_last_outfit = True
+        else:
+            self.is_last_outfit = False
+        if number == 0:
+            self.is_first_outfit = True
+        else:
+            self.is_first_outfit = False
 
 
 class ChatMenuGhost(MenuGhost):
