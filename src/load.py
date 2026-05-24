@@ -53,7 +53,6 @@ def install_all_data(gc, gs):
         gs.gd.add_door_data("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
         gs.gd.add_door_data("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
 
-
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
         pass
@@ -75,6 +74,14 @@ def install_all_data(gc, gs):
         for deco_item in deco_name_list:
             related_ghost = gc.game_state.deco_ghost_list[deco_item]
             gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
+
+    def install_triggers(gc, gs):
+        gc.trigger_manager.setup_trigger_list()
+        for bird in gc.game_state.feature_ghost_list.values():
+            if bird.feature_subtype == Types.BIRD:
+                birds_triggers = bird.produce_trigger_list()
+                gc.trigger_manager.add_triggers(bird.room, birds_triggers)
+        gc.trigger_manager.print_all_triggers("Bird_Room")
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -152,6 +159,7 @@ def install_all_data(gc, gs):
     install_spritesheets(gc, gs)
     install_rooms(gc, gs)
     install_doors(gc, gs)
+    install_triggers(gc, gs)
     set_camera_position(gc, gs)
     initiate_mixer()
     fill_initial_room(gc, gs)

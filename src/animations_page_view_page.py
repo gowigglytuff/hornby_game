@@ -274,7 +274,6 @@ class DeedleAnimation(BirdAnimation):
         self.direction_to_y_image()
         self.x_change = 0
         self.y_change = 0
-        print(self.current_frame)
         if self.current_frame == 20:
             if self.action == 1:
                 my_list = []

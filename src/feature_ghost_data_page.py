@@ -1,5 +1,10 @@
+from typing import TYPE_CHECKING
+
 from definitions import Direction, Types
 from menu_ghosts_data_page import AcquireMenuGhost
+
+if TYPE_CHECKING:
+    from game_state import GameState
 
 
 class PlayerGhost(object):
@@ -32,7 +37,7 @@ class FeatureGhost(object):
     :type gs_input: GameState
     '''
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype):
-        self.gs_input = gs_input
+        self.gs_input = gs_input # type: GameState
         self.feature_type = feature_type
         self.feature_subtype = feature_subtype
         self.name = name
@@ -81,12 +86,58 @@ class BirdGhost(FeatureGhost):
         self.phrase = phrase
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
+        self.trigger_list = []
+
+    def check_if_calm(self):
+        is_calm = False
+        if self.name == "Blackbird":
+            tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Tree")
+            if tree_check:
+                is_calm = True
+        elif self.name == "Robin":
+            time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
+            if time_check:
+                is_calm = True
+        return is_calm
+
+    def check_trigger_result(self, trigger):
+        result = None
+        if trigger == "flee":
+            is_calm = self.check_if_calm()
+            if not is_calm:
+                result = "remove"
+            else:
+                pass
+        else:
+            pass
+        return result
 
     def trigger_for_proximity(self):
         pass
 
-    def produce_map_trigger(self, location_x, location_y):
-        return MapTrigger(self.unique_name, location_x, location_y, self.proximity_x_trigger, self.proximity_y_trigger)
+    def produce_trigger_list(self):
+        base_x = self.x
+        base_y = self.y
+        left_extreme = base_x - self.proximity_x_trigger
+        right_extreme = base_x + self.proximity_x_trigger
+        up_extreme = base_y - self.proximity_y_trigger
+        down_extreme = base_y + self.proximity_y_trigger
+
+        total_x_range = 1 + (self.proximity_x_trigger*2)
+        total_y_range = 1 + (self.proximity_y_trigger*2)
+
+        coords_list = {}
+        trigger_name = "flee"
+
+        for x in range(total_x_range):
+            for y in range(total_y_range):
+                coords_list[left_extreme + x, up_extreme + y] = [self.unique_name, trigger_name]
+
+        self.trigger_list = coords_list
+        return coords_list
+
+    def get_triggered(self):
+        return self.trigger_list
 
     def get_removed(self):
         pass

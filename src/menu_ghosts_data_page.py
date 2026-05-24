@@ -161,7 +161,7 @@ class StartMenuGhost(MenuGhost):
     def __init__(self, gc_input):
         super().__init__(gc_input)
         self.menu_header = None
-        self.menu_item_list = ["Bag", "Outfits", "Map", "Chore List", "Profile", "Save", "Options", "Vibes"]
+        self.menu_item_list = ["Bag", "Outfits", "Map", "Gallery", "Chore List", "Profile", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
@@ -584,6 +584,147 @@ class OutfitMenuGhost(MenuGhost):
             self.is_first_outfit = True
         else:
             self.is_first_outfit = False
+
+class GalleryMenuGhost(MenuGhost):
+    BASE = "gallery_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.update_currently_displayed()
+        self.bird_list = {"Robin": ["Robin", "Robin"],
+                            "Crow": ["Crow", "Crow"]
+                            }
+        self.selected_bird = "Robin"
+        self.is_last_bird = False
+        self.is_first_bird = False
+        self.bird_number = 0
+
+    def check_if_in_bird_list(self, bird_name):
+        result = False
+        for bird in self.bird_list.keys():
+            if bird_name == bird:
+                result = True
+        return result
+
+    def add_to_bird_list(self, bird_name):
+        self.bird_list[bird_name] = [bird_name, bird_name]
+
+    def update_currently_displayed(self):
+        self.currently_displayed_items = []
+        if self.size <= self.max_displayed_items:
+            for item in range(self.size):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+        else:
+            for item in range(self.max_displayed_items):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+
+    def update_menu_items_list(self, details):
+        self.make_main_bird(0)
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_print().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_print_list = []
+
+        for item in range(len(source)):
+            text_print_list.append(source[item])
+
+        bird_sprite_code = self.selected_bird
+
+        is_first_bird = self.is_first_bird
+        is_last_bird = self.is_last_bird
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + bird_sprite_code + "_spritesheet.png",  32, 48)
+        image_choice = image.get_image(0, 0)
+
+        menu_specific = {"bird_name": self.bird_list[self.selected_bird][1],
+                         "is_first_bird": is_first_bird,
+                         "is_last_bird": is_last_bird,
+                         "bird_image": image_choice}
+
+        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.gc_input.game_state.ms.exit_all_menus()
+
+
+    def cursor_left(self):
+        length = len(self.bird_list)
+        if 0 < self.bird_number:
+            new_number = self.bird_number - 1
+            self.make_main_bird(new_number)
+        else:
+            pass
+
+    def cursor_right(self):
+        length = len(self.bird_list)
+        if (length - 1) > self.bird_number:
+            new_number = self.bird_number + 1
+            self.make_main_bird(new_number)
+        else:
+            pass
+
+    def make_main_bird(self, number):
+        self.bird_number = number
+        bird_keys = self.bird_list.keys()
+        sorted_keys = sorted(bird_keys)
+        self.selected_bird = sorted_keys[number]
+
+        length = len(sorted_keys)
+        if number == (length - 1):
+            self.is_last_bird = True
+        else:
+            self.is_last_bird = False
+        if number == 0:
+            self.is_first_bird = True
+        else:
+            self.is_first_bird = False
+
+
+class MapMenuGhost(MenuGhost):
+    BASE = "map_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+
+    def update_menu_items_list(self, details):
+        pass
+
+    def generate_menu_information_package(self):
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_print_list = []
+
+        image = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Hornby_map" + "_spritesheet.png",  256, 160)
+        image_choice = image.get_image(0, 0)
+
+        menu_specific = {"image": image_choice}
+
+        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.gc_input.game_state.ms.exit_all_menus()
+
 
 
 class ChatMenuGhost(MenuGhost):

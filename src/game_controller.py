@@ -5,7 +5,7 @@ import random
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView
@@ -57,7 +57,6 @@ class GameEvents(object):
                 pass
             if event.type == self.two_second_timer_id:
                 for npc in self.gc.game_state.feature_ghost_list.values():
-                    print(npc)
                     if npc.feature_subtype == Types.BIRD:
                         chance = random.randint(1, 3)
                         if chance == 1:
@@ -114,6 +113,7 @@ class GameController(object):
         self.held_keys = []
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_manager = MenuManager(self)  # type:MenuManager
+        self.trigger_manager = TriggerManager(self) # type: TriggerManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
         self.feature_animations_in_progress = []
         self.move_counter = 0
@@ -178,7 +178,6 @@ class GameController(object):
         if full:
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.game_state.get_feature_ghost(cube.object_filling)
-            print(feature.feature_type)
             if feature.feature_type == Types.NPC:
                 self.talk_to_npc(cube.object_filling, player.facing)
             if feature.feature_type == Types.PROP:
@@ -312,6 +311,10 @@ class GameController(object):
             if success:
                 ghost = self.game_state.get_feature_ghost(result)
                 self.game_state.ms.post_notice("Snapped a pic of a " + ghost.name)
+                gallery_menu = self.game_state.ms.get_menu_ghost(GalleryMenuGhost.BASE)
+                if ghost.feature_subtype == Types.BIRD and not gallery_menu.check_if_in_bird_list(ghost.name):
+                    gallery_menu.add_to_bird_list(ghost.name)
+                    self.game_state.ms.post_notice("Added " + ghost.name + " to gallery!")
 
             else:
                 self.game_state.ms.post_notice("There was nothing there")
@@ -426,11 +429,6 @@ class GameController(object):
                                                                 int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                     self.game_state.add_feature_ghost(unique_name, test)
 
-                    # produce initial triggers
-                    triggers_object = test.produce_map_trigger(int(Feature[3]), int(Feature[4]))
-                    print(unique_name, triggers_object.coords_list)
-                    self.game_state.add_map_trigger(Feature[2], triggers_object.triggers_name, triggers_object)
-
                 else:
                     test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
                                                                 self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
@@ -521,26 +519,37 @@ class GameController(object):
         pass
 
     def check_for_map_triggers(self, player_x, player_y):
-        room = self.game_state.get_current_room()
-        if room.name in self.game_state.map_trigger_list.keys():
-            fetch_list = self.game_state.map_trigger_list[self.game_state.get_current_room().name]
-            birds_to_trigger = []
-            for map_trigger in fetch_list.values():
-                for x in map_trigger.coords_list:
-                    if x[0] == player_x and x[1] == player_y:
-                        triggered_feature_name = map_trigger.trigger_owner_unique_name
-                        birds_to_trigger.append(triggered_feature_name)
-            for bird_unique_name in birds_to_trigger:
-                self.trigger_a_bird(bird_unique_name, room)
+        # room = self.game_state.get_current_room()
+        # if room.name in self.game_state.map_trigger_list.keys():
+        #     fetch_list = self.game_state.map_trigger_list[self.game_state.get_current_room().name]
+        #     birds_to_trigger = []
+        #     for map_trigger in fetch_list.values():
+        #         for x in map_trigger.coords_list:
+        #             if x[0] == player_x and x[1] == player_y:
+        #                 triggered_feature_name = map_trigger.trigger_owner_unique_name
+        #                 birds_to_trigger.append(triggered_feature_name)
+        #     for bird_unique_name in birds_to_trigger:
+        #         self.trigger_a_bird(bird_unique_name, room)
 
-    def trigger_a_bird(self, unique_name, room):
+        room = self.game_state.get_current_room()
+        triggers = self.trigger_manager.check_for_triggers(room.name,player_x, player_y)
+        print("TRIGGERS", triggers)
+        for trigger in triggers:
+            self.trigger_a_bird(trigger[0], room, trigger[1])
+
+    def trigger_a_bird(self, unique_name, room, trigger):
         bird_ghost = self.game_state.get_feature_ghost(unique_name)
         bird_avatar = self.game_view.get_npc_avatar(unique_name)
-        print(unique_name)
-        self.game_state.remove_map_trigger(room.name, unique_name)
-        self.position_manager.remove_feature_from_map(unique_name, room)
-        self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
 
+        check_trigger_result = bird_ghost.check_trigger_result(trigger)
+
+        if check_trigger_result == "remove":
+            remove_trigger_list = bird_ghost.get_triggered()
+            self.trigger_manager.remove_triggers(room.name, remove_trigger_list)
+            self.position_manager.remove_feature_from_map(unique_name, room)
+            self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
+        else:
+            pass
 
 class InventoryManager(object):
     def __init__(self, gc_input):
@@ -615,13 +624,53 @@ class InventoryManager(object):
         self.gc_input.game_state.ms.post_notice(message)
 
 
+class TriggerManager(object):
+    def __init__(self, gc_input):
+        self.gc_input = gc_input
+        self.trigger_list ={}
+
+    def setup_trigger_list(self):
+        for room in self.gc_input.game_data.room_data_list.values():
+            self.trigger_list[room.name] = {}
+            for tile in room.return_list_all_cubes():
+                self.trigger_list[room.name][(tile.x, tile.y)] = []
+
+    def add_triggers(self, room_name, trigger_dict):
+        crow = False
+        for key in trigger_dict.keys():
+            self.trigger_list[room_name][key[0], key[1]].append(trigger_dict[key])
+
+            if key == (10, 8):
+                if trigger_dict[key][0] == "Crow_34":
+                    crow = True
+
+        if crow:
+            self.remove_triggers(room_name, trigger_dict)
+
+    def update_features_triggers(self, room_name, remove_trigger_list, add_trigger_list):
+        self.remove_triggers(room_name, remove_trigger_list)
+        self.add_triggers(room_name, add_trigger_list)
+
+    def print_all_triggers(self, room_name):
+        print(self.trigger_list[room_name])
+        print(self.trigger_list[room_name][10, 8])
+
+    def remove_triggers(self, room_name, trigger_dict):
+        for key in trigger_dict.keys():
+            for existing_trigger in self.trigger_list[room_name][key[0], key[1]]:
+                if existing_trigger[0] == trigger_dict[key][0]:
+                    self.trigger_list[room_name][key[0], key[1]].remove(existing_trigger)
+
+    def check_for_triggers(self, room_name, x, y):
+        return self.trigger_list[room_name][x, y]
+
 
 class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
                                UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, OutfitMenuGhost]
+                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost]
 
     def activate_menu(self):
         pass

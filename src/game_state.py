@@ -1,6 +1,6 @@
 import copy
 from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
@@ -29,7 +29,6 @@ class GameState(object):
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.deco_ghost_list = {}
-        self.map_trigger_list = {}
 
         self.new_game = True
         self.current_room = "Staging_Area"
@@ -46,18 +45,6 @@ class GameState(object):
         self.current_inventory_dictionary = {}
         self.current_key_inventory_dictionary = {}
         self.current_animations_to_execute = []
-
-    # region TRIGGERS
-    def add_map_trigger(self, room_name, triggers_name, trigger_object):
-        if room_name in self.map_trigger_list.keys():
-            self.map_trigger_list[room_name][triggers_name] = trigger_object
-        else:
-            self.map_trigger_list[room_name] = {triggers_name: trigger_object}
-
-    def remove_map_trigger(self, room_name, triggers_name):
-        self.map_trigger_list[room_name].pop(triggers_name, None)
-
-    #endregion
 
     # region FEATURE CONTROL
     def add_feature_ghost(self, npc_name, npc_object):
@@ -309,7 +296,7 @@ class MenuState(object):
     # endregion
 
     # region MENU SELECTION RESULTS
-    def start_menu_selection(self, item_selected):
+    def start_menu_selection(self, item_selected): # TODO: Move this and everything like it to game controller -> menu manager
         menu_selection = item_selected
         if menu_selection == "Bag":
             self.exit_menu(StartMenuGhost.BASE)
@@ -322,10 +309,15 @@ class MenuState(object):
             pass
 
         elif menu_selection == "Map":
-            pass
+            self.exit_menu(StartMenuGhost.BASE)
+            self.set_menu(MapMenuGhost.BASE, None)
 
         elif menu_selection == "Options":
             pass
+
+        elif menu_selection == "Gallery":
+            self.exit_menu(StartMenuGhost.BASE)
+            self.set_menu(GalleryMenuGhost.BASE, None)
 
         elif menu_selection == "Vibes":
             pass
@@ -394,10 +386,16 @@ class ConditionChecker(object):
 
     def check_clock_time(self, hour_from, minute_from, hour_to, minute_to):
         result = False
-        if self.gs.hour_of_day >= hour_from and self.gs.hour_of_day <= hour_to:
-            if (self.gs.hour_of_day == hour_to and self.gs.minute_of_hour <= minute_to and self.gs.minute_of_hour >= minute_from):
+        if not hour_from:
+            if minute_to >= self.gs.minute_of_hour >= minute_from:
                 result = True
-            elif (self.gs.hour_of_day > hour_from and self.gs.hour_of_day < hour_to):
+        elif not minute_from:
+            if hour_to >= self.gs.hour_of_day >= hour_from:
+                result = True
+        elif hour_from <= self.gs.hour_of_day <= hour_to:
+            if self.gs.hour_of_day == hour_to and minute_to >= self.gs.minute_of_hour >= minute_from:
+                result = True
+            elif hour_from < self.gs.hour_of_day < hour_to:
                 result = True
             else:
                 pass

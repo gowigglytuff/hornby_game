@@ -390,6 +390,14 @@ class Room(object):
         chosen_cube = self.tiles_array[x-1][y-1]
         return chosen_cube
 
+    def return_list_all_cubes(self):
+        all_tiles = []
+        for x in range(self.x_size):
+            for y in range(self.y_size):
+                chosen_cube = self.tiles_array[x][y]
+                all_tiles.append(chosen_cube)
+        return all_tiles
+
     def access_adjacent_cube(self, feature, direction):
         new_cube_x = feature.x
         new_cube_y = feature.y

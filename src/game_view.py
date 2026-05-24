@@ -5,7 +5,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar
 from spritesheet import Spritesheet
 
 
@@ -50,7 +50,9 @@ class GameView(object):
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
                                  "chat_menu": ChatMenuAvatar,
-                                  "outfit_menu": OutfitMenuAvatar}
+                                  "outfit_menu": OutfitMenuAvatar,
+                                  "map_menu": MapMenuAvatar,
+                                  "gallery_menu": GalleryMenuAvatar}
 
         self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
         self.independent_animation_trigger_queue = []
