@@ -67,3 +67,33 @@ class Types(Enum):
 
 class Names(Enum):
     BASICMENU = "Basic Menu"
+
+
+class MundaneTasks(object):
+
+    @classmethod
+    def center_text_x(cls, box_width, offset_x, text_to_center):
+        offset = (offset_x / GameSettings.MENUSEGMENTSIZE)
+        width_less_offsets = box_width / 2 - offset
+
+        text_length = len(text_to_center) * 2
+        even_shift = 0
+        if len(text_to_center) % 2 == 0:
+            even_shift = GameSettings.FONT_SIZE/2
+
+        header_spaces = int((width_less_offsets - text_length / 2) / 2)
+
+        text = text_to_center
+        for space in range(header_spaces):
+            text = " " + text
+        return text, even_shift
+
+    @classmethod
+    def center_image_x(cls, box_width, offset_x, surface):
+        box_width_less_offsets = (box_width * GameSettings.MENUSEGMENTSIZE) - offset_x
+
+        image_width = surface.get_width()
+        print(image_width, box_width_less_offsets)
+        x_spacing = (box_width_less_offsets - image_width)/2
+
+        return x_spacing

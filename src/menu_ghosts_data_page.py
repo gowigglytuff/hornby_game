@@ -381,6 +381,7 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
             chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.key_item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_key_item(chosen_item)
             self.update_menu_items_list(None)
+            self.gc_input.game_state.ms.exit_all_menus()
 
         elif sub_menu_selection == "Toss":
             self.gc_input.game_state.ms.exit_all_menus()
@@ -600,10 +601,12 @@ class GalleryMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
         self.update_currently_displayed()
-        self.bird_list = {"Robin": ["Robin", "Robin"],
-                            "Crow": ["Crow", "Crow"]
-                            }
-        self.selected_bird = "Robin"
+        self.bird_list = {"Crow": ["Crow", "Crow"],
+                          "Robin": ["Robin", "Robin"],
+                          "Tanager": ["Tanager", "Tanager"],
+                          "Blackbird": ["Blackbird", "Blackbird"],
+                          "Mallard": ["Mallard", "Mallard"]}
+        self.selected_bird = "Crow"
         self.is_last_bird = False
         self.is_first_bird = False
         self.bird_number = 0

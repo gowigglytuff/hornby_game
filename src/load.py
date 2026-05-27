@@ -42,10 +42,11 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
         gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
         gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
+        # gs.gd.add_room_data("Huge_Room", (Consolidated("Huge_Room", 100, 100, 1, 1)))
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
+        # gs.gd.add_door_data("Ladder", "Staging_Area", "Huge_Room", 4, 6, 20, 20)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
         gs.gd.add_door_data("Ladder", "Cave", "Cave", 15, 8, 5, 7)

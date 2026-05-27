@@ -179,7 +179,10 @@ class GameController(object):
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.game_state.get_feature_ghost(cube.object_filling)
             if feature.feature_type == Types.NPC:
-                self.talk_to_npc(cube.object_filling, player.facing)
+                if feature.feature_subtype == Types.BIRD:
+                    self.game_state.ms.post_notice("You shouldn't touch wild animals.")
+                else:
+                    self.talk_to_npc(cube.object_filling, player.facing)
             if feature.feature_type == Types.PROP:
                 self.talk_to_prop(cube.object_filling, player.facing)
             else:
@@ -292,7 +295,7 @@ class GameController(object):
                 vector_x = 1
             self.game_view.player_avatar.initiate_animation("snap_photo_" + direction)
 
-            camera_range = 3
+            camera_range = 2
             pl = self.game_state.get_player_ghost_location()
             success = False
             check_x = pl[0] + vector_x
@@ -638,14 +641,10 @@ class TriggerManager(object):
     def add_triggers(self, room_name, trigger_dict):
         crow = False
         for key in trigger_dict.keys():
-            self.trigger_list[room_name][key[0], key[1]].append(trigger_dict[key])
-
-            if key == (10, 8):
-                if trigger_dict[key][0] == "Crow_34":
-                    crow = True
-
-        if crow:
-            self.remove_triggers(room_name, trigger_dict)
+            if trigger_dict[key][0] == "Crow_1":
+                pass
+            else:
+                self.trigger_list[room_name][key[0], key[1]].append(trigger_dict[key])
 
     def update_features_triggers(self, room_name, remove_trigger_list, add_trigger_list):
         self.remove_triggers(room_name, remove_trigger_list)

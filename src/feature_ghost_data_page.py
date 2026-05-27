@@ -91,12 +91,14 @@ class BirdGhost(FeatureGhost):
     def check_if_calm(self):
         is_calm = False
         if self.name == "Blackbird":
-            tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Tree")
+            tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Clock")
             if tree_check:
                 is_calm = True
         elif self.name == "Robin":
             time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
             if time_check:
+                is_calm = True
+        elif self.name == "Crow":
                 is_calm = True
         return is_calm
 

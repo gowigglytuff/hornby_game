@@ -41,6 +41,11 @@ class Spritesheet(object):
             chosen_img = self.image_at((img_x * self.width, img_y * self.height, self.width, self.height), transparent=False)
         return chosen_img # type: pygame.Surface
 
+    def get_w_h(self):
+        w = self.sheet.get_width()
+        h = self.sheet.get_height()
+        return (w, h)
+
     @classmethod
     def get_w_h(cls, filename):
         sheet = pygame.image.load(filename).convert_alpha()

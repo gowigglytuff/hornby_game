@@ -1,8 +1,9 @@
-﻿NPC,CowboyBig,Staging_Area,2,4,Down,NPC, 1, 1,How are you?,None
-NPC,CowboyBig,Staging_Area,4,4,Down,NPC, 1, 1,How are you?,None
+﻿NPC,Crow,Staging_Area,6,2,Down,NPC, 1, 1,Caw,Bird
+NPC,Cowboy,Staging_Area,2,4,Down,NPC, 1, 1,I heard the Robin stayed still when someone approached it when the minutes were between 10 and 20.,None
+NPC,Cowboy,Staging_Area,4,4,Down,NPC, 1, 1,Have you tried changing outfits?,None
 Prop,Tree,Staging_Area,6,4,Down,Prop, 1, 1,How are you?,None
 Prop,Tree,Test_Room,12,12,Down,Prop, 1, 1,How are you?,None
-NPC,CowboyBig,Test_Room,4,4,Up,NPC, 1, 1,sup,None
+NPC,Cowboy,Test_Room,4,4,Up,NPC, 1, 1,Blackbirds will only like you if you have the word "Clock" in your Game Action Dialogue Box,None
 Prop,Rock,Test_Room,3,12,Down,Prop, 1, 1,It's beautiful today.,None
 Prop,Clock,My_House,2,2,Down,Tree, 1, 1,Tick Tock,None
 Prop,Chair,My_House,6,2,Down,Prop, 1, 1,Creek,None
@@ -11,7 +12,6 @@ Prop,ElephantPicture,My_House,1,1,Down,Prop, 1, 1,toooot,None
 Prop,ChickenPicture,My_House,3,1,Down,Prop, 1, 1,bock bock,None
 Prop,ChairSide,My_House,5,3,Down,Prop, 1, 1,bock bock,None
 Prop,Bed,My_House,1,4,Down,Prop, 1, 1,creek,None
-Prop,LongBed,Test_Room,11,16,Down,Prop, 1, 2,creek,None
 Prop,Tree,Bird_Room,12,14,Down,Prop, 1, 1,How are you?,Basket
 Prop,Tree,Bird_Room,11,14,Down,Prop, 1, 1,How are you?,None
 Prop,Tree,Bird_Room,12,17,Down,Prop, 1, 1,How are you?,None
@@ -36,4 +36,5 @@ NPC,Tanager,Bird_Room,12,6,Down,NPC, 1, 1,sup,Bird
 NPC,Starling,Bird_Room,8,12,Down,NPC, 1, 1,sup,Bird
 NPC,Tanager,Bird_Room,10,17,Down,NPC, 1, 1,sup,Bird
 NPC,Blackbird,Bird_Room,17,8,Down,NPC, 1, 1,sup,Bird
+NPC,Mallard,Bird_Room,5,15,Down,NPC, 1, 1,sup,Bird
 House,House,Test_Room,4,17,Down,House, 6, 3,How are you?,None

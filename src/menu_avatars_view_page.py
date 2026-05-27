@@ -1,6 +1,6 @@
 import textwrap
 
-from definitions import GameSettings, Types
+from definitions import GameSettings, Types, MundaneTasks
 from spritesheet import Spritesheet
 
 
@@ -430,8 +430,8 @@ class OutfitMenuAvatar(MenuAvatar):
 
         self.x = 0
         self.y = 0
-        self.offset_x = 175
-        self.offset_y = 20
+        self.offset_x = 0
+        self.offset_y = 0
         self.name = name
         self.menu_type = Types.BASE
 
@@ -480,20 +480,14 @@ class OutfitMenuAvatar(MenuAvatar):
 
         final_menu_text = []
 
-
-
         # outfit name
-        loc_x = self.menu_spread_x + self.offset_x
-        loc_y = self.offset_y
-        text = TextPrint(menu_info.menu_specific_details_dict["outfit_name"], 20, 75)
-        final_menu_text.append(text)
+        name_text = MundaneTasks.center_text_x(self.overlay_body_x, self.offset_x, outfit_name)
+        final_menu_text.append(TextPrint(name_text[0], self.offset_x + name_text[1], 75))
 
-        is_first_outfit = True
-        is_last_outfit = False
-
-        # # Header
-        # text = TextPrint("Outfits", 40, 10)
-        # final_menu_text.append(text)
+        # Header
+        header_name = "OUTFITS"
+        header_text = MundaneTasks.center_text_x(self.overlay_body_x, self.offset_x, header_name)
+        final_menu_text.append(TextPrint(header_text[0], self.offset_x + header_text[1], 10))
 
         if not menu_info.menu_specific_details_dict["is_first_outfit"]:
             # left arrow
@@ -511,9 +505,8 @@ class OutfitMenuAvatar(MenuAvatar):
         chosen_outfit = menu_info.menu_specific_details_dict["outfit_image"]
         final_menu_images = []
         #
-        loc_x = 60
         loc_y = 15
-        image = ImagePrint(chosen_outfit, loc_x, loc_y)
+        image = ImagePrint(chosen_outfit, MundaneTasks.center_image_x(self.overlay_body_x, self.offset_x, chosen_outfit), loc_y)
         final_menu_images.append(image)
 
         return final_menu_images
@@ -605,8 +598,8 @@ class GalleryMenuAvatar(MenuAvatar):
 
         self.x = 0
         self.y = 0
-        self.offset_x = 175
-        self.offset_y = 20
+        self.offset_x = 0
+        self.offset_y = 0
         self.name = name
         self.menu_type = Types.BASE
 
@@ -651,15 +644,17 @@ class GalleryMenuAvatar(MenuAvatar):
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
         text_print_list = menu_info.text_print_list
-        outfit_name = menu_info.menu_specific_details_dict["bird_name"]
+        bird_name = menu_info.menu_specific_details_dict["bird_name"]
 
         final_menu_text = []
 
-        # bird name
-        loc_x = self.menu_spread_x + self.offset_x
-        loc_y = self.offset_y
-        text = TextPrint(menu_info.menu_specific_details_dict["bird_name"], 20, 75)
-        final_menu_text.append(text)
+        # bird names
+        name_text = MundaneTasks.center_text_x(self.overlay_body_x, self.offset_x, bird_name)
+        final_menu_text.append(TextPrint(name_text[0], self.offset_x+name_text[1], 75))
+
+        # Header
+        header_text = MundaneTasks.center_text_x(self.overlay_body_x, self.offset_x, "GALLERY")
+        final_menu_text.append(TextPrint(header_text[0], self.offset_x+header_text[1], 10))
 
         if not menu_info.menu_specific_details_dict["is_first_bird"]:
             # left arrow
@@ -674,12 +669,11 @@ class GalleryMenuAvatar(MenuAvatar):
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
-        chosen_outfit = menu_info.menu_specific_details_dict["bird_image"]
+        bird_image = menu_info.menu_specific_details_dict["bird_image"]
         final_menu_images = []
-        #
-        loc_x = 60
+
         loc_y = 15
-        image = ImagePrint(chosen_outfit, loc_x, loc_y)
+        image = ImagePrint(bird_image, MundaneTasks.center_image_x(self.overlay_body_x, self.offset_x, bird_image), loc_y)
         final_menu_images.append(image)
 
         return final_menu_images
