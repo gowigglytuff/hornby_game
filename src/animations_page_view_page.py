@@ -1,6 +1,6 @@
 import random
 
-from definitions import Direction, GameSettings, Types
+from definitions import Direction, GameSettings, Types, Mundane
 from spritesheet import Spritesheet
 
 
@@ -17,27 +17,20 @@ class Animation(object):
         self.x_change = 0
         self.current_image_x = 0
         self.current_image_y = 0
-        self.vector = 1
+
         self.changing_variable = self.x_change
-        if self.direction == Direction.UP:
-            self.vector = -1
-            self.changing_variable = self.y_change
-            self.current_image_y = 1
-
-        elif self.direction == Direction.LEFT:
-            self.vector = -1
-            self.current_image_y = 2
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 0
-            self.changing_variable = self.y_change
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 3
+        self.x_vector = 0
+        self.y_vector = 0
+        self.set_directions()
 
     def animate(self):
         pass
 
+    def set_directions(self):
+        self.x_vector = Mundane.direction_feedback(self.direction, -1, 1, 0, 0)
+        self.y_vector = Mundane.direction_feedback(self.direction, 0, 0, -1, 1)
+        self.changing_variable = Mundane.direction_feedback(self.direction, self.x_change, self.x_change, self.y_change, self.y_change)
+        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
 
 class WalkAnimation(Animation):
     def __init__(self, direction):
@@ -50,26 +43,6 @@ class WalkAnimation(Animation):
         self.y_vector = 0
         self.set_directions()
 
-    def set_directions(self):
-        if self.direction == Direction.UP:
-            self.y_vector = -1
-            self.x_vector = 0
-            self.changing_variable = self.y_change
-            self.current_image_y = 1
-        elif self.direction == Direction.LEFT:
-            self.y_vector = 0
-            self.x_vector = -1
-            self.current_image_y = 3
-        elif self.direction == Direction.DOWN:
-            self.y_vector = 1
-            self.x_vector = 0
-            self.current_image_y = 0
-            self.changing_variable = self.y_change
-        elif self.direction == Direction.RIGHT:
-            self.y_vector = 0
-            self.x_vector = 1
-            self.current_image_y = 2
-
     def animate(self):
         if self.current_frame <= (GameSettings.TILESIZE-1):
             if self.current_frame == 0:
@@ -78,8 +51,63 @@ class WalkAnimation(Animation):
                 elif self.foot == "right":
                     self.current_image_x = 1
                 self.current_frame += 1
-
             elif self.current_frame == (GameSettings.TILESIZE-1):
+                self.current_frame = 0
+                self.current_image_x = 0
+                self.complete = True
+            else:
+                self.current_frame += 1
+
+        return self.result()
+
+    def reset(self):
+        self.current_frame = 0
+        self.switch_foot()
+        self.complete = False
+
+    def switch_foot(self):
+        if self.foot == "left":
+            self.foot = "right"
+        elif self.foot == "right":
+            self.foot = "left"
+
+    def result(self):
+        y_change = self.y_vector
+        x_change = self.x_vector
+        sheet_x = self.current_image_x
+        sheet_y = self.current_image_y
+        complete = self.complete
+        if self.complete:
+            self.reset()
+
+        return x_change, y_change, sheet_x, sheet_y, complete
+
+class SpeedWalkAnimation(Animation):
+    def __init__(self, direction):
+        super().__init__(direction)
+        self.foot = "left"
+        self.current_frame = 0
+        self.current_image_x = 0
+        self.current_image_y = 0
+        self.x_vector = 0
+        self.y_vector = 0
+        self.set_directions()
+
+    def set_directions(self):
+        self.x_vector = Mundane.direction_feedback(self.direction, -2, 2, 0, 0)
+        self.y_vector = Mundane.direction_feedback(self.direction, 0, 0, -2, 2)
+        self.changing_variable = Mundane.direction_feedback(self.direction, self.x_change, self.x_change, self.y_change, self.y_change)
+        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
+
+    def animate(self):
+        if self.current_frame <= (GameSettings.TILESIZE/2-1):
+            if self.current_frame == 0:
+                if self.foot == "left":
+                    self.current_image_x = 3
+                elif self.foot == "right":
+                    self.current_image_x = 1
+                self.current_frame += 1
+            elif self.current_frame == (GameSettings.TILESIZE/2-1):
                 self.current_frame = 0
                 self.current_image_x = 0
                 self.complete = True
@@ -126,30 +154,10 @@ class StationaryAnimation(object):
         self.changing_variable = self.x_change
 
     def direction_to_y_image(self):
-        if self.direction == Direction.UP:
-            self.current_image_y = 5
-
-        elif self.direction == Direction.LEFT:
-            self.current_image_y = 7
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 4
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 6
+        self.current_image_y = Mundane.direction_feedback(self.direction, 7, 6, 5, 4)
 
     def direction_y_to_return_to(self):
-        if self.direction == Direction.UP:
-            self.current_image_y = 1
-
-        elif self.direction == Direction.LEFT:
-            self.current_image_y = 3
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 0
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 2
+        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
 
     def animate(self):
         self.direction_to_y_image()
@@ -214,17 +222,8 @@ class BirdAnimation(object):
             self.current_image_y = 3
 
     def direction_y_to_return_to(self):
-        if self.direction == Direction.UP:
-            self.current_image_y = 1
+        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
 
-        elif self.direction == Direction.LEFT:
-            self.current_image_y = 3
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 0
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 2
 
     def animate(self):
         self.direction_to_y_image()
@@ -322,39 +321,6 @@ class DeedleAnimation(BirdAnimation):
                     self.y_change = 2
                 self.action_name = None
                 self.action = 1
-        # if self.current_frame == 20:
-        #     self.x_change = -2
-        #     self.y_change = -2
-        # elif self.current_frame == 40:
-        #     self.x_change = -2
-        #     self.y_change = 2
-        # elif self.current_frame == 120:
-        #     self.x_change = 0
-        #     self.y_change = -2
-        # elif self.current_frame == 140:
-        #     self.x_change = 0
-        #     self.y_change = 2
-        # elif self.current_frame == 160:
-        #     self.x_change = 0
-        #     self.y_change = -2
-        # elif self.current_frame == 180:
-        #     self.x_change = 0
-        #     self.y_change = 2
-        # elif self.current_frame == 280:
-        #     self.x_change = 1
-        #     self.y_change = 0
-        # elif self.current_frame == 300:
-        #     self.x_change = -2
-        #     self.y_change = 0
-        # elif self.current_frame == 320:
-        #     self.x_change = 1
-        #     self.y_change = 0
-        # elif self.current_frame == 380:
-        #     self.x_change = 2
-        #     self.y_change = -2
-        # elif self.current_frame == 400:
-        #     self.x_change = 2
-        #     self.y_change = 2
 
         self.current_frame += 1
         if self.current_frame == 200:
@@ -395,30 +361,10 @@ class HopAnimation(object):
         self.changing_variable = self.x_change
 
     def direction_to_y_image(self):
-        if self.direction == Direction.UP:
-            self.current_image_y = 1
-
-        elif self.direction == Direction.LEFT:
-            self.current_image_y = 4
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 0
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 3
+        self.current_image_y = Mundane.direction_feedback(self.direction, 4, 3, 1, 0)
 
     def direction_y_to_return_to(self):
-        if self.direction == Direction.UP:
-            self.current_image_y = 1
-
-        elif self.direction == Direction.LEFT:
-            self.current_image_y = 3
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 0
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 2
+        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
 
     def animate(self):
         self.direction_to_y_image()

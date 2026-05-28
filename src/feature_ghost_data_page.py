@@ -1,3 +1,4 @@
+import random
 from typing import TYPE_CHECKING
 
 from definitions import Direction, Types
@@ -11,6 +12,7 @@ class PlayerGhost(object):
     def __init__(self, gs_input, x, y):
         self.gs_input = gs_input
         self.feature_type = "Player"
+        self.feature_subtype = None
         self.x = x
         self.y = y
         self.base_size_x = 1
@@ -87,6 +89,12 @@ class BirdGhost(FeatureGhost):
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
         self.trigger_list = []
+        self.action_list = ["walk_front", "walk_left", "walk_right", "walk_up"]
+        # self.directions = [Direction.DOWN, Direction.UP, Direction.LEFT, Direction.RIGHT]
+
+    def get_movement(self):
+        movement = random.choice(self.action_list)
+        return movement
 
     def check_if_calm(self):
         is_calm = False
@@ -118,6 +126,9 @@ class BirdGhost(FeatureGhost):
         pass
 
     def produce_trigger_list(self):
+        if self.name == "Crow":
+            self.proximity_x_trigger = 1
+            self.proximity_y_trigger = 1
         base_x = self.x
         base_y = self.y
         left_extreme = base_x - self.proximity_x_trigger
@@ -143,6 +154,20 @@ class BirdGhost(FeatureGhost):
 
     def get_removed(self):
         pass
+
+class PigeonGhost(BirdGhost):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+        self.phrase = phrase
+        self.proximity_x_trigger = 2
+        self.proximity_y_trigger = 2
+        self.trigger_list = []
+        self.action_list = ["walk_front", "walk_left", "walk_right", "walk_up"]
+        self.directions = [Direction.DOWN, Direction.UP, Direction.LEFT, Direction.RIGHT]
+
+    def get_movement(self):
+        movement = random.choice(self.directions)
+        return movement
 
 class PropGhost(FeatureGhost):
     def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):

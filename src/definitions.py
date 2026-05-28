@@ -12,20 +12,10 @@ class Direction(Enum):
     MATCH = "Match"
     SWITCH = "Switch"
 
-    def get_vector_from_direction(self, direction):
-        vector_x = 0
-        vector_y = 0
-        if direction == Direction.UP:
-            vector_y = -1
-
-        elif direction == Direction.LEFT:
-            vector_x = -1
-
-        elif direction == Direction.DOWN:
-            vector_y = 1
-
-        elif direction == Direction.RIGHT:
-            vector_x = 1
+    @classmethod
+    def get_vector_from_direction(cls, direction):
+        vector_x = Mundane.direction_feedback(direction, -1, 1, 0, 0)
+        vector_y = Mundane.direction_feedback(direction, 0, 0, -1, 1)
         return vector_x, vector_y
 
 
@@ -69,7 +59,7 @@ class Names(Enum):
     BASICMENU = "Basic Menu"
 
 
-class MundaneTasks(object):
+class Mundane(object):
 
     @classmethod
     def center_text_x(cls, box_width, offset_x, text_to_center):
@@ -97,3 +87,21 @@ class MundaneTasks(object):
         x_spacing = (box_width_less_offsets - image_width)/2
 
         return x_spacing
+
+
+    @classmethod
+    def direction_feedback(cls, direction, Left, Right, Up, Down):
+        result = Left
+        if direction == Direction.UP:
+            result = Up
+
+        elif direction == Direction.LEFT:
+            result = Left
+
+        elif direction == Direction.DOWN:
+            result = Down
+
+        elif direction == Direction.RIGHT:
+            result = Right
+
+        return result

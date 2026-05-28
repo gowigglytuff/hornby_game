@@ -28,15 +28,40 @@ class Game(object):
 class GameEvents(object):
     def __init__(self, game_controller):
         self.gc = game_controller  # type: GameController
-        self.five_second_timer_id = pygame.USEREVENT + 150
-        self.ten_second_timer_id = pygame.USEREVENT + 151
-        self.two_second_timer_id = pygame.USEREVENT + 157
-        self.one_second_timer_id = pygame.USEREVENT + 152
-        self.half_second_timer_id = pygame.USEREVENT + 155
-        self.quarter_second_timer_id = pygame.USEREVENT + 156
-        self.fifth_second_timer_id = pygame.USEREVENT + 153
-        self.twentieth_second_timer_id = pygame.USEREVENT + 154
-        self.timer_list = [self.two_second_timer_id, self.one_second_timer_id, self.half_second_timer_id, self.five_second_timer_id, self.ten_second_timer_id, self.fifth_second_timer_id, self.twentieth_second_timer_id, self.quarter_second_timer_id]
+        # self.five_second_timer_id = pygame.USEREVENT + 150
+        # self.ten_second_timer_id = pygame.USEREVENT + 151
+        # self.two_second_timer_id = pygame.USEREVENT + 157
+        # self.one_second_timer_id = pygame.USEREVENT + 152
+        # self.half_second_timer_id = pygame.USEREVENT + 155
+        # self.quarter_second_timer_id = pygame.USEREVENT + 156
+        # self.sixth_second_timer_id = pygame.USEREVENT + 160
+        # self.fifth_second_timer_id = pygame.USEREVENT + 153
+        # self.twentieth_second_timer_id = pygame.USEREVENT + 154
+        self.timer_list = []
+        self.times_list = [.167, .004, .05, .25, .5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        self.setup_timers()
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.ask_animator_to_animate],
+                            .167: [self.gc.npc_event_popoff],
+                            1: [self.gc.switch_tile_frame, self.gc.game_clock_pass_1_minute]}
+
+
+    def setup_timers(self):
+        userevent_numbers = 200
+
+        for timer in self.times_list:
+            event_name = str(timer) + "_second_timer_id"
+            setattr(self, event_name, pygame.USEREVENT + userevent_numbers)
+
+            new_timer = getattr(self, event_name)
+
+            self.timer_list.append(new_timer)
+            userevent_numbers += 1
+
+            one_second_equiv = 1000
+            timer_equiv = timer * one_second_equiv
+            pygame.time.set_timer(new_timer, int(timer_equiv))
+
+        print(dir(self))
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -46,57 +71,10 @@ class GameEvents(object):
             self.gc.active_keyboard_manager.parse_key_input(event.type, event.key)
 
         elif event.type in self.timer_list:
-            if event.type == self.one_second_timer_id:
-                # self.gc.attempt_move_object("Cowboy", Direction.DOWN)
-                # cowboy = self.gc.game_state.npc_ghost_list["Cowboy"]
-                # self.gc.position_manager.move_feature(cowboy, self.gc.game_data.room_data_list[self.gc.game_state.current_room], Direction.DOWN)
-                pass
-            if event.type == self.ten_second_timer_id:
-                pass
-            if event.type == self.five_second_timer_id:
-                pass
-            if event.type == self.two_second_timer_id:
-                for npc in self.gc.game_state.feature_ghost_list.values():
-                    if npc.feature_subtype == Types.BIRD:
-                        chance = random.randint(1, 3)
-                        if chance == 1:
-                            avatar = self.gc.game_view.get_npc_avatar(npc.unique_name)
-                            avatar.initiate_animation("deedle")
-                            self.gc.feature_animations_in_progress.append(avatar.unique_name)
-
-
-            if event.type == self.quarter_second_timer_id:
-                self.gc.switch_tile_frame()
-                self.gc.game_clock_pass_1_minute()
-            if event.type == self.twentieth_second_timer_id:
-                self.gc.act_on_key_down_cue()
-                self.gc.ask_animator_to_animate()
-
-
-    def initiate_timers(self):
-        twentieth_second_timer = self.twentieth_second_timer_id
-        pygame.time.set_timer(twentieth_second_timer, 4)
-
-        fifth_second_timer = self.fifth_second_timer_id
-        pygame.time.set_timer(fifth_second_timer, 20)
-
-        quarter_second_timer = self.quarter_second_timer_id
-        pygame.time.set_timer(quarter_second_timer, 500)
-
-        half_second_timer = self.half_second_timer_id
-        pygame.time.set_timer(half_second_timer, 500)
-
-        one_second_timer = self.one_second_timer_id
-        pygame.time.set_timer(one_second_timer, 1000)
-
-        five_second_timer = self.five_second_timer_id
-        pygame.time.set_timer(five_second_timer, 5000)
-
-        ten_second_timer = self.ten_second_timer_id
-        pygame.time.set_timer(ten_second_timer, 10000)
-
-        two_second_timer = self.two_second_timer_id
-        pygame.time.set_timer(two_second_timer, 2000)
+            for timer in self.event_dict.keys():
+                if event.type == getattr(self, str(timer) + "_second_timer_id"):
+                    for popoff in self.event_dict[timer]:
+                        popoff()
 
 
 class GameController(object):
@@ -129,6 +107,10 @@ class GameController(object):
         self.game_view.add_npc_avatar(unique_name, avatar_object)
     # endregion
 
+    def npc_event_popoff(self):
+        if "Pigeon_40" in self.game_state.feature_ghost_list.keys():
+            self.move_feature_chaotically("Pigeon_40")
+
     def switch_tile_frame(self):
         ref = self.game_view.tile_frame
         if ref == 1:
@@ -141,11 +123,60 @@ class GameController(object):
             self.game_view.tile_frame = 0
     # region FEATURE MOVEMENT
 
+    def add_to_anim_in_progress(self, feature_unique_name):
+        self.feature_animations_in_progress.append(feature_unique_name)
+
+    def move_feature_chaotically(self, feature_unique_name):
+        already_animating = self.check_if_feature_already_animating(feature_unique_name)
+        if not already_animating:
+            complete = False
+            while not complete:
+                movements = ["walk_front", "walk_left", "walk_right", "walk_up"]
+                if movements:
+                    chosen_movement = movements.pop(random.choice(range(len(movements))))
+                    complete = self.attempt_feature_action(feature_unique_name, chosen_movement)
+                    print(chosen_movement)
+                else:
+                    complete = True
+
+    def attempt_feature_action(self, feature_unique_name, action_name):
+        success = False
+        feature_ghost = self.game_state.get_feature_ghost(feature_unique_name)
+        feature_avatar = self.game_view.get_npc_avatar(feature_unique_name)
+
+        already_animating = self.check_if_feature_already_animating(feature_unique_name)
+        doable = self.check_if_action_doable(feature_ghost, action_name)[0]
+        direction = self.check_if_action_doable(feature_ghost, action_name)[1]
+        vector = Direction.get_vector_from_direction(direction)
+        room_object = self.game_state.get_room(feature_ghost.room)
+        if not already_animating:
+            if doable:
+                success = True
+                feature_avatar.initiate_animation(action_name)
+                self.add_to_anim_in_progress(feature_unique_name)
+                self.position_manager.move_ghost(feature_ghost, room_object, room_object, feature_ghost.x + vector[0], feature_ghost.y + vector[1])
+        return success
+
+
+    def check_if_action_doable(self, feature_ghost, action_name):
+        direction = None
+        if action_name == "walk_front":
+            direction = Direction.DOWN
+        elif action_name == "walk_left":
+            direction = Direction.LEFT
+        elif action_name == "walk_right":
+            direction = Direction.RIGHT
+        elif action_name == "walk_up":
+            direction = Direction.UP
+        room_object = self.game_state.get_room(feature_ghost.room)
+        can_move = self.position_manager.check_if_feature_can_move(feature_ghost, direction, room_object)
+        return can_move, direction
+
     def get_avatar_class(self, avatar_type):
         return self.game_view.avatar_classes[avatar_type]
 
     def check_if_feature_already_animating(self, name):
-        avatar = self.game_view.feature_avatar_list[name]
+        avatar = self.game_view.get_npc_avatar(name)
         return avatar.currently_animating
 
     def initiate_feature_movement(self, name, direction):
@@ -315,9 +346,12 @@ class GameController(object):
                 ghost = self.game_state.get_feature_ghost(result)
                 self.game_state.ms.post_notice("Snapped a pic of a " + ghost.name)
                 gallery_menu = self.game_state.ms.get_menu_ghost(GalleryMenuGhost.BASE)
-                if ghost.feature_subtype == Types.BIRD and not gallery_menu.check_if_in_bird_list(ghost.name):
+                if ghost.feature_subtype == Types.BIRD and not gallery_menu.check_if_in_bird_list(ghost.name) and not ghost.name == "Pigeon":
                     gallery_menu.add_to_bird_list(ghost.name)
                     self.game_state.ms.post_notice("Added " + ghost.name + " to gallery!")
+                elif ghost.name == "Pigeon":
+                    # TODO: START HERE
+                    gallery_menu.add_to_bird_list(ghost.name)
 
             else:
                 self.game_state.ms.post_notice("There was nothing there")
@@ -380,8 +414,8 @@ class GameController(object):
 
         # independent animations
         complete_animation_names = []
-        for animation_name in self.game_view.active_independent_animations.keys():
-            animation = self.game_view.active_independent_animations[animation_name].animate()
+        for animation_name in self.game_view.animation_manager.active_independent_animations.keys():
+            animation = self.game_view.animation_manager.active_independent_animations[animation_name].animate()
             if animation[4]:
                 complete_animation_names.append(animation_name)
         for item in complete_animation_names:
@@ -431,12 +465,13 @@ class GameController(object):
                                                                 self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
                                                                 int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                     self.game_state.add_feature_ghost(unique_name, test)
-
+                    print(unique_name)
                 else:
                     test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
                                                                 self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
                                                                 int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
                     self.game_state.add_feature_ghost(unique_name, test)
+
             if feature_type == Types.PROP:
                 if feature_subtype == Types.BASKET:
                     test = self.game_state.ghost_classes["Basket"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
@@ -535,8 +570,7 @@ class GameController(object):
         #         self.trigger_a_bird(bird_unique_name, room)
 
         room = self.game_state.get_current_room()
-        triggers = self.trigger_manager.check_for_triggers(room.name,player_x, player_y)
-        print("TRIGGERS", triggers)
+        triggers = self.trigger_manager.check_for_triggers(room,player_x, player_y)
         for trigger in triggers:
             self.trigger_a_bird(trigger[0], room, trigger[1])
 
@@ -548,7 +582,7 @@ class GameController(object):
 
         if check_trigger_result == "remove":
             remove_trigger_list = bird_ghost.get_triggered()
-            self.trigger_manager.remove_triggers(room.name, remove_trigger_list)
+            self.trigger_manager.remove_triggers(room, remove_trigger_list)
             self.position_manager.remove_feature_from_map(unique_name, room)
             self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
         else:
@@ -638,30 +672,51 @@ class TriggerManager(object):
             for tile in room.return_list_all_cubes():
                 self.trigger_list[room.name][(tile.x, tile.y)] = []
 
-    def add_triggers(self, room_name, trigger_dict):
-        crow = False
+    def add_triggers(self, room_object, trigger_dict):
+        print("wooooo")
         for key in trigger_dict.keys():
-            if trigger_dict[key][0] == "Crow_1":
+            if self.check_if_coord_outside_room(key, room_object):
                 pass
             else:
-                self.trigger_list[room_name][key[0], key[1]].append(trigger_dict[key])
+                print("bonk", trigger_dict[key])
+                coords = (key[0], key[1])
+                self.trigger_list[room_object.name][coords].append(trigger_dict[key])
 
-    def update_features_triggers(self, room_name, remove_trigger_list, add_trigger_list):
-        self.remove_triggers(room_name, remove_trigger_list)
-        self.add_triggers(room_name, add_trigger_list)
+    def check_if_coord_outside_room(self, coords, room_object):
+        outside = False
+        if coords[0] > room_object.x_size or coords[0] < 1 or coords[1] > room_object.y_size or coords[1] < 1:
+            outside = True
+        return outside
 
-    def print_all_triggers(self, room_name):
-        print(self.trigger_list[room_name])
-        print(self.trigger_list[room_name][10, 8])
+    def update_features_triggers(self, room_object, feature_ghost):
+        print("stage 1")
+        remove_trigger_list = copy.copy(feature_ghost.trigger_list)
+        self.remove_triggers(room_object, remove_trigger_list)
+        print("stage 2")
+        add_trigger_list = feature_ghost.produce_trigger_list()
 
-    def remove_triggers(self, room_name, trigger_dict):
+        self.add_triggers(room_object, add_trigger_list)
+        print("stage 3")
+
+    def print_all_triggers(self, room_object):
+        print(self.trigger_list[room_object.name])
+        print(self.trigger_list[room_object.name][10, 8])
+
+    def remove_triggers(self, room_object, trigger_dict):
         for key in trigger_dict.keys():
-            for existing_trigger in self.trigger_list[room_name][key[0], key[1]]:
-                if existing_trigger[0] == trigger_dict[key][0]:
-                    self.trigger_list[room_name][key[0], key[1]].remove(existing_trigger)
+            if self.check_if_coord_outside_room(key, room_object):
+                pass
+            else:
+                coords = (key[0], key[1])
+                for existing_trigger in self.trigger_list[room_object.name][coords]:
+                    if existing_trigger[0] == trigger_dict[key][0]:
+                        self.trigger_list[room_object.name][coords].remove(existing_trigger)
+                        print("stage 1.5")
+                    else:
+                        pass
 
-    def check_for_triggers(self, room_name, x, y):
-        return self.trigger_list[room_name][x, y]
+    def check_for_triggers(self, room_object, x, y):
+        return self.trigger_list[room_object.name][x, y]
 
 
 class MenuManager(object):

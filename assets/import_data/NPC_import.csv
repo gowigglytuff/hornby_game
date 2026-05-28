@@ -37,4 +37,5 @@ NPC,Starling,Bird_Room,8,12,Down,NPC, 1, 1,sup,Bird
 NPC,Tanager,Bird_Room,10,17,Down,NPC, 1, 1,sup,Bird
 NPC,Blackbird,Bird_Room,17,8,Down,NPC, 1, 1,sup,Bird
 NPC,Mallard,Bird_Room,5,15,Down,NPC, 1, 1,sup,Bird
+NPC,Pigeon,Bird_Room,5,18,Down,NPC, 1, 1,sup,Bird
 House,House,Test_Room,4,17,Down,House, 6, 3,How are you?,None

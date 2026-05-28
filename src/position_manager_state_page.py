@@ -2,7 +2,7 @@ import copy
 import math
 from typing import TYPE_CHECKING
 import pygame
-from definitions import Direction
+from definitions import Direction, Types
 from tile_map import TileMap, ElevationMap
 
 if TYPE_CHECKING:
@@ -94,24 +94,33 @@ class PositionManager(object):
 
     def move_ghost(self, feature, current_room, target_room, target_x, target_y):
         self.gc_input.move_counter += 1
-        feature_object = feature
-        current_x = copy.copy(feature_object.x)
-        current_y = copy.copy(feature_object.y)
+        feature_ghost = feature
+        current_x = copy.copy(feature_ghost.x)
+        current_y = copy.copy(feature_ghost.y)
+
+        # empty old cube
         current_room_object = current_room
         target_room_object = target_room
         current_cube = current_room_object.access_cube(current_x, current_y)
         current_cube.empty_cube()
-        feature_object.x = target_x
-        feature_object.y = target_y
 
+        # update feature coords
+        feature_ghost.x = target_x
+        feature_ghost.y = target_y
+
+        #fill new cupe
         new_cube = target_room_object.access_cube(target_x, target_y)
-        new_cube.fill_cube(feature_object.unique_name, feature_object.name)
+        new_cube.fill_cube(feature_ghost.unique_name, feature_ghost.name)
 
-        if feature_object.feature_type == "Player":
+        if feature_ghost.feature_type == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
             self.gc_input.game_state.set_player_elevation(target_tile_elevation)
         else:
-            pass
+            print(feature_ghost.feature_subtype)
+        if feature_ghost.feature_subtype == Types.BIRD:
+            print("UPDATED")
+            self.gc_input.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
+            print("followup")
 
     def match_player_elevation_to_target(self, target_room, target_x, target_y):
         new_tile_elevation = self.get_tile_elevation(target_room.name, target_x, target_y)
@@ -119,17 +128,51 @@ class PositionManager(object):
     # endregion
 
     # region FEATURE MOVEMENT
-    def check_if_feature_can_move(self, checker, direction, room):
-        result = True
-        if self.check_if_adjacent_tiles_full(checker, direction, room):
-            result = False
-        if self.check_rooms_edges(checker, direction, room):
-            result = False
-        return result
+    # def check_if_feature_can_move(self, checker_ghost, direction, room_object):
+    #     result = True
+    #     if self.check_if_adjacent_tiles_full(checker_ghost, direction, room_object):
+    #         result = False
+    #     if self.check_rooms_edges(checker_ghost, direction, room_object):
+    #         result = False
+    #     return result
+
+    def check_if_feature_can_move(self, checker_ghost, direction, room_object):
+        # room edge test
+        edge_test = True
+        if self.check_rooms_edges(checker_ghost, direction, room_object):
+            edge_test = False
+
+        # tile full test
+        full_test = True
+        if edge_test:
+            if self.check_if_adjacent_tiles_full(checker_ghost, direction, room_object):
+                full_test = False
+
+        # elevation test
+        elevation_test = True
+        if edge_test:
+            current_elevation = self.get_tile_elevation(room_object.name, checker_ghost.x, checker_ghost.y)
+            adjacent_elevation = self.get_adjacent_tile_elevation(checker_ghost, direction, room_object)
+            if abs(int(adjacent_elevation) - current_elevation) > 1:
+                elevation_test = False
+
+        # no door test
+        no_door_test = True
+        target_tile = self.get_adjacent_tile(checker_ghost, direction, room_object)
+        door_test = self.check_for_door(room_object.name, target_tile.x, target_tile.y)
+        if door_test:
+            no_door_test = False
+
+        move_result = False
+        if edge_test and full_test and elevation_test and no_door_test:
+            move_result = True
+
+        return move_result
+
 
     def move_feature_ghost(self, name, direction):
         feature = self.gc_input.game_state.get_feature_ghost(name)
-        room_object = self.gc_input.game_data.room_data_list[self.gc_input.game_state.current_room]
+        room_object = self.gc_input.game_data.room_data_list[feature.room]
         current_cube = room_object.access_cube(feature.x, feature.y)
         new_cube_x = feature.x
         new_cube_y = feature.y
@@ -161,12 +204,12 @@ class PositionManager(object):
         del feature_list[feature_name]
 
     # region CHECKING FOR MOVEMENT
-    def check_if_adjacent_tiles_full(self, checker, direction, room):
-        room.access_adjacent_cube(checker, direction)
-        x = checker.x
-        y = checker.y
-        size_x = checker.base_size_x
-        size_y = checker.base_size_y
+    def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
+        room_object.access_adjacent_cube(checker_ghost, direction)
+        x = checker_ghost.x
+        y = checker_ghost.y
+        size_x = checker_ghost.base_size_x
+        size_y = checker_ghost.base_size_y
 
         x_array = []
         y_array = []
@@ -195,7 +238,7 @@ class PositionManager(object):
                     hold_x = hold_x - x_array[x_space]
                 elif direction == Direction.RIGHT:
                     hold_x = hold_x + x_array[x_space]
-                cube_fill_status = room.check_cube_full(hold_x, hold_y)
+                cube_fill_status = room_object.check_cube_full(hold_x, hold_y)
 
                 if cube_fill_status:
                     final_report = True

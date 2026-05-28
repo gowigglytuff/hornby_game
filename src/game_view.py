@@ -75,6 +75,7 @@ class GameView(object):
 
     # region DRAWING FEATURES
     def draw_feature(self, feature_name, feature_type):
+
         feature_list = self.translate_feature_type(feature_type)
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
@@ -297,15 +298,15 @@ class GameView(object):
     # region INDEPENDENT ANIMATION
     def get_independent_anim_locations(self):
         anim_location_list = []
-        for anim in self.active_independent_animations.values():
+        for anim in self.animation_manager.active_independent_animations.values():
             anim_location_list.append([anim, anim.image_y, anim.image_x])
         return anim_location_list
 
     def trigger_independent_animation(self, animation_type, animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y):
-        self.active_independent_animations[animation_name] = (self.independent_animation_name_translator[animation_type](animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y))
+        self.animation_manager.active_independent_animations[animation_name] = (self.animation_manager.independent_animation_name_translator[animation_type](animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y))
 
     def complete_independent_animation(self, animation_name):
-        self.active_independent_animations.pop(animation_name)
+        self.animation_manager.active_independent_animations.pop(animation_name)
 
     # endregion
 
@@ -323,6 +324,9 @@ class GameView(object):
 class AnimationManager(object):
     def __init__(self, gv_input):
         self.gv = gv_input
+        self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
+        self.independent_animation_trigger_queue = []
+        self.active_independent_animations = {}
 
     def perform_player_animation(self, animator):
         animation_result = (animator.animation_list[animator.current_animation].animate())
@@ -336,6 +340,7 @@ class AnimationManager(object):
             animator.current_animation = None
 
     def perform_feature_animation(self, animator):
+
         wrap_up = False
         animation_result = (animator.animation_list[animator.current_animation].animate())
         animator.current_image_x = animation_result[2]

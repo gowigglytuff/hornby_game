@@ -486,3 +486,28 @@ class GameData(object):
 
     def add_outfit_data(self, outfit_name, outfit_object):
         self.outfit_data_list[outfit_name] = outfit_object
+
+
+class Action(object):
+    def __init__(self, direction):
+        self.direction = direction
+        self.y_change = 0
+        self.x_change = 0
+
+        self.vector = 1
+        self.changing_variable = self.x_change
+
+        if self.direction == Direction.UP:
+            self.y_change = -1
+
+        elif self.direction == Direction.LEFT:
+            self.x_change = -1
+
+        elif self.direction == Direction.DOWN:
+            self.y_change = 1
+
+        elif self.direction == Direction.RIGHT:
+            self.x_change = 1
+
+    def animate(self):
+        pass

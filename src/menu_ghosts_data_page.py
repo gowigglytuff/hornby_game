@@ -605,7 +605,11 @@ class GalleryMenuGhost(MenuGhost):
                           "Robin": ["Robin", "Robin"],
                           "Tanager": ["Tanager", "Tanager"],
                           "Blackbird": ["Blackbird", "Blackbird"],
-                          "Mallard": ["Mallard", "Mallard"]}
+                          "Mallard": ["Mallard", "Mallard"],
+                          "Pigeon 1": ["Pigeon 1", "Pigeon 1"],
+                          "Pigeon 2": ["Pigeon 1", "Pigeon 1"],
+                          "Pigeon 3": ["Pigeon 1", "Pigeon 1"],
+                          "Pigeon 4": ["Pigeon 1", "Pigeon 1"]}
         self.selected_bird = "Crow"
         self.is_last_bird = False
         self.is_first_bird = False
@@ -633,6 +637,18 @@ class GalleryMenuGhost(MenuGhost):
     def update_menu_items_list(self, details):
         self.make_main_bird(0)
 
+    def get_pigeon_image(self, pigeon_name):
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/special_spritesheets/Pigeon_special_spritesheet.png", 32, 48)
+        image_choice = image.get_image(0, 0)
+        if pigeon_name == "Pigeon 1":
+            image_choice = image.get_image(0, 0)
+        if pigeon_name == "Pigeon 2":
+            image_choice = image.get_image(1, 0)
+        if pigeon_name == "Pigeon 3":
+            image_choice = image.get_image(2, 0)
+        if pigeon_name == "Pigeon 4":
+            image_choice = image.get_image(3, 0)
+        return image_choice
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_print().copy()
         cursor_at = self.cursor_at
@@ -646,8 +662,13 @@ class GalleryMenuGhost(MenuGhost):
 
         is_first_bird = self.is_first_bird
         is_last_bird = self.is_last_bird
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + bird_sprite_code + "_spritesheet.png",  32, 48)
-        image_choice = image.get_image(0, 0)
+
+        image_choice = None
+        if self.selected_bird in ["Pigeon 1", "Pigeon 2", "Pigeon 3", "Pigeon 4"]:
+            image_choice = self.get_pigeon_image(self.selected_bird)
+        else:
+            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + bird_sprite_code + "_spritesheet.png",  32, 48)
+            image_choice = image.get_image(0, 0)
 
         menu_specific = {"bird_name": self.bird_list[self.selected_bird][1],
                          "is_first_bird": is_first_bird,

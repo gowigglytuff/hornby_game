@@ -12,7 +12,7 @@ from position_manager_state_page import Ringside, Door, Consolidated
 def init_game(g):
 
     pygame.key.set_repeat()
-    g.game_events.initiate_timers()
+    # g.game_events.initiate_timers()
 
     if g.game_state.new_game:
 
@@ -79,10 +79,10 @@ def install_all_data(gc, gs):
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
         for bird in gc.game_state.feature_ghost_list.values():
-            if bird.feature_subtype == Types.BIRD:
+            if hasattr(bird,  "produce_trigger_list"):
                 birds_triggers = bird.produce_trigger_list()
-                gc.trigger_manager.add_triggers(bird.room, birds_triggers)
-        gc.trigger_manager.print_all_triggers("Bird_Room")
+                room_object = gc.game_state.get_room(bird.room)
+                gc.trigger_manager.add_triggers(room_object, birds_triggers)
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -144,7 +144,7 @@ def install_all_data(gc, gs):
         pygame.mixer.init()
         pygame.mixer.music.load("assets/sound_effects/popping_sound.mp3")
         pygame.mixer.music.load("assets/music/flute_song.mp3")
-        pygame.mixer.music.play(-1)
+        # pygame.mixer.music.play(-1)
 
     install_keyboard_managers(gc, gs)
     set_initial_keyboard_manager(gc, gs)

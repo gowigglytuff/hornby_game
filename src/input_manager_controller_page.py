@@ -188,7 +188,7 @@ class InGameKeyboardManager(KeyboardManager):
         self.gc_input.game_state.ms.set_menu(MapMenuGhost.BASE, None)
 
     def key_caps_pressed(self):
-        pass
+        self.gc_input.game.game_running = False
 
     def key_alt_pressed(self):
         pass
