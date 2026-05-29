@@ -33,6 +33,9 @@ class KeyboardManager(object):
             if key == pygame.K_LCTRL:
                 self.key_control_pressed()
 
+            if key == pygame.K_TAB:
+                self.key_tab_pressed()
+
             if key == pygame.K_LSHIFT:
                 self.key_lshift_pressed()
 
@@ -71,6 +74,9 @@ class KeyboardManager(object):
         pass
 
     def key_control_pressed(self):
+        pass
+
+    def key_tab_pressed(self):
         pass
 
     def key_lshift_pressed(self):
@@ -137,6 +143,9 @@ class InGameKeyboardManager(KeyboardManager):
             if key == pygame.K_CAPSLOCK:
                 self.key_caps_pressed()
 
+            if key == pygame.K_TAB:
+                self.key_tab_pressed()
+
             if key == pygame.K_ESCAPE:
                 self.key_escape_pressed()
 
@@ -167,6 +176,7 @@ class InGameKeyboardManager(KeyboardManager):
     def key_return_pressed(self):
         self.gc_input.clear_key_down_cue()
         self.gc_input.player_interact()
+        print("player location:", self.gc_input.game_state.player_ghost.x, self.gc_input.game_state.player_ghost.y)
         # self.gc_input.attempt_move_object("John", Direction.DOWN)
 
     def key_space_pressed(self):
@@ -192,6 +202,9 @@ class InGameKeyboardManager(KeyboardManager):
 
     def key_alt_pressed(self):
         pass
+
+    def key_tab_pressed(self):
+        self.gc_input.use_selected_tool()
 
     def key_alt_release(self):
         pass

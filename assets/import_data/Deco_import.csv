@@ -1,2 +1,2 @@
-﻿Deco,Grass,Staging_Area,2,2,Down,Deco,1,1,How are you?,None
-Deco,Weed,Staging_Area,4,2,Down,Deco,1,1,How are you?,None
+﻿type,Deco,name,Grass,room,Staging_Area,x,2,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Deco
+type,Deco,name,Weed,room,Staging_Area,x,4,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Deco

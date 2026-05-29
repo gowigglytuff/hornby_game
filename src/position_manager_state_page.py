@@ -70,28 +70,6 @@ class PositionManager(object):
                 door = True
         return door
 
-    def get_adjacent_cube_coordinates(self, feature, direction):
-        coord_x = copy.copy(feature.x)
-        coord_y = copy.copy(feature.y)
-        if direction == Direction.DOWN:
-            coord_y += 1
-        elif direction == Direction.UP:
-            coord_y -= 1
-        elif direction == Direction.LEFT:
-            coord_x -= 1
-        elif direction == Direction.RIGHT:
-            coord_x += 1
-        coordinates_list = [coord_x, coord_y]
-        return coordinates_list
-
-    def nudge_ghost(self, feature, current_room, direction):
-        feature_object = feature
-        room_object = current_room
-        adjacent_coordinates = self.get_adjacent_cube_coordinates(feature_object, direction)
-        target_x = adjacent_coordinates[0]
-        target_y = adjacent_coordinates[1]
-        self.move_ghost(feature_object, room_object, room_object, target_x, target_y)
-
     def move_ghost(self, feature, current_room, target_room, target_x, target_y):
         self.gc_input.move_counter += 1
         feature_ghost = feature
@@ -116,11 +94,9 @@ class PositionManager(object):
             target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
             self.gc_input.game_state.set_player_elevation(target_tile_elevation)
         else:
-            print(feature_ghost.feature_subtype)
+            pass
         if feature_ghost.feature_subtype == Types.BIRD:
-            print("UPDATED")
             self.gc_input.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
-            print("followup")
 
     def match_player_elevation_to_target(self, target_room, target_x, target_y):
         new_tile_elevation = self.get_tile_elevation(target_room.name, target_x, target_y)
@@ -128,13 +104,6 @@ class PositionManager(object):
     # endregion
 
     # region FEATURE MOVEMENT
-    # def check_if_feature_can_move(self, checker_ghost, direction, room_object):
-    #     result = True
-    #     if self.check_if_adjacent_tiles_full(checker_ghost, direction, room_object):
-    #         result = False
-    #     if self.check_rooms_edges(checker_ghost, direction, room_object):
-    #         result = False
-    #     return result
 
     def check_if_feature_can_move(self, checker_ghost, direction, room_object):
         # room edge test
@@ -169,28 +138,6 @@ class PositionManager(object):
 
         return move_result
 
-
-    def move_feature_ghost(self, name, direction):
-        feature = self.gc_input.game_state.get_feature_ghost(name)
-        room_object = self.gc_input.game_data.room_data_list[feature.room]
-        current_cube = room_object.access_cube(feature.x, feature.y)
-        new_cube_x = feature.x
-        new_cube_y = feature.y
-        if direction == Direction.DOWN:
-            new_cube_y += 1
-            feature.y += 1
-        elif direction == Direction.UP:
-            new_cube_y -= 1
-            feature.y -= 1
-        elif direction == Direction.LEFT:
-            new_cube_x -= 1
-            feature.x -= 1
-        elif direction == Direction.RIGHT:
-            new_cube_x += 1
-            feature.x += 1
-        new_cube = room_object.access_cube(new_cube_x, new_cube_y)
-        current_cube.empty_cube()
-        new_cube.fill_cube(feature.unique_name, feature.name)
     # endregion
 
     def remove_feature_from_map(self, feature_name, room):

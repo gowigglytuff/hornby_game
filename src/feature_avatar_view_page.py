@@ -135,8 +135,8 @@ class HouseAvatar(FeatureAvatar):
     def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.PROP
-        self.character_frame_x = 192
-        self.character_frame_y = 128
+        self.character_frame_x = 32 * base_size_x
+        self.character_frame_y = 32 * base_size_y + 16
         self.run_setup(base_size_x, base_size_y)
 
 

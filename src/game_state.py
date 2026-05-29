@@ -4,7 +4,8 @@ from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, Sup
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
-
+if TYPE_CHECKING:
+    from game_controller import GameController
 
 class GameState(object):
     '''
@@ -15,16 +16,16 @@ class GameState(object):
     '''
     def __init__(self, game_view, game_data, game_controller):
         self.gv = game_view
-        self.gc = game_controller
-        self.gd = game_data
+        self.gc = game_controller  # type: GameController
+        self.gd = game_data  # type: GameData
         self.ms = MenuState(self)
         self.cc = ConditionChecker(self) # type:ConditionChecker
         self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost, "Bird": BirdGhost}
         self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE, "Basket": Types.BASKET}
-        self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD}
+        self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD, "NPC": Types.NPC, "Prop": Types.PROP, "House": Types.HOUSE, "Deco": Types.DECO}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
-        self.selected_tool = "None"
+        self.selected_tool = "Hammer"
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
@@ -35,7 +36,8 @@ class GameState(object):
         self.current_player_elevation = 3
 
         self.your_coins = 127
-        self.your_seeds = 24
+        self.bird_count = 1
+        self.pigeon_count = 5
         self.total_seeds_found = 26
 
         self.day_of_summer = 12
@@ -55,11 +57,6 @@ class GameState(object):
 
     def change_feature_ghost_facing(self, name, direction):
         self.get_feature_ghost(name).facing = direction
-
-    def get_feature_animations_to_execute(self):
-        to_execute = copy.copy(self.current_animations_to_execute)
-        self.current_animations_to_execute = []
-        return to_execute
 
     def get_feature_ghost(self, name):
         return self.feature_ghost_list[name]
@@ -473,6 +470,17 @@ class GameData(object):
             # Door 2
             door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
             door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
+            self.door_data_list[door2_name] = door2_object
+
+        elif door_type == "Double_back":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y+1, Direction.SWITCH)
+            self.door_data_list[door1_name] = door1_object
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.SWITCH)
             self.door_data_list[door2_name] = door2_object
 
     def add_temp_item_data(self, item_name, item_object):

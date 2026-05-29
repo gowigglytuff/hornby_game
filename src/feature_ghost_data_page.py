@@ -38,7 +38,7 @@ class FeatureGhost(object):
     '''
     :type gs_input: GameState
     '''
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype):
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y):
         self.gs_input = gs_input # type: GameState
         self.feature_type = feature_type
         self.feature_subtype = feature_subtype
@@ -49,6 +49,8 @@ class FeatureGhost(object):
         self.spawn_y = spawn_y
         self.x = spawn_x
         self.y = spawn_y
+        self.figure_size_x = figure_size_x
+        self.figure_size_y = figure_size_y
         self.base_size_x = base_size_x
         self.base_size_y = base_size_y
         self.spawn_facing = direction
@@ -75,16 +77,17 @@ class FeatureGhost(object):
     def get_removed(self):
         pass
 
+
 class NpcGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y)
         self.phrase = phrase
         self.feature_type = Types.NPC
 
 
 class BirdGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y)
         self.phrase = phrase
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
@@ -156,8 +159,8 @@ class BirdGhost(FeatureGhost):
         pass
 
 class PigeonGhost(BirdGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y)
         self.phrase = phrase
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
@@ -170,8 +173,8 @@ class PigeonGhost(BirdGhost):
         return movement
 
 class PropGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y)
         self.feature_type = Types.PROP
 
     def get_interacted_with(self):
@@ -179,8 +182,8 @@ class PropGhost(FeatureGhost):
 
 
 class BasketGhost(PropGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y)
         self.feature_type = Types.PROP
 
     def get_interacted_with(self):
@@ -188,14 +191,14 @@ class BasketGhost(PropGhost):
 
 
 class HouseGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y)
         self.feature_type = Types.HOUSE
 
 
 class DecoGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype)
+    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y):
+        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y)
         self.phrase = phrase
         self.feature_type = Types.DECO
 

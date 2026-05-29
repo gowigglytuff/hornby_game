@@ -77,6 +77,7 @@ class MenuAvatar(object):
                          "chat_menu_avatar": {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
                          "game_action_dialogue_menu_avatar": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                          "use_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
+                         "key_use_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                          "yes_no_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                          "sub_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
                          "outfit_menu_avatar": {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]},

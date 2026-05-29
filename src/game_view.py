@@ -1,13 +1,15 @@
 import copy
 
 from animations_page_view_page import IndependentAnimation, BirdDisappearAnimation
+
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar
 from spritesheet import Spritesheet
-
+if TYPE_CHECKING:
+    from game_state import GameData, GameState
 
 class OutfitManager(object): #TODO: work on this
     def __init__(self):

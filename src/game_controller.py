@@ -4,11 +4,12 @@ import os
 import random
 
 from input_manager_controller_page import *
-from definitions import Direction, Types, GameSettings
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost
+from definitions import Direction, Types, GameSettings, Mundane
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, KeyUseMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView
+
 
 
 class Game(object):
@@ -28,27 +29,19 @@ class Game(object):
 class GameEvents(object):
     def __init__(self, game_controller):
         self.gc = game_controller  # type: GameController
-        # self.five_second_timer_id = pygame.USEREVENT + 150
-        # self.ten_second_timer_id = pygame.USEREVENT + 151
-        # self.two_second_timer_id = pygame.USEREVENT + 157
-        # self.one_second_timer_id = pygame.USEREVENT + 152
-        # self.half_second_timer_id = pygame.USEREVENT + 155
-        # self.quarter_second_timer_id = pygame.USEREVENT + 156
-        # self.sixth_second_timer_id = pygame.USEREVENT + 160
-        # self.fifth_second_timer_id = pygame.USEREVENT + 153
-        # self.twentieth_second_timer_id = pygame.USEREVENT + 154
         self.timer_list = []
         self.times_list = [.167, .004, .05, .25, .5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.setup_timers()
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.ask_animator_to_animate],
                             .167: [self.gc.npc_event_popoff],
                             1: [self.gc.switch_tile_frame, self.gc.game_clock_pass_1_minute]}
+        self.setup_timers()
+
 
 
     def setup_timers(self):
         userevent_numbers = 200
 
-        for timer in self.times_list:
+        for timer in self.event_dict.keys():
             event_name = str(timer) + "_second_timer_id"
             setattr(self, event_name, pygame.USEREVENT + userevent_numbers)
 
@@ -60,8 +53,6 @@ class GameEvents(object):
             one_second_equiv = 1000
             timer_equiv = timer * one_second_equiv
             pygame.time.set_timer(new_timer, int(timer_equiv))
-
-        print(dir(self))
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -107,6 +98,13 @@ class GameController(object):
         self.game_view.add_npc_avatar(unique_name, avatar_object)
     # endregion
 
+    def use_selected_tool(self):
+        if self.game_state.selected_tool != "None":
+            tool = self.inventory_manager.gc_input.game_state.gd.key_item_data_list[self.game_state.selected_tool]
+            self.inventory_manager.use_key_item(tool)
+        else:
+            self.game_state.ms.post_notice("There is nothing selected")
+
     def npc_event_popoff(self):
         if "Pigeon_40" in self.game_state.feature_ghost_list.keys():
             self.move_feature_chaotically("Pigeon_40")
@@ -135,7 +133,6 @@ class GameController(object):
                 if movements:
                     chosen_movement = movements.pop(random.choice(range(len(movements))))
                     complete = self.attempt_feature_action(feature_unique_name, chosen_movement)
-                    print(chosen_movement)
                 else:
                     complete = True
 
@@ -178,12 +175,6 @@ class GameController(object):
     def check_if_feature_already_animating(self, name):
         avatar = self.game_view.get_npc_avatar(name)
         return avatar.currently_animating
-
-    def initiate_feature_movement(self, name, direction):
-        self.change_feature_facing(name, direction)
-        if self.position_manager.check_if_feature_can_move(self.game_state.get_feature_ghost(name), direction, self.game_view.game_data.room_data_list[self.game_state.current_room]):
-            self.game_view.walk_feature_avatar(name, direction)
-            self.position_manager.move_feature_ghost(name, direction)
 
     def reset_feature_to_spawn(self, feature):
         chosen_feature = self.game_state.get_feature_ghost(feature)
@@ -277,13 +268,6 @@ class GameController(object):
 
                 self.initiate_player_movement(direction)
 
-        for feature in self.game_state.get_feature_animations_to_execute():
-            feature_name = feature[0]
-            feature_direction = feature[1]
-            if not self.check_if_feature_already_animating(feature_name):
-                self.feature_animations_in_progress.append(feature_name)
-                self.initiate_feature_movement(feature_name, feature_direction)
-
     def check_if_player_already_animating(self):
         return self.game_view.player_avatar.currently_animating
 
@@ -299,7 +283,7 @@ class GameController(object):
             if move_status:
                 player = self.game_state.get_player_ghost()
                 self.game_view.walk_player_avatar(direction)
-                self.position_manager.nudge_ghost(player, room_object, direction)
+                self.position_manager.move_ghost(player, room_object, room_object, player.x + Direction.get_vector_from_direction(direction)[0], player.y + Direction.get_vector_from_direction(direction)[1])
                 self.player_moved_followup(player.x, player.y)
             else:
                 pass
@@ -309,21 +293,9 @@ class GameController(object):
     def snap_photo(self):
         facing = self.game_state.get_player_ghost().facing
         if not self.check_if_player_already_animating():
-            direction = "up"
-            vector_x = 0
-            vector_y = 0
-            if facing == Direction.DOWN:
-                direction = "down"
-                vector_y = 1
-            elif facing == Direction.UP:
-                direction = "up"
-                vector_y = -1
-            elif facing == Direction.LEFT:
-                direction = "left"
-                vector_x = -1
-            elif facing == Direction.RIGHT:
-                direction = "right"
-                vector_x = 1
+            direction = Mundane.direction_feedback(facing, "left", "right", "up", "down")
+            vector_x = Mundane.direction_feedback(facing, -1, 1, 0, 0)
+            vector_y = Mundane.direction_feedback(facing, 0, 0, -1, 1)
             self.game_view.player_avatar.initiate_animation("snap_photo_" + direction)
 
             camera_range = 2
@@ -387,8 +359,8 @@ class GameController(object):
         hour = self.game_state.hour_of_day
         minute = self.game_state.minute_of_hour
 
-        stat_dict = {"seeds": str(self.game_state.your_seeds),
-                     "Coins": str(self.game_state.your_coins),
+        stat_dict = {"Birds": str(self.game_state.bird_count),
+                     "Pigeons": str(self.game_state.pigeon_count),
                      "time": self.get_game_time_string(),
                      "day": str(self.game_state.day_of_summer),
                      "selected_tool": str(self.game_state.selected_tool)}
@@ -449,51 +421,33 @@ class GameController(object):
         self.game_state.change_player_ghost_facing(final_facing)
         self.game_view.player_avatar.face_character(final_facing)
 
-    def import_NPCs_from_csv(self, filename):
-        NPC_data = []
+    def import_features_from_csv(self, filename):
+        feature_data = []
         with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
             data = csv.reader(data, delimiter=',')
             for row in data:
-                NPC_data.append(list(row))
-        for Feature in NPC_data:
-            feature_type = self.game_state.type_translator[Feature[0]]
-            feature_subtype = self.game_state.sub_type_translator[Feature[10]]
-            unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
-            if feature_type == Types.NPC:
-                if feature_subtype == Types.BIRD:
-                    test = self.game_state.ghost_classes["Bird"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                                self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
-                                                                int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                    self.game_state.add_feature_ghost(unique_name, test)
-                    print(unique_name)
-                else:
-                    test = self.game_state.ghost_classes["NPC"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                                self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
-                                                                int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                    self.game_state.add_feature_ghost(unique_name, test)
+                dict = {}
+                for item in row:
+                    index = row.index(item)
+                    if Mundane.is_even(index):
+                        dict[item] = row[index + 1]
 
-            if feature_type == Types.PROP:
-                if feature_subtype == Types.BASKET:
-                    test = self.game_state.ghost_classes["Basket"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                                self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
-                                                                int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                else:
-                    test = self.game_state.ghost_classes["Prop"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                                 self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
-                                                                 int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                self.game_state.add_feature_ghost(unique_name, test)
-            if feature_type == Types.HOUSE:
-                test = self.game_state.ghost_classes["House"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                            self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
-                                                            int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                self.game_state.add_feature_ghost(unique_name, test)
-            if feature_type == Types.DECO:
-                test = self.game_state.ghost_classes["Deco"](Feature[1], self.game_state, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                              self.game_state.direction_translations[Feature[5]], feature_type, int(Feature[7]),
-                                                              int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                self.game_state.add_feature_ghost(unique_name, test)
+                feature_data.append(dict)
 
-        return NPC_data
+        for feature_dict in feature_data:
+            feature_type = self.game_state.type_translator[feature_dict["type"]]
+            feature_subtype = self.game_state.sub_type_translator[feature_dict["subtype"]]
+            unique_name = feature_dict["name"] + "_" + str(GameSettings.get_unique_ID())
+            feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_dict["name"], self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
+                                                              self.game_state.direction_translations[feature_dict["direction"]], feature_type, int(feature_dict["base_size_x"]),
+                                                              int(feature_dict["base_size_y"]), unique_name, str(feature_dict["phrase"]), feature_subtype, int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]))
+            if feature_subtype == Types.DECO:
+                self.game_state.add_deco_ghost(unique_name, feature_ghost_object)
+            else:
+                self.game_state.add_feature_ghost(unique_name, feature_ghost_object)
+
+
+        return feature_data
 
     def import_decos_from_csv(self, filename):
         deco_data = []
@@ -673,12 +627,10 @@ class TriggerManager(object):
                 self.trigger_list[room.name][(tile.x, tile.y)] = []
 
     def add_triggers(self, room_object, trigger_dict):
-        print("wooooo")
         for key in trigger_dict.keys():
             if self.check_if_coord_outside_room(key, room_object):
                 pass
             else:
-                print("bonk", trigger_dict[key])
                 coords = (key[0], key[1])
                 self.trigger_list[room_object.name][coords].append(trigger_dict[key])
 
@@ -689,14 +641,10 @@ class TriggerManager(object):
         return outside
 
     def update_features_triggers(self, room_object, feature_ghost):
-        print("stage 1")
         remove_trigger_list = copy.copy(feature_ghost.trigger_list)
         self.remove_triggers(room_object, remove_trigger_list)
-        print("stage 2")
         add_trigger_list = feature_ghost.produce_trigger_list()
-
         self.add_triggers(room_object, add_trigger_list)
-        print("stage 3")
 
     def print_all_triggers(self, room_object):
         print(self.trigger_list[room_object.name])
@@ -711,7 +659,6 @@ class TriggerManager(object):
                 for existing_trigger in self.trigger_list[room_object.name][coords]:
                     if existing_trigger[0] == trigger_dict[key][0]:
                         self.trigger_list[room_object.name][coords].remove(existing_trigger)
-                        print("stage 1.5")
                     else:
                         pass
 
@@ -723,7 +670,7 @@ class MenuManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
-                               UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
+                               UseMenuGhost, KeyUseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost]
 
     def activate_menu(self):

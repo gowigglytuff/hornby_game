@@ -24,8 +24,8 @@ def init_game(g):
 
 
 def new_game_procedures(gc, gs):
-    gc.import_NPCs_from_csv("assets/import_data/NPC_import.csv")
-    gc.import_decos_from_csv("assets/import_data/Deco_import.csv")
+    gc.import_features_from_csv("assets/import_data/feature_import_dict.csv")
+    gc.import_features_from_csv("assets/import_data/Deco_import.csv")
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
 
 
@@ -46,13 +46,14 @@ def install_all_data(gc, gs):
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
-        # gs.gd.add_door_data("Ladder", "Staging_Area", "Huge_Room", 4, 6, 20, 20)
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
         gs.gd.add_door_data("Ladder", "Cave", "Cave", 15, 8, 5, 7)
         gs.gd.add_door_data("Passage", "Test_Room", "My_House", 5, 17, 2, 5)
         gs.gd.add_door_data("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
         gs.gd.add_door_data("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
+        gs.gd.add_door_data("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -67,14 +68,14 @@ def install_all_data(gc, gs):
         for npc_item in npc_name_list:
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
             if related_ghost.feature_subtype == Types.BIRD:
-                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
+                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
             else:
-                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
+                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
         deco_name_list = gs.get_all_deco_unique_names()
         for deco_item in deco_name_list:
             related_ghost = gc.game_state.deco_ghost_list[deco_item]
-            gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.base_size_x, related_ghost.base_size_y, related_ghost.spawn_facing))
+            gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()

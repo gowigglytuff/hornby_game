@@ -128,7 +128,7 @@ class StatMenuGhost(MenuGhost):
 
     def update_menu_items_list(self):
         stat_dict = self.gc_input.get_stat_items()
-        self.menu_item_list = [("Coins: ", stat_dict["Coins"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Seeds:", stat_dict["seeds"]), ("Select: ", stat_dict["selected_tool"])]
+        self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
 
     def get_menu_items_to_print(self):
         printable_item_list = []
@@ -371,7 +371,7 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
         if chosen_item_name == "Exit":
             self.gc_input.game_state.ms.exit_all_menus()
         else:
-            self.gc_input.game_state.ms.set_menu(UseMenuGhost.BASE, {"master_menu": self.BASE})
+            self.gc_input.game_state.ms.set_menu(KeyUseMenuGhost.BASE, {"master_menu": self.BASE})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
@@ -384,6 +384,10 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
             self.gc_input.game_state.ms.exit_all_menus()
 
         elif sub_menu_selection == "Toss":
+            self.gc_input.game_state.ms.exit_all_menus()
+
+        elif sub_menu_selection == "Select":
+            self.gc_input.game_state.selected_tool = chosen_item_name
             self.gc_input.game_state.ms.exit_all_menus()
 
         elif sub_menu_selection == "Cancel":
@@ -606,10 +610,10 @@ class GalleryMenuGhost(MenuGhost):
                           "Tanager": ["Tanager", "Tanager"],
                           "Blackbird": ["Blackbird", "Blackbird"],
                           "Mallard": ["Mallard", "Mallard"],
-                          "Pigeon 1": ["Pigeon 1", "Pigeon 1"],
-                          "Pigeon 2": ["Pigeon 1", "Pigeon 1"],
-                          "Pigeon 3": ["Pigeon 1", "Pigeon 1"],
-                          "Pigeon 4": ["Pigeon 1", "Pigeon 1"]}
+                          "Pigeon 1": ["Pigeon 1", "Pigeon 3"],
+                          "Pigeon 2": ["Pigeon 2", "Pigeon 3"],
+                          "Pigeon 3": ["Pigeon 2", "Pigeon 3"],
+                          "Pigeon 4": ["Pigeon 2", "Pigeon 3"]}
         self.selected_bird = "Crow"
         self.is_last_bird = False
         self.is_first_bird = False
@@ -925,6 +929,51 @@ class UseMenuGhost(MenuGhost):
         elif menu_selection == "Exit":
             self.gc_input.game_state.ms.exit_all_menus()
 
+
+class KeyUseMenuGhost(MenuGhost):
+    BASE = "key_use_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_item_list = ["Use", "Select", "Toss", "Cancel"]
+        self.master_menu = None
+        self.menu_type = Types.SUB
+        self.menu_header = None
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc_input.game_state.ms.exit_all_menus()
+        else:
+            self.gc_input.game_state.ms.deactivate_menu(self.BASE)
+            self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
+            # self.do_option(chosen_item_name)
+            # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)
+        self.reset_cursor()
+
+    def set_master_menu(self, master_menu):
+        self.master_menu = master_menu
+
+    def do_option(self, choice=None):
+        menu_selection = choice
+        chosen_item_name = self.get_current_menu_item()
+
+        if menu_selection == "Use":
+            print("used the " + chosen_item_name)
+            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
+            self.gc_input.inventory_manager.use_item(chosen_item, 1)
+            self.update_menu_items_list(None)
+
+        elif menu_selection == "Select":
+            self.gc_input.game_state.selected_tool = chosen_item_name
+            self.gc_input.game_state.ms.exit_all_menus()
+
+        elif menu_selection == "Toss":
+            self.gc_input.game_state.ms.exit_all_menus()
+
+        elif menu_selection == "Exit":
+            self.gc_input.game_state.ms.exit_all_menus()
 
 class YesNoMenuGhost(MenuGhost):
     BASE = "yes_no_menu"

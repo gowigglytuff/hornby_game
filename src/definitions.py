@@ -83,7 +83,6 @@ class Mundane(object):
         box_width_less_offsets = (box_width * GameSettings.MENUSEGMENTSIZE) - offset_x
 
         image_width = surface.get_width()
-        print(image_width, box_width_less_offsets)
         x_spacing = (box_width_less_offsets - image_width)/2
 
         return x_spacing
@@ -105,3 +104,10 @@ class Mundane(object):
             result = Right
 
         return result
+
+    @classmethod
+    def is_even(cls, number):
+        even = False
+        if number % 2 == 0:
+            even = True
+        return even

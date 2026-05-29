@@ -1,0 +1,42 @@
+﻿type,NPC,name,Crow,room,Staging_Area,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,Caw,subtype,Bird
+type,NPC,name,Cowboy,room,Staging_Area,x,2,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,I heard the Robin stayed still when someone approached it when the minutes were between 10 and 20.,subtype,NPC
+type,NPC,name,Cowboy,room,Staging_Area,x,4,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,Have you tried changing outfits?,subtype,NPC
+type,Prop,name,Tree,room,Staging_Area,x,6,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Test_Room,x,12,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,NPC,name,Cowboy,room,Test_Room,x,4,y,4,direction,Up,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,"Blackbirds will only like you if you have the word ""Clock"" in your Game Action Dialogue Box",subtype,NPC
+type,Prop,name,Rock,room,Test_Room,x,3,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,It's beautiful today.,subtype,Prop
+type,Prop,name,Clock,room,My_House,x,2,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,Tick Tock,subtype,Prop
+type,Prop,name,Chair,room,My_House,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,Creek,subtype,Prop
+type,Prop,name,Table,room,My_House,x,6,y,3,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,Creek,subtype,Prop
+type,Prop,name,ElephantPicture,room,My_House,x,1,y,1,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,toooot,subtype,Prop
+type,Prop,name,ChickenPicture,room,My_House,x,3,y,1,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,bock bock,subtype,Prop
+type,Prop,name,ChairSide,room,My_House,x,5,y,3,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,bock bock,subtype,Prop
+type,Prop,name,Bed,room,My_House,x,1,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,creek,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,12,y,14,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Basket
+type,Prop,name,Tree,room,Bird_Room,x,11,y,14,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,12,y,17,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,8,y,10,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,15,y,14,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,17,y,13,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,16,y,16,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,14,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Basket
+type,Prop,name,Tree,room,Bird_Room,x,13,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,14,y,14,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,10,y,7,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,17,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,19,y,10,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,18,y,13,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,17,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,15,y,8,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,14,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,Prop,name,Tree,room,Bird_Room,x,16,y,3,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Prop
+type,NPC,name,Robin,room,Bird_Room,x,12,y,10,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Crow,room,Bird_Room,x,10,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Tanager,room,Bird_Room,x,12,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Starling,room,Bird_Room,x,8,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Tanager,room,Bird_Room,x,10,y,17,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Blackbird,room,Bird_Room,x,17,y,8,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Mallard,room,Bird_Room,x,5,y,15,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,NPC,name,Pigeon,room,Bird_Room,x,5,y,18,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,sup,subtype,Bird
+type,House,name,House,room,Test_Room,x,4,y,17,direction,Down,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4,phrase,How are you?,subtype,House
+type,Prop,name,Brickwall,room,Bird_Room,x,15,y,18,direction,Down,base_size_x,3,base_size_y,1,figure_size_x,3,figure_size_y,2,phrase,How are you?,subtype,Prop
