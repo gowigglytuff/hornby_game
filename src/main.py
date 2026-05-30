@@ -12,6 +12,7 @@ def main():
     run_game_loop()
 
 
+
 def run_game_loop():
 
     while g.game_running:

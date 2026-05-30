@@ -57,10 +57,12 @@ class TileSet(object):
 
 class TileMap:
     def __init__(self, filename):
-        self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE1, 16, 16, 21, 23).load_tile_images()
-        self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, 16, 16, 21, 23).load_tile_images()
-        self.tile_set_3 = TileSet(GameSettings.TILESET_IMAGE3, 16, 16, 21, 23).load_tile_images()
-        self.tile_set_4 = TileSet(GameSettings.TILESET_IMAGE4, 16, 16, 21, 23).load_tile_images()
+        rows = 28
+        columns = 23
+        self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE1, 16, 16, rows, columns).load_tile_images()
+        self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, 16, 16, rows, columns).load_tile_images()
+        self.tile_set_3 = TileSet(GameSettings.TILESET_IMAGE3, 16, 16, rows, columns).load_tile_images()
+        self.tile_set_4 = TileSet(GameSettings.TILESET_IMAGE4, 16, 16, rows, columns).load_tile_images()
         # self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
         # self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, GameSettings.TILESIZE, GameSettings.TILESIZE, GameSettings.TILESET_SIZE, GameSettings.TILESET_SIZE).load_tile_images()
         self.tile_size = 16

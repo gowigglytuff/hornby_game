@@ -270,18 +270,191 @@ class PositionManager(object):
         return result
     # endregion
 
+    def despawn_feature(self, feature_name, room_object):
+        feature_ghost = self.gc_input.game_state.get_feature_ghost(feature_name)
+        feature_avatar = self.gc_input.game_view.get_npc_avatar(feature_name)
+        feature_ghost.active = False
+
+        self.remove_feature_from_grid(feature_ghost, room_object)
+        if feature_ghost.feature_subtype == Types.BIRD:
+
+            remove_trigger_list = feature_ghost.get_triggered()
+            self.gc_input.trigger_manager.remove_triggers(room_object, feature_ghost)
+        feature_ghost.reset_to_spawn()
+        feature_avatar.reset_to_spawn(feature_ghost)
+        if feature_avatar.unique_name in self.gc_input.feature_animations_in_progress:
+            self.gc_input.feature_animations_in_progress.remove(feature_avatar.unique_name)
+            for item in feature_avatar.animation_list.values():
+                item.reset()
+
+    def despawn_all_room_features(self, room_object):
+        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.name)
+        for ghost in feature_ghosts:
+            if ghost.name == "Player":
+                pass
+            else:
+                self.despawn_feature(ghost.unique_name, room_object)
+
+    def spawn_all_initial_room_features(self, room_object):
+        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.name)
+        print("feature ghosts", feature_ghosts)
+        for ghost in feature_ghosts:
+
+            if ghost.name == "Player":
+                pass
+            else:
+                if ghost.spawn_active:
+                    self.spawn_room_feature(ghost.unique_name, room_object)
+
+    def spawn_room_feature(self, feature_name, room_object):
+        feature_ghost = self.gc_input.game_state.get_feature_ghost(feature_name)
+        feature_ghost.active = True
+
+        self.add_feature_to_grid(feature_ghost, room_object)
+
+        if feature_ghost.feature_subtype == Types.BIRD:
+            add_trigger_list = feature_ghost.produce_trigger_list()
+            self.gc_input.trigger_manager.add_triggers(room_object, add_trigger_list)
+
+    # region CHECKING FOR MOVEMENT
+    def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
+        room_object.access_adjacent_cube(checker_ghost, direction)
+        x = checker_ghost.x
+        y = checker_ghost.y
+        size_x = checker_ghost.base_size_x
+        size_y = checker_ghost.base_size_y
+
+        x_array = []
+        y_array = []
+
+        final_report = False
+
+        x_counter = 0
+        for size in range(size_x):
+            x_counter += 1
+            x_array.append(x_counter)
+
+        y_counter = 0
+        for size in range(size_y):
+            y_counter += 1
+            y_array.append(y_counter)
+
+        for x_space in range(size_x):
+            for y_space in range(size_y):
+                hold_x = x
+                hold_y = y
+                if direction == Direction.DOWN:
+                    hold_y = hold_y + y_array[y_space]
+                elif direction == Direction.UP:
+                    hold_y = hold_y - y_array[y_space]
+                elif direction == Direction.LEFT:
+                    hold_x = hold_x - x_array[x_space]
+                elif direction == Direction.RIGHT:
+                    hold_x = hold_x + x_array[x_space]
+                cube_fill_status = room_object.check_cube_full(hold_x, hold_y)
+
+                if cube_fill_status:
+                    final_report = True
+
+        return final_report
+
+    def get_adjacent_tile_elevation(self, checker, direction, room):
+        target_tile_x = checker.x
+        target_tile_y = checker.y
+        if direction == Direction.DOWN:
+            target_tile_y = checker.y + 1
+        elif direction == Direction.UP:
+            target_tile_y = checker.y - 1
+        elif direction == Direction.LEFT:
+            target_tile_x = checker.x - 1
+        elif direction == Direction.RIGHT:
+            target_tile_x = checker.x + 1
+        elevation_result = self.get_tile_elevation(room.name, target_tile_x, target_tile_y)
+        return elevation_result
+
+    def get_tile_elevation(self, room_name, x, y):
+        chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
+        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
+        elevation_result = chosen_plot.get_elevation(x * chosen_plot_address[0], y * chosen_plot_address[1])
+        return elevation_result
+
+    def get_current_plot_address(self):
+        current_room = self.gc_input.game_state.get_current_room
+        plot_info_list = current_room.get_plot_information
+        player_coordinates = self.gc_input.game_state.get_player_ghost_location
+        total_room_x = plot_info_list[0] * plot_info_list[2]
+        total_room_y = plot_info_list[1] * plot_info_list[3]
+        proportion_x = total_room_x / player_coordinates[0]
+        proportion_y = total_room_y / player_coordinates[1]
+        result_x = int(proportion_x / plot_info_list[2])
+        result_y = int(proportion_y / plot_info_list[3])
+        return [result_x, result_y]
+
+    def get_chosen_plot_address(self, room_name, x, y):
+        chosen_room = self.gc_input.game_state.get_room(room_name)
+        plot_info_list = chosen_room.get_plot_information()
+
+        total_room_x = plot_info_list[0] * plot_info_list[2]
+        total_room_y = plot_info_list[1] * plot_info_list[3]
+        proportion_x = x / total_room_x
+        proportion_y = y / total_room_y
+
+        result_x = math.ceil(proportion_x * plot_info_list[0])
+        result_y = math.ceil(proportion_y * plot_info_list[1])
+
+        return [result_x, result_y]
+
+    def get_adjacent_tile(self, checker, direction, room):
+        x = copy.copy(checker.x)
+        y = copy.copy(checker.y)
+        if direction == Direction.DOWN:
+            y = y + 1
+        elif direction == Direction.UP:
+            y = y - 1
+        elif direction == Direction.LEFT:
+            x = x - 1
+        elif direction == Direction.RIGHT:
+            x = x + 1
+        chosen_cube = room.access_cube(x, y)
+        return chosen_cube
+
+    def check_rooms_edges(self, checker, direction, room):
+        result = False
+        if direction == Direction.DOWN:
+            if room.bottom_edge_y == checker.y:
+                result = True
+        elif direction == Direction.UP:
+            if room.top_edge_y == checker.y:
+                result = True
+        elif direction == Direction.LEFT:
+            if room.left_edge_x == checker.x:
+                result = True
+        elif direction == Direction.RIGHT:
+            if room.right_edge_x == checker.x:
+                result = True
+        return result
+    # endregion
+
     def fill_room_grid(self, room_to_fill):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_fill]
         fill_list = []
         npc_ghost_list = self.gc_input.game.game_state.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
         for npc in npc_ghost_list.keys():
             npc_ghost = self.gc_input.game_state.get_feature_ghost(npc)
-            if npc_ghost_list[npc].room == room_to_fill:
+            if npc_ghost_list[npc].room == room_to_fill and npc_ghost.active:
                 fill_list.append(npc_ghost)
 
         for item in fill_list:
-            coordinates_list = item.return_base_coordinates_list(item.x, item.y)
-            selected_room.add_feature(item.unique_name, item.name, coordinates_list)
+            self.add_feature_to_grid(item, selected_room)
+
+    def add_feature_to_grid(self, feature_ghost, selected_room):
+        coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
+        selected_room.add_feature(feature_ghost.unique_name, feature_ghost.name, coordinates_list)
+
+    def remove_feature_from_grid(self, feature_ghost, selected_room):
+        coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
+        selected_room.remove_feature(coordinates_list)
 
     def add_player_to_grid(self, room_name):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_name]
@@ -293,7 +466,8 @@ class PositionManager(object):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_clear]
         for x in range(selected_room.x_size):
             for y in range(selected_room.y_size):
-                selected_room.remove_feature(x, y)
+                coords = [(x, y)]
+                selected_room.remove_feature(coords)
 
     # region FEATURE DICTIONARY
     def check_location_full(self, room_name, cube_coordinates):
@@ -423,16 +597,15 @@ class Room(object):
         current_cube.empty_cube()
         new_cube.fill_cube(feature.name)
 
-    def remove_feature(self, x, y):
-        feature_cube = self.access_cube(x, y)
-        feature_cube.empty_cube()
-        pass
+    def remove_feature(self, coordinates_list):
+        for coordinates in coordinates_list:
+            feature_cube = self.access_cube(coordinates[0], coordinates[1])
+            feature_cube.empty_cube()
 
     def add_feature(self, feature_name, feature_type, coordinates_list):
         for coordinates in coordinates_list:
             feature_cube = self.access_cube(coordinates[0], coordinates[1])
             feature_cube.fill_cube(feature_name, feature_type)
-            pass
 
     # endregion
 

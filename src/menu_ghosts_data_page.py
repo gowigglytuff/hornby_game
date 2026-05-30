@@ -610,10 +610,10 @@ class GalleryMenuGhost(MenuGhost):
                           "Tanager": ["Tanager", "Tanager"],
                           "Blackbird": ["Blackbird", "Blackbird"],
                           "Mallard": ["Mallard", "Mallard"],
-                          "Pigeon 1": ["Pigeon 1", "Pigeon 3"],
-                          "Pigeon 2": ["Pigeon 2", "Pigeon 3"],
-                          "Pigeon 3": ["Pigeon 2", "Pigeon 3"],
-                          "Pigeon 4": ["Pigeon 2", "Pigeon 3"]}
+                          "Pigeon 1": ["Pigeon 1", "Pigeon 1"],
+                          "Pigeon 2": ["Pigeon 2", "Pigeon 2"],
+                          "Pigeon 3": ["Pigeon 3", "Pigeon 3"],
+                          "Pigeon 4": ["Pigeon 4", "Pigeon 4"]}
         self.selected_bird = "Crow"
         self.is_last_bird = False
         self.is_first_bird = False

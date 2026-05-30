@@ -106,7 +106,8 @@ class GameController(object):
             self.game_state.ms.post_notice("There is nothing selected")
 
     def npc_event_popoff(self):
-        if "Pigeon_40" in self.game_state.feature_ghost_list.keys():
+        feature = self.game_state.get_feature_ghost("Pigeon_40")
+        if ("Pigeon_40" in self.game_state.feature_ghost_list.keys()) and feature.active:
             self.move_feature_chaotically("Pigeon_40")
 
     def switch_tile_frame(self):
@@ -440,7 +441,7 @@ class GameController(object):
             unique_name = feature_dict["name"] + "_" + str(GameSettings.get_unique_ID())
             feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_dict["name"], self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
                                                               self.game_state.direction_translations[feature_dict["direction"]], feature_type, int(feature_dict["base_size_x"]),
-                                                              int(feature_dict["base_size_y"]), unique_name, str(feature_dict["phrase"]), feature_subtype, int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]))
+                                                              int(feature_dict["base_size_y"]), unique_name, str(feature_dict["phrase"]), feature_subtype, int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"])
             if feature_subtype == Types.DECO:
                 self.game_state.add_deco_ghost(unique_name, feature_ghost_object)
             else:
@@ -468,18 +469,14 @@ class GameController(object):
         return deco_data
 
     def reset_room(self, room_name):
-        room = self.game_state.get_room(room_name)
-        for feature_ghost in self.game_state.get_all_features_in_room(room_name):
-            if feature_ghost.feature_type == "Player":
-                pass
-            else:
-                feature_ghost.reset_to_spawn()
-                avatar = self.game_view.get_npc_avatar(feature_ghost.unique_name)
-                avatar.reset_to_base()
+        room_object = self.game_state.get_room(room_name)
+        self.position_manager.despawn_all_room_features(room_object)
         self.position_manager.clear_room_grid(room_name)
+        self.trigger_manager.remove_all_triggers(room_object)
 
     def load_up_room(self, room_name):
-        self.position_manager.fill_room_grid(room_name)
+        room_object = self.game_state.get_room(room_name)
+        self.position_manager.spawn_all_initial_room_features(room_object)
         self.position_manager.add_player_to_grid(room_name)
         self.game_state.set_room(room_name)
 
@@ -511,34 +508,21 @@ class GameController(object):
         pass
 
     def check_for_map_triggers(self, player_x, player_y):
-        # room = self.game_state.get_current_room()
-        # if room.name in self.game_state.map_trigger_list.keys():
-        #     fetch_list = self.game_state.map_trigger_list[self.game_state.get_current_room().name]
-        #     birds_to_trigger = []
-        #     for map_trigger in fetch_list.values():
-        #         for x in map_trigger.coords_list:
-        #             if x[0] == player_x and x[1] == player_y:
-        #                 triggered_feature_name = map_trigger.trigger_owner_unique_name
-        #                 birds_to_trigger.append(triggered_feature_name)
-        #     for bird_unique_name in birds_to_trigger:
-        #         self.trigger_a_bird(bird_unique_name, room)
-
         room = self.game_state.get_current_room()
-        triggers = self.trigger_manager.check_for_triggers(room,player_x, player_y)
+        triggers = copy.copy(self.trigger_manager.check_for_triggers(room, player_x, player_y))
         for trigger in triggers:
             self.trigger_a_bird(trigger[0], room, trigger[1])
 
     def trigger_a_bird(self, unique_name, room, trigger):
         bird_ghost = self.game_state.get_feature_ghost(unique_name)
+        print(bird_ghost)
         bird_avatar = self.game_view.get_npc_avatar(unique_name)
 
         check_trigger_result = bird_ghost.check_trigger_result(trigger)
 
         if check_trigger_result == "remove":
-            remove_trigger_list = bird_ghost.get_triggered()
-            self.trigger_manager.remove_triggers(room, remove_trigger_list)
-            self.position_manager.remove_feature_from_map(unique_name, room)
             self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
+            self.position_manager.despawn_feature(unique_name, room)
         else:
             pass
 
@@ -636,31 +620,35 @@ class TriggerManager(object):
 
     def check_if_coord_outside_room(self, coords, room_object):
         outside = False
-        if coords[0] > room_object.x_size or coords[0] < 1 or coords[1] > room_object.y_size or coords[1] < 1:
+        if (coords[0] > room_object.x_size) or coords[0] < 1 or (coords[1] > room_object.y_size) or coords[1] < 1:
             outside = True
+        else:
+            pass
         return outside
 
     def update_features_triggers(self, room_object, feature_ghost):
         remove_trigger_list = copy.copy(feature_ghost.trigger_list)
-        self.remove_triggers(room_object, remove_trigger_list)
+        self.remove_triggers(room_object, feature_ghost)
         add_trigger_list = feature_ghost.produce_trigger_list()
+        print("add", add_trigger_list)
         self.add_triggers(room_object, add_trigger_list)
 
     def print_all_triggers(self, room_object):
         print(self.trigger_list[room_object.name])
-        print(self.trigger_list[room_object.name][10, 8])
 
-    def remove_triggers(self, room_object, trigger_dict):
-        for key in trigger_dict.keys():
-            if self.check_if_coord_outside_room(key, room_object):
-                pass
-            else:
-                coords = (key[0], key[1])
-                for existing_trigger in self.trigger_list[room_object.name][coords]:
-                    if existing_trigger[0] == trigger_dict[key][0]:
-                        self.trigger_list[room_object.name][coords].remove(existing_trigger)
-                    else:
-                        pass
+    def remove_all_triggers(self, room_object):
+        for tile in self.trigger_list[room_object.name]:
+            self.trigger_list[room_object.name][tile].clear()
+
+    def remove_triggers(self, room_object, feature_ghost):
+        tracker = 0
+        for existing_trigger in self.trigger_list[room_object.name].values():
+            for trigger in existing_trigger:
+                if trigger[0] == feature_ghost.unique_name:
+                    existing_trigger.pop(existing_trigger.index(trigger))
+                    tracker +=1
+        print(feature_ghost.unique_name, feature_ghost.x, feature_ghost.y, "removed", tracker)
+
 
     def check_for_triggers(self, room_object, x, y):
         return self.trigger_list[room_object.name][x, y]

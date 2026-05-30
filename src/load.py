@@ -42,10 +42,12 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
         gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
         gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
-        # gs.gd.add_room_data("Huge_Room", (Consolidated("Huge_Room", 100, 100, 1, 1)))
+        gs.gd.add_room_data("Marshy", (Consolidated("Marshy", 50, 50, 1, 1)))
+
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Marshy", 3, 6, 13, 16)
         gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
@@ -54,6 +56,7 @@ def install_all_data(gc, gs):
         gs.gd.add_door_data("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
         gs.gd.add_door_data("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
         gs.gd.add_door_data("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
+        gs.gd.add_door_data("Double_back", "Bird_Room", "Marshy", 16, 1, 2, 19)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -79,11 +82,9 @@ def install_all_data(gc, gs):
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
-        for bird in gc.game_state.feature_ghost_list.values():
-            if hasattr(bird,  "produce_trigger_list"):
-                birds_triggers = bird.produce_trigger_list()
-                room_object = gc.game_state.get_room(bird.room)
-                gc.trigger_manager.add_triggers(room_object, birds_triggers)
+
+    def spawn_first_room(gc, gs):
+        gc.position_manager.spawn_all_initial_room_features(gs.get_room(gs.current_room))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
@@ -162,6 +163,7 @@ def install_all_data(gc, gs):
     install_rooms(gc, gs)
     install_doors(gc, gs)
     install_triggers(gc, gs)
+    spawn_first_room(gc, gs)
     set_camera_position(gc, gs)
     initiate_mixer()
     fill_initial_room(gc, gs)

@@ -85,14 +85,14 @@ class GameState(object):
 
         for npc in npc_ghost_list.keys():
             npc_ghost = self.get_feature_ghost(npc)
-            if npc_ghost_list[npc].room == self.current_room:
+            if npc_ghost_list[npc].room == self.current_room and npc_ghost.active:
                 feature_location_list.append([npc, npc_ghost.y, npc_ghost.x])
 
         deco_ghost_list = self.deco_ghost_list
 
         for deco in deco_ghost_list.keys():
             deco_ghost = self.get_deco_ghost(deco)
-            if deco_ghost_list[deco].room == self.current_room:
+            if deco_ghost_list[deco].room == self.current_room and deco_ghost.active:
                 deco_location_list.append([deco, deco_ghost.y, deco_ghost.x])
 
         player_location = [self.get_player_ghost().y, self.get_player_ghost().x]

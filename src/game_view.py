@@ -56,10 +56,6 @@ class GameView(object):
                                   "map_menu": MapMenuAvatar,
                                   "gallery_menu": GalleryMenuAvatar}
 
-        self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
-        self.independent_animation_trigger_queue = []
-        self.active_independent_animations = {}
-
     def tick(self):
         self.clock.tick(self.FPS)
 

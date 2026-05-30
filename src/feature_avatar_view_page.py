@@ -97,6 +97,14 @@ class FeatureAvatar(object):
         self.currently_animating = False
         self.current_animation = None
 
+    def reset_to_spawn(self, ghost):
+        self.image_x = ghost.spawn_x
+        self.image_y = ghost.spawn_y
+        self.face_feature(self.spawn_facing)
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None
+
     def run_setup(self, base_size_x, base_size_y):
         self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         # self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)

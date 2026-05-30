@@ -196,7 +196,7 @@ class Hammer(KeyItem):
         super().__init__(gc_input)
 
     def item_use(self, details):
-        self.gc_input.position_manager.remove_feature_from_map(details["adjacent_tile_filling"], details["room"])
+        self.gc_input.position_manager.despawn_feature(details["adjacent_tile_filling"], details["room"])
 
     def use_requirements_met(self, details):
         result = False
@@ -236,7 +236,7 @@ class Axe(KeyItem):
         super().__init__(gc_input)
 
     def item_use(self, details):
-        self.gc_input.position_manager.remove_feature_from_map(details["adjacent_tile_filling"], details["room"])
+        self.gc_input.position_manager.despawn_feature(details["adjacent_tile_filling"], details["room"])
 
     def use_requirements_met(self, details):
         result = False
