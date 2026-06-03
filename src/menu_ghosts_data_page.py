@@ -179,7 +179,7 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
     def __init__(self, gc_input):
         super().__init__(gc_input)
         self.menu_header = None
-        self.menu_item_list = ["Cheese", "Hat", "Rock"]
+        self.menu_item_list = ["Cheese", "Spoon", "Match"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
@@ -187,7 +187,13 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
-        self.gc_input.game_state.ms.start_menu_selection(menu_selection)
+        if menu_selection == "Exit":
+            self.gc_input.game_state.ms.start_menu_selection(menu_selection)
+        else:
+            self.gc_input.inventory_manager.get_item(menu_selection, 1)
+            self.gc_input.game_state.ms.post_notice("You took the " + menu_selection)
+            self.menu_item_list.remove(menu_selection)
+            self.gc_input.game_state.ms.start_menu_selection(menu_selection)
 
 
 class InventoryMenuGhost(MenuGhost):
@@ -590,6 +596,7 @@ class OutfitMenuGhost(MenuGhost):
         else:
             self.is_first_outfit = False
 
+
 class GalleryMenuGhost(MenuGhost):
     BASE = "gallery_menu"
     NAME = BASE + "_ghost"
@@ -604,8 +611,10 @@ class GalleryMenuGhost(MenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.update_currently_displayed()
-        self.bird_list = {"Crow": ["Crow", "Crow"],
+        self.galleries = ["Tree", "Bird"]
+        # self.update_currently_displayed()
+        self.Tree_item_list = {"Arbutus": ["Arbutus", "Arbutus"]}
+        self.Bird_item_list = {"Crow": ["Crow", "Crow"],
                           "Robin": ["Robin", "Robin"],
                           "Tanager": ["Tanager", "Tanager"],
                           "Blackbird": ["Blackbird", "Blackbird"],
@@ -614,32 +623,29 @@ class GalleryMenuGhost(MenuGhost):
                           "Pigeon 2": ["Pigeon 2", "Pigeon 2"],
                           "Pigeon 3": ["Pigeon 3", "Pigeon 3"],
                           "Pigeon 4": ["Pigeon 4", "Pigeon 4"]}
-        self.selected_bird = "Crow"
-        self.is_last_bird = False
-        self.is_first_bird = False
-        self.bird_number = 0
+        for item in self.galleries:
+            setattr(self, "selected_" + item, "default")
+            setattr(self, "is_last_" + item, False)
+            setattr(self, "is_first_" + item, True)
+            setattr(self, item + "_number", 0)
+            setattr(self, item + "_number", 0)
+        self.update_menu_items_list(None)
 
-    def check_if_in_bird_list(self, bird_name):
+        self.current_gallery = "Bird"
+
+    def check_if_item_in_list(self, list_type, item_name):
         result = False
-        for bird in self.bird_list.keys():
-            if bird_name == bird:
+        for item in getattr(self, list_type + "_item_list").keys():
+            if item_name == item:
                 result = True
         return result
 
-    def add_to_bird_list(self, bird_name):
-        self.bird_list[bird_name] = [bird_name, bird_name]
-
-    def update_currently_displayed(self):
-        self.currently_displayed_items = []
-        if self.size <= self.max_displayed_items:
-            for item in range(self.size):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-        else:
-            for item in range(self.max_displayed_items):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+    def add_to_item_list(self, list_type, item_name):
+        getattr(self, list_type + "_item_list")[item_name] = [item_name, item_name]
 
     def update_menu_items_list(self, details):
-        self.make_main_bird(0)
+        for item in self.galleries:
+            self.make_main_item(item, 0)
 
     def get_pigeon_image(self, pigeon_name):
         image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/special_spritesheets/Pigeon_special_spritesheet.png", 32, 48)
@@ -653,6 +659,7 @@ class GalleryMenuGhost(MenuGhost):
         if pigeon_name == "Pigeon 4":
             image_choice = image.get_image(3, 0)
         return image_choice
+
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_print().copy()
         cursor_at = self.cursor_at
@@ -662,61 +669,70 @@ class GalleryMenuGhost(MenuGhost):
         for item in range(len(source)):
             text_print_list.append(source[item])
 
-        bird_sprite_code = self.selected_bird
+        sprite_code = getattr(self, "selected_" + self.current_gallery)
 
-        is_first_bird = self.is_first_bird
-        is_last_bird = self.is_last_bird
+        is_first_item = getattr(self, "is_first_" + self.current_gallery)
+        is_last_item = getattr(self, "is_last_" + self.current_gallery)
 
-        image_choice = None
-        if self.selected_bird in ["Pigeon 1", "Pigeon 2", "Pigeon 3", "Pigeon 4"]:
-            image_choice = self.get_pigeon_image(self.selected_bird)
+        if getattr(self, "selected_" + self.current_gallery) in ["Pigeon 1", "Pigeon 2", "Pigeon 3", "Pigeon 4"]:
+            image_choice = self.get_pigeon_image(getattr(self, "selected_" + self.current_gallery))
         else:
-            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + bird_sprite_code + "_spritesheet.png",  32, 48)
+            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + sprite_code + "_spritesheet.png", 32, 48)
             image_choice = image.get_image(0, 0)
 
-        menu_specific = {"bird_name": self.bird_list[self.selected_bird][1],
-                         "is_first_bird": is_first_bird,
-                         "is_last_bird": is_last_bird,
-                         "bird_image": image_choice}
+        menu_specific = {"item_name": getattr(self, self.current_gallery + "_item_list")[getattr(self, "selected_" + self.current_gallery)][1],
+                         "is_first_item": is_first_item,
+                         "is_last_item": is_last_item,
+                         "item_image": image_choice}
 
         menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
-        self.gc_input.game_state.ms.exit_all_menus()
-
+        details = {"image": "Crow"}
+        self.gc_input.game_state.ms.set_menu(PictureMenuGhost.BASE, details)
 
     def cursor_left(self):
-        length = len(self.bird_list)
-        if 0 < self.bird_number:
-            new_number = self.bird_number - 1
-            self.make_main_bird(new_number)
-        else:
-            pass
+        getattr(self, self.current_gallery + "_number")
+        if 0 < getattr(self, self.current_gallery + "_number"):
+            new_number = getattr(self, self.current_gallery + "_number") - 1
+            self.make_main_item(self.current_gallery, new_number)
 
     def cursor_right(self):
-        length = len(self.bird_list)
-        if (length - 1) > self.bird_number:
-            new_number = self.bird_number + 1
-            self.make_main_bird(new_number)
+        length = len(getattr(self, self.current_gallery + "_item_list"))
+        if (length - 1) > getattr(self, self.current_gallery + "_number"):
+            new_number = getattr(self, self.current_gallery + "_number") + 1
+            self.make_main_item(self.current_gallery, new_number)
+
+    def cursor_up(self):
+        current_number = self.galleries.index(self.current_gallery)
+        if current_number > 0:
+            self.current_gallery = self.galleries[current_number-1]
         else:
             pass
 
-    def make_main_bird(self, number):
-        self.bird_number = number
-        bird_keys = self.bird_list.keys()
-        sorted_keys = sorted(bird_keys)
-        self.selected_bird = sorted_keys[number]
+    def cursor_down(self):
+        current_number = self.galleries.index(self.current_gallery)
+        if current_number < len(self.galleries)-1:
+            self.current_gallery = self.galleries[current_number+1]
+        else:
+            pass
+
+    def make_main_item(self, list_type, number):
+        setattr(self, list_type + "_number", number)
+        list_keys = getattr(self, list_type + "_item_list").keys()
+        sorted_keys = sorted(list_keys)
+        setattr(self, "selected_" + list_type, sorted_keys[number])
 
         length = len(sorted_keys)
         if number == (length - 1):
-            self.is_last_bird = True
+            setattr(self, "is_last_" + list_type, True)
         else:
-            self.is_last_bird = False
+            setattr(self, "is_last_" + list_type, False)
         if number == 0:
-            self.is_first_bird = True
+            setattr(self, "is_first_" + list_type, True)
         else:
-            self.is_first_bird = False
+            setattr(self, "is_first_" + list_type, False)
 
 
 class MapMenuGhost(MenuGhost):
@@ -753,6 +769,41 @@ class MapMenuGhost(MenuGhost):
     def do_option(self):
         self.gc_input.game_state.ms.exit_all_menus()
 
+
+class PictureMenuGhost(MenuGhost):
+    BASE = "picture_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.image_name = "Tanager"
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+
+    def update_menu_items_list(self, details):
+        self.image_name = details["image"]
+
+    def generate_menu_information_package(self):
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_print_list = []
+
+        image = Spritesheet("picture_spritesheet", "assets/spritesheets/irl_images/" + self.image_name + "_image.png",  256, 160)
+        image_choice = image.get_image(0, 0)
+
+        menu_specific = {"image": image_choice}
+
+        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.gc_input.game_state.ms.exit_all_menus()
 
 
 class ChatMenuGhost(MenuGhost):
@@ -974,6 +1025,7 @@ class KeyUseMenuGhost(MenuGhost):
 
         elif menu_selection == "Exit":
             self.gc_input.game_state.ms.exit_all_menus()
+
 
 class YesNoMenuGhost(MenuGhost):
     BASE = "yes_no_menu"

@@ -95,7 +95,7 @@ class Game(Cheese):
 
 
 class Match(Cheese):
-    NAME = "Rice"
+    NAME = "Match"
 
     def __init__(self, gc_input):
         super().__init__(gc_input)

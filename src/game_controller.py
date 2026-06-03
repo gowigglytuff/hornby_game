@@ -5,7 +5,7 @@ import random
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, KeyUseMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, KeyUseMenuGhost, PictureMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView
@@ -439,9 +439,10 @@ class GameController(object):
             feature_type = self.game_state.type_translator[feature_dict["type"]]
             feature_subtype = self.game_state.sub_type_translator[feature_dict["subtype"]]
             unique_name = feature_dict["name"] + "_" + str(GameSettings.get_unique_ID())
+            print(unique_name)
             feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_dict["name"], self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
                                                               self.game_state.direction_translations[feature_dict["direction"]], feature_type, int(feature_dict["base_size_x"]),
-                                                              int(feature_dict["base_size_y"]), unique_name, str(feature_dict["phrase"]), feature_subtype, int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"])
+                                                              int(feature_dict["base_size_y"]), unique_name, str(feature_dict["phrase"]), feature_subtype, int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], feature_dict["function"])
             if feature_subtype == Types.DECO:
                 self.game_state.add_deco_ghost(unique_name, feature_ghost_object)
             else:
@@ -530,7 +531,8 @@ class InventoryManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
 
-    def get_item(self, item, quantity):
+    def get_item(self, item_name, quantity):
+        item = self.gc_input.game_data.item_data_list[item_name]
         current_inventory = self.gc_input.game_state.ms.get_menu_items_list("supplies_inventory_menu")
         if item.NAME in current_inventory:
             current_inventory[item.NAME]["quantity"] += quantity
@@ -659,7 +661,7 @@ class MenuManager(object):
         self.gc_input = gc_input  # type: GameController
         self.menu_load_list = [SpecialMenuGhost, StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
                                UseMenuGhost, KeyUseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost]
+                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost]
 
     def activate_menu(self):
         pass
