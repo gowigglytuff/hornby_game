@@ -240,15 +240,16 @@ class Axe(KeyItem):
 
     def use_requirements_met(self, details):
         result = False
-        if details["filling_type"] == "Tree":
+        if details["filling_type"] in ["Tree", "Pine", "Arbutus", "Oak"]:
             result = True
         return result
 
     def get_success_message(self, details):
-        return "You used the Axe"
+        return "Used Axe to cut down " + details["filling_type"]
 
     def get_failure_message(self, details):
         message = None
+        print(details["filling_type"])
         if details["filling_type"] == Types.NPC:
             message = "That's a disgusting idea."
         else:

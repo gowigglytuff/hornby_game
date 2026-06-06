@@ -30,9 +30,9 @@ def new_game_procedures(gc, gs):
     tree_coords = [(24,10), (22,7), (20,5), (17,5), (15,4), (16,2), (20,2), (24,2), (28,10), (31,10), (33,8), (32,5), (36,3), (38,10), (35,13), (35,16), (40,14), (43,11), (45,8), (47,5), (49,3), (49,7), (49,11), (49,13), (49,14),(46,14),(39,18), (38,18)]
     for tree_coord in tree_coords:
         feature_type = gs.type_translator["Prop"]
-        feature_subtype = gs.sub_type_translator["Prop"]
-        unique_name = "Tree" + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = gs.ghost_classes["Prop"]("Tree", gs, "Marsh", tree_coord[0], tree_coord[1], Direction.DOWN, feature_type, 1, 1, unique_name, "Hi", feature_subtype, 1, 1, "yes", "None")
+        feature_subtype = gs.sub_type_translator["Tree"]
+        unique_name = "Pine" + "_" + str(GameSettings.get_unique_ID())
+        feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, "Pine", unique_name, "None", gs, "Marsh", tree_coord[0], tree_coord[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
         gs.add_feature_ghost(unique_name, feature_ghost_object)
 
 
@@ -78,14 +78,14 @@ def install_all_data(gc, gs):
         for npc_item in npc_name_list:
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
             if related_ghost.feature_subtype == Types.BIRD:
-                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
             else:
-                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
         deco_name_list = gs.get_all_deco_unique_names()
         for deco_item in deco_name_list:
             related_ghost = gc.game_state.deco_ghost_list[deco_item]
-            gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.name, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+            gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()

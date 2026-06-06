@@ -7,9 +7,9 @@ from text_input import get_input
 
 
 class MenuInformation(object):
-    def __init__(self, header, text_print_list, cursor_image, cursor_at, menu_specific_details_dict):
+    def __init__(self, header, text_display_list, cursor_image, cursor_at, menu_specific_details_dict):
         self.header = header
-        self. text_print_list = text_print_list
+        self. text_display_list = text_display_list
         self.cursor_image = cursor_image
         self.cursor_at = cursor_at
         self.menu_specific_details_dict = menu_specific_details_dict
@@ -33,7 +33,7 @@ class MenuGhost(object):
         self.cursor_at = [0, 0]
         self.name = self.NAME
 
-    def get_menu_items_to_print(self):
+    def get_menu_items_to_display(self):
         return self.menu_item_list
 
     def choose_option(self):
@@ -47,26 +47,26 @@ class MenuGhost(object):
         menu_selection = self.get_current_menu_item()
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_print().copy()
+        source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         for item in range(len(source)):
-            text_print_list.append(source[item])
+            text_display_list.append(source[item])
 
         menu_information = {"header": self.menu_header,
-                            "text_print_list": text_print_list,
+                            "text_display_list": text_display_list,
                             "cursor_image": cursor_image,
                             "cursor_at": cursor_at}
 
         return menu_information
 
-    def generate_image_print(self):
-        image_print_list = {}
+    def generate_image_display(self):
+        image_display_list = {}
         for image in range(len(self.menu_images_list)):
-            image_print_list["Item_" + str(image)] = self.menu_images_list[image]
-        return image_print_list
+            image_display_list["Item_" + str(image)] = self.menu_images_list[image]
+        return image_display_list
 
     def update_currently_displayed(self):
         pass
@@ -118,7 +118,7 @@ class StatMenuGhost(MenuGhost):
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
-        self.menu_header = "STATISTICS"
+        self.menu_header = None
 
         self.menu_item_list = []
         self.menu_images_list = []
@@ -128,26 +128,9 @@ class StatMenuGhost(MenuGhost):
 
     def update_menu_items_list(self):
         stat_dict = self.gc_input.get_stat_items()
-        self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
-
-    def get_menu_items_to_print(self):
-        printable_item_list = []
-
-        for option in range(self.size):
-            item = self.menu_item_list[option][0]
-            available_spaces = 16
-            item_word_length = len(item)
-            quantity = self.menu_item_list[option][1]
-            quantity_word_length = len(quantity)
-            total_length = item_word_length + quantity_word_length
-            number_of_spaces = available_spaces - total_length
-            spaces_str = ""
-            for x in range(number_of_spaces):
-                spaces_str = spaces_str + " "
-            final_item = item + spaces_str + quantity
-            printable_item_list.append(final_item)
-
-        return printable_item_list
+        # self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
+        # self.menu_item_list = [("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
+        self.menu_item_list = ["Day:" + stat_dict["day"], "Time:" + stat_dict["time"], "Select: " + stat_dict["selected_tool"]]
 
     def get_current_menu_item(self):
         menu_selection = self.menu_item_list[self.cursor_at[1]]
@@ -258,19 +241,19 @@ class InventoryMenuGhost(MenuGhost):
         self.menu_item_list.append("Exit")
         self.update_currently_displayed()
 
-    def get_menu_items_to_print(self): #TODO: move most of this to menu avatar/display
+    def get_menu_items_to_display(self): #TODO: move most of this to menu avatar/display
         menu_length_calc = 0
         if self.size >= self.max_displayed_items:
             menu_length_calc = self.max_displayed_items
         elif self.size < self.max_displayed_items:
             menu_length_calc = self.size
 
-        printable_item_list = []
+        displayable_item_list = []
 
         for option in range(menu_length_calc):
             item = self.currently_displayed_items[option]
             if item == "Exit":
-                printable_item_list.append(self.currently_displayed_items[option])
+                displayable_item_list.append(self.currently_displayed_items[option])
 
             else:
                 available_spaces = 13
@@ -284,9 +267,9 @@ class InventoryMenuGhost(MenuGhost):
                 for x in range(number_of_spaces):
                     spaces_str = spaces_str + " "
                 final_item = item + spaces_str + "x" + quantity
-                printable_item_list.append(final_item)
+                displayable_item_list.append(final_item)
 
-        return printable_item_list
+        return displayable_item_list
 
     def update_currently_displayed(self):
         self.currently_displayed_items = []
@@ -309,7 +292,6 @@ class InventoryMenuGhost(MenuGhost):
         chosen_item_name = self.get_current_menu_item()
 
         if sub_menu_selection == "Use":
-            print("used the " + chosen_item_name)
             chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_item(chosen_item, 1)
             self.update_menu_items_list(None)
@@ -357,20 +339,20 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
         self.update_menu_items_list(None)
         self.update_currently_displayed()
 
-    def get_menu_items_to_print(self):
+    def get_menu_items_to_display(self):
         menu_length_calc = 0
         if self.size >= self.max_displayed_items:
             menu_length_calc = self.max_displayed_items
         elif self.size < self.max_displayed_items:
             menu_length_calc = self.size
 
-        printable_item_list = []
+        displayable_item_list = []
 
         for option in range(menu_length_calc):
             item = self.currently_displayed_items[option]
-            printable_item_list.append(self.currently_displayed_items[option])
+            displayable_item_list.append(self.currently_displayed_items[option])
 
-        return printable_item_list
+        return displayable_item_list
 
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
@@ -434,7 +416,6 @@ class ConversationOptionsMenuGhost(MenuGhost):
 
                 elif self.max_displayed_items >= self.size > self.cursor_at[1]:
                     self.cursor_at[1] += 1
-        # print(self.cursor_at[1])
 
     def cursor_up(self):
         if (self.cursor_at[1] + self.shifts) > 0:
@@ -462,19 +443,19 @@ class ConversationOptionsMenuGhost(MenuGhost):
         self.speaker_unique_name = details["speaker_unique_name"]
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_print().copy()
+        source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         for item in range(len(source)):
-            text_print_list.append(source[item])
+            text_display_list.append(source[item])
 
         menu_specific = {"friendship_level": self.friendship,
                          "face_image": self.face_image,
                          "speaker_name": self.talking_to}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -534,13 +515,13 @@ class OutfitMenuGhost(MenuGhost):
         self.make_main_outfit(0)
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_print().copy()
+        source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         for item in range(len(source)):
-            text_print_list.append(source[item])
+            text_display_list.append(source[item])
 
         outfit_sprite_code = self.selected_outfit
 
@@ -554,7 +535,7 @@ class OutfitMenuGhost(MenuGhost):
                          "is_last_outfit": is_last_outfit,
                          "outfit_image": image_choice}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -614,8 +595,7 @@ class GalleryMenuGhost(MenuGhost):
         self.galleries = ["Tree", "Bird"]
         # self.update_currently_displayed()
         self.Tree_item_list = {"Arbutus": ["Arbutus", "Arbutus"]}
-        self.Bird_item_list = {"Crow": ["Crow", "Crow"],
-                          "Robin": ["Robin", "Robin"],
+        self.Bird_item_list = {"Robin": ["Robin", "Robin"],
                           "Tanager": ["Tanager", "Tanager"],
                           "Blackbird": ["Blackbird", "Blackbird"],
                           "Mallard": ["Mallard", "Mallard"],
@@ -661,13 +641,13 @@ class GalleryMenuGhost(MenuGhost):
         return image_choice
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_print().copy()
+        source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         for item in range(len(source)):
-            text_print_list.append(source[item])
+            text_display_list.append(source[item])
 
         sprite_code = getattr(self, "selected_" + self.current_gallery)
 
@@ -685,7 +665,7 @@ class GalleryMenuGhost(MenuGhost):
                          "is_last_item": is_last_item,
                          "item_image": image_choice}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -756,14 +736,14 @@ class MapMenuGhost(MenuGhost):
     def generate_menu_information_package(self):
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         image = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Hornby_map" + "_spritesheet.png",  256, 160)
         image_choice = image.get_image(0, 0)
 
         menu_specific = {"image": image_choice}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -792,14 +772,14 @@ class PictureMenuGhost(MenuGhost):
     def generate_menu_information_package(self):
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         image = Spritesheet("picture_spritesheet", "assets/spritesheets/irl_images/" + self.image_name + "_image.png",  256, 160)
         image_choice = image.get_image(0, 0)
 
         menu_specific = {"image": image_choice}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -846,19 +826,19 @@ class ChatMenuGhost(MenuGhost):
         self.menu_item_list = details["phrase"]
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_print().copy()
+        source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
         cursor_image = self.cursor
-        text_print_list = []
+        text_display_list = []
 
         for item in range(len(source)):
-            text_print_list.append(source[item])
+            text_display_list.append(source[item])
 
         menu_specific = {"friendship_level": self.friendship,
                          "face_image": self.face_image,
                          "speaker_name": self.talking_to}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -913,9 +893,9 @@ class GameActionDialogueMenuGhost(MenuGhost):
             del self.menu_item_list[0]
         self.menu_item_list.append(phrase)
 
-    def generate_image_print(self):
-        image_print_list = []
-        return image_print_list
+    def generate_image_display(self):
+        image_display_list = []
+        return image_display_list
 
     def update_menu_items_list(self):
         pass
@@ -969,7 +949,6 @@ class UseMenuGhost(MenuGhost):
         chosen_item_name = self.get_current_menu_item()
 
         if menu_selection == "Use":
-            print("used the " + chosen_item_name)
             chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_item(chosen_item, 1)
             self.update_menu_items_list(None)
@@ -1011,7 +990,6 @@ class KeyUseMenuGhost(MenuGhost):
         chosen_item_name = self.get_current_menu_item()
 
         if menu_selection == "Use":
-            print("used the " + chosen_item_name)
             chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_item(chosen_item, 1)
             self.update_menu_items_list(None)
@@ -1075,15 +1053,15 @@ class QuizMenuGhost(MenuGhost):
         self.currently_displayed_items.append(self.menu_item_list)
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_print().copy()
-        text_print_list = []
+        source = self.get_menu_items_to_display().copy()
+        text_display_list = []
 
         for item in range(len(source)):
-            text_print_list.append(source[item])
+            text_display_list.append(source[item])
 
         menu_specific = {"image": self.image}
 
-        menu_information = MenuInformation(self.menu_header, text_print_list, " ", [0, 0], menu_specific)
+        menu_information = MenuInformation(self.menu_header, text_display_list, " ", [0, 0], menu_specific)
 
         return menu_information
 

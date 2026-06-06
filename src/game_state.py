@@ -20,12 +20,12 @@ class GameState(object):
         self.gd = game_data  # type: GameData
         self.ms = MenuState(self)
         self.cc = ConditionChecker(self) # type:ConditionChecker
-        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost, "Bird": BirdGhost}
+        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost, "Bird": BirdGhost, "Tree": PropGhost}
         self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE, "Basket": Types.BASKET}
-        self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD, "NPC": Types.NPC, "Prop": Types.PROP, "House": Types.HOUSE, "Deco": Types.DECO}
+        self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD, "Tree": Types.TREE, "NPC": Types.NPC, "Prop": Types.PROP, "House": Types.HOUSE, "Deco": Types.DECO}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
-        self.selected_tool = "Hammer"
+        self.selected_tool = "Axe"
         self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
@@ -189,7 +189,8 @@ class MenuState(object):
         self.gs = gs_input
         self.gc_input = self.gs.gc  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
+        self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE]
+        # self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
         self.active_menu = []
         self.menu_stack = []
         self.visible_menus = []
@@ -246,7 +247,6 @@ class MenuState(object):
             selected_menu.update_menu_items_list(details)
 
         elif menu_type == Types.SUB:
-            print("set it boss")
             selected_menu.set_master_menu(details["master_menu"])
             self.gs.gv.update_sub_menu_display_details(menu_name, details["master_menu"])
 

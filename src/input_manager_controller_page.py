@@ -176,7 +176,7 @@ class InGameKeyboardManager(KeyboardManager):
     def key_return_pressed(self):
         self.gc_input.clear_key_down_cue()
         self.gc_input.player_interact()
-        print("player location:", self.gc_input.game_state.player_ghost.x, self.gc_input.game_state.player_ghost.y)
+        print(self.gc_input.game_state.player_ghost.x, self.gc_input.game_state.player_ghost.y)
         # self.gc_input.attempt_move_object("John", Direction.DOWN)
 
     def key_space_pressed(self):
@@ -190,8 +190,6 @@ class InGameKeyboardManager(KeyboardManager):
         pass
 
     def key_lshift_pressed(self):
-        # go = self.gc_input.game_state.cc.check_if_word_in_posted_notice("CowboyBig")
-        # print(go)
         # self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
         # player = self.gc_input.game_view.get_player_avatar()
         # player.spritesheet = self.gc_input.game_view.outfit_manager.lab

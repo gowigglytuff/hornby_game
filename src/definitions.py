@@ -28,6 +28,7 @@ class GameSettings(object):
     TILESET_IMAGE4 = "assets/tile_set/16x16tileset_frame4.png"
     MENU_STYLE = "assets/spritesheets/menu_spritesheets/menu_structure_gray.png"
     TILESET_SIZE = 40
+    # RESOLUTION = (375, 500)
     RESOLUTION = (312*4, 312*3)
     MENUSEGMENTSIZE = 5
     MENUEDGE = 50
@@ -53,6 +54,7 @@ class Types(Enum):
     OVERWORLD = "Overworld"
     BASKET = "Basket"
     BIRD = "Bird"
+    TREE = "Tree"
     INDANIM = "independent_animation"
 
 class Names(Enum):

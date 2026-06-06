@@ -6,7 +6,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
@@ -55,7 +55,8 @@ class GameView(object):
                                   "outfit_menu": OutfitMenuAvatar,
                                   "map_menu": MapMenuAvatar,
                                   "picture_menu": PictureMenuAvatar,
-                                  "gallery_menu": GalleryMenuAvatar}
+                                  "gallery_menu": GalleryMenuAvatar,
+                                  "stat_menu": StatMenuAvatar}
 
     def tick(self):
         self.clock.tick(self.FPS)
@@ -175,19 +176,16 @@ class GameView(object):
 
         self.screen.blit(full_menu, (x, y))
 
-    def compile_special_menu(self, text_print_list, image_print_list, overlay):
-        # print(image_print_list)
+    def compile_special_menu(self, text_display_list, image_display_list, overlay):
         final_image = pygame.Surface((overlay.get_width(), overlay.get_height()))
         final_image.blit(overlay, [0, 0])
-        # print("using compile")
-        for item in text_print_list:
-            # print(item.text, item.x, item.y)
+        for item in text_display_list:
             my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
             item_text = my_font.render(item.text, True, (0, 0, 0))
             final_image.blit(item_text, [item.x, item.y])
 
-        if image_print_list:
-            for item in image_print_list:
+        if image_display_list:
+            for item in image_display_list:
                 image = item.image
                 final_image.blit(image, [item.x, item.y])
 

@@ -50,7 +50,7 @@ class PositionManager(object):
         # door test
         door_test = False
         target_tile = self.get_adjacent_tile(self.gc_input.game_state.player_ghost, direction, room)
-        door_test = self.check_for_door(room.name, target_tile.x, target_tile.y)
+        door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y)
 
         door_result = False
         if elevation_test and alt_test and door_test:
@@ -97,7 +97,7 @@ class PositionManager(object):
         # door test
         door_test = False
         target_tile = self.get_adjacent_tile(self.gc_input.game_state.player_ghost, direction, room)
-        door_test = self.check_for_door(room.name, target_tile.x, target_tile.y)
+        door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y)
 
         door_result = False
         if elevation_test and alt_test and door_test:
@@ -108,7 +108,7 @@ class PositionManager(object):
             move_result = True
 
         if feature_ghost.feature_type == "Player":
-            target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
+            target_tile_elevation = self.get_tile_elevation(target_room_object.room_name, target_x, target_y)
             self.gc_input.game_state.set_player_elevation(target_tile_elevation)
         else:
             pass
@@ -134,10 +134,10 @@ class PositionManager(object):
 
         #fill new cupe
         new_cube = target_room_object.access_cube(target_x, target_y)
-        new_cube.fill_cube(feature_ghost.unique_name, feature_ghost.name)
+        new_cube.fill_cube(feature_ghost.unique_name, feature_ghost.species, feature_ghost.feature_subtype)
 
         if feature_ghost.feature_type == "Player":
-            target_tile_elevation = self.get_tile_elevation(target_room_object.name, target_x, target_y)
+            target_tile_elevation = self.get_tile_elevation(target_room_object.room_name, target_x, target_y)
             self.gc_input.game_state.set_player_elevation(target_tile_elevation)
         else:
             pass
@@ -145,7 +145,7 @@ class PositionManager(object):
             self.gc_input.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
 
     def match_player_elevation_to_target(self, target_room, target_x, target_y):
-        new_tile_elevation = self.get_tile_elevation(target_room.name, target_x, target_y)
+        new_tile_elevation = self.get_tile_elevation(target_room.room_name, target_x, target_y)
         self.gc_input.game_state.set_player_elevation(new_tile_elevation)
     # endregion
 
@@ -166,7 +166,7 @@ class PositionManager(object):
         # elevation test
         elevation_test = True
         if edge_test:
-            current_elevation = self.get_tile_elevation(room_object.name, checker_ghost.x, checker_ghost.y)
+            current_elevation = self.get_tile_elevation(room_object.room_name, checker_ghost.x, checker_ghost.y)
             adjacent_elevation = self.get_adjacent_tile_elevation(checker_ghost, direction, room_object)
             if abs(int(adjacent_elevation) - current_elevation) > 1:
                 elevation_test = False
@@ -174,7 +174,7 @@ class PositionManager(object):
         # no door test
         no_door_test = True
         target_tile = self.get_adjacent_tile(checker_ghost, direction, room_object)
-        door_test = self.check_for_door(room_object.name, target_tile.x, target_tile.y)
+        door_test = self.check_for_door(room_object.room_name, target_tile.x, target_tile.y)
         if door_test:
             no_door_test = False
 
@@ -249,7 +249,7 @@ class PositionManager(object):
             target_tile_x = checker.x - 1
         elif direction == Direction.RIGHT:
             target_tile_x = checker.x + 1
-        elevation_result = self.get_tile_elevation(room.name, target_tile_x, target_tile_y)
+        elevation_result = self.get_tile_elevation(room.room_name, target_tile_x, target_tile_y)
         return elevation_result
 
     def get_tile_elevation(self, room_name, x, y):
@@ -334,19 +334,18 @@ class PositionManager(object):
                 item.reset()
 
     def despawn_all_room_features(self, room_object):
-        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.name)
+        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
-            if ghost.name == "Player":
+            if ghost.species == "Player":
                 pass
             else:
                 self.despawn_feature(ghost.unique_name, room_object)
 
     def spawn_all_initial_room_features(self, room_object):
-        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.name)
-        print("feature ghosts", feature_ghosts)
+        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
 
-            if ghost.name == "Player":
+            if ghost.species == "Player":
                 pass
             else:
                 if ghost.spawn_active:
@@ -415,7 +414,7 @@ class PositionManager(object):
             target_tile_x = checker.x - 1
         elif direction == Direction.RIGHT:
             target_tile_x = checker.x + 1
-        elevation_result = self.get_tile_elevation(room.name, target_tile_x, target_tile_y)
+        elevation_result = self.get_tile_elevation(room.room_name, target_tile_x, target_tile_y)
         return elevation_result
 
     def get_tile_elevation(self, room_name, x, y):
@@ -496,7 +495,7 @@ class PositionManager(object):
 
     def add_feature_to_grid(self, feature_ghost, selected_room):
         coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
-        selected_room.add_feature(feature_ghost.unique_name, feature_ghost.name, coordinates_list)
+        selected_room.add_feature(feature_ghost.unique_name, feature_ghost.species, feature_ghost.feature_subtype, coordinates_list)
 
     def remove_feature_from_grid(self, feature_ghost, selected_room):
         coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
@@ -506,7 +505,7 @@ class PositionManager(object):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_name]
         player = self.gc_input.game_state.get_player_ghost()
         player_coordinates = [[player.x, player.y]]
-        selected_room.add_feature("Player", "Player", player_coordinates)
+        selected_room.add_feature("Player", "Player", player.feature_subtype, player_coordinates)
 
     def clear_room_grid(self, room_to_clear):
         selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_clear]
@@ -527,7 +526,7 @@ class PositionManager(object):
 
 class Room(object):
     def __init__(self, room_name, x_size, y_size):
-        self.name = room_name
+        self.room_name = room_name
         self.x_size = x_size
         self.y_size = y_size
         self.left_edge_x = 1
@@ -551,7 +550,7 @@ class Room(object):
         for section in range(self.x_size+2):
             section_name = []
             for section2 in range(self.y_size+2):
-                section2_name = Cube(self.name, section+1, section2+1)
+                section2_name = Cube(self.room_name, section+1, section2+1)
                 section_name.append(section2_name)
             self.tiles_array.append(section_name)
 
@@ -580,7 +579,7 @@ class Room(object):
             x += 1
             for y in range(self.total_plots_y):
                 y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), Plot(self.name, x, y))
+                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), Plot(self.room_name, x, y))
 
     def add_room_plot(self, plot_name, plot_object):
         self.plot_list[plot_name] = plot_object
@@ -625,7 +624,7 @@ class Room(object):
     def check_cube_full(self, x, y):
         chosen_cube = self.access_cube(x, y)
         fill_status = False
-        if not chosen_cube.object_filling:
+        if not chosen_cube.filling_unique_name:
             fill_status = False
         else:
             fill_status = True
@@ -635,23 +634,23 @@ class Room(object):
         current_cube = self.access_cube(feature.x, feature.y)
         new_cube = self.access_adjacent_cube(feature, direction)
         current_cube.empty_cube()
-        new_cube.fill_cube(feature.name)
+        new_cube.fill_cube(feature.species)
 
     def teleport_feature(self, feature, new_x, new_y):
         current_cube = self.access_cube(feature.x, feature.y)
         new_cube = self.access_cube(new_x, new_y)
         current_cube.empty_cube()
-        new_cube.fill_cube(feature.name)
+        new_cube.fill_cube(feature.species)
 
     def remove_feature(self, coordinates_list):
         for coordinates in coordinates_list:
             feature_cube = self.access_cube(coordinates[0], coordinates[1])
             feature_cube.empty_cube()
 
-    def add_feature(self, feature_name, feature_type, coordinates_list):
+    def add_feature(self, feature_name, feature_type, feature_subtype, coordinates_list):
         for coordinates in coordinates_list:
             feature_cube = self.access_cube(coordinates[0], coordinates[1])
-            feature_cube.fill_cube(feature_name, feature_type)
+            feature_cube.fill_cube(feature_name, feature_type, feature_subtype)
 
     # endregion
 
@@ -663,7 +662,7 @@ class Room(object):
         return [plots_x, plots_y, plot_size_x, plot_size_y]
 
     def get_plot(self, plot_x, plot_y):
-        chosen_plot = self.plot_list[self.name + "_" + str(plot_x) + "_" + str(plot_y)]
+        chosen_plot = self.plot_list[self.room_name + "_" + str(plot_x) + "_" + str(plot_y)]
         return chosen_plot
 
 
@@ -675,20 +674,23 @@ class Cube(object):
 
         self.name = self.room_name + "_" + "tile" + str(x) + "_" + str(y)
 
-        self.object_filling = None
+        self.filling_unique_name = None
         self.filling_type = None
+        self.filling_subtype = None
 
     def give_coordinates(self):
         coords = [self.x, self.y]
         return coords
 
-    def fill_cube(self, object_unique_name, object_type):
-        self.object_filling = object_unique_name
+    def fill_cube(self, filling_unique_name, object_type, object_subtype):
+        self.filling_unique_name = filling_unique_name
         self.filling_type = object_type
+        self.filling_subtype = object_subtype
 
     def empty_cube(self):
-        self.object_filling = None
+        self.filling_unique_name = None
         self.filling_type = None
+        self.filling_subtype = None
 
 
 class Door(object):
@@ -707,7 +709,7 @@ class Plot(object):
         self.plot_x = plot_x
         self.plot_y = plot_y
         self.room = room
-        self.name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
+        self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
         self.background_csv_file = "assets/room_csv/background_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
         self.terrain_csv_file = "assets/room_csv/terrain_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
@@ -716,7 +718,7 @@ class Plot(object):
         self.make_elevation_map()
 
     def make_elevation_map(self):
-        self.elevation_map = ElevationMap(self.name, self.elevation_csv_file)
+        self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
 
     def get_elevation(self, x, y):
         elevation = self.elevation_map.get_elevation(x, y)
@@ -744,13 +746,13 @@ class Ringside(Room):
             x += 1
             for y in range(self.total_plots_y):
                 y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), RingsidePlot(self.name, x, y))
+                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), RingsidePlot(self.room_name, x, y))
 
 class ConsolidatedPlot(Plot):
     def __init__(self, room, plot_x, plot_y):
         super().__init__(room, plot_x, plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv/" + self.name + "_Background.csv"
-        self.elevation_csv_file = "assets/room_csv/elevation_csv/" + self.name + "_Elevation.csv"
+        self.background_csv_file = "assets/room_csv/background_csv/" + self.plot_name + "_Background.csv"
+        self.elevation_csv_file = "assets/room_csv/elevation_csv/" + self.plot_name + "_Elevation.csv"
         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
         self.make_elevation_map()
 
@@ -767,4 +769,4 @@ class Consolidated(Room):
             x += 1
             for y in range(self.total_plots_y):
                 y += 1
-                self.add_room_plot(self.name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.name, x, y))
+                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.room_name, x, y))

@@ -1,1 +1,1 @@
-﻿type,Deco,name,Weed,room,Staging_Area,x,4,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,phrase,How are you?,subtype,Deco,spawn_active,yes,function,None
+﻿type,Deco,subtype,Deco,species,Weed,function,None,room,Staging_Area,x,4,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?

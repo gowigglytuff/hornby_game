@@ -12,7 +12,6 @@ def get_input():
 
     # Return the input
     if user_input:
-        # print(f"User entered: {user_input}")
         return user_input
     else:
         print("User cancelled or entered nothing.")

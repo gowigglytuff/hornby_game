@@ -2,11 +2,11 @@ import pygame
 
 
 class Spritesheet(object):
-    def __init__(self, name, filename, width, height, max_img_num=None):
+    def __init__(self, spritesheet_name, filename, width, height, max_img_num=None):
         self.sheet = pygame.image.load(filename).convert_alpha()
         self.width = width
         self.height = height
-        self.name = name
+        self.spritesheet_name = spritesheet_name
 
         if max_img_num is not None:
             self.max_img_num = max_img_num

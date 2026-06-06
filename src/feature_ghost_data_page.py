@@ -18,7 +18,7 @@ class PlayerGhost(object):
         self.base_size_x = 1
         self.base_size_y = 1
         self.unique_name = "Player"
-        self.name = "Player"
+        self.species = "Player"
         self.cur_img = (0, 0)
         self.state = "idle"
         self.facing = Direction.DOWN
@@ -38,24 +38,22 @@ class FeatureGhost(object):
     '''
     :type gs_input: GameState
     '''
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        self.gs_input = gs_input # type: GameState
-        self.feature_type = feature_type
-        self.feature_subtype = feature_subtype
-        self.name = name
-        self.function = function
-        self.unique_name = unique_name
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active):
+        self.gs_input = gs_input  # type: GameState
+        self.feature_type = feature_type  # example: "Prop"
+        self.feature_subtype = feature_subtype  # example: "Tree"
+        self.species = species  # example: "Arbutus"
+        self.unique_name = unique_name  # example "Arbutus_102"
+        self.function = function  # example: "Basket"
         self.state = "idle"
         self.spawn_x = spawn_x
         self.spawn_y = spawn_y
         self.x = spawn_x
         self.y = spawn_y
         if spawn_active == "yes":
-            # print("yes", self.unique_name)
             self.active = False
             self.spawn_active = True
         else:
-            # print("no", self.unique_name)
             self.active = False
             self.spawn_active = False
         self.figure_size_x = figure_size_x
@@ -88,15 +86,15 @@ class FeatureGhost(object):
 
 
 class NpcGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.phrase = phrase
         self.feature_type = Types.NPC
 
 
 class BirdGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.phrase = phrase
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
@@ -110,15 +108,15 @@ class BirdGhost(FeatureGhost):
 
     def check_if_calm(self):
         is_calm = False
-        if self.name == "Blackbird":
+        if self.species == "Blackbird":
             tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Clock")
             if tree_check:
                 is_calm = True
-        elif self.name == "Robin":
+        elif self.species == "Robin":
             time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
             if time_check:
                 is_calm = True
-        elif self.name == "Crow":
+        elif self.species == "Crow":
                 is_calm = True
         return is_calm
 
@@ -152,10 +150,8 @@ class BirdGhost(FeatureGhost):
         for x in range(total_x_range):
             for y in range(total_y_range):
                 coords_list[left_extreme + x, up_extreme + y] = [self.unique_name, trigger_name]
-                tracker +=1
-        print(self.unique_name, tracker)
+                tracker += 1
 
-        print(self.unique_name, coords_list)
         self.trigger_list = coords_list
         return coords_list
 
@@ -167,8 +163,8 @@ class BirdGhost(FeatureGhost):
 
 
 class PigeonGhost(BirdGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.phrase = phrase
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
@@ -182,21 +178,21 @@ class PigeonGhost(BirdGhost):
 
 
 class PropGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.feature_type = Types.PROP
 
     def get_interacted_with(self):
         if self.function == "Basket":
-            self.gs_input.ms.post_notice("You looked in the " + self.name)
+            self.gs_input.ms.post_notice("You looked in the " + self.species)
             self.gs_input.ms.set_menu(AcquireMenuGhost.BASE, None)
         else:
             pass
 
 
 class BasketGhost(PropGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase)
         self.feature_type = Types.PROP
 
     def get_interacted_with(self):
@@ -204,14 +200,14 @@ class BasketGhost(PropGhost):
 
 
 class HouseGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.feature_type = Types.HOUSE
 
 
 class DecoGhost(FeatureGhost):
-    def __init__(self, name, gs_input, room, spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, phrase, feature_subtype, figure_size_x, figure_size_y, spawn_active, function):
-        super().__init__(name, gs_input, room,spawn_x, spawn_y, direction, feature_type, base_size_x, base_size_y, unique_name, feature_subtype, figure_size_x, figure_size_y, spawn_active, function)
+    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+        super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.phrase = phrase
         self.feature_type = Types.DECO
 

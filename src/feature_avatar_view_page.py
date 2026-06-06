@@ -7,7 +7,7 @@ from definitions import Direction, GameSettings, Types, Mundane
 
 class PlayerAvatar(object):
     def __init__(self, image_x, image_y):
-        self.name = "Player"
+        self.species = "Player"
         self.feature_type = "Player"
         self.drawing_priority = 1
         self.character_frame_x = 32
@@ -56,8 +56,8 @@ class PlayerAvatar(object):
 
 
 class FeatureAvatar(object):
-    def __init__(self, name, image_x, image_y, unique_name, base_size_x, base_size_y, spawn_facing):
-        self.name = name
+    def __init__(self, species, image_x, image_y, unique_name, base_size_x, base_size_y, spawn_facing):
+        self.species = species
         self.spawn_facing = spawn_facing
         self.unique_name = unique_name
         self.drawing_priority = 1
@@ -106,7 +106,7 @@ class FeatureAvatar(object):
         self.current_animation = None
 
     def run_setup(self, base_size_x, base_size_y):
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         # self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4 + GameSettings.TILESIZE*1/4
         self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
@@ -122,8 +122,8 @@ class FeatureAvatar(object):
 
 
 class TreeAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.NPC
         self.character_frame_x = 32
         self.character_frame_y = 48
@@ -131,8 +131,8 @@ class TreeAvatar(FeatureAvatar):
 
 
 class PropAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.PROP
         self.character_frame_x = 32 * base_size_x
         self.character_frame_y = 32 * base_size_y + 16
@@ -140,8 +140,8 @@ class PropAvatar(FeatureAvatar):
 
 
 class HouseAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.PROP
         self.character_frame_x = 32 * base_size_x
         self.character_frame_y = 32 * base_size_y + 16
@@ -149,8 +149,8 @@ class HouseAvatar(FeatureAvatar):
 
 
 class NPCAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.NPC
         self.character_frame_x = 32
         self.character_frame_y = 48
@@ -179,8 +179,8 @@ class NPCAvatar(FeatureAvatar):
 
 
 class BirdAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.NPC
         self.character_frame_x = 32
         self.character_frame_y = 48
@@ -219,25 +219,25 @@ class BirdAvatar(FeatureAvatar):
 
 
 class OldgodAvatar(FeatureAvatar):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.NPC
         self.character_frame_x = 96
         self.character_frame_y = 108
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 
 class DecoAvatar(object):
-    def __init__(self, name, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         self.feature_type = Types.DECO
-        self.name = name
+        self.species = species
         self.unique_name = unique_id
         self.drawing_priority = 1
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/deco_spritesheets/Grass_spritesheet.png", 32, 48)
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/deco_spritesheets/Grass_spritesheet.png", 32, 48)
         self.current_image_x = 0
         self.current_image_y = 0
         self.image_x = image_x
@@ -253,7 +253,7 @@ class DecoAvatar(object):
         self.run_setup(base_size_x, base_size_y)
 
     def run_setup(self, base_size_x, base_size_y):
-        self.spritesheet = Spritesheet(self.name + "_base_spritesheet", "assets/spritesheets/deco_spritesheets/" + self.name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/deco_spritesheets/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4
         self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
