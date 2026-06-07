@@ -6,7 +6,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
@@ -26,10 +26,10 @@ class GameView(object):
         self.animation_manager = AnimationManager(self)
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
-        self.FPS = 72
+        self.FPS = 64
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
-        self.base_locator_y = ((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1
+        self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
         self.avatar_classes = {Types.BIRD: BirdAvatar, Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
 
         self.camera = [0, 0]
@@ -56,7 +56,8 @@ class GameView(object):
                                   "map_menu": MapMenuAvatar,
                                   "picture_menu": PictureMenuAvatar,
                                   "gallery_menu": GalleryMenuAvatar,
-                                  "stat_menu": StatMenuAvatar}
+                                  "stat_menu": StatMenuAvatar,
+                                  "game_action_dialogue_menu": GameActionDialogueMenuAvatar}
 
     def tick(self):
         self.clock.tick(self.FPS)
@@ -193,7 +194,9 @@ class GameView(object):
 
     def set_menu_display_coordinates(self, name):
         name = name + "_avatar"
+        print(name)
         menu_avatar = self.menu_avatar_data_list[name]
+        print(menu_avatar.menu_display_details)
         x_instruction = menu_avatar.menu_display_details["align_x"]
         y_instruction = menu_avatar.menu_display_details["align_y"]
         x = 0
@@ -210,8 +213,12 @@ class GameView(object):
 
         if y_instruction == "center":
             y = GameSettings.RESOLUTION[1] / 2 - menu_avatar.spritesheet_height / 2
+        elif y_instruction == "1/4":
+            y = GameSettings.RESOLUTION[1] / 4 - menu_avatar.spritesheet_height / 4
         elif y_instruction == "top":
             y = 0 + GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+        elif y_instruction == "3/4":
+            y = GameSettings.RESOLUTION[1] / 4 * 3 - menu_avatar.spritesheet_height / 4 * 3
         elif y_instruction == "bottom":
             y = GameSettings.RESOLUTION[1] - menu_avatar.spritesheet_height - GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
         else:

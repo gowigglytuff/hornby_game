@@ -1,9 +1,5 @@
-﻿type,NPC,subtype,Bird,species,Crow,function,None,room,Staging_Area,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,no,phrase,Caw
-type,NPC,subtype,NPC,species,Cowboy,function,None,room,Staging_Area,x,2,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,I heard the Robin stayed still when someone approached it when the minutes were between 10 and 20.
-type,NPC,subtype,NPC,species,Cowboy,function,None,room,Staging_Area,x,4,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Have you tried changing outfits?
-type,Prop,subtype,Tree,species,Pine,function,None,room,Staging_Area,x,6,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
+﻿type,Prop,subtype,Tree,species,Pine,function,None,room,Staging_Area,x,6,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Tree,species,Pine,function,None,room,Test_Room,x,12,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
-type,NPC,subtype,NPC,species,Cowboy,function,None,room,Test_Room,x,4,y,4,direction,Up,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,"Blackbirds will only like you if you have the word ""Clock"" in your Game Action Dialogue Box"
 type,Prop,subtype,Prop,species,Rock,function,None,room,Test_Room,x,3,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,It's beautiful today.
 type,Prop,subtype,Prop,species,Clock,function,None,room,My_House,x,2,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Tick Tock
 type,Prop,subtype,Prop,species,Chair,function,None,room,My_House,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Creek
@@ -30,14 +26,6 @@ type,Prop,subtype,Tree,species,Pine,function,None,room,Bird_Room,x,17,y,6,direct
 type,Prop,subtype,Tree,species,Pine,function,None,room,Bird_Room,x,15,y,8,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Tree,species,Pine,function,None,room,Bird_Room,x,14,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Tree,species,Pine,function,None,room,Bird_Room,x,16,y,3,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
-type,NPC,subtype,Bird,species,Robin,function,None,room,Bird_Room,x,12,y,10,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Crow,function,None,room,Bird_Room,x,10,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Tanager,function,None,room,Bird_Room,x,12,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Starling,function,None,room,Bird_Room,x,8,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Tanager,function,None,room,Bird_Room,x,10,y,17,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Blackbird,function,None,room,Bird_Room,x,17,y,8,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Mallard,function,None,room,Bird_Room,x,5,y,15,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
-type,NPC,subtype,Bird,species,Pigeon,function,None,room,Bird_Room,x,4,y,18,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
 type,House,subtype,House,species,House,function,None,room,Test_Room,x,4,y,17,direction,Down,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Prop,species,Brickwall,function,None,room,Bird_Room,x,15,y,18,direction,Down,base_size_x,3,base_size_y,1,figure_size_x,3,figure_size_y,2,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Tree,species,Arbutus,function,None,room,Marsh,x,17,y,16,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
@@ -47,5 +35,12 @@ type,Prop,subtype,Tree,species,Arbutus,function,None,room,Marsh,x,5,y,13,directi
 type,Prop,subtype,Tree,species,Oak,function,None,room,Marsh,x,8,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Prop,species,Garbagecan,function,Basket,room,Staging_Area,x,2,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Prop,species,Package,function,None,room,Staging_Area,x,3,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
-type,NPC,subtype,NPC,species,Jim,function,None,room,Marsh,x,24,y,24,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Have you tried changing outfits?
-type,NPC,subtype,NPC,species,Ranger_Jon,function,None,room,Marsh,x,32,y,20,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Have you tried changing outfits?
+type,NPC,subtype,Bird,species,Crow,function,None,room,Staging_Area,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,no,phrase,Caw
+type,NPC,subtype,Bird,species,Robin,function,None,room,Bird_Room,x,12,y,10,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Crow,function,None,room,Bird_Room,x,10,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Tanager,function,None,room,Bird_Room,x,12,y,6,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Starling,function,None,room,Bird_Room,x,8,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Tanager,function,None,room,Bird_Room,x,10,y,17,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Blackbird,function,None,room,Bird_Room,x,17,y,8,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Mallard,function,None,room,Bird_Room,x,5,y,15,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Pigeon,function,None,room,Bird_Room,x,4,y,18,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup

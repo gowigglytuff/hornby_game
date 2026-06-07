@@ -1,6 +1,8 @@
 import copy
+from random import choice
+
 from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, SpecialMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
@@ -335,7 +337,9 @@ class MenuState(object):
     def conversation_options_menu_selection(self, item_selected):
         menu_selection = item_selected
         current_menu = self.get_menu_ghost(ConversationOptionsMenuGhost.BASE)
-        selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).phrase
+        phrase_list = ["base_phrase", "good_gift_phrase", "bad_gift_phrase", "neutral_gift_phrase", "bird_hint_phrase"]
+        selected_phrase = getattr(self.gs.get_feature_ghost(current_menu.speaker_unique_name), choice(phrase_list))
+        # selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).base_phrase
 
         if menu_selection == "Talk":
             details = {"speaker_name": current_menu.talking_to,

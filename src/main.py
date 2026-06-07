@@ -23,9 +23,10 @@ def run_game_loop():
             if event.type in g.game_events.timer_list:
                 g.game_events.parse_input_event(event)
 
-        pygame.display.update()
-        g.game_view.tick()
+        pygame.display.flip()
         g.game_controller.update_view()
+        g.game_view.tick()
+
 
 
 if __name__ == "__main__":

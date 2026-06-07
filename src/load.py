@@ -25,6 +25,7 @@ def init_game(g):
 
 def new_game_procedures(gc, gs):
     gc.import_features_from_csv("assets/import_data/feature_import_dict.csv")
+    gc.import_npcs_from_csv("assets/import_data/NPC_import_dict.csv")
     gc.import_features_from_csv("assets/import_data/Deco_import.csv")
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
     tree_coords = [(24,10), (22,7), (20,5), (17,5), (15,4), (16,2), (20,2), (24,2), (28,10), (31,10), (33,8), (32,5), (36,3), (38,10), (35,13), (35,16), (40,14), (43,11), (45,8), (47,5), (49,3), (49,7), (49,11), (49,13), (49,14),(46,14),(39,18), (38,18)]
@@ -119,19 +120,18 @@ def install_all_data(gc, gs):
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
-            if menu.menu_type == Types.BASE or Types.STATIC:
-                if menu.BASE in gc.game_view.menu_avatar_names.keys():
-                    avatar_name = menu.BASE + "_avatar"
-                    items = menu.generate_menu_information_package()
-                    gs.gv.add_menu_avatar(avatar_name, gc.game_view.menu_avatar_names[menu.BASE](gc, avatar_name, items))
-                    gs.gv.set_menu_display_coordinates(menu.BASE)
-                else:
-                    avatar_name = menu.BASE + "_avatar"
-                    items = menu.generate_menu_information_package()
-                    gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
-                    gs.gv.set_menu_display_coordinates(menu.BASE)
+            if menu.BASE in gc.game_view.menu_avatar_names.keys():
+                avatar_name = menu.BASE + "_avatar"
+                items = menu.generate_menu_information_package()
+                gs.gv.add_menu_avatar(avatar_name, gc.game_view.menu_avatar_names[menu.BASE](gc, avatar_name, items))
+                gs.gv.set_menu_display_coordinates(menu.BASE)
+
             else:
-                pass
+                avatar_name = menu.BASE + "_avatar"
+                items = menu.generate_menu_information_package()
+                gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
+
+                gs.gv.set_menu_display_coordinates(menu.BASE)
 
     def install_outfits(gc, gs):
         pass

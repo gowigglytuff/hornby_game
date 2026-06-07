@@ -174,7 +174,7 @@ class NPCAvatar(FeatureAvatar):
     def get_face_image(self):
         face = self.spritesheet.get_image(0, 0)
         face = face.subsurface(4, 11, 24, 24)
-        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        face = pygame.transform.scale(face, [24 * 4, 24 * 4])
         return face
 
 

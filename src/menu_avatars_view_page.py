@@ -56,8 +56,8 @@ class MenuAvatar(object):
         self.set_menu_display_coordinates()
         self.menu_type = None
 
-        self.set_menu_width = self.menu_display_details["default_width"]
-        self.set_menu_height = self.menu_display_details["default_height"]
+        self.set_menu_width = None
+        self.set_menu_height = None
 
         self.spritesheet_width = 0
         self.spritesheet_height = 0
@@ -68,27 +68,20 @@ class MenuAvatar(object):
     def set_menu_display_coordinates(self):
         dictionary = {"start_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "acquire_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "stat_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "top", "coordinates": [0, 0]},
                          "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                          "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "quiz_menu_avatar": {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]},
-                         "key_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "conversation_options_menu_avatar": {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
-                         "chat_menu_avatar": {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]},
-                         "game_action_dialogue_menu_avatar": {"default_width": 70, "default_height": 23, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                         "use_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                         "key_use_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                         "yes_no_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                         "sub_menu_avatar": {"default_width": 20, "default_height": None, "align_x": "right", "align_y": "bottom", "coordinates": [0, 0]},
-                         "outfit_menu_avatar": {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]},
-                         "map_menu_avatar": {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]},
-                         "picture_menu_avatar": {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}}
+                         "key_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}}
 
         generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
+        skip_list = ["conversation_options_menu_avatar", "chat_menu_avatar", "outfit_menu_avatar", "map_menu_avatar", "picture_menu_avatar", "quiz_menu_avatar", "stat_menu_avatar", "game_action_dialogue_menu_avatar"]
+
         if self.name in dictionary.keys():
             self.menu_display_details = dictionary[self.name]
+        elif self.name in skip_list:
+            pass
         else:
+            print(self.name)
             self.menu_display_details = generic
 
     def get_longest_item(self, menu_items_list, menu_header=None):
@@ -105,14 +98,9 @@ class MenuAvatar(object):
         return longest_item
 
     def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information["text_display_list"]
-        header = menu_information["header"]
-        cursor_at = menu_information["cursor_at"]
-
-        # menu_items_list = menu_information.text_display_list # TODO: Fix this so that all the ghosts use this version
-        # header = menu_information.header
-        # cursor_at = menu_information.cursor_at
-
+        menu_items_list = menu_information.text_display_list
+        header = menu_information.header
+        cursor_at = menu_information.cursor_at
 
         font_size = GameSettings.FONT_SIZE
         segment_size = GameSettings.MENUSEGMENTSIZE
@@ -170,10 +158,11 @@ class MenuAvatar(object):
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
-        text_display_list = menu_info["text_display_list"]
-        header = menu_info["header"]
-        cursor_image = menu_info["cursor_image"]
-        cursor_at = menu_info["cursor_at"]
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+
 
         final_menu_text = []
 
@@ -208,66 +197,17 @@ class StatMenuAvatar(MenuAvatar):
 
     def __init__(self, gc_input, name, items):
         super().__init__(gc_input, name,  items)
-        self.menu_display_details = {}
-        self.gc_input = gc_input
-
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
-
-        self.x = 0
-        self.y = 0
-        self.offset_x = 15
-        self.offset_y = 15
-        self.cursor_offset_x = 5
-        self.header_spacing = 0
-        self.cursor_at = 0
-
-        self.y_space_size = 15
-
-        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
-        self.menu_spread_x = 0
-        self.name = name
-        self.set_menu_display_coordinates()
-        self.menu_type = None
-
-        self.set_menu_width = self.menu_display_details["default_width"]
-        self.set_menu_height = self.menu_display_details["default_height"]
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
+        self.menu_display_details = {"default_width": None, "default_height": None, "align_x": "center", "align_y": "top", "coordinates": [0, 0]}
+        self.set_menu_width = 70
+        self.set_menu_height = 8
         self.fill_out_menu_info(items)
-
-
-    def fill_out_menu_info(self, menu_information):
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-
-        menu_width = 70
-        menu_height = 8
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        self.spritesheet_width = menu_width * segment_size
-
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
-        text_display_list = menu_info["text_display_list"]
-        header = menu_info["header"]
-        cursor_image = menu_info["cursor_image"]
-        cursor_at = menu_info["cursor_at"]
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
 
         final_menu_text = []
 
@@ -286,69 +226,35 @@ class StatMenuAvatar(MenuAvatar):
         return None
 
 
+class GameActionDialogueMenuAvatar(MenuAvatar):
+    NAME = "game_action_dialogue_menu_avatar"
+
+    def __init__(self, gc_input, name, items):
+        super().__init__(gc_input, name,  items)
+        self.menu_display_details = {"default_width": None, "default_height": None, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]}
+        self.offset_y = 20
+        self.set_menu_width = 70
+        self.set_menu_height = 25
+        self.fill_out_menu_info(items)
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        return None
+
+
 class ConversationOptionsMenuAvatar(MenuAvatar):
     NAME = "conversation_options_menu_avatar"
 
     def __init__(self, gc_input, name,  items):
         super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
-
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
-
-        self.x = 0
-        self.y = 0
-        self.offset_x = 175
+        self.menu_display_details = {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
+        self.offset_x = 130
         self.offset_y = 20
+        self.image_offset_x = 10
+        self.image_offset_y = 10
         self.cursor_offset_x = self.offset_x - 10
-        self.header_spacing = 0
-        self.cursor_at = 0
-
-        self.y_space_size = 15
-
-        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
-        self.menu_spread_x = 0
-        self.name = name
-        self.menu_type = None
-
-        self.set_menu_width = None
-        self.set_menu_height = None
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
+        self.set_menu_width = 70
+        self.set_menu_height = 25
         self.fill_out_menu_info(items)
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 90
-        menu_height = 25
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -359,7 +265,6 @@ class ConversationOptionsMenuAvatar(MenuAvatar):
         friendship_level = menu_info.menu_specific_details_dict["friendship_level"]
 
         final_menu_text = []
-
 
         if cursor_image:
             cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
@@ -385,8 +290,8 @@ class ConversationOptionsMenuAvatar(MenuAvatar):
 
         final_menu_images = []
 
-        loc_x = 5
-        loc_y = 0
+        loc_x = self.image_offset_x
+        loc_y = self.image_offset_y
         image = ImageDisplay(face, loc_x, loc_y)
         final_menu_images.append(image)
 
@@ -398,65 +303,19 @@ class ChatMenuAvatar(MenuAvatar):
 
     def __init__(self, gc_input, name,  items):
         super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
 
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
+        self.menu_display_details = {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
 
-        self.x = 0
-        self.y = 0
-        self.offset_x = 175
+        self.offset_x = 130
         self.offset_y = 20
+        self.image_offset_x = 10
+        self.image_offset_y = 10
         self.cursor_offset_x = self.offset_x - 10
-        self.header_spacing = 0
-        self.cursor_at = 0
 
-        self.y_space_size = 15
+        self.set_menu_width = 70
+        self.set_menu_height = 25
 
-        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
-        self.menu_spread_x = 0
-        self.name = name
-        self.menu_type = None
-
-        self.set_menu_width = None
-        self.set_menu_height = None
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
         self.fill_out_menu_info(items)
-
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 90
-        menu_height = 25
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -493,8 +352,8 @@ class ChatMenuAvatar(MenuAvatar):
 
         final_menu_images = []
 
-        loc_x = 5
-        loc_y = 0
+        loc_x = self.image_offset_x
+        loc_y = self.image_offset_y
         image = ImageDisplay(face, loc_x, loc_y)
         final_menu_images.append(image)
 
@@ -506,57 +365,13 @@ class OutfitMenuAvatar(MenuAvatar):
 
     def __init__(self, gc_input, name,  items):
         super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
 
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
+        self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
-        self.x = 0
-        self.y = 0
-        self.offset_x = 0
-        self.offset_y = 0
-        self.name = name
-        self.menu_type = Types.BASE
+        self.set_menu_width = 30
+        self.set_menu_height = 20
 
-        self.set_menu_width = None
-        self.set_menu_height = None
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
         self.fill_out_menu_info(items)
-
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 30
-        menu_height = 20
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -566,13 +381,13 @@ class OutfitMenuAvatar(MenuAvatar):
         final_menu_text = []
 
         # outfit name
-        name_text = Mundane.center_text_x(self.overlay_body_x, self.offset_x, outfit_name)
-        final_menu_text.append(TextDisplay(name_text[0], self.offset_x + name_text[1], 75))
+        name_text = Mundane.center_text_x(self.overlay_body_x, 0, outfit_name)
+        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 75))
 
         # Header
         header_name = "OUTFITS"
-        header_text = Mundane.center_text_x(self.overlay_body_x, self.offset_x, header_name)
-        final_menu_text.append(TextDisplay(header_text[0], self.offset_x + header_text[1], 10))
+        header_text = Mundane.center_text_x(self.overlay_body_x, 0, header_name)
+        final_menu_text.append(TextDisplay(header_text[0], header_text[1], 10))
 
         if not menu_info.menu_specific_details_dict["is_first_outfit"]:
             # left arrow
@@ -591,7 +406,7 @@ class OutfitMenuAvatar(MenuAvatar):
         final_menu_images = []
         #
         loc_y = 15
-        image = ImageDisplay(chosen_outfit, Mundane.center_image_x(self.overlay_body_x, self.offset_x, chosen_outfit), loc_y)
+        image = ImageDisplay(chosen_outfit, Mundane.center_image_x(self.overlay_body_x, 0, chosen_outfit), loc_y)
         final_menu_images.append(image)
 
         return final_menu_images
@@ -602,56 +417,14 @@ class MapMenuAvatar(MenuAvatar):
 
     def __init__(self, gc_input, name,  items):
         super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
 
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
-
-        self.x = 0
-        self.y = 0
+        self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.offset_x = 10
         self.offset_y = 10
-        self.name = name
-        self.menu_type = Types.BASE
-
-        self.set_menu_width = None
-        self.set_menu_height = None
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
+        self.set_menu_width = 53
+        self.set_menu_height = 34
         self.fill_out_menu_info(items)
 
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 53
-        menu_height = 34
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         final_menu_text = []
@@ -674,56 +447,16 @@ class PictureMenuAvatar(MenuAvatar):
 
     def __init__(self, gc_input, name,  items):
         super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
 
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
+        self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
-        self.x = 0
-        self.y = 0
         self.offset_x = 10
         self.offset_y = 10
-        self.name = name
-        self.menu_type = Types.BASE
 
-        self.set_menu_width = None
-        self.set_menu_height = None
+        self.set_menu_width = 53
+        self.set_menu_height = 34
 
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
         self.fill_out_menu_info(items)
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 53
-        menu_height = 34
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         final_menu_text = []
@@ -746,56 +479,11 @@ class GalleryMenuAvatar(MenuAvatar):
 
     def __init__(self, gc_input, name,  items):
         super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
 
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
+        self.set_menu_width = 30
+        self.set_menu_height = 20
 
-        self.x = 0
-        self.y = 0
-        self.offset_x = 0
-        self.offset_y = 0
-        self.name = name
-        self.menu_type = Types.BASE
-
-        self.set_menu_width = None
-        self.set_menu_height = None
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
         self.fill_out_menu_info(items)
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 30
-        menu_height = 20
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -805,12 +493,12 @@ class GalleryMenuAvatar(MenuAvatar):
         final_menu_text = []
 
         # bird names
-        name_text = Mundane.center_text_x(self.overlay_body_x, self.offset_x, bird_name)
-        final_menu_text.append(TextDisplay(name_text[0], self.offset_x + name_text[1], 75))
+        name_text = Mundane.center_text_x(self.overlay_body_x, 0, bird_name)
+        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 75))
 
         # Header
-        header_text = Mundane.center_text_x(self.overlay_body_x, self.offset_x, "GALLERY")
-        final_menu_text.append(TextDisplay(header_text[0], self.offset_x + header_text[1], 10))
+        header_text = Mundane.center_text_x(self.overlay_body_x, 0, "GALLERY")
+        final_menu_text.append(TextDisplay(header_text[0], header_text[1], 10))
 
         if not menu_info.menu_specific_details_dict["is_first_item"]:
             # left arrow
@@ -829,7 +517,7 @@ class GalleryMenuAvatar(MenuAvatar):
         final_menu_images = []
 
         loc_y = 20
-        image = ImageDisplay(bird_image, Mundane.center_image_x(self.overlay_body_x, self.offset_x, bird_image), loc_y)
+        image = ImageDisplay(bird_image, Mundane.center_image_x(self.overlay_body_x, 0, bird_image), loc_y)
         final_menu_images.append(image)
 
         return final_menu_images
@@ -847,6 +535,8 @@ class QuizMenuAvatar(MenuAvatar):
         self.overlay_header_x = 0
         self.overlay_header_y = 0
 
+        self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+
         self.x = 0
         self.y = 0
         self.offset_x = 175
@@ -862,42 +552,14 @@ class QuizMenuAvatar(MenuAvatar):
         self.name = name
         self.menu_type = None
 
-        self.set_menu_width = None
-        self.set_menu_height = None
+        self.set_menu_width = 100
+        self.set_menu_height = 100
 
         self.spritesheet_width = 0
         self.spritesheet_height = 0
 
         self.overlay_image = None
         self.fill_out_menu_info(items)
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-
-        menu_width = 100
-        menu_height = 100
-        header_height = 0
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info

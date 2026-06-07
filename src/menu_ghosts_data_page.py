@@ -9,7 +9,7 @@ from text_input import get_input
 class MenuInformation(object):
     def __init__(self, header, text_display_list, cursor_image, cursor_at, menu_specific_details_dict):
         self.header = header
-        self. text_display_list = text_display_list
+        self.text_display_list = text_display_list
         self.cursor_image = cursor_image
         self.cursor_at = cursor_at
         self.menu_specific_details_dict = menu_specific_details_dict
@@ -55,11 +55,12 @@ class MenuGhost(object):
         for item in range(len(source)):
             text_display_list.append(source[item])
 
-        menu_information = {"header": self.menu_header,
-                            "text_display_list": text_display_list,
-                            "cursor_image": cursor_image,
-                            "cursor_at": cursor_at}
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": text_display_list,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
 
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def generate_image_display(self):
@@ -101,17 +102,6 @@ class MenuGhost(object):
         return len(self.menu_item_list)
 
 
-class SpecialMenuGhost(MenuGhost):
-    BASE = "special_menu"
-    NAME = BASE + "_ghost"
-
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
-
-    def update_menu_items_list(self):
-        pass
-
-
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
     NAME = BASE + "_ghost"
@@ -124,7 +114,7 @@ class StatMenuGhost(MenuGhost):
         self.menu_images_list = []
         self.cursor = None
         self.update_menu_items_list()
-        self.menu_type = Types.OVERWORLD
+        self.menu_type = Types.STATIC
 
     def update_menu_items_list(self):
         stat_dict = self.gc_input.get_stat_items()
@@ -845,9 +835,8 @@ class ChatMenuGhost(MenuGhost):
         self.set_speaking_queue()
 
     def set_current_phrase(self, phrases):
-        self.current_phrase = textwrap.wrap(phrases[0], width=25)
+        self.current_phrase = textwrap.wrap(phrases[0], width=20)
         self.set_speaking_queue()
-
 
     def set_speaking_queue(self):
         phrase_counter = 0
@@ -878,7 +867,7 @@ class GameActionDialogueMenuGhost(MenuGhost):
         self.menu_item_list = ["This is the game dialouge box!"]
         self.menu_images_list = []
         self.additional_information = []
-        self.menu_type = "static"
+        self.menu_type = Types.STATIC
 
         self.cursor = None
         self.cursor_at = [0, 0]
@@ -909,7 +898,7 @@ class SubMenuGhost(MenuGhost):
         super().__init__(gc_input)
         self.menu_item_list = ["Yes", "No"]
         self.master_menu = None
-        self.menu_type = "sub"
+        self.menu_type = Types.SUB
         self.menu_header = None
 
     def choose_option(self):

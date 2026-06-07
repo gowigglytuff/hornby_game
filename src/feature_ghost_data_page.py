@@ -86,10 +86,15 @@ class FeatureGhost(object):
 
 
 class NpcGhost(FeatureGhost):
-    def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
+    def __init__(self, feature_type, feature_subtype, species, unique_name, display_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, base_phrase, good_gift_phrase, bad_gift_phrase, neutral_gift_phrase, bird_hint_phrase):
         super().__init__(feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
-        self.phrase = phrase
         self.feature_type = Types.NPC
+        self.display_name = display_name
+        self.base_phrase = base_phrase
+        self.good_gift_phrase = good_gift_phrase
+        self.bad_gift_phrase = bad_gift_phrase
+        self.neutral_gift_phrase = neutral_gift_phrase
+        self.bird_hint_phrase = bird_hint_phrase
 
 
 class BirdGhost(FeatureGhost):

@@ -28,7 +28,8 @@ class GameSettings(object):
     TILESET_IMAGE4 = "assets/tile_set/16x16tileset_frame4.png"
     MENU_STYLE = "assets/spritesheets/menu_spritesheets/menu_structure_gray.png"
     TILESET_SIZE = 40
-    # RESOLUTION = (375, 500)
+    # RESOLUTION = (375, 600)
+    SCREEN_OFFSET_Y = 0
     RESOLUTION = (312*4, 312*3)
     MENUSEGMENTSIZE = 5
     MENUEDGE = 50
