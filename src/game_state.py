@@ -2,7 +2,7 @@ import copy
 from random import choice
 
 from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
@@ -230,6 +230,8 @@ class MenuState(object):
             for menu in self.visible_menus:
                 if (menu != menu_to_add) and (chosen_menu.menu_type == Types.BASE):
                     self.visible_menus.remove(menu)
+        else:
+            print(chosen_menu.BASE)
 
     def deactivate_menu(self, menu_to_deactivate):
         self.menu_stack.remove(menu_to_deactivate)
@@ -246,6 +248,10 @@ class MenuState(object):
         menu_type = selected_menu.menu_type
 
         if menu_type == Types.BASE:
+            selected_menu.update_menu_items_list(details)
+
+        elif menu_type == Types.SECONDARY:
+            selected_menu.set_master_menu(details["master_menu"])
             selected_menu.update_menu_items_list(details)
 
         elif menu_type == Types.SUB:
@@ -318,7 +324,7 @@ class MenuState(object):
             self.exit_menu(StartMenuGhost.BASE)
             self.set_menu(GalleryMenuGhost.BASE, None)
 
-        elif menu_selection == "Vibes":
+        elif menu_selection == "Records":
             pass
 
         elif menu_selection == "Outfits":
@@ -340,19 +346,20 @@ class MenuState(object):
         phrase_list = ["base_phrase", "good_gift_phrase", "bad_gift_phrase", "neutral_gift_phrase", "bird_hint_phrase"]
         selected_phrase = getattr(self.gs.get_feature_ghost(current_menu.speaker_unique_name), choice(phrase_list))
         # selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).base_phrase
+        details = {"speaker_name": current_menu.talking_to,
+                   "friendship_level": current_menu.friendship,
+                   "face_image": current_menu.face_image,
+                   "speaker_unique_name": current_menu.speaker_unique_name,
+                   "phrase": [selected_phrase]}
 
         if menu_selection == "Talk":
-            details = {"speaker_name": current_menu.talking_to,
-                        "friendship_level": current_menu.friendship,
-                        "face_image": current_menu.face_image,
-                        "speaker_unique_name": current_menu.speaker_unique_name,
-                        "phrase": [selected_phrase]}
-            self.exit_menu(ConversationOptionsMenuGhost.BASE)
-
             self.set_menu(ChatMenuGhost.BASE, details)
 
         elif menu_selection == "Give Gift":
-            pass
+            details["master_menu"] = current_menu.BASE
+            # self.exit_menu(ConversationOptionsMenuGhost.BASE)
+
+            self.set_menu(GiftGivingMenuGhost.BASE, details)
 
         elif menu_selection == "Exit":
             self.exit_all_menus()

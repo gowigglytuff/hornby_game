@@ -50,6 +50,7 @@ class Types(Enum):
     DEFAULT = "Default"
     HOUSE = "House"
     BASE = "Base"
+    SECONDARY = "Secondary"
     STATIC = "Static"
     SUB = "Sub"
     OVERWORLD = "Overworld"

@@ -312,6 +312,66 @@ class SuppliesInventoryMenuGhost(InventoryMenuGhost):
         self.update_currently_displayed()
 
 
+class GiftGivingMenuGhost(InventoryMenuGhost):
+    BASE = "gift_giving_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_item_list = []
+        self.menu_header = "<   ITEMS   >"
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.menu_type = Types.SECONDARY
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.update_menu_items_list(None)
+        self.update_currently_displayed()
+
+    def update_menu_items_list(self, details):
+        keys_list = []
+        current_inventory = self.gc_input.game_state.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
+        for item in current_inventory:
+            keys_list.append(item)
+        self.menu_item_list = keys_list
+        self.menu_item_list.append("Exit")
+        self.update_currently_displayed()
+
+    def cursor_left(self):
+        pass
+
+    def cursor_right(self):
+        pass
+
+    def set_master_menu(self, master_menu):
+        self.master_menu = master_menu
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc_input.game_state.ms.exit_all_menus()
+        else:
+            self.gc_input.game_state.ms.post_notice("Give this item?")
+            self.gc_input.game_state.ms.set_menu(YesNoMenuGhost.BASE, {"master_menu": self.BASE})
+            # self.gc_input.game_state.ms.exit_all_menus()
+
+    def do_option(self, choice=None):
+        sub_menu_selection = choice
+        chosen_item_name = self.get_current_menu_item()
+
+        if sub_menu_selection == "Yes":
+            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
+            self.gc_input.inventory_manager.remove_item(chosen_item, 1)
+            self.update_menu_items_list(None)
+            self.gc_input.game_state.ms.post_notice("Gave a gift")
+            self.gc_input.game_state.ms.exit_all_menus()
+
+        else:
+            self.gc_input.game_state.ms.exit_all_menus()
+
+
 class KeyInventoryMenuGhost(InventoryMenuGhost):
     BASE = "key_inventory_menu"
     NAME = BASE + "_ghost"
@@ -994,7 +1054,7 @@ class KeyUseMenuGhost(MenuGhost):
             self.gc_input.game_state.ms.exit_all_menus()
 
 
-class YesNoMenuGhost(MenuGhost):
+class YesNoMenuGhost(MenuGhost):  #: TODO: make a sub menu that takes whatever items are given to it as its menu items and then returns the chosen one.
     BASE = "yes_no_menu"
     NAME = BASE + "_ghost"
 
@@ -1002,7 +1062,7 @@ class YesNoMenuGhost(MenuGhost):
         super().__init__(gc_input)
         self.menu_item_list = ["Yes", "No"]
         self.master_menu = None
-        self.menu_type = "sub"
+        self.menu_type = Types.SUB
         self.menu_header = None
 
     def choose_option(self):
@@ -1011,6 +1071,11 @@ class YesNoMenuGhost(MenuGhost):
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
 
+    def do_option(self, choice=None):
+        menu_selection = choice
+        chosen_item_name = self.get_current_menu_item()
+        self.gc_input.game_state.ms.exit_menu(self.BASE)
+        self.gc_input.game_state.ms.get_menu_ghost(self.master_menu).do_option(chosen_item_name)
 
 class QuizMenuGhost(MenuGhost):
     BASE = "quiz_menu"

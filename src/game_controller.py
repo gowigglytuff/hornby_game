@@ -5,7 +5,7 @@ import random
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, KeyUseMenuGhost, PictureMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, YesNoMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, UseMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, KeyUseMenuGhost, PictureMenuGhost, GiftGivingMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView
@@ -447,13 +447,26 @@ class GameController(object):
             feature_type = self.game_state.type_translator[feature_dict["type"]]
             feature_subtype = self.game_state.sub_type_translator[feature_dict["subtype"]]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"],
-                                                                                          unique_name, feature_dict["display_name"], feature_dict["function"],
-                                                                                          self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
-                                                                                          self.game_state.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
-                                                                                          int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]),
-                                                                                          feature_dict["spawn_active"], str(feature_dict["base_phrase"]), str(feature_dict["good_gift_phrase"]), str(feature_dict["bad_gift_phrase"]),
-                                                                                          str(feature_dict["neutral_gift_phrase"]), str(feature_dict["bird_hint_phrase"]))
+            feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_type,
+                                                                                          feature_subtype,
+                                                                                          feature_dict["species"],
+                                                                                          unique_name, feature_dict["display_name"],
+                                                                                          feature_dict["function"],
+                                                                                          self.game_state,
+                                                                                          feature_dict["room"],
+                                                                                          int(feature_dict["x"]),
+                                                                                          int(feature_dict["y"]),
+                                                                                          self.game_state.direction_translations[feature_dict["direction"]],
+                                                                                          int(feature_dict["base_size_x"]),
+                                                                                          int(feature_dict["base_size_y"]),
+                                                                                          int(feature_dict["figure_size_x"]),
+                                                                                          int(feature_dict["figure_size_y"]),
+                                                                                          feature_dict["spawn_active"],
+                                                                                          str(feature_dict["base_phrase"]),
+                                                                                          str(feature_dict["good_gift_phrase"]),
+                                                                                          str(feature_dict["bad_gift_phrase"]),
+                                                                                          str(feature_dict["neutral_gift_phrase"]),
+                                                                                          str(feature_dict["bird_hint_phrase"]))
             if feature_subtype == Types.DECO:
                 self.game_state.add_deco_ghost(unique_name, feature_ghost_object)
             else:
@@ -576,6 +589,15 @@ class InventoryManager(object):
         elif successes > 0:
             self.gc_input.game_state.ms.post_notice("used " + str(successes) + " " + item.NAME + "(s)")
 
+    def remove_item(self, item, quantity_removed):
+        current_inventory = self.gc_input.game_state.ms.get_menu_items_list("supplies_inventory_menu")
+        successes = 0
+        if quantity_removed <= self.gc_input.game_state.get_item_quantity(item.name):
+            successes += 1
+            current_inventory[item.NAME]["quantity"] -= 1
+        if current_inventory[item.NAME]["quantity"] == 0:
+            current_inventory.pop(item.NAME)
+
     def check_if_can_use_item(self, item, quantity):
         success = True
         if quantity > self.gc_input.game_state.get_item_quantity(item.name):
@@ -679,7 +701,7 @@ class MenuManager(object):
         self.gc_input = gc_input  # type: GameController
         self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, YesNoMenuGhost,
                                UseMenuGhost, KeyUseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost]
+                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
     def activate_menu(self):
         pass
