@@ -184,7 +184,7 @@ class InGameKeyboardManager(KeyboardManager):
 
     def key_control_pressed(self):
         self.gc_input.clear_key_down_cue()
-        self.gc_input.game_state.ms.set_menu(StartMenuGhost.BASE, None)
+        self.gc_input.menu_controller.set_menu(StartMenuGhost.BASE, None)
 
     def key_escape_pressed(self):
         pass
@@ -193,7 +193,7 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
         # player = self.gc_input.game_view.get_player_avatar()
         # player.spritesheet = self.gc_input.game_view.outfit_manager.lab
-        self.gc_input.game_state.ms.set_menu(MapMenuGhost.BASE, None)
+        self.gc_input.menu_controller.set_menu(MapMenuGhost.BASE, None)
 
     def key_caps_pressed(self):
         self.gc_input.game.game_running = False
@@ -267,7 +267,7 @@ class InMenuKeyboardManager(KeyboardManager):
                 self.key_caps_pressed()
 
             if key == pygame.K_ESCAPE:
-                self.gc_input.game_state.ms.exit_all_menus()
+                self.gc_input.menu_controller.exit_all_menus()
 
         elif event_type == pygame.KEYUP:
 
@@ -312,7 +312,7 @@ class InMenuKeyboardManager(KeyboardManager):
         pass
 
     def key_control_pressed(self):
-        self.gc_input.game_state.ms.exit_all_menus()
+        self.gc_input.menu_controller.exit_all_menus()
 
     def key_lshift_pressed(self):
         pass

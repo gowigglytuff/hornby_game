@@ -6,7 +6,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
@@ -57,6 +57,7 @@ class GameView(object):
                                   "picture_menu": PictureMenuAvatar,
                                   "gallery_menu": GalleryMenuAvatar,
                                   "stat_menu": StatMenuAvatar,
+                                  "number_selection_menu": NumberSelectionMenuAvatar,
                                   "game_action_dialogue_menu": GameActionDialogueMenuAvatar}
 
     def tick(self):
@@ -227,8 +228,9 @@ class GameView(object):
         menu_avatar.menu_display_details["coordinates"][0] = x
         menu_avatar.menu_display_details["coordinates"][1] = y
 
-    def update_sub_menu_display_details(self, menu_name, master_menu):
+    def update_sub_menu_display_details(self, menu_name, master_menu, information_from_ghost):
         selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
+        selected_menu_avatar.fill_out_menu_info(information_from_ghost)
         selected_menu_display_details = selected_menu_avatar.menu_display_details
 
         master_menu_avatar = self.menu_avatar_data_list[master_menu + "_avatar"]

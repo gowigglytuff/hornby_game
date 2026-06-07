@@ -95,7 +95,22 @@ class NpcGhost(FeatureGhost):
         self.bad_gift_phrase = bad_gift_phrase
         self.neutral_gift_phrase = neutral_gift_phrase
         self.bird_hint_phrase = bird_hint_phrase
+        self.friendship_level = 0
+        self.good_gift = ["Milk"]
+        self.bad_gift = ["Apple"]
 
+    def receive_gift(self, gift_name):
+        result_phrase = None
+        if gift_name in self.good_gift:
+            result_phrase = self.good_gift_phrase
+            self.friendship_level += 5
+        elif gift_name in self.bad_gift:
+            result_phrase = self.bad_gift_phrase
+            self.friendship_level -= 5
+        else:
+            result_phrase = self.neutral_gift_phrase
+            self.friendship_level += 1
+        return result_phrase
 
 class BirdGhost(FeatureGhost):
     def __init__(self, feature_type, feature_subtype, species, unique_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
@@ -189,8 +204,8 @@ class PropGhost(FeatureGhost):
 
     def get_interacted_with(self):
         if self.function == "Basket":
-            self.gs_input.ms.post_notice("You looked in the " + self.species)
-            self.gs_input.ms.set_menu(AcquireMenuGhost.BASE, None)
+            self.gs_input.gc.menu_controller.post_notice("You looked in the " + self.species)
+            self.gs_input.gc.menu_controller.set_menu(AcquireMenuGhost.BASE, None)
         else:
             pass
 
@@ -201,7 +216,7 @@ class BasketGhost(PropGhost):
         self.feature_type = Types.PROP
 
     def get_interacted_with(self):
-        self.gs_input.ms.set_menu(AcquireMenuGhost.BASE, None)
+        self.gs_input.gc.menu_controller.set_menu(AcquireMenuGhost.BASE, None)
 
 
 class HouseGhost(FeatureGhost):

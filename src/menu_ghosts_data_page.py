@@ -1,7 +1,7 @@
 import copy
 import textwrap
 
-from definitions import GameSettings, Types
+from definitions import GameSettings, Types, Mundane
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -72,7 +72,7 @@ class MenuGhost(object):
     def update_currently_displayed(self):
         pass
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         pass
 
     def cursor_down(self):
@@ -93,7 +93,7 @@ class MenuGhost(object):
     def cursor_right(self):
         pass
 
-    def reset_cursor(self):
+    def reset_elements(self):
         self.cursor_at[0] = 0
         self.cursor_at[1] = 0
 
@@ -113,10 +113,10 @@ class StatMenuGhost(MenuGhost):
         self.menu_item_list = []
         self.menu_images_list = []
         self.cursor = None
-        self.update_menu_items_list()
+        self.prepare_menu_for_display()
         self.menu_type = Types.STATIC
 
-    def update_menu_items_list(self):
+    def prepare_menu_for_display(self):
         stat_dict = self.gc_input.get_stat_items()
         # self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
         # self.menu_item_list = [("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
@@ -138,11 +138,11 @@ class StartMenuGhost(MenuGhost):
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
-        self.gc_input.game_state.ms.start_menu_selection(menu_selection)
+        self.gc_input.menu_controller.start_menu_selection(menu_selection)
 
 
 class AcquireMenuGhost(MenuGhost): #TODO: Work on this
@@ -156,17 +156,17 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
         if menu_selection == "Exit":
-            self.gc_input.game_state.ms.start_menu_selection(menu_selection)
+            self.gc_input.menu_controller.start_menu_selection(menu_selection)
         else:
             self.gc_input.inventory_manager.get_item(menu_selection, 1)
-            self.gc_input.game_state.ms.post_notice("You took the " + menu_selection)
+            self.gc_input.menu_controller.post_notice("You took the " + menu_selection)
             self.menu_item_list.remove(menu_selection)
-            self.gc_input.game_state.ms.start_menu_selection(menu_selection)
+            self.gc_input.menu_controller.start_menu_selection(menu_selection)
 
 
 class InventoryMenuGhost(MenuGhost):
@@ -183,8 +183,9 @@ class InventoryMenuGhost(MenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
         self.update_currently_displayed()
+        self.action_doing = None
 
     def cursor_down(self):
         if self.size > 1:
@@ -217,12 +218,17 @@ class InventoryMenuGhost(MenuGhost):
             pass
 
     def cursor_left(self):
-        self.gc_input.game_state.ms.previous_menu(self.BASE)
+        self.gc_input.menu_controller.previous_menu(self.BASE)
 
     def cursor_right(self):
-        self.gc_input.game_state.ms.next_menu(self.BASE)
+        self.gc_input.menu_controller.next_menu(self.BASE)
 
-    def update_menu_items_list(self, details):
+    def reset_elements(self):
+        self.cursor_at[0] = 0
+        self.cursor_at[1] = 0
+        self.action_doing = None
+
+    def prepare_menu_for_display(self, details):
         keys_list = []
         current_inventory = self.gc_input.game_state.get_inventory_items(self.BASE)
         for item in current_inventory:
@@ -273,25 +279,14 @@ class InventoryMenuGhost(MenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.exit_all_menus()
         else:
-            self.gc_input.game_state.ms.set_menu(UseMenuGhost.BASE, {"master_menu": self.BASE})
+            self.gc_input.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Cancel"]})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
-
-        if sub_menu_selection == "Use":
-            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
-            self.gc_input.inventory_manager.use_item(chosen_item, 1)
-            self.update_menu_items_list(None)
-            self.gc_input.game_state.ms.exit_all_menus()
-
-        elif sub_menu_selection == "Toss":
-            self.gc_input.game_state.ms.exit_all_menus()
-
-        elif sub_menu_selection == "Cancel":
-            self.gc_input.game_state.ms.exit_all_menus()
+        self.gc_input.menu_controller.inventory_menu_selection(self, sub_menu_selection, chosen_item_name)
 
 
 class SuppliesInventoryMenuGhost(InventoryMenuGhost):
@@ -308,7 +303,7 @@ class SuppliesInventoryMenuGhost(InventoryMenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
         self.update_currently_displayed()
 
 
@@ -327,10 +322,13 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
         self.menu_type = Types.SECONDARY
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
         self.update_currently_displayed()
+        self.details = None
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
+        self.details = details
+        print("in_menu_step", details)
         keys_list = []
         current_inventory = self.gc_input.game_state.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
         for item in current_inventory:
@@ -349,27 +347,19 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
         self.master_menu = master_menu
 
     def choose_option(self):
+        print("in choice step", self.details)
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.exit_all_menus()
         else:
-            self.gc_input.game_state.ms.post_notice("Give this item?")
-            self.gc_input.game_state.ms.set_menu(YesNoMenuGhost.BASE, {"master_menu": self.BASE})
-            # self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.post_notice("Give this item?")
+            self.gc_input.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
-
-        if sub_menu_selection == "Yes":
-            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
-            self.gc_input.inventory_manager.remove_item(chosen_item, 1)
-            self.update_menu_items_list(None)
-            self.gc_input.game_state.ms.post_notice("Gave a gift")
-            self.gc_input.game_state.ms.exit_all_menus()
-
-        else:
-            self.gc_input.game_state.ms.exit_all_menus()
+        details = self.details
+        self.gc_input.menu_controller.gift_menu_selection(sub_menu_selection, chosen_item_name, details)
 
 
 class KeyInventoryMenuGhost(InventoryMenuGhost):
@@ -386,7 +376,7 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
         self.update_currently_displayed()
 
     def get_menu_items_to_display(self):
@@ -407,9 +397,9 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.exit_all_menus()
         else:
-            self.gc_input.game_state.ms.set_menu(KeyUseMenuGhost.BASE, {"master_menu": self.BASE})
+            self.gc_input.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Select", "Cancel"]})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
@@ -418,18 +408,18 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
         if sub_menu_selection == "Use":
             chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.key_item_data_list[chosen_item_name]
             self.gc_input.inventory_manager.use_key_item(chosen_item)
-            self.update_menu_items_list(None)
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.prepare_menu_for_display(None)
+            self.gc_input.menu_controller.exit_all_menus()
 
         elif sub_menu_selection == "Toss":
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.exit_all_menus()
 
         elif sub_menu_selection == "Select":
             self.gc_input.game_state.selected_tool = chosen_item_name
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.exit_all_menus()
 
         elif sub_menu_selection == "Cancel":
-            self.gc_input.game_state.ms.exit_all_menus()
+            self.gc_input.menu_controller.exit_all_menus()
 
 
 class ConversationOptionsMenuGhost(MenuGhost):
@@ -486,7 +476,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
             for item in range(self.max_displayed_items):
                 self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         self.talking_to = details["speaker_name"]
         self.friendship = self.get_friendship(int(details["friendship_level"]))
         self.face_image = details["face_image"]
@@ -510,12 +500,20 @@ class ConversationOptionsMenuGhost(MenuGhost):
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
-        self.gc_input.game_state.ms.conversation_options_menu_selection(menu_selection)
+        self.gc_input.menu_controller.conversation_options_menu_selection(menu_selection)
 
     def get_friendship(self, friendship):
         friendship_counter = " - - - - "
         if friendship == 0:
             friendship_counter = " - - - - "
+        # elif friendship == 1:
+        #     friendship_counter = " \u2665 - - - "
+        # elif friendship == 2:
+        #     friendship_counter = " \u2665 \u2665 - - "
+        # elif friendship == 3:
+        #     friendship_counter = " \u2665 \u2665 \u2665 - "
+        # elif friendship >= 4:
+        #     friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
         elif 5 >= friendship >= 1 :
             friendship_counter = " \u2665 - - - "
         elif 10 >= friendship >= 6:
@@ -561,7 +559,7 @@ class OutfitMenuGhost(MenuGhost):
             for item in range(self.max_displayed_items):
                 self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         self.make_main_outfit(0)
 
     def generate_menu_information_package(self):
@@ -592,7 +590,7 @@ class OutfitMenuGhost(MenuGhost):
         player = self.gc_input.game_view.get_player_avatar()
         image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + self.selected_outfit + "_spritesheet.png",  32, 48)
         player.spritesheet = image
-        self.gc_input.game_state.ms.exit_all_menus()
+        self.gc_input.menu_controller.exit_all_menus()
 
 
     def cursor_left(self):
@@ -659,7 +657,7 @@ class GalleryMenuGhost(MenuGhost):
             setattr(self, "is_first_" + item, True)
             setattr(self, item + "_number", 0)
             setattr(self, item + "_number", 0)
-        self.update_menu_items_list(None)
+        self.prepare_menu_for_display(None)
 
         self.current_gallery = "Bird"
 
@@ -673,7 +671,7 @@ class GalleryMenuGhost(MenuGhost):
     def add_to_item_list(self, list_type, item_name):
         getattr(self, list_type + "_item_list")[item_name] = [item_name, item_name]
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         for item in self.galleries:
             self.make_main_item(item, 0)
 
@@ -720,7 +718,7 @@ class GalleryMenuGhost(MenuGhost):
 
     def do_option(self):
         details = {"image": "Crow"}
-        self.gc_input.game_state.ms.set_menu(PictureMenuGhost.BASE, details)
+        self.gc_input.menu_controller.set_menu(PictureMenuGhost.BASE, details)
 
     def cursor_left(self):
         getattr(self, self.current_gallery + "_number")
@@ -780,7 +778,7 @@ class MapMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         pass
 
     def generate_menu_information_package(self):
@@ -797,7 +795,7 @@ class MapMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc_input.game_state.ms.exit_all_menus()
+        self.gc_input.menu_controller.exit_all_menus()
 
 
 class PictureMenuGhost(MenuGhost):
@@ -816,7 +814,7 @@ class PictureMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         self.image_name = details["image"]
 
     def generate_menu_information_package(self):
@@ -833,7 +831,7 @@ class PictureMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc_input.game_state.ms.exit_all_menus()
+        self.gc_input.menu_controller.exit_all_menus()
 
 
 class ChatMenuGhost(MenuGhost):
@@ -868,7 +866,7 @@ class ChatMenuGhost(MenuGhost):
             for item in range(self.max_displayed_items):
                 self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
 
-    def update_menu_items_list(self, details):
+    def prepare_menu_for_display(self, details):
         self.talking_to = details["speaker_name"]
         self.friendship = details["friendship_level"]
         self.face_image = details["face_image"]
@@ -911,7 +909,7 @@ class ChatMenuGhost(MenuGhost):
 
         elif len(self.current_phrase) == 0:
             menu_selection = None
-            self.gc_input.game_state.ms.chat_menu_selection(menu_selection)
+            self.gc_input.menu_controller.chat_menu_selection(menu_selection)
 
 
 class GameActionDialogueMenuGhost(MenuGhost):
@@ -946,7 +944,7 @@ class GameActionDialogueMenuGhost(MenuGhost):
         image_display_list = []
         return image_display_list
 
-    def update_menu_items_list(self):
+    def prepare_menu_for_display(self):
         pass
 
 
@@ -967,103 +965,34 @@ class SubMenuGhost(MenuGhost):
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
 
-
-class UseMenuGhost(MenuGhost):
-    BASE = "use_menu"
-    NAME = BASE + "_ghost"
-
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
-        self.menu_item_list = ["Use", "Toss", "Cancel"]
-        self.master_menu = None
-        self.menu_type = Types.SUB
-        self.menu_header = None
-
-    def choose_option(self):
-        chosen_item_name = self.get_current_menu_item()
-        if chosen_item_name == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
-        else:
-            self.gc_input.game_state.ms.deactivate_menu(self.BASE)
-            self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
-            # self.do_option(chosen_item_name)
-            # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)
-        self.reset_cursor()
-
-    def set_master_menu(self, master_menu):
-        self.master_menu = master_menu
+    def prepare_menu_for_display(self, details):
+        self.menu_item_list = details["menu_items_list"]
 
     def do_option(self, choice=None):
         menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
-
-        if menu_selection == "Use":
-            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
-            self.gc_input.inventory_manager.use_item(chosen_item, 1)
-            self.update_menu_items_list(None)
-
-        elif menu_selection == "Toss":
-            self.gc_input.game_state.ms.exit_all_menus()
-
-        elif menu_selection == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
+        self.gc_input.menu_controller.exit_menu(self.BASE)
+        self.gc_input.game_state.ms.get_menu_ghost(self.master_menu).do_option(chosen_item_name)
 
 
-class KeyUseMenuGhost(MenuGhost):
-    BASE = "key_use_menu"
+class NumberSelectionMenuGhost(MenuGhost):
+    BASE = "number_selection_menu"
     NAME = BASE + "_ghost"
 
     def __init__(self, gc_input):
         super().__init__(gc_input)
-        self.menu_item_list = ["Use", "Select", "Toss", "Cancel"]
+        self.menu_item_list = []
         self.master_menu = None
         self.menu_type = Types.SUB
         self.menu_header = None
+        self.max_number = 1
+        self.min_number = 0
+        self.current_number = 0
 
-    def choose_option(self):
-        chosen_item_name = self.get_current_menu_item()
-        if chosen_item_name == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
-        else:
-            self.gc_input.game_state.ms.deactivate_menu(self.BASE)
-            self.gc_input.game_state.ms.menu_ghost_data_list[self.master_menu + "_ghost"].do_option(chosen_item_name)
-            # self.do_option(chosen_item_name)
-            # self.gc_input.menu_manager.set_sub_menu("yes_no_menu", self.BASE)
-        self.reset_cursor()
-
-    def set_master_menu(self, master_menu):
-        self.master_menu = master_menu
-
-    def do_option(self, choice=None):
-        menu_selection = choice
-        chosen_item_name = self.get_current_menu_item()
-
-        if menu_selection == "Use":
-            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.item_data_list[chosen_item_name]
-            self.gc_input.inventory_manager.use_item(chosen_item, 1)
-            self.update_menu_items_list(None)
-
-        elif menu_selection == "Select":
-            self.gc_input.game_state.selected_tool = chosen_item_name
-            self.gc_input.game_state.ms.exit_all_menus()
-
-        elif menu_selection == "Toss":
-            self.gc_input.game_state.ms.exit_all_menus()
-
-        elif menu_selection == "Exit":
-            self.gc_input.game_state.ms.exit_all_menus()
-
-
-class YesNoMenuGhost(MenuGhost):  #: TODO: make a sub menu that takes whatever items are given to it as its menu items and then returns the chosen one.
-    BASE = "yes_no_menu"
-    NAME = BASE + "_ghost"
-
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
-        self.menu_item_list = ["Yes", "No"]
-        self.master_menu = None
-        self.menu_type = Types.SUB
-        self.menu_header = None
+    def reset_elements(self):
+        self.max_number = 1
+        self.min_number = 0
+        self.current_number = 0
 
     def choose_option(self):
         self.do_option()
@@ -1071,11 +1000,50 @@ class YesNoMenuGhost(MenuGhost):  #: TODO: make a sub menu that takes whatever i
     def set_master_menu(self, master_menu):
         self.master_menu = master_menu
 
+    def cursor_left(self):
+        if self.current_number > self.min_number:
+            self.current_number -= 1
+
+    def cursor_right(self):
+        if self.current_number < self.max_number:
+            self.current_number += 1
+
+    def prepare_menu_for_display(self, details):
+        self.max_number = details["max_number"]
+        self.min_number = details["min_number"]
+        self.current_number = self.min_number
+        self.menu_item_list = [str(0)]
+
+    def get_current_menu_item(self):
+        menu_selection = self.current_number
+        return menu_selection
+
     def do_option(self, choice=None):
-        menu_selection = choice
-        chosen_item_name = self.get_current_menu_item()
-        self.gc_input.game_state.ms.exit_menu(self.BASE)
-        self.gc_input.game_state.ms.get_menu_ghost(self.master_menu).do_option(chosen_item_name)
+        chosen_number = self.get_current_menu_item()
+        self.gc_input.menu_controller.exit_menu(self.BASE)
+        self.gc_input.game_state.ms.get_menu_ghost(self.master_menu).do_option(chosen_number)
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+
+        final_text = Mundane.number_to_string_leading_zeros(self.current_number, 4)
+
+        if self.current_number > self.min_number:
+            final_text = "< " + final_text
+        else:
+            final_text = "  " + final_text
+
+        if self.current_number < self.max_number:
+            final_text = final_text + " >"
+
+        text_display_list = [final_text]
+
+        menu_specific = {"number_to_display": text_display_list}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
 
 class QuizMenuGhost(MenuGhost):
     BASE = "quiz_menu"
@@ -1088,14 +1056,14 @@ class QuizMenuGhost(MenuGhost):
         self.menu_item_list = ["Talk", "Give Gift", "Exit"]
         self.menu_images_list = []
         self.currently_displayed_items = []
-        self.update_menu_items_list()
+        self.prepare_menu_for_display()
         self.update_currently_displayed()
         spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
         face = spritesheet.get_image(0, 0)
         face = face.subsurface(0, 0, 224, 224)
         self.image = face
 
-    def update_menu_items_list(self):
+    def prepare_menu_for_display(self):
         spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
         face = spritesheet.get_image(0, 0)
         face = face.subsurface(0, 0, 224, 224)

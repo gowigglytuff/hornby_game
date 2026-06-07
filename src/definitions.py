@@ -115,3 +115,34 @@ class Mundane(object):
         if number % 2 == 0:
             even = True
         return even
+
+    @classmethod
+    def number_to_string_leading_zeros(cls, number, spaces):
+        length = len(str(number))
+        string_result = str(number)
+        for space in range(spaces-length):
+            string_result = "0" + string_result
+        return string_result
+
+    @classmethod
+    def get_friendship_hearts(cls, friendship):
+        friendship_counter = " - - - - "
+        if friendship == 0:
+            friendship_counter = " - - - - "
+        # elif friendship == 1:
+        #     friendship_counter = " \u2665 - - - "
+        # elif friendship == 2:
+        #     friendship_counter = " \u2665 \u2665 - - "
+        # elif friendship == 3:
+        #     friendship_counter = " \u2665 \u2665 \u2665 - "
+        # elif friendship >= 4:
+        #     friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
+        elif 5 >= friendship >= 1:
+            friendship_counter = " \u2665 - - - "
+        elif 10 >= friendship >= 6:
+            friendship_counter = " \u2665 \u2665 - - "
+        elif 15 >= friendship >= 11:
+            friendship_counter = " \u2665 \u2665 \u2665 - "
+        elif friendship >= 16:
+            friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
+        return friendship_counter

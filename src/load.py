@@ -116,7 +116,7 @@ def install_all_data(gc, gs):
             gc.inventory_manager.get_key_item(item)
 
     def install_menus(gc, gs):
-        for ghost in gc.menu_manager.menu_load_list:
+        for ghost in gc.menu_controller.menu_load_list:
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():

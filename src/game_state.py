@@ -2,7 +2,7 @@ import copy
 from random import choice
 
 from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, UseMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, YesNoMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types
 from position_manager_state_page import Room, Door
@@ -198,7 +198,6 @@ class MenuState(object):
         self.visible_menus = []
         self.start_menu_stack = [SuppliesInventoryMenuGhost.BASE, KeyInventoryMenuGhost.BASE]
 
-
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
 
@@ -240,138 +239,6 @@ class MenuState(object):
 
         if len(self.menu_stack) == 0:
             self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
-    # endregion
-
-    # region MENU NAVIGATION
-    def set_menu(self, menu_name, details):
-        selected_menu = self.get_menu_ghost(menu_name)
-        menu_type = selected_menu.menu_type
-
-        if menu_type == Types.BASE:
-            selected_menu.update_menu_items_list(details)
-
-        elif menu_type == Types.SECONDARY:
-            selected_menu.set_master_menu(details["master_menu"])
-            selected_menu.update_menu_items_list(details)
-
-        elif menu_type == Types.SUB:
-            selected_menu.set_master_menu(details["master_menu"])
-            self.gs.gv.update_sub_menu_display_details(menu_name, details["master_menu"])
-
-        if menu_name == ChatMenuGhost.BASE:
-            selected_menu.set_current_phrase(details["phrase"])
-
-        self.gs.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
-        selected_menu.gc_input.game_state.ms.add_menu_to_stack(menu_name)
-
-    def next_menu(self, current_menu):
-        total_number_menus = len(self.start_menu_stack)
-        current_menu_index = self.start_menu_stack.index(current_menu)
-        self.exit_menu(self.start_menu_stack[current_menu_index])
-        next_menu = self.start_menu_stack[0]
-        if current_menu_index != (total_number_menus - 1):
-            next_menu = self.start_menu_stack[current_menu_index + 1]
-        else:
-            pass
-        self.set_menu(next_menu, None)
-
-    def previous_menu(self, current_menu):
-        total_number_menus = len(self.start_menu_stack)
-        current_menu_index = self.start_menu_stack.index(current_menu)
-        self.exit_menu(self.start_menu_stack[current_menu_index])
-        previous_menu = self.start_menu_stack[current_menu_index-1]
-        if current_menu_index == 0:
-            previous_menu = self.start_menu_stack[total_number_menus - 1]
-        else:
-            pass
-        self.set_menu(previous_menu, None)
-
-    def exit_menu(self, menu_name):
-        selected_menu = self.menu_ghost_data_list[menu_name + "_ghost"]
-        selected_menu.reset_cursor()
-        self.deactivate_menu(menu_name)
-
-    def exit_all_menus(self):
-        list = []
-        for x in self.menu_stack:
-            list.append(x)
-        for item in list:
-            self.exit_menu(item)
-
-    # endregion
-
-    # region MENU SELECTION RESULTS
-    def start_menu_selection(self, item_selected): # TODO: Move this and everything like it to game controller -> menu manager
-        menu_selection = item_selected
-        if menu_selection == "Bag":
-            self.exit_menu(StartMenuGhost.BASE)
-            self.set_menu(SuppliesInventoryMenuGhost.BASE, None)
-
-        elif menu_selection == "Chore List":
-            pass
-
-        elif menu_selection == "Profile":
-            pass
-
-        elif menu_selection == "Map":
-            self.exit_menu(StartMenuGhost.BASE)
-            self.set_menu(MapMenuGhost.BASE, None)
-
-        elif menu_selection == "Options":
-            pass
-
-        elif menu_selection == "Gallery":
-            self.exit_menu(StartMenuGhost.BASE)
-            self.set_menu(GalleryMenuGhost.BASE, None)
-
-        elif menu_selection == "Records":
-            pass
-
-        elif menu_selection == "Outfits":
-            self.exit_menu(StartMenuGhost.BASE)
-            self.set_menu(OutfitMenuGhost.BASE, None)
-
-        elif menu_selection == "Save":
-            pass
-
-        elif menu_selection == "Exit":
-            self.exit_all_menus()
-
-        else:
-            self.exit_all_menus()
-
-    def conversation_options_menu_selection(self, item_selected):
-        menu_selection = item_selected
-        current_menu = self.get_menu_ghost(ConversationOptionsMenuGhost.BASE)
-        phrase_list = ["base_phrase", "good_gift_phrase", "bad_gift_phrase", "neutral_gift_phrase", "bird_hint_phrase"]
-        selected_phrase = getattr(self.gs.get_feature_ghost(current_menu.speaker_unique_name), choice(phrase_list))
-        # selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).base_phrase
-        details = {"speaker_name": current_menu.talking_to,
-                   "friendship_level": current_menu.friendship,
-                   "face_image": current_menu.face_image,
-                   "speaker_unique_name": current_menu.speaker_unique_name,
-                   "phrase": [selected_phrase]}
-
-        if menu_selection == "Talk":
-            self.set_menu(ChatMenuGhost.BASE, details)
-
-        elif menu_selection == "Give Gift":
-            details["master_menu"] = current_menu.BASE
-            # self.exit_menu(ConversationOptionsMenuGhost.BASE)
-
-            self.set_menu(GiftGivingMenuGhost.BASE, details)
-
-        elif menu_selection == "Exit":
-            self.exit_all_menus()
-
-        else:
-            self.exit_all_menus()
-
-    def chat_menu_selection(self, item_selected):
-        self.exit_all_menus()
-
-    def post_notice(self, phrase):
-        self.menu_ghost_data_list[GameActionDialogueMenuGhost.NAME].show_dialogue(phrase)
     # endregion
 
 
