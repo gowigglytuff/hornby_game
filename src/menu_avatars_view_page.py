@@ -67,7 +67,7 @@ class MenuAvatar(object):
 
     def set_menu_display_coordinates(self):
         dictionary = {"start_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "acquire_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "acquire_menu_avatar": {"default_width": 32, "default_height": 500, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                          "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "key_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
@@ -84,7 +84,6 @@ class MenuAvatar(object):
         elif self.name in skip_list:
             pass
         else:
-            print(self.name)
             self.menu_display_details = generic
 
     def get_longest_item(self, menu_items_list, menu_header=None):
@@ -553,6 +552,7 @@ class NumberSelectionMenuAvatar(MenuAvatar):
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
         return final_menu_images
+
 
 class QuizMenuAvatar(MenuAvatar):
     NAME = "quiz_menu_avatar"

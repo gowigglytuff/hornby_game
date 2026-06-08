@@ -328,7 +328,6 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
 
     def prepare_menu_for_display(self, details):
         self.details = details
-        print("in_menu_step", details)
         keys_list = []
         current_inventory = self.gc_input.game_state.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
         for item in current_inventory:
@@ -347,7 +346,6 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
         self.master_menu = master_menu
 
     def choose_option(self):
-        print("in choice step", self.details)
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
             self.gc_input.menu_controller.exit_all_menus()
@@ -1089,5 +1087,4 @@ class QuizMenuGhost(MenuGhost):
 
     def do_option(self):
         info = get_input()
-        print(info)
 

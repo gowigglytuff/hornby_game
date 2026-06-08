@@ -751,8 +751,7 @@ class MenuController(object):
             inventory_menu_object.action_doing = None
             self.gc_input.menu_controller.exit_all_menus()
 
-    def toss_item(self, item, number_to_toss): # TODO: Fix the error that happens here when you esc out of toss menu number select
-        print(number_to_toss)
+    def toss_item(self, item, number_to_toss):
         self.gc_input.inventory_manager.remove_item(item, number_to_toss)
         self.post_notice("You tossed " + str(number_to_toss) + " " + item.name + "(s)")
 
@@ -836,7 +835,6 @@ class MenuController(object):
             selected_menu.prepare_menu_for_display(details)
 
         elif menu_type == Types.SECONDARY:
-            print("menu_setting_step", details)
             selected_menu.set_master_menu(details["master_menu"])
             selected_menu.prepare_menu_for_display(details)
 

@@ -1,3 +1,6 @@
+import csv
+import os
+
 import pygame
 
 from feature_avatar_view_page import PlayerAvatar
@@ -29,12 +32,56 @@ def new_game_procedures(gc, gs):
     gc.import_features_from_csv("assets/import_data/Deco_import.csv")
     gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
     tree_coords = [(24,10), (22,7), (20,5), (17,5), (15,4), (16,2), (20,2), (24,2), (28,10), (31,10), (33,8), (32,5), (36,3), (38,10), (35,13), (35,16), (40,14), (43,11), (45,8), (47,5), (49,3), (49,7), (49,11), (49,13), (49,14),(46,14),(39,18), (38,18)]
-    for tree_coord in tree_coords:
+    # for tree_coord in tree_coords:
+    #     feature_type = gs.type_translator["Prop"]
+    #     feature_subtype = gs.sub_type_translator["Tree"]
+    #     unique_name = "Pine" + "_" + str(GameSettings.get_unique_ID())
+    #     feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, "Pine", unique_name, "None", gs, "Marsh", tree_coord[0], tree_coord[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+    #     gs.add_feature_ghost(unique_name, feature_ghost_object)
+
+    room_name = "Marsh"
+    plot_x = 1
+    plot_y = 1
+    csv = read_csv("assets/room_csv/feature_csv/" + room_name + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "objects.csv")
+
+    feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus"}
+
+    feature_list = []
+
+    row_counter = 0
+    for row in csv:
+        row_counter += 1
+        item_counter = 0
+        for item in row:
+            item_counter += 1
+            if item in feature_reference_dict.keys():
+                x = item_counter
+                y = row_counter
+                feature_list.append((x, y, feature_reference_dict[item]))
+                print(feature_reference_dict[item], x, y)
+
+    for item in feature_list:
         feature_type = gs.type_translator["Prop"]
         feature_subtype = gs.sub_type_translator["Tree"]
-        unique_name = "Pine" + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, "Pine", unique_name, "None", gs, "Marsh", tree_coord[0], tree_coord[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+        unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
+        feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "None", gs, "Marsh", item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
         gs.add_feature_ghost(unique_name, feature_ghost_object)
+
+
+def access_csv(x, y, csv):
+    return csv[y][x]
+
+def read_csv(filename):
+    map = []
+    int_map = []
+    with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+        data = csv.reader(data, delimiter=',')
+        for row in data:
+            map.append(list(row))
+    for row in map:
+        int_list = [int(i) for i in row]
+        int_map.append(int_list)
+    return int_map
 
 
 def continue_game_procedures(gc, gs):

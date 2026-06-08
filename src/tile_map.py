@@ -157,3 +157,4 @@ class ElevationMap:
     def get_elevation(self, x, y):
         result = self.elevation_map[y-1][x-1]
         return result
+

@@ -195,9 +195,7 @@ class GameView(object):
 
     def set_menu_display_coordinates(self, name):
         name = name + "_avatar"
-        print(name)
         menu_avatar = self.menu_avatar_data_list[name]
-        print(menu_avatar.menu_display_details)
         x_instruction = menu_avatar.menu_display_details["align_x"]
         y_instruction = menu_avatar.menu_display_details["align_y"]
         x = 0
