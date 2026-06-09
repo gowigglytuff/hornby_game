@@ -28,7 +28,7 @@ class GameState(object):
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "Axe"
-        self.player_ghost = PlayerGhost(self, 1, 1)  # type: PlayerGhost
+        self.player_ghost = PlayerGhost(self, 1, 3)  # type: PlayerGhost
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.deco_ghost_list = {}

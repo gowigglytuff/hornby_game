@@ -30,7 +30,7 @@ def new_game_procedures(gc, gs):
     gc.import_features_from_csv("assets/import_data/feature_import_dict.csv")
     gc.import_npcs_from_csv("assets/import_data/NPC_import_dict.csv")
     gc.import_features_from_csv("assets/import_data/Deco_import.csv")
-    gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 1))
+    gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 3))
     tree_coords = [(24,10), (22,7), (20,5), (17,5), (15,4), (16,2), (20,2), (24,2), (28,10), (31,10), (33,8), (32,5), (36,3), (38,10), (35,13), (35,16), (40,14), (43,11), (45,8), (47,5), (49,3), (49,7), (49,11), (49,13), (49,14),(46,14),(39,18), (38,18)]
     # for tree_coord in tree_coords:
     #     feature_type = gs.type_translator["Prop"]
@@ -93,11 +93,14 @@ def install_all_data(gc, gs):
     def install_rooms(gc, gs):
         gs.gd.add_room_data(Ringside.ID, (Ringside()))
         gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
-        gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 7, 1, 1)))
+        gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
         gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
         gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Marsh", (Consolidated("Marsh", 50, 50, 1, 1)))
+        gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
+        gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
+        gs.gd.add_room_data("Zoo_Room", (Consolidated("Zoo_Room", 9, 30, 1, 1)))
 
 
     def install_doors(gc, gs):
@@ -112,6 +115,9 @@ def install_all_data(gc, gs):
         gs.gd.add_door_data("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
         gs.gd.add_door_data("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
         gs.gd.add_door_data("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
+        gs.gd.add_door_data("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
+        gs.gd.add_door_data("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
+        gs.gd.add_door_data("Passage", "Staging_Area", "Zoo_Room", 6, 2, 5, 30)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
