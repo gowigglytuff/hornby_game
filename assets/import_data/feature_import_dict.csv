@@ -53,3 +53,26 @@ type,Prop,subtype,Tree,species,Apple_Tree,function,None,room,Trophy_Room,x,2,y,2
 type,Prop,subtype,Tree,species,Scotch_Broom,function,None,room,Trophy_Room,x,4,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Tree,species,Hawthorn,function,None,room,Trophy_Room,x,6,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
 type,Prop,subtype,Tree,species,Cottonwood,function,None,room,Trophy_Room,x,8,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
+type,NPC,subtype,Bird,species,Meadowlark,function,None,room,Aviary_Room,x,8,y,21,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Caw
+type,NPC,subtype,Bird,species,Nuthatch,function,None,room,Aviary_Room,x,4,y,27,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Crow,function,None,room,Aviary_Room,x,6,y,27,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Tanager,function,None,room,Aviary_Room,x,8,y,27,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Starling,function,None,room,Aviary_Room,x,2,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Saw-whet_Owl,function,None,room,Aviary_Room,x,4,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Barred_Owl,function,None,room,Aviary_Room,x,2,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Great_Horned_Owl,function,None,room,Aviary_Room,x,2,y,13,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Blackbird,function,None,room,Aviary_Room,x,6,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Junko,function,None,room,Aviary_Room,x,2,y,27,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Flycatcher,function,None,room,Aviary_Room,x,4,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Wood_Peewee,function,None,room,Aviary_Room,x,8,y,25,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Thrush,function,None,room,Aviary_Room,x,2,y,21,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Robin,function,None,room,Aviary_Room,x,4,y,21,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Goldfinch,function,None,room,Aviary_Room,x,6,y,21,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Cormorant,function,None,room,Aviary_Room,x,8,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Seagull,function,None,room,Aviary_Room,x,6,y,11,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Coot,function,None,room,Aviary_Room,x,8,y,13,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Mallard,function,None,room,Aviary_Room,x,8,y,7,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Murrelet,function,None,room,Aviary_Room,x,6,y,7,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Harlequin_Duck,function,None,room,Aviary_Room,x,6,y,9,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Eurasian_Wigeon,function,None,room,Aviary_Room,x,8,y,5,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,American_Wigeon,function,None,room,Aviary_Room,x,6,y,5,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup

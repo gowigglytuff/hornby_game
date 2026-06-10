@@ -550,16 +550,17 @@ class GameController(object):
             self.trigger_a_bird(trigger[0], room, trigger[1])
 
     def trigger_a_bird(self, unique_name, room, trigger):
-        bird_ghost = self.game_state.get_feature_ghost(unique_name)
-        bird_avatar = self.game_view.get_npc_avatar(unique_name)
+        if room.room_name != "Aviary_Room":
+            bird_ghost = self.game_state.get_feature_ghost(unique_name)
+            bird_avatar = self.game_view.get_npc_avatar(unique_name)
 
-        check_trigger_result = bird_ghost.check_trigger_result(trigger)
+            check_trigger_result = bird_ghost.check_trigger_result(trigger)
 
-        if check_trigger_result == "remove":
-            self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
-            self.position_manager.despawn_feature(unique_name, room)
-        else:
-            pass
+            if check_trigger_result == "remove":
+                self.game_view.trigger_independent_animation("disappear_animation", bird_ghost.unique_name + "_disappear_animation", bird_ghost.unique_name, room, bird_avatar.drawing_priority, bird_avatar.image_x, bird_avatar.image_y, bird_avatar.image_offset_x, bird_avatar.image_offset_y)
+                self.position_manager.despawn_feature(unique_name, room)
+            else:
+                pass
 
 class InventoryManager(object):
     def __init__(self, gc_input):
