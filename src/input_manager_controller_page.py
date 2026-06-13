@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 
 from definitions import Direction
-from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost
+from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost
 
 if TYPE_CHECKING:
     from game_controller import GameController
@@ -110,6 +110,7 @@ class KeyboardManager(object):
         pass
     # endregion
 
+
 class InGameKeyboardManager(KeyboardManager):
     ID = "InGame"
 
@@ -193,7 +194,7 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
         # player = self.gc_input.game_view.get_player_avatar()
         # player.spritesheet = self.gc_input.game_view.outfit_manager.lab
-        self.gc_input.menu_controller.set_menu(MapMenuGhost.BASE, None)
+        self.gc_input.menu_controller.set_menu(GuideMenuGhost.BASE, None)
 
     def key_caps_pressed(self):
         self.gc_input.game.game_running = False

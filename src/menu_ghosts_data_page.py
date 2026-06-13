@@ -1,4 +1,5 @@
 import copy
+import math
 import textwrap
 
 from definitions import GameSettings, Types, Mundane
@@ -666,8 +667,8 @@ class GalleryMenuGhost(MenuGhost):
                 result = True
         return result
 
-    def add_to_item_list(self, list_type, item_name):
-        getattr(self, list_type + "_item_list")[item_name] = [item_name, item_name]
+    def add_to_item_list(self, list_type, species, display_name):
+        getattr(self, list_type + "_item_list")[species] = [species, display_name]
 
     def prepare_menu_for_display(self, details):
         for item in self.galleries:
@@ -1043,6 +1044,7 @@ class NumberSelectionMenuGhost(MenuGhost):
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
+
 class QuizMenuGhost(MenuGhost):
     BASE = "quiz_menu"
     NAME = BASE + "_ghost"
@@ -1088,3 +1090,106 @@ class QuizMenuGhost(MenuGhost):
     def do_option(self):
         info = get_input()
 
+
+class GuideMenuGhost(MenuGhost):
+    BASE = "guide_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        bird_list = ["Meadowlark", "Nuthatch", "Crow", "Tanager", "Starling", "Saw-whet_ wl", "Barred Owl", "Great Horned Owl", 'Nighthawk',
+                "Blackbird", "Junko", "Flycatcher", "Wood Peewee", "Thrush", "Robin", "Goldfinch", "Cormorant", "Seagull", "Coot", "Green Heron",
+                "Kingfisher", "Redwing Blackbird", "Mallard", "Murrelet", "Harlequin_Duck"]
+        self.master_birds_list = sorted(bird_list)
+        if not Mundane.is_even(len(self.master_birds_list)):
+            self.master_birds_list.append(None)
+        self.current_page = 0
+        self.total_pages = math.ceil(len(self.master_birds_list)/2)
+
+    def cursor_left(self):
+        if self.current_page > 1:
+            self.current_page -= 2
+
+    def cursor_right(self):
+        print(len(self.master_birds_list))
+        if self.current_page < len(self.master_birds_list) - 2:
+            self.current_page += 2
+            print(self.current_page)
+
+    def prepare_menu_for_display(self, details):
+        pass
+
+    def check_if_have_panel(self, name, top_or_bottom):
+        result = False
+
+        if name:
+            if top_or_bottom == "top":
+                bottom_panel_list = ["Meadowlark", "Starling", "Saw-whet Owl", "Barred Owl", "Great Horned Owl", 'Nighthawk',
+                        "Blackbird", "Junko", "Flycatcher", "Wood Peewee", "Thrush", "Robin",  "Cormorant", "Seagull", "Coot",
+                        "Kingfisher", "Murrelet", "Harlequin Duck"]
+                if name in bottom_panel_list:
+                    result = True
+            if top_or_bottom == "bottom":
+                top_panel_list = ["Meadowlark", "Crow", "Tanager", "Starling", "Saw-whet_Owl", "Barred_Owl", "Great_Horned_Owl", 'Nighthawk',
+                                     "Blackbird", "Junko", "Flycatcher", "Robin", "Goldfinch", "Cormorant", "Seagull", "Coot", "Green_Heron",
+                                     "Kingfisher", "Mallard", "Murrelet", 'Eurasian_Wigeon', "Harlequin_Duck", "Wood Peewee"]
+                if name in top_panel_list:
+                    result = True
+        else:
+            pass
+
+        return result
+
+    def generate_menu_information_package(self):
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        panel1 = self.check_if_have_panel(self.master_birds_list[self.current_page], "top")
+        panel2 = self.check_if_have_panel(self.master_birds_list[self.current_page], "bottom")
+        panel3 = self.check_if_have_panel(self.master_birds_list[self.current_page + 1], "top")
+        panel4 = self.check_if_have_panel(self.master_birds_list[self.current_page + 1], "bottom")
+
+        if panel1:
+            image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
+            text_display_list.append(self.master_birds_list[self.current_page])
+        else:
+            image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Dark" + ".png", 168, 252)
+            text_display_list.append(" ")
+        image_choice1 = image1.get_image(0, 0)
+
+        if panel2:
+            image2 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Light" + ".png",  168, 252)
+        else:
+            image2 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Dark" + ".png", 168, 252)
+        image_choice2 = image2.get_image(0, 0)
+
+        if panel3:
+            image3 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
+            text_display_list.append(self.master_birds_list[self.current_page + 1])
+        else:
+            image3 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Dark" + ".png", 168, 252)
+            text_display_list.append(" ")
+        image_choice3 = image3.get_image(0, 0)
+
+        if panel4:
+            image4 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Light" + ".png",  168, 252)
+        else:
+            image4 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Dark" + ".png", 168, 252)
+        image_choice4 = image4.get_image(0, 0)
+
+        menu_specific = {"image": [image_choice1, image_choice2, image_choice3, image_choice4]}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.gc_input.menu_controller.exit_all_menus()

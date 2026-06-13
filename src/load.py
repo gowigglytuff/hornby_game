@@ -58,13 +58,12 @@ def new_game_procedures(gc, gs):
                 x = item_counter
                 y = row_counter
                 feature_list.append((x, y, feature_reference_dict[item]))
-                print(feature_reference_dict[item], x, y)
 
     for item in feature_list:
         feature_type = gs.type_translator["Prop"]
         feature_subtype = gs.sub_type_translator["Tree"]
         unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "None", gs, "Marsh", item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+        feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", gs, "Marsh", item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
         gs.add_feature_ghost(unique_name, feature_ghost_object)
 
 
@@ -130,6 +129,7 @@ def install_all_data(gc, gs):
     def install_avatar_all(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
+            print(npc_item)
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
             if related_ghost.feature_subtype == Types.BIRD:
                 gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))

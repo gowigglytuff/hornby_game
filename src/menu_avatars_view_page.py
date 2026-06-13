@@ -77,7 +77,7 @@ class MenuAvatar(object):
 
         generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
-        skip_list = ["conversation_options_menu_avatar", "chat_menu_avatar", "outfit_menu_avatar", "map_menu_avatar", "picture_menu_avatar", "quiz_menu_avatar", "stat_menu_avatar", "game_action_dialogue_menu_avatar"]
+        skip_list = ["conversation_options_menu_avatar", "guide_menu_avatar", "chat_menu_avatar", "outfit_menu_avatar", "map_menu_avatar", "picture_menu_avatar", "quiz_menu_avatar", "stat_menu_avatar", "game_action_dialogue_menu_avatar"]
 
         if self.name in dictionary.keys():
             self.menu_display_details = dictionary[self.name]
@@ -439,6 +439,56 @@ class MapMenuAvatar(MenuAvatar):
         loc_x = 5
         loc_y = 5
         image = ImageDisplay(image, loc_x, loc_y)
+        final_menu_images.append(image)
+
+        return final_menu_images
+
+
+class GuideMenuAvatar(MenuAvatar):
+    NAME = "guide_menu_avatar"
+
+    def __init__(self, gc_input, name,  items):
+        super().__init__(gc_input, name,  items)
+
+        self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.offset_x = 2
+        self.offset_y = 1
+        self.set_menu_width = 70
+        self.set_menu_height = 53
+        self.fill_out_menu_info(items)
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        final_menu_text = []
+
+        page_width = 35
+
+        header_name1 = menu_info.text_display_list[0]
+        header_text1 = Mundane.center_text_x(page_width, 0, header_name1)
+        final_menu_text.append(TextDisplay(header_text1[0], header_text1[1] + self.offset_x + 5, self.offset_y + 25))
+
+        header_name2 = menu_info.text_display_list[1]
+        header_text2 = Mundane.center_text_x(page_width, 0, header_name2)
+        final_menu_text.append(TextDisplay(header_text2[0], header_text2[1] + self.offset_x + 5+ 168, self.offset_y + 25))
+
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        image_list = menu_info.menu_specific_details_dict["image"]
+        final_menu_images = []
+
+        loc_x = 5
+        loc_y = 5
+
+        image = ImageDisplay(image_list[0], loc_x + self.offset_x, loc_y + self.offset_y)
+        final_menu_images.append(image)
+
+        image = ImageDisplay(image_list[1], loc_x + self.offset_x, loc_y + self.offset_y)
+        final_menu_images.append(image)
+
+        image = ImageDisplay(image_list[2], loc_x + self.offset_x + 168, loc_y + self.offset_y)
+        final_menu_images.append(image)
+
+        image = ImageDisplay(image_list[3], loc_x + self.offset_x + 168, loc_y + self.offset_y)
         final_menu_images.append(image)
 
         return final_menu_images

@@ -6,7 +6,7 @@ from random import choice
 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView
@@ -107,9 +107,9 @@ class GameController(object):
             self.game_state.gc.menu_controller.post_notice("There is nothing selected")
 
     def npc_event_popoff(self):
-        # feature = self.game_state.get_feature_ghost("Pigeon_49")
-        # if ("Pigeon_49" in self.game_state.feature_ghost_list.keys()) and feature.active:
-        #     self.move_feature_chaotically("Pigeon_49")
+        feature = self.game_state.get_feature_ghost("Pigeon_44")
+        if ("Pigeon_44" in self.game_state.feature_ghost_list.keys()) and feature.active:
+            self.move_feature_chaotically("Pigeon_44")
         pass
 
     def switch_tile_frame(self):
@@ -318,17 +318,17 @@ class GameController(object):
 
             if success:
                 ghost = self.game_state.get_feature_ghost(result)
-                self.game_state.gc.menu_controller.post_notice("Snapped a pic of a " + ghost.species)
+                self.game_state.gc.menu_controller.post_notice("Snapped a pic of a " + ghost.display_name)
                 gallery_menu = self.game_state.ms.get_menu_ghost(GalleryMenuGhost.BASE)
                 if ghost.feature_subtype == Types.BIRD and not gallery_menu.check_if_item_in_list("Bird", ghost.species) and not ghost.species == "Pigeon":
-                    gallery_menu.add_to_item_list("Bird", ghost.species)
-                    self.game_state.gc.menu_controller.post_notice("Added " + ghost.species + " to gallery!")
+                    gallery_menu.add_to_item_list("Bird", ghost.species, ghost.display_name)
+                    self.game_state.gc.menu_controller.post_notice("Added " + ghost.display_name + " to gallery!")
                 elif ghost.species == "Pigeon":
                     # TODO: START HERE
-                    gallery_menu.add_to_item_list("Tree", ghost.species)
+                    gallery_menu.add_to_item_list("Tree", ghost.species, ghost.display_name)
                 elif ghost.feature_subtype == Types.TREE and not gallery_menu.check_if_item_in_list("Tree", ghost.species):
-                    gallery_menu.add_to_item_list("Tree", ghost.species)
-                    self.game_state.gc.menu_controller.post_notice("Added " + ghost.species + " to gallery!")
+                    gallery_menu.add_to_item_list("Tree", ghost.species, ghost.display_name)
+                    self.game_state.gc.menu_controller.post_notice("Added " + ghost.display_name + " to gallery!")
             else:
                 self.game_state.gc.menu_controller.post_notice("There was nothing there")
 
@@ -432,7 +432,7 @@ class GameController(object):
             feature_type = self.game_state.type_translator[feature_dict["type"]]
             feature_subtype = self.game_state.sub_type_translator[feature_dict["subtype"]]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["function"], self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
+            feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
                                                               self.game_state.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
                                                               int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
             if feature_subtype == Types.DECO:
@@ -450,7 +450,8 @@ class GameController(object):
             feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_type,
                                                                                           feature_subtype,
                                                                                           feature_dict["species"],
-                                                                                          unique_name, feature_dict["display_name"],
+                                                                                          unique_name,
+                                                                                          feature_dict["display_name"],
                                                                                           feature_dict["function"],
                                                                                           self.game_state,
                                                                                           feature_dict["room"],
@@ -705,7 +706,7 @@ class MenuController(object):
         self.gc_input = gc_input  # type: GameController
         self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, NumberSelectionMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
+                               GameActionDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
     def activate_menu(self):
         pass

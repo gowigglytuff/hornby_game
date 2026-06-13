@@ -6,7 +6,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
@@ -54,6 +54,7 @@ class GameView(object):
                                  "chat_menu": ChatMenuAvatar,
                                   "outfit_menu": OutfitMenuAvatar,
                                   "map_menu": MapMenuAvatar,
+                                  "guide_menu": GuideMenuAvatar,
                                   "picture_menu": PictureMenuAvatar,
                                   "gallery_menu": GalleryMenuAvatar,
                                   "stat_menu": StatMenuAvatar,
@@ -164,15 +165,17 @@ class GameView(object):
         final_image = pygame.Surface((menu_avatar.overlay_image.get_width(), menu_avatar.overlay_image.get_height()))
         final_image.blit(menu_avatar.overlay_image, [0, 0])
 
+        if final_menu_images:
+            for item in final_menu_images:
+                image = item.image
+                final_image.blit(image, [item.x, item.y])
+
         for item in final_menu_text:
             my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
             item_text = my_font.render(item.text, True, (0, 0, 0))
             final_image.blit(item_text, [item.x, item.y])
 
-        if final_menu_images:
-            for item in final_menu_images:
-                image = item.image
-                final_image.blit(image, [item.x, item.y])
+
 
         full_menu = final_image
 
