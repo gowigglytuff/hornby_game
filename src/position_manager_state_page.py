@@ -187,8 +187,7 @@ class PositionManager(object):
     # endregion
 
     def remove_feature_from_map(self, feature_name, room):
-        feature_list = self.gc_input.game_state.feature_ghost_list
-        chosen_feature = feature_list[feature_name]
+        chosen_feature = self.gc_input.game_state.get_feature_ghost(feature_name)
 
         room_object = room
         current_cube = room_object.access_cube(chosen_feature.x, chosen_feature.y)

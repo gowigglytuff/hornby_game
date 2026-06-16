@@ -112,6 +112,38 @@ class GameController(object):
             self.move_feature_chaotically("Pigeon_44")
         pass
 
+    def get_feature_display_name(self, feature_unique_nane):
+        ghost = self.game_state.get_feature_ghost(feature_unique_nane)
+        return ghost.display_name
+
+    def pick_up_package(self, type, package_unique_name, room_name, package_items):
+        self.menu_controller.post_notice("You picked up the package")
+        room_object = self.game_state.get_room(room_name)
+        ghost = self.game_state.get_feature_ghost(package_unique_name)
+        ghost.spawn_active = False
+        self.position_manager.despawn_feature(package_unique_name, room_object)
+        for item in package_items:
+            if type == "Package":
+                self.inventory_manager.get_key_or_temp_item(item, 1)
+            if type == "Page":
+                self.inventory_manager.get_page(item)
+
+    def look_in_basket(self, basket_unique_name, basket_items):
+        if basket_items:
+            print("I'm testing this out", basket_items)
+            ghost = self.game_state.get_feature_ghost(basket_unique_name)
+            self.menu_controller.post_notice("You looked in the " + ghost.species)
+            details = {"item_list": basket_items, "basket_unique_name": basket_unique_name}
+            self.menu_controller.set_menu(AcquireMenuGhost.BASE, details)
+        else:
+            self.menu_controller.post_notice("It appears to be empty.")
+
+    def take_from_basket(self, basket_unique_name, name_item_taken):
+        self.inventory_manager.get_key_or_temp_item(name_item_taken, 1)
+        self.menu_controller.post_notice("You took the " + name_item_taken)
+        ghost = self.game_state.get_feature_ghost(basket_unique_name)
+        ghost.function_items.remove(name_item_taken)
+
     def switch_tile_frame(self):
         ref = self.game_view.tile_frame
         if ref == 1:
@@ -227,8 +259,8 @@ class GameController(object):
         npc_talking_to_ghost = self.game_state.feature_ghost_list[npc_talking_to]
         npc_talking_to_avatar = self.game_view.feature_avatar_list[npc_talking_to]
         self.change_feature_facing(npc_talking_to, direction_to_turn)
-        self.game_state.gc.menu_controller.post_notice("You talked to " + npc_talking_to_ghost.display_name)
-        details = {"speaker_name": npc_talking_to_ghost.display_name,
+        self.game_state.gc.menu_controller.post_notice("You talked to " + self.get_feature_display_name(npc_talking_to_ghost.name))
+        details = {"speaker_name": self.get_feature_display_name(npc_talking_to_ghost.name),
                    "friendship_level": npc_talking_to_ghost.friendship_level,
                    "face_image": npc_talking_to_avatar.face_image,
                    "speaker_unique_name": npc_talking_to_ghost.unique_name}
@@ -440,6 +472,23 @@ class GameController(object):
             else:
                 self.game_state.add_feature_ghost(unique_name, feature_ghost_object)
 
+    def import_pages_from_csv(self, filename):
+        feature_data = self.process_features_from_csv(filename)
+
+        return feature_data
+
+        # for feature_dict in feature_data:
+        #     feature_type = self.game_state.type_translator[feature_dict["type"]]
+        #     feature_subtype = self.game_state.sub_type_translator[feature_dict["subtype"]]
+        #     unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+        #     feature_ghost_object = self.game_state.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self.game_state, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
+        #                                                       self.game_state.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
+        #                                                       int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
+        #     if feature_subtype == Types.DECO:
+        #         self.game_state.add_deco_ghost(unique_name, feature_ghost_object)
+        #     else:
+        #         self.game_state.add_feature_ghost(unique_name, feature_ghost_object)
+
     def import_npcs_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
 
@@ -566,6 +615,17 @@ class GameController(object):
 class InventoryManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
+
+    def get_key_or_temp_item(self, item_name, quantity):
+        item_list = self.gc_input.game_data.item_data_list
+        key_item_list = self.gc_input.game_data.key_item_data_list
+        if item_name in key_item_list.keys():
+            self.get_key_item(item_name)
+        elif item_name in item_list.keys():
+            self.get_item(item_name, quantity)
+
+    def get_page(self, page_name):
+        self.gc_input.game_state.held_pages.append(page_name)
 
     def get_item(self, item_name, quantity):
         item = self.gc_input.game_data.item_data_list[item_name]

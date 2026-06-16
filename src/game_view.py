@@ -240,6 +240,11 @@ class GameView(object):
         selected_menu_display_details["coordinates"][0] = master_menu_display_details["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
         selected_menu_display_details["coordinates"][1] = master_menu_display_details["coordinates"][1]
 
+    def update_menu_display_details(self, menu_name, information_from_ghost):
+        selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
+        selected_menu_avatar.fill_out_menu_info(information_from_ghost)
+
+
     # endregion
 
     # region CAMERA

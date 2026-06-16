@@ -1,3 +1,5 @@
+import ast
+import copy
 import random
 from typing import TYPE_CHECKING
 
@@ -45,7 +47,8 @@ class FeatureGhost(object):
         self.species = species  # example: "Arbutus"
         self.unique_name = unique_name  # example "Arbutus_102"
         self.display_name = display_name
-        self.function = function  # example: "Basket"
+        self.function = None  # example: "Basket"
+        self.set_up_function(function)
         self.state = "idle"
         self.spawn_x = spawn_x
         self.spawn_y = spawn_y
@@ -85,6 +88,48 @@ class FeatureGhost(object):
     def get_removed(self):
         pass
 
+    def set_up_function(self, function_string):
+        if function_string != "None":
+            my_dict = ast.literal_eval(function_string)
+            self.function = list(my_dict)[0]
+            function_values = list(my_dict.values())
+            list_access = function_values[0]
+            function_values_split = list_access.split("-")
+            self.function_items = function_values_split
+        else:
+            pass
+
+
+        # function_base = ""
+        # breakdown = function_string
+        # remaining_string = ""
+        # for letter in breakdown:
+        #     if letter == ":":
+        #         remaining_string = function_string[function_string.index(letter) + 1:]
+        #         break
+        #     function_base = function_base + letter
+        #
+        # function_items = []
+        # string_start = 0
+        # string_end = 0
+        # progress_string = remaining_string
+        # for letter in remaining_string:
+        #     if letter == "[":
+        #         string_start += 1
+        #         string_end = string_start + progress_string.index(letter)
+        #         progress_string = progress_string[string_end:]
+        #         print(progress_string)
+        #     elif letter == ",":
+        #         string_end = string_start + progress_string.index(letter)
+        #         cut_string = remaining_string[string_start:string_end]
+        #         function_items.append(cut_string)
+        #         string_start = string_end + 1
+        #         progress_string = progress_string[string_end+1:]
+        # function_items.append(progress_string)
+        #
+        # print(function_base, remaining_string, function_items)
+
+
 
 class NpcGhost(FeatureGhost):
     def __init__(self, feature_type, feature_subtype, species, unique_name, display_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, base_phrase, good_gift_phrase, bad_gift_phrase, neutral_gift_phrase, bird_hint_phrase):
@@ -112,6 +157,7 @@ class NpcGhost(FeatureGhost):
             result_phrase = self.neutral_gift_phrase
             self.friendship_level += 1
         return result_phrase
+
 
 class BirdGhost(FeatureGhost):
     def __init__(self, feature_type, feature_subtype, species, unique_name, display_name,  function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active, phrase):
@@ -205,8 +251,14 @@ class PropGhost(FeatureGhost):
 
     def get_interacted_with(self):
         if self.function == "Basket":
-            self.gs_input.gc.menu_controller.post_notice("You looked in the " + self.species)
-            self.gs_input.gc.menu_controller.set_menu(AcquireMenuGhost.BASE, None)
+            basket_items = copy.copy(self.function_items)
+            print("these are the items", self.function_items)
+            self.gs_input.gc.look_in_basket(self.unique_name, basket_items)
+        elif self.function == "Package":
+            self.gs_input.gc.pick_up_package("Package", self.unique_name, self.room, self.function_items)
+        elif self.function == "Page":
+            self.gs_input.gc.pick_up_package("Page", self.unique_name, self.room, self.function_items)
+
         else:
             pass
 

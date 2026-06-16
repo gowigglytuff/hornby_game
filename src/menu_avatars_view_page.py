@@ -53,11 +53,11 @@ class MenuAvatar(object):
         self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
         self.menu_spread_x = 0
         self.name = name
-        self.set_menu_display_coordinates()
-        self.menu_type = None
 
         self.set_menu_width = None
         self.set_menu_height = None
+        self.set_menu_display_coordinates()
+        self.menu_type = None
 
         self.spritesheet_width = 0
         self.spritesheet_height = 0
@@ -66,14 +66,13 @@ class MenuAvatar(object):
         self.fill_out_menu_info(items)
 
     def set_menu_display_coordinates(self):
-        dictionary = {"start_menu_avatar": {"default_width": 32, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "acquire_menu_avatar": {"default_width": 32, "default_height": 500, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+        dictionary = {"start_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "acquire_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                          "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "key_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "gift_giving_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "number_selection_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}}
-
 
         generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
@@ -81,6 +80,8 @@ class MenuAvatar(object):
 
         if self.name in dictionary.keys():
             self.menu_display_details = dictionary[self.name]
+            self.set_menu_height = dictionary[self.name]["default_height"]
+            self.set_menu_width = dictionary[self.name]["default_width"]
         elif self.name in skip_list:
             pass
         else:
@@ -451,11 +452,15 @@ class GuideMenuAvatar(MenuAvatar):
         super().__init__(gc_input, name,  items)
 
         self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
-        self.offset_x = 2
+        self.offset_x = 10
+        self.bg_offset_x = 7
         self.offset_y = 1
+        self.bg_offset_y = 7
         self.set_menu_width = 70
         self.set_menu_height = 53
         self.fill_out_menu_info(items)
+        self.menu_spread_y = 25
+        self.paper_width = 168
 
     def get_menu_text_drawing_instructions(self, menu_info):
         final_menu_text = []
@@ -464,11 +469,37 @@ class GuideMenuAvatar(MenuAvatar):
 
         header_name1 = menu_info.text_display_list[0]
         header_text1 = Mundane.center_text_x(page_width, 0, header_name1)
-        final_menu_text.append(TextDisplay(header_text1[0], header_text1[1] + self.offset_x + 5, self.offset_y + 25))
+        final_menu_text.append(TextDisplay(header_text1[0], header_text1[1] + self.bg_offset_x, self.offset_y + 25))
+        colour = menu_info.text_display_list[1]
+        final_menu_text.append(TextDisplay(colour, self.offset_x + self.bg_offset_x, self.offset_y + 25 + self.menu_spread_y * 1))
+        size = menu_info.text_display_list[2]
+        final_menu_text.append(TextDisplay(size, self.offset_x + self.bg_offset_x, self.offset_y + 25 + self.menu_spread_y * 2))
+        call = menu_info.text_display_list[3]
+        final_menu_text.append(TextDisplay(call, self.offset_x + self.bg_offset_x, self.offset_y + 25 + self.menu_spread_y * 3))
+        text_spread = 4
+        description = menu_info.text_display_list[4]
+        for line in description:
+            final_menu_text.append(TextDisplay(line, self.offset_x + self.bg_offset_x, self.offset_y + 60 + self.menu_spread_y * text_spread))
+            text_spread += 1
 
-        header_name2 = menu_info.text_display_list[1]
+
+        header_name2 = menu_info.text_display_list[5]
         header_text2 = Mundane.center_text_x(page_width, 0, header_name2)
-        final_menu_text.append(TextDisplay(header_text2[0], header_text2[1] + self.offset_x + 5+ 168, self.offset_y + 25))
+        final_menu_text.append(TextDisplay(header_text2[0], header_text2[1] + self.offset_x + self.paper_width, self.offset_y + 25))
+
+        colour2 = menu_info.text_display_list[6]
+        final_menu_text.append(TextDisplay(colour2, self.offset_x + self.bg_offset_x + self.paper_width, self.offset_y + 25 + self.menu_spread_y * 1))
+        size2 = menu_info.text_display_list[7]
+        final_menu_text.append(TextDisplay(size2, self.offset_x + self.bg_offset_x + self.paper_width, self.offset_y + 25 + self.menu_spread_y * 2))
+        call2 = menu_info.text_display_list[8]
+        final_menu_text.append(TextDisplay(call2, self.offset_x + self.bg_offset_x + self.paper_width, self.offset_y + 25 + self.menu_spread_y * 3))
+
+        description = menu_info.text_display_list[9]
+        text_spread = 4
+        for line in description:
+            final_menu_text.append(TextDisplay(line, self.offset_x + self.bg_offset_x + self.paper_width, self.offset_y + 60 + self.menu_spread_y * text_spread))
+            text_spread += 1
+
 
         return final_menu_text
 
@@ -476,19 +507,17 @@ class GuideMenuAvatar(MenuAvatar):
         image_list = menu_info.menu_specific_details_dict["image"]
         final_menu_images = []
 
-        loc_x = 5
-        loc_y = 5
+        image = ImageDisplay(image_list[0], self.bg_offset_x, self.bg_offset_y)
 
-        image = ImageDisplay(image_list[0], loc_x + self.offset_x, loc_y + self.offset_y)
         final_menu_images.append(image)
 
-        image = ImageDisplay(image_list[1], loc_x + self.offset_x, loc_y + self.offset_y)
+        image = ImageDisplay(image_list[1],  self.bg_offset_x, self.bg_offset_y)
         final_menu_images.append(image)
 
-        image = ImageDisplay(image_list[2], loc_x + self.offset_x + 168, loc_y + self.offset_y)
+        image = ImageDisplay(image_list[2], self.bg_offset_x + self.paper_width, self.bg_offset_y)
         final_menu_images.append(image)
 
-        image = ImageDisplay(image_list[3], loc_x + self.offset_x + 168, loc_y + self.offset_y)
+        image = ImageDisplay(image_list[3], self.bg_offset_x + self.paper_width, self.bg_offset_y)
         final_menu_images.append(image)
 
         return final_menu_images

@@ -70,6 +70,7 @@ def new_game_procedures(gc, gs):
 def access_csv(x, y, csv):
     return csv[y][x]
 
+
 def read_csv(filename):
     map = []
     int_map = []
@@ -129,7 +130,6 @@ def install_all_data(gc, gs):
     def install_avatar_all(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
-            print(npc_item)
             related_ghost = gc.game_state.feature_ghost_list[npc_item]
             if related_ghost.feature_subtype == Types.BIRD:
                 gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
@@ -163,10 +163,21 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, Shovel, Wrench, Axe]
+        items_to_install = [Hammer, Shovel, Wrench, Axe, Page1]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
             gc.inventory_manager.get_key_item(item)
+
+    def install_bird_pages(gc, gs): #TODO: Keep working on this
+        gc.import_pages_from_csv("assets/import_data/pages_import_dict.csv")
+        pages_to_install = gc.import_pages_from_csv("assets/import_data/pages_import_dict.csv")
+        for page in pages_to_install:
+            if page["segment"] == "top":
+                gs.gd.add_bird_page_data(page["bird"] + page["segment"], BirdPage(gc, page["bird"], page["segment"], page["colour"], page["size"], page["call"], None))
+            elif page["segment"] == "bottom":
+                gs.gd.add_bird_page_data(page["bird"] + page["segment"], BirdPage(gc, page["bird"], page["segment"], None, None, None, page["approach"]))
+        print(gc.game_state.gd.bird_page_data_list)
+
 
     def install_menus(gc, gs):
         for ghost in gc.menu_controller.menu_load_list:
@@ -214,6 +225,7 @@ def install_all_data(gc, gs):
     install_temp_items(gc, gs)
     install_outfits(gc, gs)
     install_key_items(gc, gs)
+    install_bird_pages(gc, gs)
     install_menus(gc, gs)
     install_goals(gc, gs)
     install_tileset(gc, gs)

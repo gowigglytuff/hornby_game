@@ -41,6 +41,7 @@ class GameState(object):
         self.bird_count = 1
         self.pigeon_count = 5
         self.total_seeds_found = 26
+        self.held_pages = []
 
         self.day_of_summer = 12
         self.hour_of_day = 1
@@ -294,6 +295,9 @@ class GameData(object):
     def __init__(self):
         self.prop_avatar_list = {}
         self.decoration_data_list = {}
+        self.bird_master_list = ["Meadowlark", "Nuthatch", "Crow", "Tanager", "Starling", "Saw-whet_0wl", "Barred_Owl", "Great_Horned_Owl", 'Nighthawk',
+                "Blackbird", "Junko", "Flycatcher", "Wood_Peewee", "Thrush", "Robin", "Goldfinch", "Cormorant", "Seagull", "Coot", "Green_Heron",
+                "Kingfisher", "Redwing_Blackbird", "Mallard", "Murrelet", "Harlequin_Duck"]
 
         self.room_data_list = {}
         self.door_data_list = {}
@@ -308,9 +312,13 @@ class GameData(object):
         self.spritesheet_list = {}
         self.item_data_list = {}
         self.key_item_data_list = {}
+        self.bird_page_data_list = {}
 
     def add_key_item_data(self, item_name, item_object):
         self.key_item_data_list[item_name] = item_object
+
+    def add_bird_page_data(self, page_name, page_object):
+        self.bird_page_data_list[page_name] = page_object
 
     def add_item_data(self, item_name, item_object):
         self.item_data_list[item_name] = item_object

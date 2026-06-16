@@ -189,6 +189,13 @@ class KeyItem(object):
         self.gc_input.update_game_dialogue("You can't use that now")
 
 
+class Page1(KeyItem):
+    NAME = "Page 1"
+
+    def __init__(self, gc_input):
+        super().__init__(gc_input)
+
+
 class Hammer(KeyItem):
     NAME = "Hammer"
 
@@ -256,3 +263,18 @@ class Axe(KeyItem):
             message = "You can't use the Axe now"
 
         return message
+
+
+class BirdPage(object):
+    '''
+    :type gc_input: GameController
+    :return: None
+    '''
+    def __init__(self, gc_input, bird, segment, colour, size, call, approach):
+        self.gc_input = gc_input
+        self.bird = bird
+        self.segment = segment
+        self.colour = colour
+        self.size = size
+        self.call = call
+        self.approach = approach
