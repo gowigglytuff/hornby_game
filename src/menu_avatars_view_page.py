@@ -482,7 +482,6 @@ class GuideMenuAvatar(MenuAvatar):
             final_menu_text.append(TextDisplay(line, self.offset_x + self.bg_offset_x, self.offset_y + 60 + self.menu_spread_y * text_spread))
             text_spread += 1
 
-
         header_name2 = menu_info.text_display_list[5]
         header_text2 = Mundane.center_text_x(page_width, 0, header_name2)
         final_menu_text.append(TextDisplay(header_text2[0], header_text2[1] + self.offset_x + self.paper_width, self.offset_y + 25))
@@ -500,6 +499,11 @@ class GuideMenuAvatar(MenuAvatar):
             final_menu_text.append(TextDisplay(line, self.offset_x + self.bg_offset_x + self.paper_width, self.offset_y + 60 + self.menu_spread_y * text_spread))
             text_spread += 1
 
+        on_first_page = self.gc_input.make_flashing_text(menu_info.text_display_list[10])
+        final_menu_text.append(TextDisplay(on_first_page, self.offset_x + self.bg_offset_x, self.offset_y + 240))
+
+        on_last_page = self.gc_input.make_flashing_text(menu_info.text_display_list[11])
+        final_menu_text.append(TextDisplay(on_last_page, self.offset_x - self.bg_offset_x + self.paper_width * 2 - 12, self.offset_y + 240))
 
         return final_menu_text
 

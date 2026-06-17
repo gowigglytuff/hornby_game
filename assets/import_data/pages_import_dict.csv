@@ -1,3 +1,50 @@
 ﻿bird,Starling,segment,top,colour,Green,size,Med,call,Howdy
+bird,Starling,segment,bottom,approach,Walk in a straight line,,,,
 bird,Robin,segment,top,colour,Red,size,Med,call,Howdy
-bird,Robin,segment,bottom,approach,Be quiet and gentle
+bird,Robin,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Meadowlark,segment,top,colour,Green,size,Med,call,Howdy
+bird,Meadowlark,segment,bottom,approach,Walk in a straight line,,,,
+bird,Nuthatch,segment,top,colour,Red,size,Med,call,Howdy
+bird,Nuthatch,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Crow,segment,top,colour,Green,size,Med,call,Howdy
+bird,Crow,segment,bottom,approach,Walk in a straight line,,,,
+bird,Tanager,segment,top,colour,Red,size,Med,call,Howdy
+bird,Tanager,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Saw-whet_Owl,segment,top,colour,Green,size,Med,call,Howdy
+bird,Saw-whet_Owl,segment,bottom,approach,Walk in a straight line,,,,
+bird,Barred_Owl,segment,top,colour,Red,size,Med,call,Howdy
+bird,Barred_Owl,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Great_Horned_Owl,segment,top,colour,Green,size,Med,call,Howdy
+bird,Great_Horned_Owl,segment,bottom,approach,Walk in a straight line,,,,
+bird,Nighthawk,segment,top,colour,Red,size,Med,call,Howdy
+bird,Nighthawk,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Blackbird,segment,top,colour,Green,size,Med,call,Howdy
+bird,Blackbird,segment,bottom,approach,Walk in a straight line,,,,
+bird,Junko,segment,top,colour,Red,size,Med,call,Howdy
+bird,Junko,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Flycatcher,segment,top,colour,Red,size,Med,call,Howdy
+bird,Flycatcher,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Wood_Peewee,segment,top,colour,Red,size,Med,call,Howdy
+bird,Wood_Peewee,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Thrush,segment,top,colour,Red,size,Med,call,Howdy
+bird,Thrush,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Goldfinch,segment,top,colour,Red,size,Med,call,Howdy
+bird,Goldfinch,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Cormorant,segment,top,colour,Red,size,Med,call,Howdy
+bird,Cormorant,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Seagull,segment,top,colour,Red,size,Med,call,Howdy
+bird,Seagull,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Coot,segment,top,colour,Red,size,Med,call,Howdy
+bird,Coot,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Green_Heron,segment,top,colour,Red,size,Med,call,Howdy
+bird,Green_Heron,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Kingfisher,segment,top,colour,Red,size,Med,call,Howdy
+bird,Kingfisher,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Redwing_Blackbird,segment,top,colour,Red,size,Med,call,Howdy
+bird,Redwing_Blackbird,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Mallard,segment,top,colour,Red,size,Med,call,Howdy
+bird,Mallard,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Murrelet,segment,top,colour,Red,size,Med,call,Howdy
+bird,Murrelet,segment,bottom,approach,Be quiet and gentle,,,,
+bird,Harlequin_Duck,segment,top,colour,Red,size,Med,call,Howdy
+bird,Harlequin_Duck,segment,bottom,approach,Be quiet and gentle,,,,

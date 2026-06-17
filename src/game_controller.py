@@ -9,8 +9,7 @@ from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
-from game_view import GameView
-
+from game_view import GameView, OutfitManager
 
 
 class Game(object):
@@ -34,6 +33,7 @@ class GameEvents(object):
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.ask_animator_to_animate],
                             .167: [self.gc.npc_event_popoff],
                            .25: [self.gc.switch_tile_frame],
+                           .75: [self.gc.switch_flash],
                             1: [self.gc.game_clock_pass_1_minute]}
         self.setup_timers()
 
@@ -85,8 +85,10 @@ class GameController(object):
         self.menu_controller = MenuController(self)  # type:MenuController
         self.trigger_manager = TriggerManager(self) # type: TriggerManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
+        self.outfit_manager = OutfitManager(self) # type: OutfitManager
         self.feature_animations_in_progress = []
         self.move_counter = 0
+        self.flashing_currently = False
     # region GAME CONTROLS
     def set_active_keyboard_manager(self, active_manager_id):
         self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
@@ -98,6 +100,24 @@ class GameController(object):
         self.game_state.add_feature_ghost(unique_name, ghost_object)
         self.game_view.add_npc_avatar(unique_name, avatar_object)
     # endregion
+
+
+    def play_sound(self, sound_name):
+        pygame.mixer.Sound("assets/sound_effects/splash.mp3").play()
+
+    def switch_flash(self):
+        if self.flashing_currently:
+            self.flashing_currently = False
+        else:
+            self.flashing_currently = True
+
+    def make_flashing_text(self, text):
+        result = text
+
+        if self.flashing_currently:
+            result = ""
+
+        return result
 
     def use_selected_tool(self):
         if self.game_state.selected_tool != "None":
@@ -259,8 +279,8 @@ class GameController(object):
         npc_talking_to_ghost = self.game_state.feature_ghost_list[npc_talking_to]
         npc_talking_to_avatar = self.game_view.feature_avatar_list[npc_talking_to]
         self.change_feature_facing(npc_talking_to, direction_to_turn)
-        self.game_state.gc.menu_controller.post_notice("You talked to " + self.get_feature_display_name(npc_talking_to_ghost.name))
-        details = {"speaker_name": self.get_feature_display_name(npc_talking_to_ghost.name),
+        self.game_state.gc.menu_controller.post_notice("You talked to " + self.get_feature_display_name(npc_talking_to_ghost.unique_name))
+        details = {"speaker_name": self.get_feature_display_name(npc_talking_to_ghost.unique_name),
                    "friendship_level": npc_talking_to_ghost.friendship_level,
                    "face_image": npc_talking_to_avatar.face_image,
                    "speaker_unique_name": npc_talking_to_ghost.unique_name}
@@ -590,6 +610,8 @@ class GameController(object):
         pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
 
     def player_moved_followup(self, player_x, player_y):
+        if self.game_state.gc.position_manager.get_tile_terrain(self.game_state.get_current_room().room_name, player_x, player_y) == 1:
+            self.game_state.gc.play_sound("splash")
         self.check_for_map_triggers(player_x, player_y)
         pass
 
@@ -612,6 +634,7 @@ class GameController(object):
             else:
                 pass
 
+
 class InventoryManager(object):
     def __init__(self, gc_input):
         self.gc_input = gc_input  # type: GameController
@@ -623,6 +646,9 @@ class InventoryManager(object):
             self.get_key_item(item_name)
         elif item_name in item_list.keys():
             self.get_item(item_name, quantity)
+
+    def fetch_page(self, page_name):
+        return self.gc_input.game_state.gd.bird_page_data_list[page_name]
 
     def get_page(self, page_name):
         self.gc_input.game_state.held_pages.append(page_name)
@@ -823,8 +849,9 @@ class MenuController(object):
             self.gc_input.menu_controller.exit_menu(StartMenuGhost.BASE)
             self.gc_input.menu_controller.set_menu(SuppliesInventoryMenuGhost.BASE, None)
 
-        elif menu_selection == "Chore List":
-            pass
+        elif menu_selection == "Guide":
+            self.gc_input.menu_controller.exit_menu(StartMenuGhost.BASE)
+            self.gc_input.menu_controller.set_menu(GuideMenuGhost.BASE, None)
 
         elif menu_selection == "Profile":
             pass

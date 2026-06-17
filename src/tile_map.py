@@ -158,3 +158,51 @@ class ElevationMap:
         result = self.elevation_map[y-1][x-1]
         return result
 
+class TerrainMap:
+    def __init__(self, name, filename):
+        self.name = name
+        self.terrain_map = self.load_terrain_map(filename)
+
+    def load_terrain_map(self, filename):
+        return self.read_csv(filename)
+
+    def read_csv(self, filename):
+        map = []
+        int_map = []
+        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                map.append(list(row))
+        for row in map:
+            int_list = [int(i) for i in row]
+            int_map.append(int_list)
+        return int_map
+
+    def get_terrain(self, x, y):
+        result = self.terrain_map[y-1][x-1]
+        return result
+
+
+class FakeCSVMap:
+    def __init__(self, name, filename, x_size, y_size):
+        self.name = name
+        self.x_size = x_size
+        self.y_size = y_size
+        self.terrain_map = self.load_terrain_map(filename)
+
+    def load_terrain_map(self, filename):
+        return self.read_csv(filename)
+
+    def read_csv(self, filename):
+        map = []
+        int_map = []
+        for y in range(self.y_size):
+            row_stuff = []
+            for x in range(self.x_size):
+                row_stuff.append(0)
+            int_map.append(row_stuff)
+        return int_map
+
+    def get_terrain(self, x, y):
+        result = self.terrain_map[y-1][x-1]
+        return result

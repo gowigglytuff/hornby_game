@@ -9,7 +9,7 @@ from feature_ghost_data_page import PlayerGhost
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager
 from menu_avatars_view_page import MenuAvatar
-from position_manager_state_page import Ringside, Door, Consolidated
+from position_manager_state_page import Door, Consolidated
 
 
 def init_game(g):
@@ -91,7 +91,7 @@ def continue_game_procedures(gc, gs):
 def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
-        gs.gd.add_room_data(Ringside.ID, (Ringside()))
+        # gs.gd.add_room_data(Ringside.ID, (Ringside()))
         gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
@@ -163,7 +163,7 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, Shovel, Wrench, Axe, Page1]
+        items_to_install = [Hammer, Shovel, Wrench, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
             gc.inventory_manager.get_key_item(item)
@@ -177,6 +177,9 @@ def install_all_data(gc, gs):
             elif page["segment"] == "bottom":
                 gs.gd.add_bird_page_data(page["bird"] + page["segment"], BirdPage(gc, page["bird"], page["segment"], None, None, None, page["approach"]))
         print(gc.game_state.gd.bird_page_data_list)
+
+        for page in gs.gd.bird_page_data_list.keys():
+            gc.inventory_manager.get_page(gs.gd.bird_page_data_list[page].page_name)
 
 
     def install_menus(gc, gs):

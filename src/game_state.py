@@ -9,6 +9,7 @@ from position_manager_state_page import Room, Door
 if TYPE_CHECKING:
     from game_controller import GameController
 
+
 class GameState(object):
     '''
     :type gv: GameView
@@ -32,6 +33,7 @@ class GameState(object):
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.deco_ghost_list = {}
+        self.current_outfit = "green_shirt"
 
         self.new_game = True
         self.current_room = "Staging_Area"
@@ -42,6 +44,7 @@ class GameState(object):
         self.pigeon_count = 5
         self.total_seeds_found = 26
         self.held_pages = []
+        self.accessible_terrains = [0]
 
         self.day_of_summer = 12
         self.hour_of_day = 1
@@ -79,6 +82,18 @@ class GameState(object):
             key_list.append(item)
         return key_list
 
+    def check_if_in_accessible_terrains(self, terrain):
+        result = False
+        if terrain in self.accessible_terrains:
+            result = True
+        return result
+
+    def update_accessible_terrains(self, add_list, remove_list):
+        for item in add_list:
+            self.accessible_terrains.append(item)
+
+        for item in remove_list:
+            self.accessible_terrains.remove(item)
 
     def get_feature_locations(self):
         feature_location_list = []
@@ -295,7 +310,7 @@ class GameData(object):
     def __init__(self):
         self.prop_avatar_list = {}
         self.decoration_data_list = {}
-        self.bird_master_list = ["Meadowlark", "Nuthatch", "Crow", "Tanager", "Starling", "Saw-whet_0wl", "Barred_Owl", "Great_Horned_Owl", 'Nighthawk',
+        self.bird_master_list = ["Meadowlark", "Nuthatch", "Crow", "Tanager", "Starling", "Saw-whet_Owl", "Barred_Owl", "Great_Horned_Owl", 'Nighthawk',
                 "Blackbird", "Junko", "Flycatcher", "Wood_Peewee", "Thrush", "Robin", "Goldfinch", "Cormorant", "Seagull", "Coot", "Green_Heron",
                 "Kingfisher", "Redwing_Blackbird", "Mallard", "Murrelet", "Harlequin_Duck"]
 

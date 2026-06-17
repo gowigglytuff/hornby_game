@@ -135,7 +135,7 @@ class StartMenuGhost(MenuGhost):
     def __init__(self, gc_input):
         super().__init__(gc_input)
         self.menu_header = None
-        self.menu_item_list = ["Bag", "Outfits", "Map", "Gallery", "Chore List", "Profile", "Save", "Options", "Vibes"]
+        self.menu_item_list = ["Bag", "Outfits", "Map", "Gallery", "Guide", "Profile", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
@@ -564,6 +564,7 @@ class OutfitMenuGhost(MenuGhost):
         self.update_currently_displayed()
         self.outfit_list = {"green_shirt": ["green_shirt", "Green Shirt"],
                             "red_shirt": ["red_shirt", "Red Shirt"],
+                            "mermaid": ["mermaid", "Mermaid"],
                             "lab_coat": ["lab", "Lab Coat"],
                             "ninja_shinobi": ["ninja_shinobi", "Ninja Shinobi"],
                             "au_naturel": ["au_naturel", "Au Naturel"]}
@@ -612,6 +613,7 @@ class OutfitMenuGhost(MenuGhost):
         player = self.gc_input.game_view.get_player_avatar()
         image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + self.selected_outfit + "_spritesheet.png",  32, 48)
         player.spritesheet = image
+        self.gc_input.outfit_manager.put_on_outfit(self.selected_outfit)
         self.gc_input.menu_controller.exit_all_menus()
 
 
@@ -1175,6 +1177,10 @@ class GuideMenuGhost(MenuGhost):
 
         bird1 = self.master_birds_list[self.current_page]
         bird2 = self.master_birds_list[self.current_page + 1]
+        bird1_page_top = None
+        bird1_page_bottom = None
+        bird2_page_top = None
+        bird2_page_bottom = None
 
         if not bird1:
             panel1 = False
@@ -1182,7 +1188,10 @@ class GuideMenuGhost(MenuGhost):
         else:
             panel1 = self.check_if_have_panel(bird1 + "top")
             panel2 = self.check_if_have_panel(bird1 + "bottom")
-
+            if panel1:
+                bird1_page_top = self.gc_input.inventory_manager.fetch_page(bird1 + "top")
+            if panel2:
+                bird1_page_bottom = self.gc_input.inventory_manager.fetch_page(bird1 + "bottom")
 
         if not bird2:
             panel3 = False
@@ -1190,15 +1199,19 @@ class GuideMenuGhost(MenuGhost):
         else:
             panel3 = self.check_if_have_panel(bird2 + "top")
             panel4 = self.check_if_have_panel(bird2 + "bottom")
-
-        # TODO: Pick up here and make it so that you get the text info from the Page item
+            if panel3:
+                bird2_page_top = self.gc_input.inventory_manager.fetch_page(bird2 + "top")
+                print(bird2_page_top.colour)
+            if panel4:
+                bird2_page_bottom = self.gc_input.inventory_manager.fetch_page(bird2 + "bottom")
 
         if panel1:
             image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
+            # bird_ghost = self.gc_input.game_state.gd.get_feature_ghost(self.master_birds_list[self.current_page])
             text_display_list.append(self.master_birds_list[self.current_page])
-            text_display_list.append("Colour: " + "Yellow")
-            text_display_list.append("Size: " + "Large")
-            text_display_list.append("Call: " + "Tweet")
+            text_display_list.append("Colour: " + bird1_page_top.colour)
+            text_display_list.append("Size: " + bird1_page_top.size)
+            text_display_list.append("Call: " + bird1_page_top.call)
         else:
             image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Dark" + ".png", 168, 252)
             text_display_list.append(" ")
@@ -1209,7 +1222,7 @@ class GuideMenuGhost(MenuGhost):
 
         if panel2:
             image2 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Light" + ".png",  168, 252)
-            description = textwrap.wrap("This bird prefers when you are wearing yellow", width=15)
+            description = textwrap.wrap(bird1_page_bottom.approach, width=15)
             text_display_list.append(description)
         else:
             image2 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Dark" + ".png", 168, 252)
@@ -1219,9 +1232,9 @@ class GuideMenuGhost(MenuGhost):
         if panel3:
             image3 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
             text_display_list.append(self.master_birds_list[self.current_page + 1])
-            text_display_list.append("Colour: " + "Yellow")
-            text_display_list.append("Size: " + "Large")
-            text_display_list.append("Call: " + "Tweet")
+            text_display_list.append("Colour: " + bird2_page_top.colour)
+            text_display_list.append("Size: " + bird2_page_top.size)
+            text_display_list.append("Call: " + bird2_page_top.call)
         else:
             image3 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Dark" + ".png", 168, 252)
             text_display_list.append(" ")
@@ -1232,11 +1245,34 @@ class GuideMenuGhost(MenuGhost):
 
         if panel4:
             image4 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Light" + ".png",  168, 252)
-            description = textwrap.wrap("This bird prefers when you are wearing yellow", width=15)
+            description = textwrap.wrap(bird1_page_bottom.approach, width=15)
             text_display_list.append(description)
         else:
             image4 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Dark" + ".png", 168, 252)
             text_display_list.append([" "])
+
+        on_first_page = True
+        on_last_page = True
+
+        if self.current_page > 1:
+            on_first_page = False
+        else:
+            on_first_page = True
+
+        if self.current_page < len(self.master_birds_list) - 2:
+            on_last_page = False
+        else:
+            on_last_page = True
+
+        if not on_first_page:
+            text_display_list.append("<")
+        else:
+            text_display_list.append("")
+
+        if not on_last_page:
+            text_display_list.append(">")
+        else:
+            text_display_list.append("")
 
         image_choice4 = image4.get_image(0, 0)
 
@@ -1247,3 +1283,6 @@ class GuideMenuGhost(MenuGhost):
 
     def do_option(self):
         self.gc_input.menu_controller.exit_all_menus()
+
+    def reset_elements(self):
+        self.current_page = 0

@@ -12,12 +12,23 @@ if TYPE_CHECKING:
     from game_state import GameData, GameState
 
 class OutfitManager(object): #TODO: work on this
-    def __init__(self):
+    def __init__(self, gc_input):
+        self.gc_input = gc_input
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.red_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_red_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.green_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_green_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.lab_coat = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_lab_coat_spritesheet.png", self.character_frame_x, self.character_frame_y)
+
+    def put_on_outfit(self, outfit_name):
+        outgoing_outfit = copy.copy(self.gc_input.game_state.current_outfit)
+        self.gc_input.game_state.current_outfit = outfit_name
+
+        if outfit_name == "mermaid":
+            self.gc_input.game_state.update_accessible_terrains([1], [])
+
+        if outgoing_outfit == "mermaid":
+            self.gc_input.game_state.update_accessible_terrains([], [1])
 
 class GameView(object):
     def __init__(self, game_data, game_state):
@@ -37,7 +48,6 @@ class GameView(object):
         self.font_file = "assets/fonts/PressStart.ttf"
 
         self.font_medium = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
-        self.outfit_manager = OutfitManager() # type: OutfitManager
 
         self.tile_frame = 0
         self.night_filter = pygame.Surface(pygame.Rect((0, 0, self.resolution[0], self.resolution[1])).size)

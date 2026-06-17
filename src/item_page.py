@@ -189,13 +189,6 @@ class KeyItem(object):
         self.gc_input.update_game_dialogue("You can't use that now")
 
 
-class Page1(KeyItem):
-    NAME = "Page 1"
-
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
-
-
 class Hammer(KeyItem):
     NAME = "Hammer"
 
@@ -274,6 +267,7 @@ class BirdPage(object):
         self.gc_input = gc_input
         self.bird = bird
         self.segment = segment
+        self.page_name = bird + segment
         self.colour = colour
         self.size = size
         self.call = call

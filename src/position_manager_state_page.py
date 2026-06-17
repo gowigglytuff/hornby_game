@@ -3,7 +3,7 @@ import math
 from typing import TYPE_CHECKING
 import pygame
 from definitions import Direction, Types
-from tile_map import TileMap, ElevationMap
+from tile_map import TileMap, ElevationMap, TerrainMap, FakeCSVMap
 
 if TYPE_CHECKING:
     from game_controller import GameController
@@ -47,6 +47,14 @@ class PositionManager(object):
             if abs(int(adjacent_elevation) - current_elevation) > 1:
                 elevation_test = False
 
+        # elevation test
+        terrain_test = True
+        if edge_test:
+            # current_terrain = self.gc_input.game_state.get_current_player_elevation()
+            adjacent_terrain = self.get_adjacent_tile_terrain(checker, direction, room)
+            if not self.gc_input.game_state.check_if_in_accessible_terrains(adjacent_terrain):
+                terrain_test = False
+
         # door test
         door_test = False
         target_tile = self.get_adjacent_tile(self.gc_input.game_state.player_ghost, direction, room)
@@ -57,7 +65,7 @@ class PositionManager(object):
             door_result = True
 
         move_result = False
-        if alt_test and moving_test and edge_test and full_test and elevation_test:
+        if alt_test and moving_test and edge_test and full_test and elevation_test and terrain_test:
             move_result = True
 
         return move_result, door_result
@@ -250,6 +258,27 @@ class PositionManager(object):
             target_tile_x = checker.x + 1
         elevation_result = self.get_tile_elevation(room.room_name, target_tile_x, target_tile_y)
         return elevation_result
+
+    def get_adjacent_tile_terrain(self, checker, direction, room):
+        target_tile_x = checker.x
+        target_tile_y = checker.y
+        if direction == Direction.DOWN:
+            target_tile_y = checker.y + 1
+        elif direction == Direction.UP:
+            target_tile_y = checker.y - 1
+        elif direction == Direction.LEFT:
+            target_tile_x = checker.x - 1
+        elif direction == Direction.RIGHT:
+            target_tile_x = checker.x + 1
+        terrain_result = self.get_tile_terrain(room.room_name, target_tile_x, target_tile_y)
+        return terrain_result
+
+    def get_tile_terrain(self, room_name, x, y):
+        chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
+        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
+        terrain_result = chosen_plot.get_terrain(x * chosen_plot_address[0], y * chosen_plot_address[1])
+        return terrain_result
 
     def get_tile_elevation(self, room_name, x, y):
         chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
@@ -578,7 +607,7 @@ class Room(object):
             x += 1
             for y in range(self.total_plots_y):
                 y += 1
-                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), Plot(self.room_name, x, y))
+                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), Plot(self.room_name, x, y, self.plot_size_x, self.plot_size_y))
 
     def add_room_plot(self, plot_name, plot_object):
         self.plot_list[plot_name] = plot_object
@@ -704,52 +733,67 @@ class Door(object):
 
 
 class Plot(object):
-    def __init__(self, room, plot_x, plot_y):
+    def __init__(self, room, plot_x, plot_y, plot_size_x, plot_size_y):
         self.plot_x = plot_x
         self.plot_y = plot_y
+        self.plot_size_x = plot_size_x
+        self.plot_size_y = plot_size_y
         self.room = room
         self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
         self.background_csv_file = "assets/room_csv/background_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
         self.terrain_csv_file = "assets/room_csv/terrain_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.elevation_map = None
+        self.terrain_map = None
         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
         self.make_elevation_map()
+        self.make_terrain_map()
 
     def make_elevation_map(self):
         self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
+
+    def make_terrain_map(self):
+        if self.plot_name == "Marsh_1_1":
+            print("real", self.plot_name)
+            self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
+        else:
+            print("fake", self.plot_name)
+            self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)
 
     def get_elevation(self, x, y):
         elevation = self.elevation_map.get_elevation(x, y)
         return elevation
 
+    def get_terrain(self, x, y):
+        terrain = self.terrain_map.get_terrain(x, y)
+        return terrain
 
-class RingsidePlot(Plot):
-    def __init__(self, room, plot_x, plot_y):
-        super().__init__(room, plot_x, plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
-        self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
-        self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
-        self.make_elevation_map()
+# class RingsidePlot(Plot):
+#     def __init__(self, room, plot_x, plot_y):
+#         super().__init__(room, plot_x, plot_y)
+#         self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
+#         self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
+#         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
+#         self.make_elevation_map()
 
 
-class Ringside(Room):
-    ID = "Ringside"
-
-    def __init__(self):
-        super().__init__(self.ID, 55, 106)
-        self.initiate_room()
-
-    def add_all_plots(self):
-        for x in range(self.total_plots_x):
-            x += 1
-            for y in range(self.total_plots_y):
-                y += 1
-                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), RingsidePlot(self.room_name, x, y))
+# class Ringside(Room):
+#     ID = "Ringside"
+#
+#     def __init__(self):
+#         super().__init__(self.ID, 55, 106)
+#         self.initiate_room()
+#
+#     def add_all_plots(self):
+#         for x in range(self.total_plots_x):
+#             x += 1
+#             for y in range(self.total_plots_y):
+#                 y += 1
+#                 self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), RingsidePlot(self.room_name, x, y))
 
 class ConsolidatedPlot(Plot):
-    def __init__(self, room, plot_x, plot_y):
-        super().__init__(room, plot_x, plot_y)
+    def __init__(self, room, plot_x, plot_y, plot_size_x, plot_size_y):
+        super().__init__(room, plot_x, plot_y, plot_size_x, plot_size_y)
         self.background_csv_file = "assets/room_csv/background_csv/" + self.plot_name + "_Background.csv"
         self.elevation_csv_file = "assets/room_csv/elevation_csv/" + self.plot_name + "_Elevation.csv"
         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
@@ -768,4 +812,4 @@ class Consolidated(Room):
             x += 1
             for y in range(self.total_plots_y):
                 y += 1
-                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.room_name, x, y))
+                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.room_name, x, y, self.plot_size_x, self.plot_size_y))
