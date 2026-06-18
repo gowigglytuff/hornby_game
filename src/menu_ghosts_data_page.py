@@ -610,9 +610,6 @@ class OutfitMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        player = self.gc_input.game_view.get_player_avatar()
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + self.selected_outfit + "_spritesheet.png",  32, 48)
-        player.spritesheet = image
         self.gc_input.outfit_manager.put_on_outfit(self.selected_outfit)
         self.gc_input.menu_controller.exit_all_menus()
 

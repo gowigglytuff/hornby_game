@@ -34,6 +34,7 @@ class GameState(object):
         self.prop_ghost_list = {}
         self.deco_ghost_list = {}
         self.current_outfit = "green_shirt"
+        self.revert_outfit = "green_shirt"
 
         self.new_game = True
         self.current_room = "Staging_Area"
@@ -44,7 +45,7 @@ class GameState(object):
         self.pigeon_count = 5
         self.total_seeds_found = 26
         self.held_pages = []
-        self.accessible_terrains = [0]
+        self.accessible_terrains = [0, 1]
 
         self.day_of_summer = 12
         self.hour_of_day = 1

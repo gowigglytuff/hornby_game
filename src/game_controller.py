@@ -325,6 +325,21 @@ class GameController(object):
     def check_if_player_already_animating(self):
         return self.game_view.player_avatar.currently_animating
 
+    def check_for_tile_transition(self, room_object, current_x, current_y, target_x, target_y):
+        result = False
+        current_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, current_x, current_y)
+        target_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, target_x, target_y)
+        if current_tile_terrain != target_tile_terrain:
+            result = True
+        print("terrainchecking,", result)
+
+        if result:
+            if target_tile_terrain == 1:
+                print("water")
+                self.outfit_manager.put_on_temporary_outfit("Mermaid")
+            elif current_tile_terrain == 1:
+                self.outfit_manager.put_on_outfit(self.game_state.revert_outfit)
+
     def initiate_player_movement(self, direction):
         room_object = self.game_view.game_data.room_data_list[self.game_state.current_room]
         target_tile = self.position_manager.get_adjacent_tile(self.game_state.player_ghost, direction, room_object)
@@ -337,6 +352,8 @@ class GameController(object):
             if move_status:
                 player = self.game_state.get_player_ghost()
                 self.game_view.walk_player_avatar(direction)
+                print(player.x, player.y, target_tile.x, target_tile.y)
+                self.check_for_tile_transition(room_object, player.x, player.y, target_tile.x, target_tile.y)
                 self.position_manager.move_ghost(player, room_object, room_object, player.x + Direction.get_vector_from_direction(direction)[0], player.y + Direction.get_vector_from_direction(direction)[1])
                 self.player_moved_followup(player.x, player.y)
             else:

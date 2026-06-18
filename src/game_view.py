@@ -23,12 +23,19 @@ class OutfitManager(object): #TODO: work on this
     def put_on_outfit(self, outfit_name):
         outgoing_outfit = copy.copy(self.gc_input.game_state.current_outfit)
         self.gc_input.game_state.current_outfit = outfit_name
+        self.gc_input.game_state.revert_outfit = outfit_name
+        player = self.gc_input.game_view.get_player_avatar()
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_name + "_spritesheet.png",  32, 48)
+        player.spritesheet = image
 
-        if outfit_name == "mermaid":
-            self.gc_input.game_state.update_accessible_terrains([1], [])
+    def put_on_temporary_outfit(self, outfit_name):
+        outgoing_outfit = copy.copy(self.gc_input.game_state.current_outfit)
+        self.gc_input.game_state.revert_outfit = outgoing_outfit
+        self.gc_input.game_state.current_outfit = outfit_name
+        player = self.gc_input.game_view.get_player_avatar()
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_name + "_spritesheet.png",  32, 48)
+        player.spritesheet = image
 
-        if outgoing_outfit == "mermaid":
-            self.gc_input.game_state.update_accessible_terrains([], [1])
 
 class GameView(object):
     def __init__(self, game_data, game_state):
