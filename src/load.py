@@ -7,7 +7,7 @@ from feature_avatar_view_page import PlayerAvatar
 from definitions import Direction, Types, GameSettings
 from feature_ghost_data_page import PlayerGhost
 from item_page import *
-from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager
+from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager
 from menu_avatars_view_page import MenuAvatar
 from position_manager_state_page import Door, Consolidated
 
@@ -105,7 +105,7 @@ def install_all_data(gc, gs):
 
     def install_doors(gc, gs):
         gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Marsh", 3, 6, 23, 15)
+        gs.gd.add_door_data("Ladder", "Staging_Area", "Marsh", 3, 6, 21, 33)
         gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
         gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
@@ -150,6 +150,7 @@ def install_all_data(gc, gs):
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(InSceneKeyboardManager.ID, InSceneKeyboardManager(gc))
 
     def set_initial_keyboard_manager(gc, gs):
         gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
@@ -176,7 +177,6 @@ def install_all_data(gc, gs):
                 gs.gd.add_bird_page_data(page["bird"] + page["segment"], BirdPage(gc, page["bird"], page["segment"], page["colour"], page["size"], page["call"], None))
             elif page["segment"] == "bottom":
                 gs.gd.add_bird_page_data(page["bird"] + page["segment"], BirdPage(gc, page["bird"], page["segment"], None, None, None, page["approach"]))
-        print(gc.game_state.gd.bird_page_data_list)
 
         for page in gs.gd.bird_page_data_list.keys():
             gc.inventory_manager.get_page(gs.gd.bird_page_data_list[page].page_name)

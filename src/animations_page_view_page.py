@@ -32,6 +32,7 @@ class Animation(object):
         self.changing_variable = Mundane.direction_feedback(self.direction, self.x_change, self.x_change, self.y_change, self.y_change)
         self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
 
+
 class WalkAnimation(Animation):
     def __init__(self, direction):
         super().__init__(direction)
@@ -478,3 +479,51 @@ class BirdDisappearAnimation(IndependentAnimation):
         self.frame_counter = 0
         self.total_images = 22
         self.frame_speed = 10
+
+
+class CameraPanAnimation(object):
+    def __init__(self):
+        self.complete = False
+        self.y_change = 0
+        self.x_change = 0
+
+
+        self.total_tiles = 0
+        self.total_movement_distance = 0
+        self.frame_counter = 0
+        self.frame_speed = 10
+        self.direction = None
+        self.current_frame = 0
+        self.speed_multiplier = 1
+        self.speed_tracker = 0
+
+    def set_animation(self, direction, number_of_tiles):
+        self.total_tiles = number_of_tiles
+        self.total_movement_distance = number_of_tiles * GameSettings.TILESIZE
+
+        vector_x, vector_y = Direction.get_vector_from_direction(direction)
+
+    def animate(self):
+        if self.speed_tracker == self.speed_multiplier:
+            self.y_change = 2
+            self.speed_tracker = 0
+        else:
+            self.y_change = 0
+            self.speed_tracker += 1
+
+        self.frame_counter += 1
+
+        if self.frame_counter == 160:
+            print("ding")
+            self.complete = True
+
+        print(self.frame_counter, self.total_movement_distance, self.complete)
+
+        return self.result()
+
+    def result(self):
+        camera_y_change = -self.y_change
+        camera_x_change = self.x_change
+        complete = self.complete
+
+        return camera_y_change, camera_x_change, complete

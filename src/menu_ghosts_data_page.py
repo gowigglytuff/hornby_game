@@ -159,7 +159,6 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
         self.cursor = "-"
 
     def prepare_menu_for_display(self, details):
-        print("ping", self.menu_item_list)
         self.menu_item_list = details["item_list"]
         self.current_basket = details["basket_unique_name"]
         self.menu_item_list.append("Exit")
@@ -1198,7 +1197,6 @@ class GuideMenuGhost(MenuGhost):
             panel4 = self.check_if_have_panel(bird2 + "bottom")
             if panel3:
                 bird2_page_top = self.gc_input.inventory_manager.fetch_page(bird2 + "top")
-                print(bird2_page_top.colour)
             if panel4:
                 bird2_page_bottom = self.gc_input.inventory_manager.fetch_page(bird2 + "bottom")
 

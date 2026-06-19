@@ -754,10 +754,8 @@ class Plot(object):
 
     def make_terrain_map(self):
         if self.plot_name == "Marsh_1_1":
-            print("real", self.plot_name)
             self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
         else:
-            print("fake", self.plot_name)
             self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)
 
     def get_elevation(self, x, y):

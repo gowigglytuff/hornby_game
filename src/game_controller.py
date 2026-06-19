@@ -4,6 +4,7 @@ import os
 import random
 from random import choice
 
+from animations_page_view_page import CameraPanAnimation
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
@@ -30,7 +31,7 @@ class GameEvents(object):
     def __init__(self, game_controller):
         self.gc = game_controller  # type: GameController
         self.timer_list = []
-        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.ask_animator_to_animate],
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.ask_animator_to_animate, self.gc.ask_scene_to_animate],
                             .167: [self.gc.npc_event_popoff],
                            .25: [self.gc.switch_tile_frame],
                            .75: [self.gc.switch_flash],
@@ -86,7 +87,9 @@ class GameController(object):
         self.trigger_manager = TriggerManager(self) # type: TriggerManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
         self.outfit_manager = OutfitManager(self) # type: OutfitManager
+        self.scene_manager = SceneManager(self)     # SceneManager
         self.feature_animations_in_progress = []
+        self.scene_animations_in_progress = []
         self.move_counter = 0
         self.flashing_currently = False
     # region GAME CONTROLS
@@ -177,7 +180,10 @@ class GameController(object):
     # region FEATURE MOVEMENT
 
     def add_to_anim_in_progress(self, feature_unique_name):
-        self.feature_animations_in_progress.append(feature_unique_name)
+        self.scene_animations_in_progress.append(feature_unique_name)
+
+    def add_to_scene_anim_in_progress(self, scene_animation_name):
+        self.scene_animations_in_progress.append(scene_animation_name)
 
     def move_feature_chaotically(self, feature_unique_name):
         already_animating = self.check_if_feature_already_animating(feature_unique_name)
@@ -465,6 +471,13 @@ class GameController(object):
                 complete_animation_names.append(animation_name)
         for item in complete_animation_names:
             self.game_view.complete_independent_animation(item)
+
+    def ask_scene_to_animate(self):
+        for scene_animation in self.scene_animations_in_progress:
+            wrap_up = self.game_view.animation_manager.perform_scene_animation(scene_animation)
+            if wrap_up:
+                self.scene_animations_in_progress.remove(scene_animation)
+                self.scene_manager.scene_end_character_movements({})
 
     def change_feature_facing(self, name, direction):
         self.game_state.change_feature_ghost_facing(name, direction)
@@ -992,3 +1005,37 @@ class MenuController(object):
 
     def resize_sub_menu(self):
         pass
+
+
+class SceneManager(object): #TODO: Work on this mess!!
+    def __init__(self, gc_input):
+        self.gc_input = gc_input
+        self.scene_list = {}
+        self.animation_list = {"pan_down_3": CameraPanAnimation()}
+        self.player_movement_x = 0
+        self.player_movement_y = 0
+
+    def play_scene(self):
+        self.gc_input.set_active_keyboard_manager(InSceneKeyboardManager.ID)
+
+    def end_scene(self):
+        self.gc_input.set_active_keyboard_manager(InGameKeyboardManager.ID)
+
+    def pan_camera(self, direction, number_of_tiles):
+        self.animation_list["pan_down_3"].set_animation(direction, number_of_tiles)
+        self.player_movement_x = number_of_tiles
+        self.gc_input.add_to_scene_anim_in_progress("pan_down_3")
+
+    def blank_out_character(self, character_name):
+        pass
+
+    def scene_end_character_movements(self, movement_dict):
+        movement_dict = {"player": [self.player_movement_x, self.player_movement_y]}
+        player_object = self.gc_input.game_state.get_player_ghost()
+        x_change = player_object.x - movement_dict["player"][0]
+        y_change = player_object.y - movement_dict["player"][1]
+        # self.change_player_facing(door.exit_direction)
+        current_room_object = self.gc_input.game_state.get_current_room()
+        self.gc_input.position_manager.move_ghost(player_object, current_room_object, current_room_object, x_change, y_change)
+        self.gc_input.position_manager.match_player_elevation_to_target(current_room_object, x_change, y_change)
+        # self.gc_input.game_view.manually_update_camera(x_change, y_change)

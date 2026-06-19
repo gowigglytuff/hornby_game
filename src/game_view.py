@@ -272,6 +272,10 @@ class GameView(object):
     def manually_update_camera(self, x_change, y_change):
         self.camera[0] += (x_change * GameSettings.TILESIZE)
         self.camera[1] += (y_change * GameSettings.TILESIZE)
+
+    def slide_camera(self, x_change, y_change):
+        self.camera[0] += x_change
+        self.camera[1] += y_change
     # endregion
 
     # region PLAYER AVATAR
@@ -352,7 +356,7 @@ class GameView(object):
 
 class AnimationManager(object):
     def __init__(self, gv_input):
-        self.gv = gv_input
+        self.gv = gv_input # type:GameView
         self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
         self.independent_animation_trigger_queue = []
         self.active_independent_animations = {}
@@ -379,5 +383,15 @@ class AnimationManager(object):
         if complete:
             animator.currently_animating = False
             animator.current_animation = None
+            wrap_up = True
+        return wrap_up
+
+    def perform_scene_animation(self, animator):
+        wrap_up = False
+        animation_result = (self.gv.gs.gc.scene_manager.animation_list["pan_down_3"].animate())
+        self.gv.slide_camera(animation_result[0], animation_result[1])
+        complete = animation_result[2]
+        print("section 2", complete)
+        if complete:
             wrap_up = True
         return wrap_up

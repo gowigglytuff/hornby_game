@@ -194,7 +194,8 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc_input.game_view.trigger_independent_animation("bird_disappear_animation")
         # player = self.gc_input.game_view.get_player_avatar()
         # player.spritesheet = self.gc_input.game_view.outfit_manager.lab
-        self.gc_input.menu_controller.set_menu(GuideMenuGhost.BASE, None)
+        # self.gc_input.menu_controller.set_menu(GuideMenuGhost.BASE, None)
+        self.gc_input.scene_manager.pan_camera(Direction.DOWN, 5)
 
     def key_caps_pressed(self):
         self.gc_input.game.game_running = False
@@ -308,6 +309,116 @@ class InMenuKeyboardManager(KeyboardManager):
     def key_return_pressed(self):
         active_menu = self.gc_input.game_state.ms.menu_ghost_data_list[self.gc_input.game_state.ms.menu_stack[0] + "_ghost"]
         active_menu.choose_option()
+
+    def key_space_pressed(self):
+        pass
+
+    def key_control_pressed(self):
+        self.gc_input.menu_controller.exit_all_menus()
+
+    def key_lshift_pressed(self):
+        pass
+
+    def key_caps_pressed(self):
+        pass
+
+    def key_direction_released(self, direction):
+        pass
+
+    def key_return_released(self):
+        pass
+
+    def key_space_released(self):
+        pass
+
+    def key_control_released(self):
+        pass
+
+    def key_lshift_released(self):
+        pass
+
+    def key_caps_released(self):
+        pass
+
+
+class InSceneKeyboardManager(KeyboardManager):
+    ID = "InScene"
+
+    def __init__(self, game_view):
+        super().__init__(game_view)
+
+    def parse_key_input(self, event_type, key):
+        active_menu = self.gc_input.game_state.ms.menu_ghost_data_list[self.gc_input.game_state.ms.menu_stack[0] + "_ghost"]
+        if event_type == pygame.KEYDOWN:
+
+            self.gc_input.add_to_held_key(key)
+
+            if key == pygame.K_RIGHT:
+                active_menu.cursor_right()
+
+            if key == pygame.K_LEFT:
+                active_menu.cursor_left()
+
+            if key == pygame.K_DOWN:
+                active_menu.cursor_down()
+
+            if key == pygame.K_UP:
+                active_menu.cursor_up()
+
+            if key == pygame.K_RETURN:
+                self.key_return_pressed()
+
+            if key == pygame.K_SPACE:
+                self.key_space_pressed()
+
+            if key == pygame.K_LCTRL:
+                self.key_control_pressed()
+
+            if key == pygame.K_LSHIFT:
+                self.key_lshift_pressed()
+
+            if key == pygame.K_CAPSLOCK:
+                self.key_caps_pressed()
+
+            if key == pygame.K_ESCAPE:
+                self.gc_input.menu_controller.exit_all_menus()
+
+        elif event_type == pygame.KEYUP:
+
+            self.gc_input.remove_from_held_key(key)
+
+            if key == pygame.K_RIGHT:
+                self.key_direction_released(Direction.RIGHT)
+
+            if key == pygame.K_LEFT:
+                self.key_direction_released(Direction.LEFT)
+
+            if key == pygame.K_DOWN:
+                self.key_direction_released(Direction.DOWN)
+
+            if key == pygame.K_UP:
+                self.key_direction_released(Direction.UP)
+
+            if key == pygame.K_RETURN:
+                self.key_return_released()
+
+            if key == pygame.K_SPACE:
+                self.key_space_released()
+
+            if key == pygame.K_LCTRL:
+                self.key_control_released()
+
+            if key == pygame.K_LSHIFT:
+                self.key_lshift_released()
+
+            if key == pygame.K_CAPSLOCK:
+                self.key_caps_released()
+
+    def key_direction_pressed(self, direction):
+        pass
+
+    def key_return_pressed(self):
+        pass
 
     def key_space_pressed(self):
         pass
