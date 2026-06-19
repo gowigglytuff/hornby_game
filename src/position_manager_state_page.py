@@ -10,22 +10,22 @@ if TYPE_CHECKING:
 
 
 class PositionManager(object):
-    def __init__(self, gc_input):
-        self.gc_input = gc_input  # type: GameController
+    def __init__(self, gc):
+        self.gc = gc  # type: GameController
 
     # region PLAYER MOVEMENT
     def check_if_player_can_move(self, direction, checker, room):
 
         #alt test
         alt_test = True
-        if pygame.K_LALT in self.gc_input.get_held_keys():
+        if pygame.K_LALT in self.gc.get_held_keys():
             alt_test = False
-        if pygame.K_RALT in self.gc_input.get_held_keys():
+        if pygame.K_RALT in self.gc.get_held_keys():
             alt_test = False
 
         # already moving test
         moving_test = True
-        if self.gc_input.check_if_player_already_animating():
+        if self.gc.check_if_player_already_animating():
             moving_test = False
 
         # room edge test
@@ -42,7 +42,7 @@ class PositionManager(object):
         # elevation test
         elevation_test = True
         if edge_test:
-            current_elevation = self.gc_input.game_state.get_current_player_elevation()
+            current_elevation = self.gc.gs.get_current_player_elevation()
             adjacent_elevation = self.get_adjacent_tile_elevation(checker, direction, room)
             if abs(int(adjacent_elevation) - current_elevation) > 1:
                 elevation_test = False
@@ -50,14 +50,21 @@ class PositionManager(object):
         # elevation test
         terrain_test = True
         if edge_test:
-            # current_terrain = self.gc_input.game_state.get_current_player_elevation()
+            # current_terrain = self.gc.gs.get_current_player_elevation()
             adjacent_terrain = self.get_adjacent_tile_terrain(checker, direction, room)
-            if not self.gc_input.game_state.check_if_in_accessible_terrains(adjacent_terrain):
+            if not self.gc.gs.check_if_in_accessible_terrains(adjacent_terrain):
                 terrain_test = False
+
+        # mermaid crown test
+        mermaid_crown_test = True
+        if self.gc.gs.using_mermaid_crown:
+            adjacent_terrain = self.get_adjacent_tile_terrain(checker, direction, room)
+            if adjacent_terrain != 1:
+                terrain_test = True
 
         # door test
         door_test = False
-        target_tile = self.get_adjacent_tile(self.gc_input.game_state.player_ghost, direction, room)
+        target_tile = self.get_adjacent_tile(self.gc.gs.player_ghost, direction, room)
         door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y)
 
         door_result = False
@@ -65,7 +72,7 @@ class PositionManager(object):
             door_result = True
 
         move_result = False
-        if alt_test and moving_test and edge_test and full_test and elevation_test and terrain_test:
+        if alt_test and moving_test and edge_test and full_test and elevation_test and terrain_test and terrain_test:
             move_result = True
 
         return move_result, door_result
@@ -73,7 +80,7 @@ class PositionManager(object):
     def check_for_door(self, room_name, x, y):
         door = False
         hypothetical_door = room_name + "_" + str(x) + "_" + str(y)
-        for door_name in self.gc_input.game_data.door_data_list.keys():
+        for door_name in self.gc.game_data.door_data_list.keys():
             if door_name == hypothetical_door:
                 door = True
         return door
@@ -97,14 +104,14 @@ class PositionManager(object):
         # elevation test
         elevation_test = True
         if edge_test:
-            current_elevation = self.gc_input.game_state.get_current_player_elevation()
+            current_elevation = self.gc.gs.get_current_player_elevation()
             adjacent_elevation = self.get_adjacent_tile_elevation(checker, direction, room)
             if abs(int(adjacent_elevation) - current_elevation) > 1:
                 elevation_test = False
 
         # door test
         door_test = False
-        target_tile = self.get_adjacent_tile(self.gc_input.game_state.player_ghost, direction, room)
+        target_tile = self.get_adjacent_tile(self.gc.gs.player_ghost, direction, room)
         door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y)
 
         door_result = False
@@ -117,15 +124,15 @@ class PositionManager(object):
 
         if feature_ghost.feature_type == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.room_name, target_x, target_y)
-            self.gc_input.game_state.set_player_elevation(target_tile_elevation)
+            self.gc.gs.set_player_elevation(target_tile_elevation)
         else:
             pass
         if feature_ghost.feature_subtype == Types.BIRD:
-            self.gc_input.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
+            self.gc.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
 
 
     def move_ghost(self, feature, current_room, target_room, target_x, target_y):
-        self.gc_input.move_counter += 1
+        self.gc.move_counter += 1
         feature_ghost = feature
         current_x = copy.copy(feature_ghost.x)
         current_y = copy.copy(feature_ghost.y)
@@ -146,15 +153,15 @@ class PositionManager(object):
 
         if feature_ghost.feature_type == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.room_name, target_x, target_y)
-            self.gc_input.game_state.set_player_elevation(target_tile_elevation)
+            self.gc.gs.set_player_elevation(target_tile_elevation)
         else:
             pass
         if feature_ghost.feature_subtype == Types.BIRD:
-            self.gc_input.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
+            self.gc.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
 
     def match_player_elevation_to_target(self, target_room, target_x, target_y):
         new_tile_elevation = self.get_tile_elevation(target_room.room_name, target_x, target_y)
-        self.gc_input.game_state.set_player_elevation(new_tile_elevation)
+        self.gc.gs.set_player_elevation(new_tile_elevation)
     # endregion
 
     # region FEATURE MOVEMENT
@@ -195,7 +202,7 @@ class PositionManager(object):
     # endregion
 
     def remove_feature_from_map(self, feature_name, room):
-        chosen_feature = self.gc_input.game_state.get_feature_ghost(feature_name)
+        chosen_feature = self.gc.gs.get_feature_ghost(feature_name)
 
         room_object = room
         current_cube = room_object.access_cube(chosen_feature.x, chosen_feature.y)
@@ -275,22 +282,22 @@ class PositionManager(object):
 
     def get_tile_terrain(self, room_name, x, y):
         chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
-        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_room = self.gc.gs.get_room(room_name)
         chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
         terrain_result = chosen_plot.get_terrain(x * chosen_plot_address[0], y * chosen_plot_address[1])
         return terrain_result
 
     def get_tile_elevation(self, room_name, x, y):
         chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
-        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_room = self.gc.gs.get_room(room_name)
         chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
         elevation_result = chosen_plot.get_elevation(x * chosen_plot_address[0], y * chosen_plot_address[1])
         return elevation_result
 
     def get_current_plot_address(self):
-        current_room = self.gc_input.game_state.get_current_room
+        current_room = self.gc.gs.get_current_room
         plot_info_list = current_room.get_plot_information
-        player_coordinates = self.gc_input.game_state.get_player_ghost_location
+        player_coordinates = self.gc.gs.get_player_ghost_location
         total_room_x = plot_info_list[0] * plot_info_list[2]
         total_room_y = plot_info_list[1] * plot_info_list[3]
         proportion_x = total_room_x / player_coordinates[0]
@@ -300,7 +307,7 @@ class PositionManager(object):
         return [result_x, result_y]
 
     def get_chosen_plot_address(self, room_name, x, y):
-        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_room = self.gc.gs.get_room(room_name)
         plot_info_list = chosen_room.get_plot_information()
 
         total_room_x = plot_info_list[0] * plot_info_list[2]
@@ -345,24 +352,24 @@ class PositionManager(object):
     # endregion
 
     def despawn_feature(self, feature_name, room_object):
-        feature_ghost = self.gc_input.game_state.get_feature_ghost(feature_name)
-        feature_avatar = self.gc_input.game_view.get_npc_avatar(feature_name)
+        feature_ghost = self.gc.gs.get_feature_ghost(feature_name)
+        feature_avatar = self.gc.game_view.get_npc_avatar(feature_name)
         feature_ghost.active = False
 
         self.remove_feature_from_grid(feature_ghost, room_object)
         if feature_ghost.feature_subtype == Types.BIRD:
 
             remove_trigger_list = feature_ghost.get_triggered()
-            self.gc_input.trigger_manager.remove_triggers(room_object, feature_ghost)
+            self.gc.trigger_manager.remove_triggers(room_object, feature_ghost)
         feature_ghost.reset_to_spawn()
         feature_avatar.reset_to_spawn(feature_ghost)
-        if feature_avatar.unique_name in self.gc_input.feature_animations_in_progress:
-            self.gc_input.feature_animations_in_progress.remove(feature_avatar.unique_name)
+        if feature_avatar.unique_name in self.gc.feature_animations_in_progress:
+            self.gc.feature_animations_in_progress.remove(feature_avatar.unique_name)
             for item in feature_avatar.animation_list.values():
                 item.reset()
 
     def despawn_all_room_features(self, room_object):
-        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.room_name)
+        feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
             if ghost.species == "Player":
                 pass
@@ -370,7 +377,7 @@ class PositionManager(object):
                 self.despawn_feature(ghost.unique_name, room_object)
 
     def spawn_all_initial_room_features(self, room_object):
-        feature_ghosts = self.gc_input.game_state.get_all_features_in_room(room_object.room_name)
+        feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
 
             if ghost.species == "Player":
@@ -380,14 +387,14 @@ class PositionManager(object):
                     self.spawn_room_feature(ghost.unique_name, room_object)
 
     def spawn_room_feature(self, feature_name, room_object):
-        feature_ghost = self.gc_input.game_state.get_feature_ghost(feature_name)
+        feature_ghost = self.gc.gs.get_feature_ghost(feature_name)
         feature_ghost.active = True
 
         self.add_feature_to_grid(feature_ghost, room_object)
 
         if feature_ghost.feature_subtype == Types.BIRD:
             add_trigger_list = feature_ghost.produce_trigger_list()
-            self.gc_input.trigger_manager.add_triggers(room_object, add_trigger_list)
+            self.gc.trigger_manager.add_triggers(room_object, add_trigger_list)
 
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
@@ -447,15 +454,15 @@ class PositionManager(object):
 
     def get_tile_elevation(self, room_name, x, y):
         chosen_plot_address = self.get_chosen_plot_address(room_name, x, y)
-        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_room = self.gc.gs.get_room(room_name)
         chosen_plot = chosen_room.get_plot(chosen_plot_address[0], chosen_plot_address[1])
         elevation_result = chosen_plot.get_elevation(x * chosen_plot_address[0], y * chosen_plot_address[1])
         return elevation_result
 
     def get_current_plot_address(self):
-        current_room = self.gc_input.game_state.get_current_room
+        current_room = self.gc.gs.get_current_room
         plot_info_list = current_room.get_plot_information
-        player_coordinates = self.gc_input.game_state.get_player_ghost_location
+        player_coordinates = self.gc.gs.get_player_ghost_location
         total_room_x = plot_info_list[0] * plot_info_list[2]
         total_room_y = plot_info_list[1] * plot_info_list[3]
         proportion_x = total_room_x / player_coordinates[0]
@@ -465,7 +472,7 @@ class PositionManager(object):
         return [result_x, result_y]
 
     def get_chosen_plot_address(self, room_name, x, y):
-        chosen_room = self.gc_input.game_state.get_room(room_name)
+        chosen_room = self.gc.gs.get_room(room_name)
         plot_info_list = chosen_room.get_plot_information()
 
         total_room_x = plot_info_list[0] * plot_info_list[2]
@@ -510,11 +517,11 @@ class PositionManager(object):
     # endregion
 
     def fill_room_grid(self, room_to_fill):
-        selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_fill]
+        selected_room = self.gc.game.game_view.game_data.room_data_list[room_to_fill]
         fill_list = []
-        npc_ghost_list = self.gc_input.game.game_state.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
+        npc_ghost_list = self.gc.game.gs.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
         for npc in npc_ghost_list.keys():
-            npc_ghost = self.gc_input.game_state.get_feature_ghost(npc)
+            npc_ghost = self.gc.gs.get_feature_ghost(npc)
             if npc_ghost_list[npc].room == room_to_fill and npc_ghost.active:
                 fill_list.append(npc_ghost)
 
@@ -530,13 +537,13 @@ class PositionManager(object):
         selected_room.remove_feature(coordinates_list)
 
     def add_player_to_grid(self, room_name):
-        selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_name]
-        player = self.gc_input.game_state.get_player_ghost()
+        selected_room = self.gc.game.game_view.game_data.room_data_list[room_name]
+        player = self.gc.gs.get_player_ghost()
         player_coordinates = [[player.x, player.y]]
         selected_room.add_feature("Player", "Player", player.feature_subtype, player_coordinates)
 
     def clear_room_grid(self, room_to_clear):
-        selected_room = self.gc_input.game.game_view.game_data.room_data_list[room_to_clear]
+        selected_room = self.gc.game.game_view.game_data.room_data_list[room_to_clear]
         for x in range(selected_room.x_size):
             for y in range(selected_room.y_size):
                 coords = [(x, y)]
@@ -544,11 +551,11 @@ class PositionManager(object):
 
     # region FEATURE DICTIONARY
     def check_location_full(self, room_name, cube_coordinates):
-        return self.gc_input.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
+        return self.gc.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])
     # endregion
 
     def access_cube(self, x, y):
-        current_room = self.gc_input.game_state.get_current_room()
+        current_room = self.gc.gs.get_current_room()
         cube = current_room.access_cube(x, y)
         return cube
 

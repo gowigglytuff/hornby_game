@@ -1,5 +1,4 @@
 import random
-
 from definitions import Direction, GameSettings, Types, Mundane
 from spritesheet import Spritesheet
 
@@ -43,6 +42,7 @@ class WalkAnimation(Animation):
         self.x_vector = 0
         self.y_vector = 0
         self.set_directions()
+        self.delta_time_tracker = 0
 
     def animate(self):
         if self.current_frame <= (GameSettings.TILESIZE-1):
@@ -482,10 +482,13 @@ class BirdDisappearAnimation(IndependentAnimation):
 
 
 class CameraPanAnimation(object):
-    def __init__(self):
+    AN_TYPE = "camera"
+    def __init__(self, direction, number_of_tiles):
         self.complete = False
         self.y_change = 0
         self.x_change = 0
+        self.y_speed = 0
+        self.x_speed = 0
 
 
         self.total_tiles = 0
@@ -496,34 +499,53 @@ class CameraPanAnimation(object):
         self.current_frame = 0
         self.speed_multiplier = 1
         self.speed_tracker = 0
+        self.set_animation(direction, number_of_tiles)
 
     def set_animation(self, direction, number_of_tiles):
+        self.complete = False
         self.total_tiles = number_of_tiles
-        self.total_movement_distance = number_of_tiles * GameSettings.TILESIZE
+        self.total_movement_distance = abs(number_of_tiles) * GameSettings.TILESIZE
 
         vector_x, vector_y = Direction.get_vector_from_direction(direction)
+        print(direction, vector_x, vector_y)
+        self.y_speed = vector_y * 2
+        self.x_speed = vector_x * 2
 
     def animate(self):
         if self.speed_tracker == self.speed_multiplier:
-            self.y_change = 2
+            self.y_change = self.y_speed
+            self.x_change = self.x_speed
             self.speed_tracker = 0
         else:
             self.y_change = 0
+            self.x_change = 0
             self.speed_tracker += 1
 
-        self.frame_counter += 1
-
-        if self.frame_counter == 160:
-            print("ding")
+        if self.frame_counter == self.total_movement_distance:
             self.complete = True
-
-        print(self.frame_counter, self.total_movement_distance, self.complete)
+        else:
+            self.frame_counter += 1
 
         return self.result()
 
     def result(self):
-        camera_y_change = -self.y_change
+        camera_y_change = self.y_change
         camera_x_change = self.x_change
         complete = self.complete
+        follow_up_package = {}
+        if self.x_speed != 0:
+            follow_up_package = {"x_move": self.total_tiles, "y_move": 0}
+        elif self.y_speed != 0:
+            follow_up_package = {"x_move": 0, "y_move": self.total_tiles}
+        if self.complete:
+            self.reset()
 
-        return camera_y_change, camera_x_change, complete
+        return camera_x_change, camera_y_change, complete, follow_up_package
+
+    def reset(self):
+        self.y_change = 0
+        self.x_change = 0
+        self.speed_tracker = 0
+        self.current_frame = 0
+        self.frame_counter = 0
+        # self.complete = False

@@ -17,20 +17,20 @@ def init_game(g):
     pygame.key.set_repeat()
     # g.game_events.initiate_timers()
 
-    if g.game_state.new_game:
+    if g.gs.new_game:
 
-        new_game_procedures(g.game_controller, g.game_state)
+        new_game_procedures(g.game_controller, g.gs)
     else:
-        continue_game_procedures(g.game_controller, g.game_state)
+        continue_game_procedures(g.game_controller, g.gs)
 
-    install_all_data(g.game_controller, g.game_state)
+    install_all_data(g.game_controller, g.gs)
 
 
 def new_game_procedures(gc, gs):
     gc.import_features_from_csv("assets/import_data/feature_import_dict.csv")
     gc.import_npcs_from_csv("assets/import_data/NPC_import_dict.csv")
     gc.import_features_from_csv("assets/import_data/Deco_import.csv")
-    gs.add_player_ghost(PlayerGhost(gc.game.game_state, 1, 3))
+    gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
     tree_coords = [(24,10), (22,7), (20,5), (17,5), (15,4), (16,2), (20,2), (24,2), (28,10), (31,10), (33,8), (32,5), (36,3), (38,10), (35,13), (35,16), (40,14), (43,11), (45,8), (47,5), (49,3), (49,7), (49,11), (49,13), (49,14),(46,14),(39,18), (38,18)]
     # for tree_coord in tree_coords:
     #     feature_type = gs.type_translator["Prop"]
@@ -130,7 +130,7 @@ def install_all_data(gc, gs):
     def install_avatar_all(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
-            related_ghost = gc.game_state.feature_ghost_list[npc_item]
+            related_ghost = gc.gs.feature_ghost_list[npc_item]
             if related_ghost.feature_subtype == Types.BIRD:
                 gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
             else:
@@ -138,7 +138,7 @@ def install_all_data(gc, gs):
 
         deco_name_list = gs.get_all_deco_unique_names()
         for deco_item in deco_name_list:
-            related_ghost = gc.game_state.deco_ghost_list[deco_item]
+            related_ghost = gc.gs.deco_ghost_list[deco_item]
             gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
     def install_triggers(gc, gs):
@@ -213,8 +213,8 @@ def install_all_data(gc, gs):
         gs.gv.set_camera(gs.player_ghost.x, gs.player_ghost.y)
 
     def fill_initial_room(gc, gs):
-        gc.position_manager.fill_room_grid(gc.game.game_state.current_room)
-        gc.position_manager.add_player_to_grid(gc.game.game_state.current_room)
+        gc.position_manager.fill_room_grid(gc.game.gs.current_room)
+        gc.position_manager.add_player_to_grid(gc.game.gs.current_room)
 
     def initiate_mixer():
         pygame.mixer.init()

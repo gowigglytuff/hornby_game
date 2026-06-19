@@ -20,9 +20,9 @@ class MenuGhost(object):
     BASE = "menu_base"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
+    def __init__(self, gc):
         super().__init__()
-        self.gc_input = gc_input
+        self.gc = gc
 
         self.menu_header = "<Goodies>"
         self.menu_item_list = ["Poop", "Pee", "Dragon Eggs", "Weasel Toe"]
@@ -107,8 +107,8 @@ class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
 
         self.menu_item_list = []
@@ -118,7 +118,7 @@ class StatMenuGhost(MenuGhost):
         self.menu_type = Types.STATIC
 
     def prepare_menu_for_display(self):
-        stat_dict = self.gc_input.get_stat_items()
+        stat_dict = self.gc.get_stat_items()
         # self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
         # self.menu_item_list = [("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
         self.menu_item_list = ["Day:" + stat_dict["day"], "Time:" + stat_dict["time"], "Select: " + stat_dict["selected_tool"]]
@@ -132,8 +132,8 @@ class StartMenuGhost(MenuGhost):
     BASE = "start_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = ["Bag", "Outfits", "Map", "Gallery", "Guide", "Profile", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
@@ -143,15 +143,15 @@ class StartMenuGhost(MenuGhost):
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
-        self.gc_input.menu_controller.start_menu_selection(menu_selection)
+        self.gc.menu_controller.start_menu_selection(menu_selection)
 
 
 class AcquireMenuGhost(MenuGhost): #TODO: Work on this
     BASE = "acquire_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = ["Cheese", "Spoon", "Match"]
         self.menu_item_list.append("Exit")
@@ -163,7 +163,7 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
         self.current_basket = details["basket_unique_name"]
         self.menu_item_list.append("Exit")
         information_from_ghost = self.generate_menu_information_package()
-        self.gc_input.game_view.update_menu_display_details(self.BASE, information_from_ghost)
+        self.gc.game_view.update_menu_display_details(self.BASE, information_from_ghost)
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
@@ -186,18 +186,18 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
     def do_option(self):
         menu_selection = self.get_current_menu_item()
         if menu_selection == "Exit":
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
         else:
-            self.gc_input.take_from_basket(self.current_basket, menu_selection)
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.take_from_basket(self.current_basket, menu_selection)
+            self.gc.menu_controller.exit_all_menus()
 
 
 class InventoryMenuGhost(MenuGhost):
     BASE = "inventory_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = []
         self.menu_header = "<   ITEMS   >"
@@ -241,10 +241,10 @@ class InventoryMenuGhost(MenuGhost):
             pass
 
     def cursor_left(self):
-        self.gc_input.menu_controller.previous_menu(self.BASE)
+        self.gc.menu_controller.previous_menu(self.BASE)
 
     def cursor_right(self):
-        self.gc_input.menu_controller.next_menu(self.BASE)
+        self.gc.menu_controller.next_menu(self.BASE)
 
     def reset_elements(self):
         self.cursor_at[0] = 0
@@ -253,7 +253,7 @@ class InventoryMenuGhost(MenuGhost):
 
     def prepare_menu_for_display(self, details):
         keys_list = []
-        current_inventory = self.gc_input.game_state.get_inventory_items(self.BASE)
+        current_inventory = self.gc.gs.get_inventory_items(self.BASE)
         for item in current_inventory:
             keys_list.append(item)
         self.menu_item_list = keys_list
@@ -277,7 +277,7 @@ class InventoryMenuGhost(MenuGhost):
             else:
                 available_spaces = 13
                 item_word_length = len(item)
-                quantity = str(self.gc_input.game_state.get_item_quantity(item))
+                quantity = str(self.gc.gs.get_item_quantity(item))
                 quantity_word_length = len(quantity)
                 total_length = item_word_length + quantity_word_length
 
@@ -302,22 +302,22 @@ class InventoryMenuGhost(MenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
         else:
-            self.gc_input.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Cancel"]})
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Cancel"]})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
-        self.gc_input.menu_controller.inventory_menu_selection(self, sub_menu_selection, chosen_item_name)
+        self.gc.menu_controller.inventory_menu_selection(self, sub_menu_selection, chosen_item_name)
 
 
 class SuppliesInventoryMenuGhost(InventoryMenuGhost):
     BASE = "supplies_inventory_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = []
         self.menu_header = "<   ITEMS   >"
@@ -334,8 +334,8 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
     BASE = "gift_giving_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = []
         self.menu_header = "<   ITEMS   >"
@@ -352,7 +352,7 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
     def prepare_menu_for_display(self, details):
         self.details = details
         keys_list = []
-        current_inventory = self.gc_input.game_state.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
+        current_inventory = self.gc.gs.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
         for item in current_inventory:
             keys_list.append(item)
         self.menu_item_list = keys_list
@@ -371,24 +371,24 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
         else:
-            self.gc_input.menu_controller.post_notice("Give this item?")
-            self.gc_input.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
+            self.gc.menu_controller.post_notice("Give this item?")
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
         details = self.details
-        self.gc_input.menu_controller.gift_menu_selection(sub_menu_selection, chosen_item_name, details)
+        self.gc.menu_controller.gift_menu_selection(sub_menu_selection, chosen_item_name, details)
 
 
 class KeyInventoryMenuGhost(InventoryMenuGhost):
     BASE = "key_inventory_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = []
         self.menu_header = "< KEY ITEMS >"
@@ -418,37 +418,37 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
         if chosen_item_name == "Exit":
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
         else:
-            self.gc_input.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Select", "Cancel"]})
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Select", "Cancel"]})
 
     def do_option(self, choice=None):
         sub_menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
 
         if sub_menu_selection == "Use":
-            chosen_item = self.gc_input.inventory_manager.gc_input.game_state.gd.key_item_data_list[chosen_item_name]
-            self.gc_input.inventory_manager.use_key_item(chosen_item)
+            chosen_item = self.gc.inventory_manager.gc.gs.gd.key_item_data_list[chosen_item_name]
+            self.gc.inventory_manager.use_key_item(chosen_item)
             self.prepare_menu_for_display(None)
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
 
         elif sub_menu_selection == "Toss":
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
 
         elif sub_menu_selection == "Select":
-            self.gc_input.game_state.selected_tool = chosen_item_name
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.gs.selected_tool = chosen_item_name
+            self.gc.menu_controller.exit_all_menus()
 
         elif sub_menu_selection == "Cancel":
-            self.gc_input.menu_controller.exit_all_menus()
+            self.gc.menu_controller.exit_all_menus()
 
 
 class ConversationOptionsMenuGhost(MenuGhost):
     BASE = "conversation_options_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = ["Talk", "Give Gift", "Exit"]
@@ -521,7 +521,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
 
     def do_option(self):
         menu_selection = self.get_current_menu_item()
-        self.gc_input.menu_controller.conversation_options_menu_selection(menu_selection)
+        self.gc.menu_controller.conversation_options_menu_selection(menu_selection)
 
     def get_friendship(self, friendship):
         friendship_counter = " - - - - "
@@ -550,8 +550,8 @@ class OutfitMenuGhost(MenuGhost):
     BASE = "outfit_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
@@ -609,8 +609,8 @@ class OutfitMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc_input.outfit_manager.put_on_outfit(self.selected_outfit)
-        self.gc_input.menu_controller.exit_all_menus()
+        self.gc.outfit_manager.put_on_outfit(self.selected_outfit)
+        self.gc.menu_controller.exit_all_menus()
 
 
     def cursor_left(self):
@@ -650,8 +650,8 @@ class GalleryMenuGhost(MenuGhost):
     BASE = "gallery_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
@@ -738,7 +738,7 @@ class GalleryMenuGhost(MenuGhost):
 
     def do_option(self):
         details = {"image": "Crow"}
-        self.gc_input.menu_controller.set_menu(PictureMenuGhost.BASE, details)
+        self.gc.menu_controller.set_menu(PictureMenuGhost.BASE, details)
 
     def cursor_left(self):
         getattr(self, self.current_gallery + "_number")
@@ -787,8 +787,8 @@ class MapMenuGhost(MenuGhost):
     BASE = "map_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
@@ -815,15 +815,15 @@ class MapMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc_input.menu_controller.exit_all_menus()
+        self.gc.menu_controller.exit_all_menus()
 
 
 class PictureMenuGhost(MenuGhost):
     BASE = "picture_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
@@ -851,15 +851,15 @@ class PictureMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc_input.menu_controller.exit_all_menus()
+        self.gc.menu_controller.exit_all_menus()
 
 
 class ChatMenuGhost(MenuGhost):
     BASE = "chat_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
@@ -929,17 +929,17 @@ class ChatMenuGhost(MenuGhost):
 
         elif len(self.current_phrase) == 0:
             menu_selection = None
-            self.gc_input.menu_controller.chat_menu_selection(menu_selection)
+            self.gc.menu_controller.chat_menu_selection(menu_selection)
 
 
 class GameActionDialogueMenuGhost(MenuGhost):
     BASE = "game_action_dialogue_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
 
-        self.gc_input = gc_input
+        self.gc = gc
 
         self.menu_header = None
         self.menu_item_list = ["This is the game dialouge box!"]
@@ -972,8 +972,8 @@ class SubMenuGhost(MenuGhost):
     BASE = "sub_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_item_list = ["Yes", "No"]
         self.master_menu = None
         self.menu_type = Types.SUB
@@ -991,16 +991,16 @@ class SubMenuGhost(MenuGhost):
     def do_option(self, choice=None):
         menu_selection = choice
         chosen_item_name = self.get_current_menu_item()
-        self.gc_input.menu_controller.exit_menu(self.BASE)
-        self.gc_input.game_state.ms.get_menu_ghost(self.master_menu).do_option(chosen_item_name)
+        self.gc.menu_controller.exit_menu(self.BASE)
+        self.gc.gs.ms.get_menu_ghost(self.master_menu).do_option(chosen_item_name)
 
 
 class NumberSelectionMenuGhost(MenuGhost):
     BASE = "number_selection_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_item_list = []
         self.master_menu = None
         self.menu_type = Types.SUB
@@ -1040,8 +1040,8 @@ class NumberSelectionMenuGhost(MenuGhost):
 
     def do_option(self, choice=None):
         chosen_number = self.get_current_menu_item()
-        self.gc_input.menu_controller.exit_menu(self.BASE)
-        self.gc_input.game_state.ms.get_menu_ghost(self.master_menu).do_option(chosen_number)
+        self.gc.menu_controller.exit_menu(self.BASE)
+        self.gc.gs.ms.get_menu_ghost(self.master_menu).do_option(chosen_number)
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
@@ -1070,8 +1070,8 @@ class QuizMenuGhost(MenuGhost):
     BASE = "quiz_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = ["Talk", "Give Gift", "Exit"]
@@ -1116,8 +1116,8 @@ class GuideMenuGhost(MenuGhost):
     BASE = "guide_menu"
     NAME = BASE + "_ghost"
 
-    def __init__(self, gc_input):
-        super().__init__(gc_input)
+    def __init__(self, gc):
+        super().__init__(gc)
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
@@ -1126,7 +1126,7 @@ class GuideMenuGhost(MenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        bird_list = copy.copy(self.gc_input.game_state.gd.bird_master_list)
+        bird_list = copy.copy(self.gc.gs.gd.bird_master_list)
         self.master_birds_list = sorted(bird_list)
         if not Mundane.is_even(len(self.master_birds_list)):
             self.master_birds_list.append(None)
@@ -1146,7 +1146,7 @@ class GuideMenuGhost(MenuGhost):
 
     def check_if_have_panel(self, name):
         result = False
-        if name in self.gc_input.game_state.held_pages:
+        if name in self.gc.gs.held_pages:
             result = True
         # if name:
         #     if top_or_bottom == "top":
@@ -1185,9 +1185,9 @@ class GuideMenuGhost(MenuGhost):
             panel1 = self.check_if_have_panel(bird1 + "top")
             panel2 = self.check_if_have_panel(bird1 + "bottom")
             if panel1:
-                bird1_page_top = self.gc_input.inventory_manager.fetch_page(bird1 + "top")
+                bird1_page_top = self.gc.inventory_manager.fetch_page(bird1 + "top")
             if panel2:
-                bird1_page_bottom = self.gc_input.inventory_manager.fetch_page(bird1 + "bottom")
+                bird1_page_bottom = self.gc.inventory_manager.fetch_page(bird1 + "bottom")
 
         if not bird2:
             panel3 = False
@@ -1196,13 +1196,13 @@ class GuideMenuGhost(MenuGhost):
             panel3 = self.check_if_have_panel(bird2 + "top")
             panel4 = self.check_if_have_panel(bird2 + "bottom")
             if panel3:
-                bird2_page_top = self.gc_input.inventory_manager.fetch_page(bird2 + "top")
+                bird2_page_top = self.gc.inventory_manager.fetch_page(bird2 + "top")
             if panel4:
-                bird2_page_bottom = self.gc_input.inventory_manager.fetch_page(bird2 + "bottom")
+                bird2_page_bottom = self.gc.inventory_manager.fetch_page(bird2 + "bottom")
 
         if panel1:
             image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
-            # bird_ghost = self.gc_input.game_state.gd.get_feature_ghost(self.master_birds_list[self.current_page])
+            # bird_ghost = self.gc.gs.gd.get_feature_ghost(self.master_birds_list[self.current_page])
             text_display_list.append(self.master_birds_list[self.current_page])
             text_display_list.append("Colour: " + bird1_page_top.colour)
             text_display_list.append("Size: " + bird1_page_top.size)
@@ -1277,7 +1277,7 @@ class GuideMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc_input.menu_controller.exit_all_menus()
+        self.gc.menu_controller.exit_all_menus()
 
     def reset_elements(self):
         self.current_page = 0

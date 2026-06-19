@@ -45,7 +45,11 @@ class GameState(object):
         self.pigeon_count = 5
         self.total_seeds_found = 26
         self.held_pages = []
-        self.accessible_terrains = [0, 1]
+        self.accessible_terrains = [0]
+        self.using_mermaid_crown = False
+        self.mermaid_crown_initiation = [0,0]
+        self.mermaid_crown_counter = 0
+        self.mermaid_crown_limit = 20
 
         self.day_of_summer = 12
         self.hour_of_day = 1
@@ -206,7 +210,7 @@ class MenuState(object):
     def __init__(self, gs_input):
         self.menu_ghost_data_list = {}
         self.gs = gs_input
-        self.gc_input = self.gs.gc  # type: GameController
+        self.gc = self.gs.gc  # type: GameController
         self.menu_data_list = {}
         self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE]
         # self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
@@ -262,7 +266,7 @@ class MenuState(object):
 class ConditionChecker(object):
     def __init__(self, gs_input):
         self.gs = gs_input #type: GameState
-        self.gc_input = self.gs.gc  # type: GameController
+        self.gc = self.gs.gc  # type: GameController
 
     def check_player_on_tile(self, room_name, coords_list):
         result = False

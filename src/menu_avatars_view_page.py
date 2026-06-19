@@ -31,9 +31,9 @@ class ImageDisplay(object):
 class MenuAvatar(object):
     NAME = "Menu_Base_Avatar"
 
-    def __init__(self, gc_input, name, items):
+    def __init__(self, gc, name, items):
         self.menu_display_details = {}
-        self.gc_input = gc_input
+        self.gc = gc
 
         self.overlay_body_x = 0
         self.overlay_body_Y = 0
@@ -152,10 +152,10 @@ class MenuAvatar(object):
         self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
 
         if header:
-            # self.overlay_image = self.gc_input.build_special_overlay_image("special_menu" + "_overlay", menu_width, menu_height, self.offset_y)
-            self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
+            # self.overlay_image = self.gc.build_special_overlay_image("special_menu" + "_overlay", menu_width, menu_height, self.offset_y)
+            self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
         else:
-            self.overlay_image = self.gc_input.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
+            self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
 
         self.name = self.NAME
 
@@ -198,8 +198,8 @@ class MenuAvatar(object):
 class StatMenuAvatar(MenuAvatar):
     NAME = "stat_menu_avatar"
 
-    def __init__(self, gc_input, name, items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name, items):
+        super().__init__(gc, name,  items)
         self.menu_display_details = {"default_width": None, "default_height": None, "align_x": "center", "align_y": "top", "coordinates": [0, 0]}
         self.set_menu_width = 70
         self.set_menu_height = 8
@@ -232,8 +232,8 @@ class StatMenuAvatar(MenuAvatar):
 class GameActionDialogueMenuAvatar(MenuAvatar):
     NAME = "game_action_dialogue_menu_avatar"
 
-    def __init__(self, gc_input, name, items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name, items):
+        super().__init__(gc, name,  items)
         self.menu_display_details = {"default_width": None, "default_height": None, "align_x": "center", "align_y": "bottom", "coordinates": [0, 0]}
         self.offset_y = 20
         self.set_menu_width = 70
@@ -247,8 +247,8 @@ class GameActionDialogueMenuAvatar(MenuAvatar):
 class ConversationOptionsMenuAvatar(MenuAvatar):
     NAME = "conversation_options_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
         self.menu_display_details = {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
         self.offset_x = 130
         self.offset_y = 20
@@ -304,8 +304,8 @@ class ConversationOptionsMenuAvatar(MenuAvatar):
 class ChatMenuAvatar(MenuAvatar):
     NAME = "chat_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.menu_display_details = {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
 
@@ -366,8 +366,8 @@ class ChatMenuAvatar(MenuAvatar):
 class OutfitMenuAvatar(MenuAvatar):
     NAME = "outfit_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
@@ -418,8 +418,8 @@ class OutfitMenuAvatar(MenuAvatar):
 class MapMenuAvatar(MenuAvatar):
     NAME = "map_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.offset_x = 10
@@ -448,8 +448,8 @@ class MapMenuAvatar(MenuAvatar):
 class GuideMenuAvatar(MenuAvatar):
     NAME = "guide_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.offset_x = 10
@@ -499,10 +499,10 @@ class GuideMenuAvatar(MenuAvatar):
             final_menu_text.append(TextDisplay(line, self.offset_x + self.bg_offset_x + self.paper_width, self.offset_y + 60 + self.menu_spread_y * text_spread))
             text_spread += 1
 
-        on_first_page = self.gc_input.make_flashing_text(menu_info.text_display_list[10])
+        on_first_page = self.gc.make_flashing_text(menu_info.text_display_list[10])
         final_menu_text.append(TextDisplay(on_first_page, self.offset_x + self.bg_offset_x, self.offset_y + 240))
 
-        on_last_page = self.gc_input.make_flashing_text(menu_info.text_display_list[11])
+        on_last_page = self.gc.make_flashing_text(menu_info.text_display_list[11])
         final_menu_text.append(TextDisplay(on_last_page, self.offset_x - self.bg_offset_x + self.paper_width * 2 - 12, self.offset_y + 240))
 
         return final_menu_text
@@ -530,8 +530,8 @@ class GuideMenuAvatar(MenuAvatar):
 class PictureMenuAvatar(MenuAvatar):
     NAME = "picture_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.menu_display_details = {"default_width": 20, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
@@ -562,8 +562,8 @@ class PictureMenuAvatar(MenuAvatar):
 class GalleryMenuAvatar(MenuAvatar):
     NAME = "gallery_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.set_menu_width = 30
         self.set_menu_height = 20
@@ -611,8 +611,8 @@ class GalleryMenuAvatar(MenuAvatar):
 class NumberSelectionMenuAvatar(MenuAvatar):
     NAME = "number_selection_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
 
         self.set_menu_width = 20
         self.set_menu_height = 10
@@ -640,9 +640,9 @@ class NumberSelectionMenuAvatar(MenuAvatar):
 class QuizMenuAvatar(MenuAvatar):
     NAME = "quiz_menu_avatar"
 
-    def __init__(self, gc_input, name,  items):
-        super().__init__(gc_input, name,  items)
-        self.gc_input = gc_input
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
+        self.gc = gc
 
         self.overlay_body_x = 0
         self.overlay_body_Y = 0

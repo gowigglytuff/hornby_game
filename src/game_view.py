@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from game_state import GameData, GameState
 
 class OutfitManager(object): #TODO: work on this
-    def __init__(self, gc_input):
-        self.gc_input = gc_input
+    def __init__(self, gc):
+        self.gc = gc
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.red_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_red_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
@@ -21,18 +21,18 @@ class OutfitManager(object): #TODO: work on this
         self.lab_coat = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_lab_coat_spritesheet.png", self.character_frame_x, self.character_frame_y)
 
     def put_on_outfit(self, outfit_name):
-        outgoing_outfit = copy.copy(self.gc_input.game_state.current_outfit)
-        self.gc_input.game_state.current_outfit = outfit_name
-        self.gc_input.game_state.revert_outfit = outfit_name
-        player = self.gc_input.game_view.get_player_avatar()
+        outgoing_outfit = copy.copy(self.gc.gs.current_outfit)
+        self.gc.gs.current_outfit = outfit_name
+        self.gc.gs.revert_outfit = outfit_name
+        player = self.gc.game_view.get_player_avatar()
         image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_name + "_spritesheet.png",  32, 48)
         player.spritesheet = image
 
     def put_on_temporary_outfit(self, outfit_name):
-        outgoing_outfit = copy.copy(self.gc_input.game_state.current_outfit)
-        self.gc_input.game_state.revert_outfit = outgoing_outfit
-        self.gc_input.game_state.current_outfit = outfit_name
-        player = self.gc_input.game_view.get_player_avatar()
+        outgoing_outfit = copy.copy(self.gc.gs.current_outfit)
+        self.gc.gs.revert_outfit = outgoing_outfit
+        self.gc.gs.current_outfit = outfit_name
+        player = self.gc.game_view.get_player_avatar()
         image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_name + "_spritesheet.png",  32, 48)
         player.spritesheet = image
 
@@ -354,6 +354,7 @@ class GameView(object):
             animator.currently_animating = False
             animator.current_animation = None
 
+
 class AnimationManager(object):
     def __init__(self, gv_input):
         self.gv = gv_input # type:GameView
@@ -386,12 +387,11 @@ class AnimationManager(object):
             wrap_up = True
         return wrap_up
 
-    def perform_scene_animation(self, animator):
+    def perform_scene_animation(self, scene_animation):
         wrap_up = False
-        animation_result = (self.gv.gs.gc.scene_manager.animation_list["pan_down_3"].animate())
+        animation_result = scene_animation.animate()
         self.gv.slide_camera(animation_result[0], animation_result[1])
         complete = animation_result[2]
-        print("section 2", complete)
         if complete:
             wrap_up = True
-        return wrap_up
+        return wrap_up, animation_result[3]
