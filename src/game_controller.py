@@ -540,20 +540,34 @@ class GameController(object):
         self.gs.change_player_ghost_facing(final_facing)
         self.game_view.player_avatar.face_character(final_facing)
 
+    def install_element_ghost(self, feature_dict):
+        feature_type = self.gs.type_translator[feature_dict["type"]]
+        feature_subtype = self.gs.sub_type_translator[feature_dict["subtype"]]
+        unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+        feature_ghost_object = self.gs.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self.gs, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
+                                                                              self.gs.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
+                                                                              int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
+        if feature_subtype == Types.DECO:
+            self.gs.add_deco_ghost(unique_name, feature_ghost_object)
+        else:
+            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+
+        return feature_ghost_object
+
+    def install_element_avatar(self, related_ghost):
+        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.NPC or related_ghost.feature_type == Types.HOUSE:
+            if related_ghost.feature_subtype == Types.BIRD:
+                self.gs.gv.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+            else:
+                self.gs.gv.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+        elif related_ghost.feature_type == Types.DECO:
+            self.gs.gv.add_deco_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+
     def import_features_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
 
         for feature_dict in feature_data:
-            feature_type = self.gs.type_translator[feature_dict["type"]]
-            feature_subtype = self.gs.sub_type_translator[feature_dict["subtype"]]
-            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = self.gs.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self.gs, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
-                                                              self.gs.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
-                                                              int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
-            if feature_subtype == Types.DECO:
-                self.gs.add_deco_ghost(unique_name, feature_ghost_object)
-            else:
-                self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            self.install_element_ghost(feature_dict)
 
     def import_pages_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)

@@ -145,13 +145,9 @@ class GameView(object):
 
     def get_drawables_list(self, player_location, feature_locations, deco_locations, anim_locations):
         drawables_list = []
-        print(deco_locations)
-        for deco in deco_locations:
-            print("what's going on here??")
 
-        for deco in deco_locations: #TODO: Fix this
+        for deco in deco_locations:
             deco_avatar = self.get_deco_avatar(deco[0])
-            # print("avatar", deco_avatar)
             drawables_list.append([deco_avatar, deco[1], deco_avatar.drawing_priority])
 
         for npc in feature_locations:

@@ -363,39 +363,8 @@ class GameData(object):
     def add_room_data(self, room_name, room_object):
         self.room_data_list[room_name] = room_object
 
-    def add_door_data(self, door_type, room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y):
-        if door_type == "Ladder":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.MATCH)
-            self.door_data_list[door1_name] = door1_object
-
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y, Direction.MATCH)
-            self.door_data_list[door2_name] = door2_object
-
-        elif door_type == "Passage":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.MATCH)
-            self.door_data_list[door1_name] = door1_object
-
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
-            self.door_data_list[door2_name] = door2_object
-
-        elif door_type == "Double_back":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y+1, Direction.SWITCH)
-            self.door_data_list[door1_name] = door1_object
-
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.SWITCH)
-            self.door_data_list[door2_name] = door2_object
+    def add_door_data(self, door_name, door_object):
+        self.door_data_list[door_name] = door_object
 
     def add_temp_item_data(self, item_name, item_object):
         self.temp_item_data_list[item_name] = item_object

@@ -574,6 +574,82 @@ class PositionManager(object):
                 coords = [(x, y)]
                 selected_room.remove_feature(coords)
 
+    def add_door(self, door_type, room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y):
+        door1_name = None
+        door1_object = None
+        door2_name = None
+        door2_object = None
+
+        if door_type == "Ladder":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.MATCH)
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y, Direction.MATCH)
+
+            ladder_top_dict = {"type": "Deco", "subtype": "Deco", "species": "LadderTop", "display_name": "Ladder", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            ladder_bottom_dict = {"type": "Deco", "subtype": "Deco", "species": "LadderBottom", "display_name": "Ladder", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            ladder_top_ghost = self.gc.install_element_ghost(ladder_top_dict)
+            self.gc.install_element_avatar(ladder_top_ghost)
+            ladder_bottom_ghost = self.gc.install_element_ghost(ladder_bottom_dict)
+            self.gc.install_element_avatar(ladder_bottom_ghost)
+
+        elif door_type == "Passage":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.MATCH)
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
+
+            doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatExit", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y - 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doorway1_ghost = self.gc.install_element_ghost(doorway1_dict)
+            self.gc.install_element_avatar(doorway1_ghost)
+            doormat1_ghost = self.gc.install_element_ghost(doormat1_dict)
+            self.gc.install_element_avatar(doormat1_ghost)
+            doormat2_ghost = self.gc.install_element_ghost(doormat2_dict)
+            self.gc.install_element_avatar(doormat2_ghost)
+
+        elif door_type == "Double_back":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y+1, Direction.SWITCH)
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.SWITCH)
+
+            doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doorway2_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doorway1_ghost = self.gc.install_element_ghost(doorway1_dict)
+            self.gc.install_element_avatar(doorway1_ghost)
+            doorway2_ghost = self.gc.install_element_ghost(doorway2_dict)
+            self.gc.install_element_avatar(doorway2_ghost)
+
+            doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat1_ghost = self.gc.install_element_ghost(doormat1_dict)
+            self.gc.install_element_avatar(doormat1_ghost)
+            doormat2_ghost = self.gc.install_element_ghost(doormat2_dict)
+            self.gc.install_element_avatar(doormat2_ghost)
+
+        elif door_type == "Feature_Passage":
+            # Door 1
+            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.MATCH)
+
+            # Door 2
+            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
+
+        self.gc.gs.gd.add_door_data(door1_name, door1_object)
+        self.gc.gs.gd.add_door_data(door2_name, door2_object)
+
     # region FEATURE DICTIONARY
     def check_location_full(self, room_name, cube_coordinates):
         return self.gc.game.game_data.room_data_list[room_name].check_cube_full(cube_coordinates[0], cube_coordinates[1], cube_coordinates[2])

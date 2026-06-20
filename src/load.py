@@ -95,22 +95,22 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Zoo_Room", (Consolidated("Zoo_Room", 9, 30, 1, 1)))
 
-
     def install_doors(gc, gs):
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Marsh", 3, 6, 21, 33)
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
-        gs.gd.add_door_data("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
-        gs.gd.add_door_data("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
-        gs.gd.add_door_data("Ladder", "Cave", "Cave", 15, 8, 5, 7)
-        gs.gd.add_door_data("Passage", "Test_Room", "My_House", 5, 17, 2, 5)
-        gs.gd.add_door_data("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
-        gs.gd.add_door_data("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
-        gs.gd.add_door_data("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
-        gs.gd.add_door_data("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
-        gs.gd.add_door_data("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
-        gs.gd.add_door_data("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
-        gs.gd.add_door_data("Passage", "Staging_Area", "Zoo_Room", 6, 2, 5, 30)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Marsh", 3, 6, 21, 33)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
+        gc.position_manager.add_door("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
+        gc.position_manager.add_door("Double_back", "Staging_Area", "Marsh", 5, 2, 22, 18)
+        gc.position_manager.add_door("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
+        gc.position_manager.add_door("Ladder", "Cave", "Cave", 15, 8, 5, 7)
+        gc.position_manager.add_door("Feature_Passage", "Test_Room", "My_House", 5, 17, 2, 5)
+        gc.position_manager.add_door("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
+        gc.position_manager.add_door("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
+        gc.position_manager.add_door("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
+        gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
+        gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
+        gc.position_manager.add_door("Passage", "Staging_Area", "Zoo_Room", 6, 2, 5, 30)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -124,15 +124,12 @@ def install_all_data(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
             related_ghost = gc.gs.feature_ghost_list[npc_item]
-            if related_ghost.feature_subtype == Types.BIRD:
-                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
-            else:
-                gs.gv.add_npc_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+            gc.install_element_avatar(related_ghost)
 
         deco_name_list = gs.get_all_deco_unique_names()
         for deco_item in deco_name_list:
             related_ghost = gc.gs.deco_ghost_list[deco_item]
-            gs.gv.add_deco_avatar(related_ghost.unique_name, gc.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+            gc.install_element_avatar(related_ghost)
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
