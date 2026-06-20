@@ -252,7 +252,6 @@ class PropGhost(FeatureGhost):
     def get_interacted_with(self):
         if self.function == "Basket":
             basket_items = copy.copy(self.function_items)
-            print("these are the items", self.function_items)
             self.gs_input.gc.look_in_basket(self.unique_name, basket_items)
         elif self.function == "Package":
             self.gs_input.gc.pick_up_package("Package", self.unique_name, self.room, self.function_items)
@@ -283,33 +282,3 @@ class DecoGhost(FeatureGhost):
         super().__init__(feature_type, feature_subtype, species, unique_name, display_name, function, gs_input, room, spawn_x, spawn_y, direction, base_size_x, base_size_y, figure_size_x, figure_size_y, spawn_active)
         self.phrase = phrase
         self.feature_type = Types.DECO
-
-
-class MapTrigger(object):
-    def __init__(self, trigger_owner_unique_name, current_location_x, current_location_y, x_range, y_range):
-        self.triggers_name = trigger_owner_unique_name
-        self.trigger_owner_unique_name = trigger_owner_unique_name
-        self.current_location_x = current_location_x
-        self.current_location_y = current_location_y
-        self.x_range = x_range
-        self.y_range = y_range
-        self.coords_list = self.produce_trigger_coords_list()
-
-    def produce_trigger_coords_list(self):
-        base_x = self.current_location_x
-        base_y = self.current_location_y
-        left_extreme = base_x - self.x_range
-        right_extreme = base_x + self.x_range
-        up_extreme = base_y - self.y_range
-        down_extreme = base_y + self.y_range
-
-        total_x_range = 1 + (self.x_range*2)
-        total_y_range = 1 + (self.y_range*2)
-
-        coords_list = []
-
-        for x in range(total_x_range):
-            for y in range(total_y_range):
-                coords_list.append([left_extreme + x, up_extreme + y])
-
-        return coords_list

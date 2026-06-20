@@ -31,13 +31,6 @@ def new_game_procedures(gc, gs):
     gc.import_npcs_from_csv("assets/import_data/NPC_import_dict.csv")
     gc.import_features_from_csv("assets/import_data/Deco_import.csv")
     gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
-    tree_coords = [(24,10), (22,7), (20,5), (17,5), (15,4), (16,2), (20,2), (24,2), (28,10), (31,10), (33,8), (32,5), (36,3), (38,10), (35,13), (35,16), (40,14), (43,11), (45,8), (47,5), (49,3), (49,7), (49,11), (49,13), (49,14),(46,14),(39,18), (38,18)]
-    # for tree_coord in tree_coords:
-    #     feature_type = gs.type_translator["Prop"]
-    #     feature_subtype = gs.sub_type_translator["Tree"]
-    #     unique_name = "Pine" + "_" + str(GameSettings.get_unique_ID())
-    #     feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, "Pine", unique_name, "None", gs, "Marsh", tree_coord[0], tree_coord[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
-    #     gs.add_feature_ghost(unique_name, feature_ghost_object)
 
     room_name = "Marsh"
     plot_x = 1
@@ -145,7 +138,7 @@ def install_all_data(gc, gs):
         gc.trigger_manager.setup_trigger_list()
 
     def spawn_first_room(gc, gs):
-        gc.position_manager.spawn_all_initial_room_features(gs.get_room(gs.current_room))
+        gc.position_manager.spawn_all_initial_room_elements(gs.get_room(gs.current_room))
 
     def install_keyboard_managers(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))

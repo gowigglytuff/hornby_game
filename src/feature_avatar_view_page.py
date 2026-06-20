@@ -258,3 +258,9 @@ class DecoAvatar(object):
         self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
         self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
+    def reset_to_spawn(self, ghost):
+        self.image_x = ghost.spawn_x
+        self.image_y = ghost.spawn_y
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None

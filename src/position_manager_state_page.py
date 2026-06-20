@@ -57,10 +57,11 @@ class PositionManager(object):
 
         # mermaid crown test
         mermaid_crown_test = True
-        if self.gc.gs.using_mermaid_crown:
-            adjacent_terrain = self.get_adjacent_tile_terrain(checker, direction, room)
-            if adjacent_terrain != 1:
-                terrain_test = True
+        if edge_test:
+            if self.gc.gs.using_mermaid_crown:
+                adjacent_terrain = self.get_adjacent_tile_terrain(checker, direction, room)
+                if adjacent_terrain != 1:
+                    mermaid_crown_test = True
 
         # door test
         door_test = False
@@ -368,7 +369,19 @@ class PositionManager(object):
             for item in feature_avatar.animation_list.values():
                 item.reset()
 
-    def despawn_all_room_features(self, room_object):
+    def despawn_deco(self, deco_name, room_object):
+        deco_ghost = self.gc.gs.get_deco_ghost(deco_name)
+        deco_avatar = self.gc.game_view.get_deco_avatar(deco_name)
+        deco_ghost.active = False
+
+        deco_ghost.reset_to_spawn()
+        deco_avatar.reset_to_spawn(deco_ghost)
+        if deco_avatar.unique_name in self.gc.feature_animations_in_progress:
+            self.gc.feature_animations_in_progress.remove(deco_avatar.unique_name)
+            for item in deco_avatar.animation_list.values():
+                item.reset()
+
+    def despawn_all_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
             if ghost.species == "Player":
@@ -376,15 +389,23 @@ class PositionManager(object):
             else:
                 self.despawn_feature(ghost.unique_name, room_object)
 
-    def spawn_all_initial_room_features(self, room_object):
+        deco_ghosts = self.gc.gs.get_all_decos_in_room(room_object.room_name)
+        for ghost in deco_ghosts:
+            self.despawn_deco(ghost.unique_name, room_object)
+
+    def spawn_all_initial_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
-
             if ghost.species == "Player":
                 pass
             else:
                 if ghost.spawn_active:
                     self.spawn_room_feature(ghost.unique_name, room_object)
+
+        deco_ghosts = self.gc.gs.get_all_decos_in_room(room_object.room_name)
+        for ghost in deco_ghosts:
+            if ghost.spawn_active:
+                self.spawn_room_deco(ghost.unique_name, room_object)
 
     def spawn_room_feature(self, feature_name, room_object):
         feature_ghost = self.gc.gs.get_feature_ghost(feature_name)
@@ -395,6 +416,10 @@ class PositionManager(object):
         if feature_ghost.feature_subtype == Types.BIRD:
             add_trigger_list = feature_ghost.produce_trigger_list()
             self.gc.trigger_manager.add_triggers(room_object, add_trigger_list)
+
+    def spawn_room_deco(self, feature_name, room_object):
+        deco_ghost = self.gc.gs.get_deco_ghost(feature_name)
+        deco_ghost.active = True
 
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):

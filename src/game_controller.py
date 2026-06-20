@@ -123,7 +123,6 @@ class GameController(object):
         direction_y = Direction.UP
         if y_change < 0:
             direction_y = Direction.DOWN
-        print(y_change)
         self.scene_manager.play_scene(Scene(self, [CameraPanAnimation(direction_x, x_change), CameraPanAnimation(direction_y, y_change)]))
         self.gs.using_mermaid_crown = False
         self.gs.mermaid_crown_initiation = [0, 0]
@@ -186,7 +185,6 @@ class GameController(object):
 
     def look_in_basket(self, basket_unique_name, basket_items):
         if basket_items:
-            print("I'm testing this out", basket_items)
             ghost = self.gs.get_feature_ghost(basket_unique_name)
             self.menu_controller.post_notice("You looked in the " + ghost.species)
             details = {"item_list": basket_items, "basket_unique_name": basket_unique_name}
@@ -211,9 +209,6 @@ class GameController(object):
         elif ref == 3:
             self.game_view.tile_frame = 0
     # region FEATURE MOVEMENT
-
-    def add_to_anim_in_progress(self, feature_unique_name):
-        self.scene_animations_in_progress.append(feature_unique_name)
 
     def move_feature_chaotically(self, feature_unique_name):
         already_animating = self.check_if_feature_already_animating(feature_unique_name)
@@ -366,13 +361,14 @@ class GameController(object):
         current_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, current_x, current_y)
         target_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, target_x, target_y)
         if current_tile_terrain != target_tile_terrain:
-            result = True
-
-        if result:
             if target_tile_terrain == 1:
                 self.outfit_manager.put_on_temporary_outfit("Mermaid")
             elif current_tile_terrain == 1:
                 self.cancel_mermaid_crown()
+        else:
+            if target_tile_terrain != 1:
+                if self.gs.using_mermaid_crown:
+                    self.cancel_mermaid_crown()
 
     def initiate_player_movement(self, direction):
         room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
@@ -477,6 +473,11 @@ class GameController(object):
         for menu in self.gs.ms.static_menus:
             ghost = self.gs.ms.get_menu_ghost(menu)
             ghost.prepare_menu_for_display()
+
+
+    def add_to_anim_in_progress(self, feature_unique_name):
+        self.feature_animations_in_progress.append(feature_unique_name)
+
 
     def ask_animator_to_animate(self):
         if self.check_if_player_already_animating():
@@ -638,13 +639,13 @@ class GameController(object):
 
     def reset_room(self, room_name):
         room_object = self.gs.get_room(room_name)
-        self.position_manager.despawn_all_room_features(room_object)
+        self.position_manager.despawn_all_room_elements(room_object)
         self.position_manager.clear_room_grid(room_name)
         self.trigger_manager.remove_all_triggers(room_object)
 
     def load_up_room(self, room_name):
         room_object = self.gs.get_room(room_name)
-        self.position_manager.spawn_all_initial_room_features(room_object)
+        self.position_manager.spawn_all_initial_room_elements(room_object)
         self.position_manager.add_player_to_grid(room_name)
         self.gs.set_room(room_name)
 

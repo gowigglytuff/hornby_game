@@ -141,6 +141,14 @@ class GameState(object):
                 names_list.append(item.name)
         return names_list
 
+    def get_all_decos_in_room(self, room_name):
+        deco_list = []
+        for deco in self.deco_ghost_list.values():
+            if deco.room == room_name:
+                deco_list.append(deco)
+
+        return deco_list
+
     def get_all_features_in_room(self, room_name):
         feature_list = []
         feature_list.append(self.get_player_ghost())
