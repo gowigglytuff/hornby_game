@@ -66,10 +66,10 @@ class PositionManager(object):
         # door test
         door_test = False
         target_tile = self.get_adjacent_tile(self.gc.gs.player_ghost, direction, room)
-        door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y)
+        door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y, checker, direction)
 
         door_result = False
-        if elevation_test and alt_test and door_test:
+        if alt_test and door_test:
             door_result = True
 
         move_result = False
@@ -78,13 +78,23 @@ class PositionManager(object):
 
         return move_result, door_result
 
-    def check_for_door(self, room_name, x, y):
+    def check_for_door(self, room_name, x, y, checker, direction):
         door = False
+        proper_angle = False
         hypothetical_door = room_name + "_" + str(x) + "_" + str(y)
         for door_name in self.gc.game_data.door_data_list.keys():
             if door_name == hypothetical_door:
                 door = True
-        return door
+                door_object = self.gc.game_data.door_data_list[door_name]
+                if door_object.access_from == Direction.ALL:
+                    proper_angle = True
+                elif (door_object.access_from == Direction.DOWN) and (checker.y == door_object.y_from + 1):
+                    proper_angle = True
+                elif (door_object.access_from == Direction.UP) and (checker.y == door_object.y_from - 1):
+                    proper_angle = True
+                else:
+                    pass
+        return proper_angle
 
     def check_if_cube_can_hold_ghost(self, feature, current_room, target_room, target_x, target_y):
         #TODO: Work on this!!
@@ -190,7 +200,7 @@ class PositionManager(object):
         # no door test
         no_door_test = True
         target_tile = self.get_adjacent_tile(checker_ghost, direction, room_object)
-        door_test = self.check_for_door(room_object.room_name, target_tile.x, target_tile.y)
+        door_test = self.check_for_door(room_object.room_name, target_tile.x, target_tile.y, checker_ghost, direction)
         if door_test:
             no_door_test = False
 
@@ -583,11 +593,11 @@ class PositionManager(object):
         if door_type == "Ladder":
             # Door 1
             door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.MATCH)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.ALL, Direction.MATCH)
 
             # Door 2
             door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y, Direction.MATCH)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y, Direction.ALL, Direction.MATCH)
 
             ladder_top_dict = {"type": "Deco", "subtype": "Deco", "species": "LadderTop", "display_name": "Ladder", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
             ladder_bottom_dict = {"type": "Deco", "subtype": "Deco", "species": "LadderBottom", "display_name": "Ladder", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
@@ -599,11 +609,11 @@ class PositionManager(object):
         elif door_type == "Passage":
             # Door 1
             door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.MATCH)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.DOWN, Direction.MATCH)
 
             # Door 2
             door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.UP, Direction.MATCH)
 
             doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
             doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
@@ -618,11 +628,11 @@ class PositionManager(object):
         elif door_type == "Double_back":
             # Door 1
             door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y+1, Direction.SWITCH)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y+1, Direction.DOWN, Direction.SWITCH)
 
             # Door 2
             door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.SWITCH)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.DOWN, Direction.SWITCH)
 
             doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
             doorway2_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
@@ -641,11 +651,11 @@ class PositionManager(object):
         elif door_type == "Feature_Passage":
             # Door 1
             door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.MATCH)
+            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.DOWN, Direction.MATCH)
 
             # Door 2
             door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.MATCH)
+            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.UP, Direction.MATCH)
 
         self.gc.gs.gd.add_door_data(door1_name, door1_object)
         self.gc.gs.gd.add_door_data(door2_name, door2_object)
@@ -830,13 +840,14 @@ class Cube(object):
 
 
 class Door(object):
-    def __init__(self, room_from, room_to, x_from, y_from, x_to, y_to, exit_direction):
+    def __init__(self, room_from, room_to, x_from, y_from, x_to, y_to, access_from, exit_direction):
         self.room_from = room_from
         self.room_to = room_to
         self.x_from = x_from
         self.y_from = y_from
         self.x_to = x_to
         self.y_to = y_to
+        self.access_from = access_from
         self.exit_direction = exit_direction
 
 

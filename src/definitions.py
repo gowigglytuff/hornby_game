@@ -9,6 +9,7 @@ class Direction(Enum):
     RIGHT = "Right"
     UP = "Up"
     DOWN = "Down"
+    ALL = "All"
     MATCH = "Match"
     SWITCH = "Switch"
 
