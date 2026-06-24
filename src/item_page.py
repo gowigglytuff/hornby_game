@@ -216,12 +216,39 @@ class Hammer(KeyItem):
 
         return message
 
+class MermaidCrown(KeyItem):
+    NAME = "Mermaid Crown"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
+class GhostEye(KeyItem):
+    NAME = "Ghost Eye"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
 class Shovel(KeyItem):
     NAME = "Shovel"
 
     def __init__(self, gc):
         super().__init__(gc)
 
+
+class Pickaxe(KeyItem):
+    NAME = "Pickaxe"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
+class Permit(KeyItem):
+    NAME = "Permit"
+
+    def __init__(self, gc):
+        super().__init__(gc)
 
 class Wrench(KeyItem):
     NAME = "Wrench"

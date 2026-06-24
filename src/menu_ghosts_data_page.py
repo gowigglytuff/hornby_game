@@ -118,7 +118,7 @@ class StatMenuGhost(MenuGhost):
         self.menu_type = Types.STATIC
 
     def prepare_menu_for_display(self):
-        stat_dict = self.gc.get_stat_items()
+        stat_dict = self.gc.menu_controller.get_stat_items()
         # self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
         # self.menu_item_list = [("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
         self.menu_item_list = ["Day:" + stat_dict["day"], "Time:" + stat_dict["time"], "Select: " + stat_dict["selected_tool"]]
@@ -563,7 +563,7 @@ class OutfitMenuGhost(MenuGhost):
         self.update_currently_displayed()
         self.outfit_list = {"green_shirt": ["green_shirt", "Green Shirt"],
                             "red_shirt": ["red_shirt", "Red Shirt"],
-                            "mermaid": ["mermaid", "Mermaid"],
+                            "ghost_eye": ["ghost_eye", "Ghost Eye"],
                             "lab_coat": ["lab", "Lab Coat"],
                             "ninja_shinobi": ["ninja_shinobi", "Ninja Shinobi"],
                             "au_naturel": ["au_naturel", "Au Naturel"]}

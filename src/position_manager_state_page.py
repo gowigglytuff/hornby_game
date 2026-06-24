@@ -585,78 +585,102 @@ class PositionManager(object):
                 selected_room.remove_feature(coords)
 
     def add_door(self, door_type, room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y):
-        door1_name = None
-        door1_object = None
-        door2_name = None
-        door2_object = None
+        door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
+        door1_species = None
+        door1_display_name = None
+        door1_entrance_x_offset = 0
+        door1_entrance_y_offset = 0
+        door1_exit_x_offset = 0
+        door1_exit_y_offset = 0
+        door1_access_from = None
+        door1_exit_direction = None
+        door1_has_image = True
+
+        door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
+        door2_species = None
+        door2_display_name = None
+        door2_entrance_x_offset = 0
+        door2_entrance_y_offset = 0
+        door2_exit_x_offset = 0
+        door2_exit_y_offset = 0
+        door2_access_from = None
+        door2_exit_direction = None
+        door2_has_image = True
+
+        install_list = []
 
         if door_type == "Ladder":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y, Direction.ALL, Direction.MATCH)
+            door1_species = "LadderTop"
+            door1_display_name = "Ladder"
+            door1_access_from = Direction.ALL
+            door1_exit_direction = Direction.MATCH
 
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y, Direction.ALL, Direction.MATCH)
-
-            ladder_top_dict = {"type": "Deco", "subtype": "Deco", "species": "LadderTop", "display_name": "Ladder", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            ladder_bottom_dict = {"type": "Deco", "subtype": "Deco", "species": "LadderBottom", "display_name": "Ladder", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            ladder_top_ghost = self.gc.install_element_ghost(ladder_top_dict)
-            self.gc.install_element_avatar(ladder_top_ghost)
-            ladder_bottom_ghost = self.gc.install_element_ghost(ladder_bottom_dict)
-            self.gc.install_element_avatar(ladder_bottom_ghost)
+            door2_species = "LadderBottom"
+            door2_display_name = "Ladder"
+            door2_access_from = Direction.ALL
+            door2_exit_direction = Direction.MATCH
 
         elif door_type == "Passage":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.DOWN, Direction.MATCH)
+            door1_species = "Doorway"
+            door1_display_name = None
+            door1_exit_y_offset = -1
+            door1_access_from = Direction.DOWN
+            door1_exit_direction = Direction.MATCH
 
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.UP, Direction.MATCH)
+            door2_exit_y_offset = 1
+            door2_access_from = Direction.UP
+            door2_exit_direction = Direction.MATCH
+            door2_has_image = False
 
-            doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
             doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            install_list.append(doormat1_dict)
             doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatExit", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y - 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            doorway1_ghost = self.gc.install_element_ghost(doorway1_dict)
-            self.gc.install_element_avatar(doorway1_ghost)
-            doormat1_ghost = self.gc.install_element_ghost(doormat1_dict)
-            self.gc.install_element_avatar(doormat1_ghost)
-            doormat2_ghost = self.gc.install_element_ghost(doormat2_dict)
-            self.gc.install_element_avatar(doormat2_ghost)
+            install_list.append(doormat2_dict)
 
         elif door_type == "Double_back":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y+1, Direction.DOWN, Direction.SWITCH)
+            door1_species = "Doorway"
+            door1_display_name = "Doorway"
+            door1_exit_y_offset = 1
+            door1_access_from = Direction.DOWN
+            door1_exit_direction = Direction.SWITCH
 
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.DOWN, Direction.SWITCH)
-
-            doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            doorway2_dict = {"type": "Deco", "subtype": "Deco", "species": "Doorway", "display_name": "Doorway", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            doorway1_ghost = self.gc.install_element_ghost(doorway1_dict)
-            self.gc.install_element_avatar(doorway1_ghost)
-            doorway2_ghost = self.gc.install_element_ghost(doorway2_dict)
-            self.gc.install_element_avatar(doorway2_ghost)
+            door2_species = "Doorway"
+            door2_display_name = "Doorway"
+            door2_exit_y_offset = 1
+            door2_access_from = Direction.DOWN
+            door2_exit_direction = Direction.SWITCH
 
             doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            install_list.append(doormat1_dict)
             doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            doormat1_ghost = self.gc.install_element_ghost(doormat1_dict)
-            self.gc.install_element_avatar(doormat1_ghost)
-            doormat2_ghost = self.gc.install_element_ghost(doormat2_dict)
-            self.gc.install_element_avatar(doormat2_ghost)
+            install_list.append(doormat2_dict)
 
         elif door_type == "Feature_Passage":
-            # Door 1
-            door1_name = room_from + "_" + str(door_from_x) + "_" + str(door_from_y)
-            door1_object = Door(room_from, room_to, door_from_x, door_from_y, door_to_x, door_to_y-1, Direction.DOWN, Direction.MATCH)
 
-            # Door 2
-            door2_name = room_to + "_" + str(door_to_x) + "_" + str(door_to_y)
-            door2_object = Door(room_to, room_from, door_to_x, door_to_y, door_from_x, door_from_y+1, Direction.UP, Direction.MATCH)
+            door1_exit_y_offset = -1
+            door1_access_from = Direction.DOWN
+            door1_exit_direction = Direction.MATCH
+            door1_has_image = False
 
+            door2_exit_y_offset = 1
+            door2_access_from = Direction.UP
+            door2_exit_direction = Direction.MATCH
+            door2_has_image = False
+
+        # Door 1
+        door1_object = Door(room_from, room_to, door_from_x + door1_entrance_x_offset, door_from_y + door1_entrance_y_offset, door_to_x + door1_exit_x_offset, door_to_y + door1_exit_y_offset, door1_access_from, door1_exit_direction)
+        if door1_has_image:
+            doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": door1_species, "display_name": door1_display_name, "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            install_list.append(doorway1_dict)
+
+        # Door 2
+        door2_object = Door(room_to, room_from, door_to_x + door2_entrance_x_offset, door_to_y + door2_entrance_y_offset, door_from_x + door2_exit_x_offset, door_from_y + door2_exit_y_offset, door2_access_from, door2_exit_direction)
+        if door2_has_image:
+            doorway2_dict = {"type": "Deco", "subtype": "Deco", "species": door2_species, "display_name": door2_display_name, "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            install_list.append(doorway2_dict)
+
+        for item in install_list:
+            self.gc.gs.install_element(item)
         self.gc.gs.gd.add_door_data(door1_name, door1_object)
         self.gc.gs.gd.add_door_data(door2_name, door2_object)
 
@@ -859,9 +883,9 @@ class Plot(object):
         self.plot_size_y = plot_size_y
         self.room = room
         self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
-        self.background_csv_file = "assets/room_csv/background_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
-        self.terrain_csv_file = "assets/room_csv/terrain_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
-        self.elevation_csv_file = "assets/room_csv/elevation_csv" + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+        self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
+        self.terrain_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
+        self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.elevation_map = None
         self.terrain_map = None
         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2()]
@@ -872,7 +896,7 @@ class Plot(object):
         self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
 
     def make_terrain_map(self):
-        if self.plot_name == "Marsh_1_1":
+        if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1":
             self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
         else:
             self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)
@@ -885,34 +909,11 @@ class Plot(object):
         terrain = self.terrain_map.get_terrain(x, y)
         return terrain
 
-# class RingsidePlot(Plot):
-#     def __init__(self, room, plot_x, plot_y):
-#         super().__init__(room, plot_x, plot_y)
-#         self.background_csv_file = "assets/room_csv/background_csv/Ringside_1_1_Background.csv"
-#         self.elevation_csv_file = "assets/room_csv/elevation_csv/Ringside_1_1_elevation.csv"
-#         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
-#         self.make_elevation_map()
-
-
-# class Ringside(Room):
-#     ID = "Ringside"
-#
-#     def __init__(self):
-#         super().__init__(self.ID, 55, 106)
-#         self.initiate_room()
-#
-#     def add_all_plots(self):
-#         for x in range(self.total_plots_x):
-#             x += 1
-#             for y in range(self.total_plots_y):
-#                 y += 1
-#                 self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), RingsidePlot(self.room_name, x, y))
-
 class ConsolidatedPlot(Plot):
     def __init__(self, room, plot_x, plot_y, plot_size_x, plot_size_y):
         super().__init__(room, plot_x, plot_y, plot_size_x, plot_size_y)
-        self.background_csv_file = "assets/room_csv/background_csv/" + self.plot_name + "_Background.csv"
-        self.elevation_csv_file = "assets/room_csv/elevation_csv/" + self.plot_name + "_Elevation.csv"
+        self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
+        self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.background_map = [TileMap(self.background_csv_file).return_map(), TileMap(self.background_csv_file).return_map_2(), TileMap(self.background_csv_file).return_map_3(), TileMap(self.background_csv_file).return_map_4()]
         self.make_elevation_map()
 

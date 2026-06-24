@@ -4,7 +4,7 @@ from random import choice
 from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
 from input_manager_controller_page import *
-from definitions import Direction, Types
+from definitions import Direction, Types, GameSettings
 from position_manager_state_page import Room, Door
 if TYPE_CHECKING:
     from game_controller import GameController
@@ -47,9 +47,15 @@ class GameState(object):
         self.held_pages = []
         self.accessible_terrains = [0]
         self.using_mermaid_crown = False
+        self.using_ghost_eye = False
         self.mermaid_crown_initiation = [0,0]
         self.mermaid_crown_counter = 0
         self.mermaid_crown_limit = 20
+
+        self.ghost_eye_mermaid_crown_initiation = [0,0]
+        self.ghost_eye_counter = 0
+        self.ghost_eye_limit = 20
+        self.ghost_eye_husk_name = None
 
         self.day_of_summer = 12
         self.hour_of_day = 1
@@ -60,17 +66,45 @@ class GameState(object):
         self.current_animations_to_execute = []
 
     # region FEATURE CONTROL
+
+    def install_element(self, feature_dict):
+        ghost_install = self.install_element_ghost(feature_dict)
+        self.gv.install_element_avatar(ghost_install)
+
+    def install_element_ghost(self, feature_dict):
+        feature_type = self.type_translator[feature_dict["type"]]
+        feature_subtype = self.sub_type_translator[feature_dict["subtype"]]
+        unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+        feature_ghost_object = self.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
+                                                                              self.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
+                                                                              int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
+        if feature_subtype == Types.DECO:
+            self.add_deco_ghost(unique_name, feature_ghost_object)
+        else:
+            self.add_feature_ghost(unique_name, feature_ghost_object)
+            test = self.get_feature_ghost(unique_name)
+
+        return feature_ghost_object
+
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
 
     def add_deco_ghost(self, deco_name, deco_object):
         self.deco_ghost_list[deco_name] = deco_object
 
+    def change_feature_facing(self, name, direction):
+        self.change_feature_ghost_facing(name, direction)
+        self.gv.change_feature_avatar_facing(name, direction)
+
     def change_feature_ghost_facing(self, name, direction):
         self.get_feature_ghost(name).facing = direction
 
     def get_feature_ghost(self, name):
         return self.feature_ghost_list[name]
+
+    def get_feature_display_name(self, feature_unique_nane):
+        ghost = self.get_feature_ghost(feature_unique_nane)
+        return ghost.display_name
 
     def get_deco_ghost(self, name):
         return self.deco_ghost_list[name]
@@ -175,12 +209,21 @@ class GameState(object):
         item_size_y = self.gd.key_item_data_list[item_name].image_size_y
         return [image, item_size_x, item_size_y]
 
-    def acquire_item(self, item, quantity):
+    def acquire_item(self, item_name, quantity):
+        item = self.gc.game_data.item_data_list[item_name]
         current_inventory = self.current_inventory_dictionary
         if item.NAME in current_inventory:
             current_inventory[item.NAME]["quantity"] += quantity
         else:
             current_inventory[item.NAME] = {"name": item.NAME, "quantity": quantity}
+
+    def acquire_key_item(self, key_item_name):
+        key_item = self.gc.game_data.key_item_data_list[key_item_name]
+        current_inventory = self.current_key_inventory_dictionary
+        if key_item.NAME in current_inventory:
+            pass
+        else:
+            current_inventory[key_item.NAME] = {"name": key_item.NAME}
 
     def get_inventory_items(self, menu_name):
         result = None
@@ -192,6 +235,16 @@ class GameState(object):
         return result
 
     # endregion
+
+    def game_clock_pass_1_minute(self):
+        if self.minute_of_hour < 59:
+            self.minute_of_hour += 1
+        else:
+            self.minute_of_hour = 0
+            if self.hour_of_day < 23:
+                self.hour_of_day += 1
+            else:
+                self.hour_of_day = 0
 
     # region PLAYER CONTROL
     def add_player_ghost(self, player_object):
@@ -212,6 +265,26 @@ class GameState(object):
 
     def get_player_ghost(self):
         return self.player_ghost
+
+    def produce_player_coords(self):
+        print(self.player_ghost.x, self.player_ghost.y)
+
+    def change_player_facing(self, direction):
+        final_facing = direction
+        current_facing = self.player_ghost.facing
+        if direction == Direction.MATCH:
+            final_facing = current_facing
+        elif direction == Direction.SWITCH:
+            if current_facing == Direction.DOWN:
+                final_facing = Direction.UP
+            elif current_facing == Direction.UP:
+                final_facing = Direction.DOWN
+            elif current_facing == Direction.LEFT:
+                final_facing = Direction.RIGHT
+            elif current_facing == Direction.RIGHT:
+                final_facing = Direction.LEFT
+        self.change_player_ghost_facing(final_facing)
+        self.gv.player_avatar.face_character(final_facing)
     # endregion
 
 class MenuState(object):

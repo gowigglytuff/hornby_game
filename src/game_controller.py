@@ -6,6 +6,7 @@ import time
 from random import choice
 
 from animations_page_view_page import CameraPanAnimation
+from feature_ghost_data_page import PropGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
@@ -35,11 +36,11 @@ class GameEvents(object):
         self.previous_time = time.time()
         self.delta_time = 0
         self.timer_list = []
-        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.ask_animator_to_animate, self.gc.ask_scene_to_animate],
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate],
                             .167: [self.gc.npc_event_popoff],
-                           .25: [self.gc.switch_tile_frame],
+                           .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
-                            1: [self.gc.game_clock_pass_1_minute]}
+                            1: [self.gc.gs.game_clock_pass_1_minute]}
         self.setup_timers()
 
     def setup_timers(self):
@@ -94,6 +95,7 @@ class GameController(object):
         self.scene_animations_in_progress = []
         self.move_counter = 0
         self.flashing_currently = False
+
     # region GAME CONTROLS
     def set_active_keyboard_manager(self, active_manager_id):
         self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
@@ -106,12 +108,54 @@ class GameController(object):
         self.game_view.add_npc_avatar(unique_name, avatar_object)
     # endregion
 
+    # region ITEM USE METHODS (mermaid crown, ghost eye)
     def activate_mermaid_crown(self):
         self.clear_key_down_cue()
         self.gs.using_mermaid_crown = True
         self.gs.mermaid_crown_initiation = [self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]]
         self.gs.mermaid_crown_counter = 0
         self.gs.update_accessible_terrains([1], [])
+
+    def activate_ghost_eye(self):
+        self.clear_key_down_cue()
+        self.gs.using_ghost_eye = True
+        self.gs.ghost_eye_initiation = [self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]]
+        self.gs.ghost_eye_counter = 0
+        self.outfit_manager.put_on_temporary_outfit("ghost_eye")
+
+        player_ghost = self.gs.get_player_ghost()
+        feature_type = self.gs.type_translator["Prop"]
+        feature_subtype = self.gs.sub_type_translator["Tree"]
+        unique_name = "Husk" + "_" + str(GameSettings.get_unique_ID())
+        self.gs.ghost_eye_husk_name = unique_name
+        # feature_ghost_object = PropGhost(feature_type, feature_subtype, item[2], unique_name, "Husk", "None", self.gs, self.gs.get_current_room().room_name, player_ghost.x, player_ghost.y, Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+
+    def deactivate_ghost_eye(self):
+        self.clear_key_down_cue()
+        x_change = self.gs.get_player_ghost_location()[0]-self.gs.ghost_eye_initiation[0]
+        y_change = self.gs.get_player_ghost_location()[1]-self.gs.ghost_eye_initiation[1]
+        direction_x = Direction.LEFT
+        if x_change < 0:
+            direction_x = Direction.RIGHT
+        direction_y = Direction.UP
+        if y_change < 0:
+            direction_y = Direction.DOWN
+        self.scene_manager.play_scene(Scene(self, [CameraPanAnimation(direction_x, x_change), CameraPanAnimation(direction_y, y_change)]))
+        self.gs.using_ghost_eye = False
+        self.gs.ghost_eye_initiation = [0, 0]
+        self.gs.ghost_eye_counter = 0
+        self.outfit_manager.put_on_outfit(self.gs.revert_outfit)
+
+    def determine_mermaid_crown_end(self):
+        if self.gs.using_mermaid_crown:
+            if self.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]) == 1:
+                self.deactivate_mermaid_crown()
+            else:
+                self.cancel_mermaid_crown()
+
+    def determine_ghost_eyes_end(self):
+        if self.gs.using_ghost_eye:
+            self.deactivate_ghost_eye()
 
     def deactivate_mermaid_crown(self):
         self.clear_key_down_cue()
@@ -136,10 +180,14 @@ class GameController(object):
         self.gs.mermaid_crown_initiation = [0, 0]
         self.gs.mermaid_crown_counter = 0
         self.gs.update_accessible_terrains([], [1])
+    # endregion ( (
 
+    # region SOUNDS
     def play_sound(self, sound_name):
         pygame.mixer.Sound("assets/sound_effects/splash.mp3").play()
+    # endregion
 
+    # region text controls
     def switch_flash(self):
         if self.flashing_currently:
             self.flashing_currently = False
@@ -153,132 +201,24 @@ class GameController(object):
             result = ""
 
         return result
+    # endregion
 
+    # region TOOL USE
     def use_selected_tool(self):
         if self.gs.selected_tool != "None":
             tool = self.inventory_manager.gc.gs.gd.key_item_data_list[self.gs.selected_tool]
             self.inventory_manager.use_key_item(tool)
         else:
             self.gs.gc.menu_controller.post_notice("There is nothing selected")
-
-    def npc_event_popoff(self):
-        feature = self.gs.get_feature_ghost("Pigeon_44")
-        if ("Pigeon_44" in self.gs.feature_ghost_list.keys()) and feature.active:
-            self.move_feature_chaotically("Pigeon_44")
-        pass
-
-    def get_feature_display_name(self, feature_unique_nane):
-        ghost = self.gs.get_feature_ghost(feature_unique_nane)
-        return ghost.display_name
-
-    def pick_up_package(self, type, package_unique_name, room_name, package_items):
-        self.menu_controller.post_notice("You picked up the package")
-        room_object = self.gs.get_room(room_name)
-        ghost = self.gs.get_feature_ghost(package_unique_name)
-        ghost.spawn_active = False
-        self.position_manager.despawn_feature(package_unique_name, room_object)
-        for item in package_items:
-            if type == "Package":
-                self.inventory_manager.get_key_or_temp_item(item, 1)
-            if type == "Page":
-                self.inventory_manager.get_page(item)
-
-    def look_in_basket(self, basket_unique_name, basket_items):
-        if basket_items:
-            ghost = self.gs.get_feature_ghost(basket_unique_name)
-            self.menu_controller.post_notice("You looked in the " + ghost.species)
-            details = {"item_list": basket_items, "basket_unique_name": basket_unique_name}
-            self.menu_controller.set_menu(AcquireMenuGhost.BASE, details)
-        else:
-            self.menu_controller.post_notice("It appears to be empty.")
-
-    def take_from_basket(self, basket_unique_name, name_item_taken):
-        self.inventory_manager.get_key_or_temp_item(name_item_taken, 1)
-        self.menu_controller.post_notice("You took the " + name_item_taken)
-        ghost = self.gs.get_feature_ghost(basket_unique_name)
-        ghost.function_items.remove(name_item_taken)
-
-    def switch_tile_frame(self):
-        ref = self.game_view.tile_frame
-        if ref == 1:
-            self.game_view.tile_frame = 2
-        elif ref == 0:
-            self.game_view.tile_frame = 1
-        elif ref == 2:
-            self.game_view.tile_frame = 3
-        elif ref == 3:
-            self.game_view.tile_frame = 0
-    # region FEATURE MOVEMENT
-
-    def move_feature_chaotically(self, feature_unique_name):
-        already_animating = self.check_if_feature_already_animating(feature_unique_name)
-        if not already_animating:
-            complete = False
-            while not complete:
-                movements = ["walk_front", "walk_left", "walk_right", "walk_up"]
-                if movements:
-                    chosen_movement = movements.pop(random.choice(range(len(movements))))
-                    complete = self.attempt_feature_action(feature_unique_name, chosen_movement)
-                else:
-                    complete = True
-
-    def attempt_feature_action(self, feature_unique_name, action_name):
-        success = False
-        feature_ghost = self.gs.get_feature_ghost(feature_unique_name)
-        feature_avatar = self.game_view.get_npc_avatar(feature_unique_name)
-
-        already_animating = self.check_if_feature_already_animating(feature_unique_name)
-        doable = self.check_if_action_doable(feature_ghost, action_name)[0]
-        direction = self.check_if_action_doable(feature_ghost, action_name)[1]
-        vector = Direction.get_vector_from_direction(direction)
-        room_object = self.gs.get_room(feature_ghost.room)
-        if not already_animating:
-            if doable:
-                success = True
-                feature_avatar.initiate_animation(action_name)
-                self.add_to_anim_in_progress(feature_unique_name)
-                self.position_manager.move_ghost(feature_ghost, room_object, room_object, feature_ghost.x + vector[0], feature_ghost.y + vector[1])
-        return success
-
-
-    def check_if_action_doable(self, feature_ghost, action_name):
-        direction = None
-        if action_name == "walk_front":
-            direction = Direction.DOWN
-        elif action_name == "walk_left":
-            direction = Direction.LEFT
-        elif action_name == "walk_right":
-            direction = Direction.RIGHT
-        elif action_name == "walk_up":
-            direction = Direction.UP
-        room_object = self.gs.get_room(feature_ghost.room)
-        can_move = self.position_manager.check_if_feature_can_move(feature_ghost, direction, room_object)
-        return can_move, direction
-
-    def get_avatar_class(self, avatar_type):
-        return self.game_view.avatar_classes[avatar_type]
-
-    def check_if_feature_already_animating(self, name):
-        avatar = self.game_view.get_npc_avatar(name)
-        return avatar.currently_animating
-
-    def reset_feature_to_spawn(self, feature):
-        chosen_feature = self.gs.get_feature_ghost(feature)
-        chosen_feature.reset_to_spawn()
     # endregion
 
-    def update_view(self):
-        current_room = self.gs.get_current_room().room_name
-        drawables_list = self.game_view.get_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.gs.get_feature_locations()[2], self.game_view.get_independent_anim_locations())
-        self.game_view.draw_all(drawables_list, current_room)
+    def npc_event_popoff(self):
+        # feature = self.gs.get_feature_ghost("Pigeon_142")
+        # if ("Pigeon_142" in self.gs.feature_ghost_list.keys()) and feature.active:
+        #     self.move_feature_chaotically("Pigeon_142")
+        pass
 
-        self.update_stat_menus()
-        for menu in (self.gs.ms.static_menus + self.gs.ms.visible_menus):
-            ghost = self.gs.ms.menu_ghost_data_list[menu + "_ghost"]
-            avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
-            self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
-
-    # region PLAYER ACTIONS
+    # region INTERACT WITH OBJECTS (package, basket)
     def player_interact(self):
         player = self.gs.get_player_ghost()
         room = self.gs.get_current_room()
@@ -309,9 +249,9 @@ class GameController(object):
 
         npc_talking_to_ghost = self.gs.feature_ghost_list[npc_talking_to]
         npc_talking_to_avatar = self.game_view.feature_avatar_list[npc_talking_to]
-        self.change_feature_facing(npc_talking_to, direction_to_turn)
-        self.gs.gc.menu_controller.post_notice("You talked to " + self.get_feature_display_name(npc_talking_to_ghost.unique_name))
-        details = {"speaker_name": self.get_feature_display_name(npc_talking_to_ghost.unique_name),
+        self.gs.change_feature_facing(npc_talking_to, direction_to_turn)
+        self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(npc_talking_to_ghost.unique_name))
+        details = {"speaker_name": self.gs.get_feature_display_name(npc_talking_to_ghost.unique_name),
                    "friendship_level": npc_talking_to_ghost.friendship_level,
                    "face_image": npc_talking_to_avatar.face_image,
                    "speaker_unique_name": npc_talking_to_ghost.unique_name}
@@ -325,70 +265,6 @@ class GameController(object):
         self.gs.gc.menu_controller.post_notice("You talked to " + prop_talking_to_ghost.species)
         prop_talking_to_ghost.get_interacted_with()
         details = {}
-
-    def clear_key_down_cue(self):
-        self.key_down_queue = []
-
-    def add_to_held_key(self, key):
-        self.held_keys.append(key)
-
-    def get_held_keys(self):
-        return self.held_keys
-
-    def remove_from_held_key(self, key):
-        self.held_keys.remove(key)
-
-    def act_on_key_down_cue(self):
-        if not self.check_if_player_already_animating():
-            direction = []
-            if self.key_down_queue:
-                if self.key_down_queue == pygame.K_DOWN:
-                    direction = Direction.DOWN
-                elif self.key_down_queue == pygame.K_UP:
-                    direction = Direction.UP
-                elif self.key_down_queue == pygame.K_RIGHT:
-                    direction = Direction.RIGHT
-                elif self.key_down_queue == pygame.K_LEFT:
-                    direction = Direction.LEFT
-
-                self.initiate_player_movement(direction)
-
-    def check_if_player_already_animating(self):
-        return self.game_view.player_avatar.currently_animating
-
-    def check_for_tile_transition(self, room_object, current_x, current_y, target_x, target_y):
-        result = False
-        current_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, current_x, current_y)
-        target_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, target_x, target_y)
-        if current_tile_terrain != target_tile_terrain:
-            if target_tile_terrain == 1:
-                self.outfit_manager.put_on_temporary_outfit("Mermaid")
-            elif current_tile_terrain == 1:
-                self.cancel_mermaid_crown()
-        else:
-            if target_tile_terrain != 1:
-                if self.gs.using_mermaid_crown:
-                    self.cancel_mermaid_crown()
-
-    def initiate_player_movement(self, direction):
-        room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
-        target_tile = self.position_manager.get_adjacent_tile(self.gs.player_ghost, direction, room_object)
-        self.change_player_facing(direction)
-        move_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[0]
-        door_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[1]
-        if door_status:
-            self.go_through_door(room_object.room_name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
-        elif not door_status:
-            if move_status:
-                player = self.gs.get_player_ghost()
-                self.game_view.walk_player_avatar(direction)
-                self.check_for_tile_transition(room_object, player.x, player.y, target_tile.x, target_tile.y)
-                self.position_manager.move_ghost(player, room_object, room_object, player.x + Direction.get_vector_from_direction(direction)[0], player.y + Direction.get_vector_from_direction(direction)[1])
-                self.player_moved_followup(player.x, player.y)
-            else:
-                pass
-
-    # endregionj
 
     def snap_photo(self):
         facing = self.gs.get_player_ghost().facing
@@ -430,161 +306,224 @@ class GameController(object):
             else:
                 self.gs.gc.menu_controller.post_notice("There was nothing there")
 
-    def game_clock_pass_1_minute(self):
-        if self.gs.minute_of_hour < 59:
-            self.gs.minute_of_hour += 1
+    def pick_up_package(self, type, package_unique_name, room_name, package_items):
+        self.menu_controller.post_notice("You picked up the package")
+        room_object = self.gs.get_room(room_name)
+        ghost = self.gs.get_feature_ghost(package_unique_name)
+        ghost.spawn_active = False
+        self.position_manager.despawn_feature(package_unique_name, room_object)
+        for item in package_items:
+            if type == "Package":
+                self.inventory_manager.get_key_or_temp_item(item, 1)
+            if type == "Page":
+                self.inventory_manager.get_page(item)
+
+    def look_in_basket(self, basket_unique_name, basket_items):
+        if basket_items:
+            ghost = self.gs.get_feature_ghost(basket_unique_name)
+            self.menu_controller.post_notice("You looked in the " + ghost.species)
+            details = {"item_list": basket_items, "basket_unique_name": basket_unique_name}
+            self.menu_controller.set_menu(AcquireMenuGhost.BASE, details)
         else:
-            self.gs.minute_of_hour = 0
-            if self.gs.hour_of_day < 23:
-                self.gs.hour_of_day += 1
+            self.menu_controller.post_notice("It appears to be empty.")
+
+    def take_from_basket(self, basket_unique_name, name_item_taken):
+        self.inventory_manager.get_key_or_temp_item(name_item_taken, 1)
+        self.menu_controller.post_notice("You took the " + name_item_taken)
+        ghost = self.gs.get_feature_ghost(basket_unique_name)
+        ghost.function_items.remove(name_item_taken)
+    # endregion
+
+    # region FEATURE MOVEMENT
+    def check_if_player_already_animating(self):
+        return self.game_view.player_avatar.currently_animating
+
+    def check_for_tile_transition(self, room_object, current_x, current_y, target_x, target_y):
+        result = False
+        current_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, current_x, current_y)
+        target_tile_terrain = self.position_manager.get_tile_terrain(room_object.room_name, target_x, target_y)
+        if current_tile_terrain != target_tile_terrain:
+            if target_tile_terrain == 1:
+                self.outfit_manager.put_on_temporary_outfit("Mermaid")
+            elif current_tile_terrain == 1:
+                self.cancel_mermaid_crown()
+        else:
+            if target_tile_terrain != 1:
+                if self.gs.using_mermaid_crown:
+                    self.cancel_mermaid_crown()
+
+    def initiate_player_movement(self, direction):
+        room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
+        target_tile = self.position_manager.get_adjacent_tile(self.gs.player_ghost, direction, room_object)
+        self.gs.change_player_facing(direction)
+        move_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[0]
+        door_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[1]
+        if door_status:
+            self.go_through_door(room_object.room_name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
+        elif not door_status:
+            if move_status:
+                player = self.gs.get_player_ghost()
+                self.game_view.walk_player_avatar(direction)
+                self.check_for_tile_transition(room_object, player.x, player.y, target_tile.x, target_tile.y)
+                self.position_manager.move_ghost(player, room_object, room_object, player.x + Direction.get_vector_from_direction(direction)[0], player.y + Direction.get_vector_from_direction(direction)[1])
+                self.player_moved_followup(player.x, player.y)
             else:
-                self.gs.hour_of_day = 0
+                pass
 
-    def get_game_time_string(self):
-        hour = self.gs.hour_of_day
-        minute = self.gs.minute_of_hour
-        display_hour = 0
-        display_minute = 0
-        if hour < 10:
-            display_hour = "0" + str(hour)
-        else:
-            display_hour = str(hour)
+    def player_moved_followup(self, player_x, player_y):
+        if self.gs.gc.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, player_x, player_y) == 1:
+            self.gs.gc.play_sound("splash")
+        self.trigger_manager.check_for_map_triggers(player_x, player_y)
+        if self.gs.using_mermaid_crown:
+            self.gs.mermaid_crown_counter += 1
+            if self.gs.mermaid_crown_counter == self.gs.mermaid_crown_limit:
+                self.deactivate_mermaid_crown()
+        if self.gs.using_ghost_eye:
+            self.gs.ghost_eye_counter += 1
+            if self.gs.ghost_eye_counter == self.gs.ghost_eye_limit:
+                self.deactivate_ghost_eye()
 
-        if minute < 10:
-            display_minute = "0" + str(minute)
-        else:
-            display_minute = str(minute)
-        final_time = display_hour + ":" + display_minute
-        return final_time
+    def move_feature_chaotically(self, feature_unique_name):
+        already_animating = self.check_if_feature_already_animating(feature_unique_name)
+        if not already_animating:
+            complete = False
+            while not complete:
+                movements = ["walk_front", "walk_left", "walk_right", "walk_up"]
+                if movements:
+                    chosen_movement = movements.pop(random.choice(range(len(movements))))
+                    complete = self.attempt_feature_action(feature_unique_name, chosen_movement)
+                else:
+                    complete = True
 
-    def get_stat_items(self):
-        hour = self.gs.hour_of_day
-        minute = self.gs.minute_of_hour
+    def attempt_feature_action(self, feature_unique_name, action_name):
+        success = False
+        feature_ghost = self.gs.get_feature_ghost(feature_unique_name)
+        feature_avatar = self.game_view.get_npc_avatar(feature_unique_name)
 
-        stat_dict = {"Birds": str(self.gs.bird_count),
-                     "Pigeons": str(self.gs.pigeon_count),
-                     "time": self.get_game_time_string(),
-                     "day": str(self.gs.day_of_summer),
-                     "selected_tool": str(self.gs.selected_tool)}
-
-        return stat_dict
-
-    def update_stat_menus(self):
-        for menu in self.gs.ms.static_menus:
-            ghost = self.gs.ms.get_menu_ghost(menu)
-            ghost.prepare_menu_for_display()
-
-
-    def add_to_anim_in_progress(self, feature_unique_name):
-        self.feature_animations_in_progress.append(feature_unique_name)
-
-
-    def ask_animator_to_animate(self):
-        if self.check_if_player_already_animating():
-            self.game_view.animation_manager.perform_player_animation(self.game_view.player_avatar)
-
-        for feature_name in self.feature_animations_in_progress:
-            thing_avatar = self.game_view.get_npc_avatar(feature_name)
-            wrap_up = False
-            if self.check_if_feature_already_animating(feature_name):
-                wrap_up = self.game_view.animation_manager.perform_feature_animation(thing_avatar)
-            if wrap_up:
-                self.feature_animations_in_progress.remove(feature_name)
-
-        # independent animations
-        complete_animation_names = []
-        for animation_name in self.game_view.animation_manager.active_independent_animations.keys():
-            animation = self.game_view.animation_manager.active_independent_animations[animation_name].animate()
-            if animation[4]:
-                complete_animation_names.append(animation_name)
-        for item in complete_animation_names:
-            self.game_view.complete_independent_animation(item)
-
-    def add_to_scene_anim_in_progress(self, scene_animation_name):
-        self.scene_animations_in_progress.append(scene_animation_name)
-
-    def ask_scene_to_animate(self):
-        for scene_animation in self.scene_animations_in_progress:
-            if scene_animation.AN_TYPE == "camera":
-                wrap_up, follow_up_package = self.game_view.animation_manager.perform_scene_animation(scene_animation)
-                if wrap_up:
-                    self.scene_animations_in_progress.remove(scene_animation)
-                    self.scene_manager.continue_scene(follow_up_package)
+        already_animating = self.check_if_feature_already_animating(feature_unique_name)
+        doable = self.check_if_action_doable(feature_ghost, action_name)[0]
+        direction = self.check_if_action_doable(feature_ghost, action_name)[1]
+        vector = Direction.get_vector_from_direction(direction)
+        room_object = self.gs.get_room(feature_ghost.room)
+        if not already_animating:
+            if doable:
+                success = True
+                feature_avatar.initiate_animation(action_name)
+                self.game_view.animation_manager.add_to_anim_in_progress(feature_unique_name)
+                self.position_manager.move_ghost(feature_ghost, room_object, room_object, feature_ghost.x + vector[0], feature_ghost.y + vector[1])
+        return success
 
 
-    def change_feature_facing(self, name, direction):
-        self.gs.change_feature_ghost_facing(name, direction)
-        self.game_view.change_feature_avatar_facing(name, direction)
+    def check_if_action_doable(self, feature_ghost, action_name):
+        direction = None
+        if action_name == "walk_front":
+            direction = Direction.DOWN
+        elif action_name == "walk_left":
+            direction = Direction.LEFT
+        elif action_name == "walk_right":
+            direction = Direction.RIGHT
+        elif action_name == "walk_up":
+            direction = Direction.UP
+        room_object = self.gs.get_room(feature_ghost.room)
+        can_move = self.position_manager.check_if_feature_can_move(feature_ghost, direction, room_object)
+        return can_move, direction
 
-    def change_player_facing(self, direction):
-        final_facing = direction
-        current_facing = self.gs.player_ghost.facing
-        if direction == Direction.MATCH:
-            if current_facing == Direction.DOWN:
-                final_facing = Direction.DOWN
-            elif current_facing == Direction.UP:
-                final_facing = Direction.UP
-            elif current_facing == Direction.LEFT:
-                final_facing = Direction.LEFT
-            elif current_facing == Direction.RIGHT:
-                final_facing = Direction.RIGHT
-        elif direction == Direction.SWITCH:
-            if current_facing == Direction.DOWN:
-                final_facing = Direction.UP
-            elif current_facing == Direction.UP:
-                final_facing = Direction.DOWN
-            elif current_facing == Direction.LEFT:
-                final_facing = Direction.RIGHT
-            elif current_facing == Direction.RIGHT:
-                final_facing = Direction.LEFT
-        self.gs.change_player_ghost_facing(final_facing)
-        self.game_view.player_avatar.face_character(final_facing)
+    def get_avatar_class(self, avatar_type):
+        return self.game_view.avatar_classes[avatar_type]
 
-    def install_element_ghost(self, feature_dict):
-        feature_type = self.gs.type_translator[feature_dict["type"]]
-        feature_subtype = self.gs.sub_type_translator[feature_dict["subtype"]]
-        unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = self.gs.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self.gs, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
-                                                                              self.gs.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
-                                                                              int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
-        if feature_subtype == Types.DECO:
-            self.gs.add_deco_ghost(unique_name, feature_ghost_object)
-        else:
-            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+    def check_if_feature_already_animating(self, name):
+        avatar = self.game_view.get_npc_avatar(name)
+        return avatar.currently_animating
 
-        return feature_ghost_object
+    def reset_feature_to_spawn(self, feature):
+        chosen_feature = self.gs.get_feature_ghost(feature)
+        chosen_feature.reset_to_spawn()
+    # endregion
 
-    def install_element_avatar(self, related_ghost):
-        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.NPC or related_ghost.feature_type == Types.HOUSE:
-            if related_ghost.feature_subtype == Types.BIRD:
-                self.gs.gv.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
-            else:
-                self.gs.gv.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
-        elif related_ghost.feature_type == Types.DECO:
-            self.gs.gv.add_deco_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+    def update_view(self):
+        current_room = self.gs.get_current_room().room_name
+        drawables_list = self.game_view.get_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.gs.get_feature_locations()[2], self.game_view.get_independent_anim_locations())
+        self.game_view.draw_all(drawables_list, current_room)
 
+        self.menu_controller.update_stat_menus()
+        for menu in (self.gs.ms.static_menus + self.gs.ms.visible_menus):
+            ghost = self.gs.ms.menu_ghost_data_list[menu + "_ghost"]
+            avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
+            self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
+
+    # region INPUT EVENTS
+    def clear_key_down_cue(self):
+        self.key_down_queue = []
+
+    def add_to_held_key(self, key):
+        self.held_keys.append(key)
+
+    def get_held_keys(self):
+        return self.held_keys
+
+    def remove_from_held_key(self, key):
+        self.held_keys.remove(key)
+
+    def act_on_key_down_cue(self):
+        if not self.check_if_player_already_animating():
+            direction = []
+            if self.key_down_queue:
+                if self.key_down_queue == pygame.K_DOWN:
+                    direction = Direction.DOWN
+                elif self.key_down_queue == pygame.K_UP:
+                    direction = Direction.UP
+                elif self.key_down_queue == pygame.K_RIGHT:
+                    direction = Direction.RIGHT
+                elif self.key_down_queue == pygame.K_LEFT:
+                    direction = Direction.LEFT
+
+                self.initiate_player_movement(direction)
+    # endregion
+
+    # region IMPORT FUNCTIONS
     def import_features_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
 
         for feature_dict in feature_data:
-            self.install_element_ghost(feature_dict)
+            self.gs.install_element_ghost(feature_dict)
+
+    def import_map_objects_from_csv(self, filename):
+        map = []
+        int_map = []
+        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                map.append(list(row))
+        for row in map:
+            int_list = [int(i) for i in row]
+            int_map.append(int_list)
+
+        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus"}
+
+        feature_list = []
+
+        row_counter = 0
+        for row in int_map:
+            row_counter += 1
+            item_counter = 0
+            for item in row:
+                item_counter += 1
+                if item in feature_reference_dict.keys():
+                    x = item_counter
+                    y = row_counter
+                    feature_list.append((x, y, feature_reference_dict[item]))
+
+        for item in feature_list:
+            feature_type = self.gs.type_translator["Prop"]
+            feature_subtype = self.gs.sub_type_translator["Tree"]
+            unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
+            feature_ghost_object = self.gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", self.gs, "Marsh", item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
 
     def import_pages_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
 
         return feature_data
-
-        # for feature_dict in feature_data:
-        #     feature_type = self.gs.type_translator[feature_dict["type"]]
-        #     feature_subtype = self.gs.sub_type_translator[feature_dict["subtype"]]
-        #     unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-        #     feature_ghost_object = self.gs.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self.gs, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
-        #                                                       self.gs.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
-        #                                                       int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
-        #     if feature_subtype == Types.DECO:
-        #         self.gs.add_deco_ghost(unique_name, feature_ghost_object)
-        #     else:
-        #         self.gs.add_feature_ghost(unique_name, feature_ghost_object)
 
     def import_npcs_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
@@ -618,7 +557,8 @@ class GameController(object):
                 self.gs.add_deco_ghost(unique_name, feature_ghost_object)
             else:
                 self.gs.add_feature_ghost(unique_name, feature_ghost_object)
-
+                test = self.gs.get_feature_ghost(unique_name)
+                print(test)
 
     def process_features_from_csv(self, filename):
         feature_data = []
@@ -650,7 +590,9 @@ class GameController(object):
                 self.gs.add_deco_ghost(unique_name, test)
 
         return deco_data
+    # endregion
 
+    # region ROOM MANAGEMENT
     def reset_room(self, room_name):
         room_object = self.gs.get_room(room_name)
         self.position_manager.despawn_all_room_elements(room_object)
@@ -677,7 +619,7 @@ class GameController(object):
         door = self.get_door(door_name)
         x_change = door.x_to - player_object.x
         y_change = door.y_to - player_object.y
-        self.change_player_facing(door.exit_direction)
+        self.gs.change_player_facing(door.exit_direction)
         current_room_object = self.gs.get_room(door.room_from)
         new_room_object = self.gs.get_room(door.room_to)
         self.position_manager.move_ghost(player_object, current_room_object, new_room_object, door.x_to, door.y_to)
@@ -685,21 +627,10 @@ class GameController(object):
         self.game_view.manually_update_camera(x_change, y_change)
         self.change_room(door.room_to)
         pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
+    # endregion
 
-    def player_moved_followup(self, player_x, player_y):
-        if self.gs.gc.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, player_x, player_y) == 1:
-            self.gs.gc.play_sound("splash")
-        self.check_for_map_triggers(player_x, player_y)
-        if self.gs.using_mermaid_crown:
-            self.gs.mermaid_crown_counter += 1
-            if self.gs.mermaid_crown_counter == self.gs.mermaid_crown_limit:
-                self.deactivate_mermaid_crown()
+    # region TRIGGER MANAGEMENT
 
-    def check_for_map_triggers(self, player_x, player_y):
-        room = self.gs.get_current_room()
-        triggers = copy.copy(self.trigger_manager.check_for_triggers(room, player_x, player_y))
-        for trigger in triggers:
-            self.trigger_a_bird(trigger[0], room, trigger[1])
 
     def trigger_a_bird(self, unique_name, room, trigger):
         if room.room_name != "Aviary_Room":
@@ -713,6 +644,7 @@ class GameController(object):
                 self.position_manager.despawn_feature(unique_name, room)
             else:
                 pass
+    # endregion
 
 
 class InventoryManager(object):
@@ -723,9 +655,9 @@ class InventoryManager(object):
         item_list = self.gc.game_data.item_data_list
         key_item_list = self.gc.game_data.key_item_data_list
         if item_name in key_item_list.keys():
-            self.get_key_item(item_name)
+            self.gc.gs.acquire_key_item(item_name)
         elif item_name in item_list.keys():
-            self.get_item(item_name, quantity)
+            self.gc.gs.acquire_item(item_name, quantity)
 
     def fetch_page(self, page_name):
         return self.gc.gs.gd.bird_page_data_list[page_name]
@@ -788,12 +720,12 @@ class InventoryManager(object):
             message = chosen_item.get_failure_message(details)
         return success, message
 
-    def get_key_item(self, item):
+    def get_key_item(self, key_item):
         current_key_inventory = self.gc.gs.ms.get_menu_items_list("key_inventory_menu")
-        if item.NAME in current_key_inventory:
+        if key_item.NAME in current_key_inventory:
             pass
         else:
-            current_key_inventory[item.NAME] = {"name": item.NAME}
+            current_key_inventory[key_item.NAME] = {"name": key_item.NAME}
 
     def use_key_item(self, item):
         current_key_inventory = self.gc.gs.ms.get_menu_items_list("key_inventory_menu")
@@ -862,6 +794,11 @@ class TriggerManager(object):
                     existing_trigger.pop(existing_trigger.index(trigger))
                     tracker +=1
 
+    def check_for_map_triggers(self, player_x, player_y):
+        room = self.gc.gs.get_current_room()
+        triggers = copy.copy(self.check_for_triggers(room, player_x, player_y))
+        for trigger in triggers:
+            self.gc.trigger_a_bird(trigger[0], room, trigger[1])
 
     def check_for_triggers(self, room_object, x, y):
         return self.trigger_list[room_object.room_name][x, y]
@@ -874,8 +811,62 @@ class MenuController(object):
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
+    def menu_cursor_down(self):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.cursor_down()
+
+    def menu_cursor_up(self):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.cursor_up()
+
+    def menu_cursor_left(self):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.cursor_left()
+
+    def menu_cursor_right(self):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.cursor_right()
+
+    def menu_choose_option(self):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.choose_option()
+
     def activate_menu(self):
         pass
+
+    def get_game_time_string(self):
+        hour = self.gc.gs.hour_of_day
+        minute = self.gc.gs.minute_of_hour
+        display_hour = 0
+        display_minute = 0
+        if hour < 10:
+            display_hour = "0" + str(hour)
+        else:
+            display_hour = str(hour)
+
+        if minute < 10:
+            display_minute = "0" + str(minute)
+        else:
+            display_minute = str(minute)
+        final_time = display_hour + ":" + display_minute
+        return final_time
+
+    def update_stat_menus(self):
+        for menu in self.gc.gs.ms.static_menus:
+            ghost = self.gc.gs.ms.get_menu_ghost(menu)
+            ghost.prepare_menu_for_display()
+
+    def get_stat_items(self):
+        hour = self.gc.gs.hour_of_day
+        minute = self.gc.gs.minute_of_hour
+
+        stat_dict = {"Birds": str(self.gc.gs.bird_count),
+                     "Pigeons": str(self.gc.gs.pigeon_count),
+                     "time": self.gc.menu_controller.get_game_time_string(),
+                     "day": str(self.gc.gs.day_of_summer),
+                     "selected_tool": str(self.gc.gs.selected_tool)}
+
+        return stat_dict
 
     def gift_menu_selection(self, sub_menu_selection, chosen_item_name, details):
         if sub_menu_selection == "Yes":
@@ -996,6 +987,9 @@ class MenuController(object):
     def post_notice(self, phrase):
         self.gc.gs.ms.get_menu_ghost(GameActionDialogueMenuGhost.BASE).show_dialogue(phrase)
 
+    def set_start_menu(self):
+        self.set_menu(StartMenuGhost.BASE, None)
+
     def set_menu(self, menu_name, details):
         selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
         menu_type = selected_menu.menu_type
@@ -1082,7 +1076,7 @@ class SceneManager(object): #TODO: Work on this mess!!
                                                 "y_move": self.scene_list[self.current_scene].total_player_y_movement})
             self.end_scene()
         else:
-            self.gc.add_to_scene_anim_in_progress(next_action)
+            self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action)
 
     def end_scene(self):
         self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
@@ -1092,11 +1086,11 @@ class SceneManager(object): #TODO: Work on this mess!!
     def pan_camera(self, direction, number_of_tiles):
         if direction == Direction.LEFT:
             self.animation_list["pan_left_5"].set_animation(direction, number_of_tiles)
-            self.gc.add_to_scene_anim_in_progress("pan_left_5")
+            self.gc.game_view.animation_manager.add_to_scene_anim_in_progress("pan_left_5")
             self.player_movement_x = number_of_tiles
         if direction == Direction.UP:
             self.animation_list["pan_up_5"].set_animation(direction, number_of_tiles)
-            self.gc.add_to_scene_anim_in_progress("pan_up_5")
+            self.gc.game_view.animation_manager.add_to_scene_anim_in_progress("pan_up_5")
             self.player_movement_y = number_of_tiles
 
 

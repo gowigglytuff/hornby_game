@@ -1,0 +1,7 @@
+﻿type,Prop,subtype,Prop,species,Clock,display_name,Clock,function,None,room,My_House,x,2,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Tick Tock
+type,Prop,subtype,Prop,species,Chair,display_name,Chair,function,None,room,My_House,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Creek
+type,Prop,subtype,Prop,species,Table,display_name,Table,function,None,room,My_House,x,6,y,3,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,Creek
+type,Prop,subtype,Prop,species,ElephantPicture,display_name,Elephant Picture,function,None,room,My_House,x,1,y,1,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,toooot
+type,Prop,subtype,Prop,species,ChickenPicture,display_name,Chicken Picture,function,None,room,My_House,x,3,y,1,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,bock bock
+type,Prop,subtype,Prop,species,ChairSide,display_name,Chair Side,function,None,room,My_House,x,5,y,3,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,bock bock
+type,Prop,subtype,Prop,species,Bed,display_name,Bed,function,None,room,My_House,x,1,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,creek

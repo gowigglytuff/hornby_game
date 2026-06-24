@@ -27,38 +27,7 @@ def init_game(g):
 
 
 def new_game_procedures(gc, gs):
-    gc.import_features_from_csv("assets/import_data/feature_import_dict.csv")
-    gc.import_npcs_from_csv("assets/import_data/NPC_import_dict.csv")
-    gc.import_features_from_csv("assets/import_data/Deco_import.csv")
-    gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
-
-    room_name = "Marsh"
-    plot_x = 1
-    plot_y = 1
-    csv = read_csv("assets/room_csv/feature_csv/" + room_name + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "objects.csv")
-
-    feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus"}
-
-    feature_list = []
-
-    row_counter = 0
-    for row in csv:
-        row_counter += 1
-        item_counter = 0
-        for item in row:
-            item_counter += 1
-            if item in feature_reference_dict.keys():
-                x = item_counter
-                y = row_counter
-                feature_list.append((x, y, feature_reference_dict[item]))
-
-    for item in feature_list:
-        feature_type = gs.type_translator["Prop"]
-        feature_subtype = gs.sub_type_translator["Tree"]
-        unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", gs, "Marsh", item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
-        gs.add_feature_ghost(unique_name, feature_ghost_object)
-
+    pass
 
 def access_csv(x, y, csv):
     return csv[y][x]
@@ -84,7 +53,6 @@ def continue_game_procedures(gc, gs):
 def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
-        # gs.gd.add_room_data(Ringside.ID, (Ringside()))
         gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
         gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
@@ -94,11 +62,29 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Zoo_Room", (Consolidated("Zoo_Room", 9, 30, 1, 1)))
+        gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
+
+    def install_features(gc, gs):
+        gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
+        for room_name in gs.gd.room_data_list.keys():
+            feature_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "feature_import_dict.csv"
+            if os.path.isfile(feature_file_name):
+                gc.import_features_from_csv(feature_file_name)
+            map_objects_file_name = "assets/rooms/" + room_name + "/" + room_name + "_1_1_objects.csv"
+            if os.path.isfile(map_objects_file_name):
+                gc.import_map_objects_from_csv(map_objects_file_name)
+            npc_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "NPC_import_dict.csv"
+            if os.path.isfile(npc_file_name):
+                gc.import_npcs_from_csv(npc_file_name)
+            deco_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "deco_import_dict.csv"
+            if os.path.isfile(deco_file_name):
+                gc.import_features_from_csv(deco_file_name)
 
     def install_doors(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Marsh", 3, 6, 21, 33)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Beach", 5, 6, 35, 35)
         gc.position_manager.add_door("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
         gc.position_manager.add_door("Double_back", "Staging_Area", "Marsh", 5, 2, 22, 17)
         gc.position_manager.add_door("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
@@ -108,6 +94,7 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
         gc.position_manager.add_door("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
         gc.position_manager.add_door("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
+        gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
         gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Zoo_Room", 6, 2, 5, 30)
@@ -124,12 +111,12 @@ def install_all_data(gc, gs):
         npc_name_list = gs.get_all_feature_unique_names()
         for npc_item in npc_name_list:
             related_ghost = gc.gs.feature_ghost_list[npc_item]
-            gc.install_element_avatar(related_ghost)
+            gc.gs.gv.install_element_avatar(related_ghost)
 
         deco_name_list = gs.get_all_deco_unique_names()
         for deco_item in deco_name_list:
             related_ghost = gc.gs.deco_ghost_list[deco_item]
-            gc.install_element_avatar(related_ghost)
+            gc.gs.gv.install_element_avatar(related_ghost)
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
@@ -150,14 +137,14 @@ def install_all_data(gc, gs):
         q = 1
         for item in items_to_install:
             gs.gd.add_item_data(item.NAME, item(gc))
-            gs.acquire_item(item, q)
+            gs.acquire_item(item.NAME, q)
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, Shovel, Wrench, Axe]
+        items_to_install = [Hammer, Permit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
-            gc.inventory_manager.get_key_item(item)
+            gs.acquire_key_item(item.NAME)
 
     def install_bird_pages(gc, gs): #TODO: Keep working on this
         gc.import_pages_from_csv("assets/import_data/pages_import_dict.csv")
@@ -222,10 +209,11 @@ def install_all_data(gc, gs):
     install_menus(gc, gs)
     install_goals(gc, gs)
     install_tileset(gc, gs)
-    install_player_avatar(gc, gs)
-    install_avatar_all(gc, gs)
     install_spritesheets(gc, gs)
     install_rooms(gc, gs)
+    install_features(gc, gs)
+    install_player_avatar(gc, gs)
+    install_avatar_all(gc, gs)
     install_doors(gc, gs)
     install_triggers(gc, gs)
     spawn_first_room(gc, gs)

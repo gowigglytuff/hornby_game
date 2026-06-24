@@ -1,0 +1,2 @@
+﻿type,Prop,subtype,Tree,species,Pine,display_name,Pine,function,None,room,Staging_Area,x,6,y,4,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
+type,NPC,subtype,Bird,species,Crow,display_name,Crow,function,None,room,Staging_Area,x,6,y,2,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,no,phrase,Caw

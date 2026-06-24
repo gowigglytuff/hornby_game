@@ -81,6 +81,17 @@ class GameView(object):
     def tick(self):
         self.clock.tick(self.FPS)
 
+    def switch_tile_frame(self):
+        ref = self.tile_frame
+        if ref == 1:
+            self.tile_frame = 2
+        elif ref == 0:
+            self.tile_frame = 1
+        elif ref == 2:
+            self.tile_frame = 3
+        elif ref == 3:
+            self.tile_frame = 0
+
     def translate_feature_type(self, type):
         list = None
         if type == Types.NPC:
@@ -301,6 +312,19 @@ class GameView(object):
     # endregion
 
     #region FEATURE AVATARS
+
+    def get_avatar_class(self, avatar_type):
+        return self.avatar_classes[avatar_type]
+
+    def install_element_avatar(self, related_ghost):
+        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.NPC or related_ghost.feature_type == Types.HOUSE:
+            if related_ghost.feature_subtype == Types.BIRD:
+                self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+            else:
+                self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+        elif related_ghost.feature_type == Types.DECO:
+            self.add_deco_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+
     def get_npc_avatar(self, name):
         return self.feature_avatar_list[name]
 
@@ -361,6 +385,41 @@ class AnimationManager(object):
         self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
         self.independent_animation_trigger_queue = []
         self.active_independent_animations = {}
+
+    def add_to_anim_in_progress(self, feature_unique_name):
+        self.gv.gs.gc.feature_animations_in_progress.append(feature_unique_name)
+
+    def ask_animator_to_animate(self):
+        if self.gv.gs.gc.check_if_player_already_animating():
+            self.gv.animation_manager.perform_player_animation(self.gv.player_avatar)
+
+        for feature_name in self.gv.gs.gc.feature_animations_in_progress:
+            thing_avatar = self.gv.get_npc_avatar(feature_name)
+            wrap_up = False
+            if self.gv.gs.gc.check_if_feature_already_animating(feature_name):
+                wrap_up = self.gv.animation_manager.perform_feature_animation(thing_avatar)
+            if wrap_up:
+                self.gv.gs.gc.feature_animations_in_progress.remove(feature_name)
+
+        # independent animations
+        complete_animation_names = []
+        for animation_name in self.gv.animation_manager.active_independent_animations.keys():
+            animation = self.gv.animation_manager.active_independent_animations[animation_name].animate()
+            if animation[4]:
+                complete_animation_names.append(animation_name)
+        for item in complete_animation_names:
+            self.gv.complete_independent_animation(item)
+
+    def add_to_scene_anim_in_progress(self, scene_animation_name):
+        self.gv.gs.gc.scene_animations_in_progress.append(scene_animation_name)
+
+    def ask_scene_to_animate(self):
+        for scene_animation in self.gv.gs.gc.scene_animations_in_progress:
+            if scene_animation.AN_TYPE == "camera":
+                wrap_up, follow_up_package = self.gv.animation_manager.perform_scene_animation(scene_animation)
+                if wrap_up:
+                    self.gv.gs.gc.scene_animations_in_progress.remove(scene_animation)
+                    self.gv.gs.gc.scene_manager.continue_scene(follow_up_package)
 
     def perform_player_animation(self, animator):
         animation_result = (animator.animation_list[animator.current_animation].animate())

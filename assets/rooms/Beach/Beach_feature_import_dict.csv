@@ -1,0 +1,7 @@
+﻿type,NPC,subtype,Bird,species,Cormorant,display_name,Cormorant,function,None,room,Beach,x,16,y,17,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Seagull,display_name,Seagull,function,None,room,Beach,x,15,y,28,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Seagull,display_name,Seagull,function,None,room,Beach,x,20,y,43,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Seagull,display_name,Seagull,function,None,room,Beach,x,31,y,42,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Seagull,display_name,Seagull,function,None,room,Beach,x,38,y,45,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,NPC,subtype,Bird,species,Seagull,display_name,Seagull,function,None,room,Beach,x,46,y,26,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,sup
+type,Prop,subtype,Prop,species,Sandcastle,display_name,Sandcastle,function,None,room,Beach,x,28,y,30,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
