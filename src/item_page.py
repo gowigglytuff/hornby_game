@@ -1,4 +1,4 @@
-from definitions import Types
+from definitions import Types, Direction
 from spritesheet import Spritesheet
 
 
@@ -209,7 +209,7 @@ class Hammer(KeyItem):
 
     def get_failure_message(self, details):
         message = None
-        if details["filling_type"] == Types.NPC:
+        if details["filling_subtype"] == Types.NPC:
             message = "That's a disgusting idea."
         else:
             message = "You can't use the Hammer now"
@@ -243,7 +243,28 @@ class Pickaxe(KeyItem):
     def __init__(self, gc):
         super().__init__(gc)
 
+    def item_use(self, details):
+        self.gc.pickaxe_make_door()
 
+    def use_requirements_met(self, details):
+        result = self.gc.check_if_pickaxe_worked()
+        return result
+
+    def get_success_message(self, details):
+        return "You used the Pickaxe"
+
+    def get_failure_message(self, details):
+        message = None
+        if details["filling_subtype"] == Types.NPC:
+            message = "That's a disgusting idea."
+
+        elif details["adjacent_tile_terrain"] == self.gc.gs.gd.get_terrain_number_or_word(None, "wall")[0] and self.gc.gs.get_player_ghost().facing == Direction.UP:
+            message = "The wall appears to be solid"
+            self.gc.play_sound("pickaxe_fail")
+        else:
+            message = "You can't use the Pickaxe now"
+
+        return message
 class Permit(KeyItem):
     NAME = "Permit"
 

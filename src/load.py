@@ -72,7 +72,7 @@ def install_all_data(gc, gs):
                 gc.import_features_from_csv(feature_file_name)
             map_objects_file_name = "assets/rooms/" + room_name + "/" + room_name + "_1_1_objects.csv"
             if os.path.isfile(map_objects_file_name):
-                gc.import_map_objects_from_csv(map_objects_file_name)
+                gc.import_map_objects_from_csv(map_objects_file_name, room_name)
             npc_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "NPC_import_dict.csv"
             if os.path.isfile(npc_file_name):
                 gc.import_npcs_from_csv(npc_file_name)
@@ -146,6 +146,12 @@ def install_all_data(gc, gs):
             gs.gd.add_key_item_data(item.NAME, item(gc))
             gs.acquire_key_item(item.NAME)
 
+    def install_pickaxe_door_entry(gc, gs):
+        pickaxe_door_dict = {"Marsh_13_13": ["Cave", 6, 5, "Double_back"],
+                                  "Staging_Area_1_2": ["Cave", 9, 12, "Passage"]}
+        for item in pickaxe_door_dict:
+            gc.gs.add_pickaxe_door_entry(item, pickaxe_door_dict[item])
+
     def install_bird_pages(gc, gs): #TODO: Keep working on this
         gc.import_pages_from_csv("assets/import_data/pages_import_dict.csv")
         pages_to_install = gc.import_pages_from_csv("assets/import_data/pages_import_dict.csv")
@@ -195,9 +201,26 @@ def install_all_data(gc, gs):
 
     def initiate_mixer():
         pygame.mixer.init()
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.load("assets/sound_effects/popping_sound.mp3")
         pygame.mixer.music.load("assets/music/flute_song.mp3")
         # pygame.mixer.music.play(-1)
+
+    def add_sounds(gc, gs):
+        reference_dict = ["splash", "popping_sound", "rocks_falling", "pickaxe_tap"]
+        for item in reference_dict:
+            sound_object = pygame.mixer.Sound("assets/sound_effects/" + item + ".mp3")
+            sound_object.set_volume(.2)
+            gs.gd.add_sound_object(item,sound_object)
+
+    def add_sound_references(gc, gs):
+        reference_dict = {"balloon_pop": "popping_sound",
+                          "mermaid_swim": "splash",
+                          "go_through_door": "popping_sound",
+                          "pickaxe_fail": "pickaxe_tap",
+                          "pickaxe_success": "rocks_falling"}
+        for item in reference_dict.keys():
+            gs.gd.add_sound_reference(item, reference_dict[item])
 
     install_keyboard_managers(gc, gs)
     set_initial_keyboard_manager(gc, gs)
@@ -215,10 +238,13 @@ def install_all_data(gc, gs):
     install_player_avatar(gc, gs)
     install_avatar_all(gc, gs)
     install_doors(gc, gs)
+    install_pickaxe_door_entry(gc, gs)
     install_triggers(gc, gs)
     spawn_first_room(gc, gs)
     set_camera_position(gc, gs)
     initiate_mixer()
+    add_sounds(gc, gs)
+    add_sound_references(gc,gs)
     fill_initial_room(gc, gs)
 
 

@@ -28,13 +28,14 @@ class GameState(object):
         self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD, "Tree": Types.TREE, "NPC": Types.NPC, "Prop": Types.PROP, "House": Types.HOUSE, "Deco": Types.DECO}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
-        self.selected_tool = "Axe"
+        self.selected_tool = "Pickaxe"
         self.player_ghost = PlayerGhost(self, 1, 3)  # type: PlayerGhost
         self.feature_ghost_list = {}
         self.prop_ghost_list = {}
         self.deco_ghost_list = {}
         self.current_outfit = "green_shirt"
         self.revert_outfit = "green_shirt"
+        self.pickaxe_door_dict = {}
 
         self.new_game = True
         self.current_room = "Staging_Area"
@@ -65,11 +66,16 @@ class GameState(object):
         self.current_key_inventory_dictionary = {}
         self.current_animations_to_execute = []
 
+    def add_pickaxe_door_entry(self, entry_name, entry_object):
+        self.pickaxe_door_dict[entry_name] = entry_object
+
     # region FEATURE CONTROL
 
     def install_element(self, feature_dict):
         ghost_install = self.install_element_ghost(feature_dict)
         self.gv.install_element_avatar(ghost_install)
+
+        return ghost_install
 
     def install_element_ghost(self, feature_dict):
         feature_type = self.type_translator[feature_dict["type"]]
@@ -343,7 +349,6 @@ class MenuState(object):
             self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
     # endregion
 
-
 class ConditionChecker(object):
     def __init__(self, gs_input):
         self.gs = gs_input #type: GameState
@@ -400,6 +405,12 @@ class GameData(object):
                 "Blackbird", "Junko", "Flycatcher", "Wood_Peewee", "Thrush", "Robin", "Goldfinch", "Cormorant", "Seagull", "Coot", "Green_Heron",
                 "Kingfisher", "Redwing_Blackbird", "Mallard", "Murrelet", "Harlequin_Duck"]
 
+        self.sound_dict = {}
+        self.terrain_dict = {0: "soil",
+                             1: "water",
+                             2: "mud",
+                             3: "wall"}
+        self.sound_reference_dict = {}
         self.room_data_list = {}
         self.door_data_list = {}
         self.keyboard_manager_data_list = {}
@@ -414,6 +425,26 @@ class GameData(object):
         self.item_data_list = {}
         self.key_item_data_list = {}
         self.bird_page_data_list = {}
+
+    def get_terrain_number_or_word(self, number, word):
+        word_result = None
+        number_result = None
+        if number is not None:
+            word_result = self.terrain_dict[number]
+
+        if word is not None:
+            number_result = next(k for k, v in self.terrain_dict.items() if v == word)
+
+        return number_result, word_result
+
+    def add_sound_reference(self, item_name, item_object):
+        self.sound_reference_dict[item_name] = item_object
+
+    def get_sound(self, item_name):
+        return self.sound_dict[item_name]
+
+    def add_sound_object(self, item_name, item_object):
+        self.sound_dict[item_name] = item_object
 
     def add_key_item_data(self, item_name, item_object):
         self.key_item_data_list[item_name] = item_object

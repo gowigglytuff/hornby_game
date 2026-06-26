@@ -182,6 +182,7 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.scene_manager.pan_camera(Direction.DOWN, 5)
         # self.gc.activate_mermaid_crown()
         # self.gc.scene_manager.play_scene(Scene(self.gc, [CameraPanAnimation(Direction.LEFT, 5), CameraPanAnimation(Direction.UP, 5)]))
+        self.gc.pickaxe_make_door()
         pass
 
     def key_direction_released(self, key):

@@ -607,7 +607,15 @@ class PositionManager(object):
         door2_exit_direction = None
         door2_has_image = True
 
-        install_list = []
+        install_list = {"doorway1": None,
+                        "doormat1": None,
+                        "doorway2": None,
+                        "doormat2": None}
+
+        doorway1_deco_name = False
+        doormat1_deco_name = False
+        doorway2_deco_name = False
+        doormat2_deco_name = False
 
         if door_type == "Ladder":
             door1_species = "LadderTop"
@@ -619,6 +627,11 @@ class PositionManager(object):
             door2_display_name = "Ladder"
             door2_access_from = Direction.ALL
             door2_exit_direction = Direction.MATCH
+
+            doorway1_deco_name = True
+            doormat1_deco_name = False
+            doorway2_deco_name = True
+            doormat2_deco_name = False
 
         elif door_type == "Passage":
             door1_species = "Doorway"
@@ -633,9 +646,14 @@ class PositionManager(object):
             door2_has_image = False
 
             doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            install_list.append(doormat1_dict)
+            install_list["doormat1"] = doormat1_dict
             doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatExit", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y - 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            install_list.append(doormat2_dict)
+            install_list["doormat2"] = doormat2_dict
+
+            doorway1_deco_name = True
+            doormat1_deco_name = True
+            doorway2_deco_name = False
+            doormat2_deco_name = True
 
         elif door_type == "Double_back":
             door1_species = "Doorway"
@@ -651,9 +669,14 @@ class PositionManager(object):
             door2_exit_direction = Direction.SWITCH
 
             doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            install_list.append(doormat1_dict)
+            install_list["doormat1"] = doormat1_dict
             doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            install_list.append(doormat2_dict)
+            install_list["doormat2"] = doormat2_dict
+
+            doorway1_deco_name = True
+            doormat1_deco_name = True
+            doorway2_deco_name = True
+            doormat2_deco_name = True
 
         elif door_type == "Feature_Passage":
 
@@ -667,22 +690,35 @@ class PositionManager(object):
             door2_exit_direction = Direction.MATCH
             door2_has_image = False
 
+            doorway1_deco_name = False
+            doormat1_deco_name = False
+            doorway2_deco_name = False
+            doormat2_deco_name = False
+
         # Door 1
         door1_object = Door(room_from, room_to, door_from_x + door1_entrance_x_offset, door_from_y + door1_entrance_y_offset, door_to_x + door1_exit_x_offset, door_to_y + door1_exit_y_offset, door1_access_from, door1_exit_direction)
         if door1_has_image:
             doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": door1_species, "display_name": door1_display_name, "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            install_list.append(doorway1_dict)
+            install_list["doorway1"] = doorway1_dict
 
         # Door 2
         door2_object = Door(room_to, room_from, door_to_x + door2_entrance_x_offset, door_to_y + door2_entrance_y_offset, door_from_x + door2_exit_x_offset, door_from_y + door2_exit_y_offset, door2_access_from, door2_exit_direction)
         if door2_has_image:
             doorway2_dict = {"type": "Deco", "subtype": "Deco", "species": door2_species, "display_name": door2_display_name, "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
-            install_list.append(doorway2_dict)
+            install_list["doorway2"] = doorway2_dict
 
-        for item in install_list:
-            self.gc.gs.install_element(item)
+        return_dict = {}
+
+        for item in install_list.keys():
+            if install_list[item] is not None:
+                item_ghost = self.gc.gs.install_element(install_list[item])
+                return_dict[item] = item_ghost
+            else:
+                return_dict[item] = None
         self.gc.gs.gd.add_door_data(door1_name, door1_object)
         self.gc.gs.gd.add_door_data(door2_name, door2_object)
+
+        return return_dict
 
     # region FEATURE DICTIONARY
     def check_location_full(self, room_name, cube_coordinates):

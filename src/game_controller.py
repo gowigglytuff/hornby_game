@@ -73,6 +73,7 @@ class GameEvents(object):
                         popoff()
 
 
+
 class GameController(object):
 
     def __init__(self, game, game_view, game_state, game_data):
@@ -183,8 +184,10 @@ class GameController(object):
     # endregion ( (
 
     # region SOUNDS
-    def play_sound(self, sound_name):
-        pygame.mixer.Sound("assets/sound_effects/splash.mp3").play()
+    def play_sound(self, queue_name):
+        print(self.gs.gd.sound_reference_dict)
+        sound_name = self.gs.gd.sound_reference_dict[queue_name]
+        self.gs.gd.get_sound(sound_name).play()
     # endregion
 
     # region text controls
@@ -204,6 +207,41 @@ class GameController(object):
     # endregion
 
     # region TOOL USE
+    def check_if_pickaxe_worked(self):
+        result = False
+        player = self.gs.get_player_ghost()
+        room = self.gs.get_current_room()
+        cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
+
+        tile_name = room.room_name + "_" + str(cube.x) + "_" + str(cube.y)
+        pickaxe_doors_list = self.gs.pickaxe_door_dict.keys()
+
+        if player.facing == Direction.UP:
+            if tile_name in pickaxe_doors_list:
+                result = True
+
+        return result
+
+    def pickaxe_make_door(self):
+        player = self.gs.get_player_ghost()
+        room = self.gs.get_current_room()
+        cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
+
+        tile_name = room.room_name + "_" + str(cube.x) + "_" + str(cube.y)
+        pickaxe_dict_selection = self.gs.pickaxe_door_dict[tile_name]
+        door_add_result_dict = self.position_manager.add_door(pickaxe_dict_selection[3], room.room_name, pickaxe_dict_selection[0], cube.x, cube.y, pickaxe_dict_selection[1], pickaxe_dict_selection[2])
+        doorway1_ghost = door_add_result_dict["doorway1"]
+        doormat1_ghost = door_add_result_dict["doormat1"]
+        if doorway1_ghost is not None:
+            doorway1_ghost.active = True
+        if doormat1_ghost is not None:
+            doormat1_ghost.active = True
+
+        self.gs.pickaxe_door_dict.pop(tile_name)
+        self.play_sound("pickaxe_success")
+
+        self.gs.gc.menu_controller.post_notice("You found a door!")
+
     def use_selected_tool(self):
         if self.gs.selected_tool != "None":
             tool = self.inventory_manager.gc.gs.gd.key_item_data_list[self.gs.selected_tool]
@@ -372,7 +410,7 @@ class GameController(object):
 
     def player_moved_followup(self, player_x, player_y):
         if self.gs.gc.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, player_x, player_y) == 1:
-            self.gs.gc.play_sound("splash")
+            self.gs.gc.play_sound("mermaid_swim")
         self.trigger_manager.check_for_map_triggers(player_x, player_y)
         if self.gs.using_mermaid_crown:
             self.gs.mermaid_crown_counter += 1
@@ -487,7 +525,7 @@ class GameController(object):
         for feature_dict in feature_data:
             self.gs.install_element_ghost(feature_dict)
 
-    def import_map_objects_from_csv(self, filename):
+    def import_map_objects_from_csv(self, filename, room_name):
         map = []
         int_map = []
         with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
@@ -498,7 +536,7 @@ class GameController(object):
             int_list = [int(i) for i in row]
             int_map.append(int_list)
 
-        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus"}
+        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus", 4: "Rock", 5: "Small_Rock", 6: "Small_Craig"}
 
         feature_list = []
 
@@ -517,7 +555,7 @@ class GameController(object):
             feature_type = self.gs.type_translator["Prop"]
             feature_subtype = self.gs.sub_type_translator["Tree"]
             unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = self.gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", self.gs, "Marsh", item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+            feature_ghost_object = self.gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", self.gs, room_name, item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
 
     def import_pages_from_csv(self, filename):
@@ -558,7 +596,6 @@ class GameController(object):
             else:
                 self.gs.add_feature_ghost(unique_name, feature_ghost_object)
                 test = self.gs.get_feature_ghost(unique_name)
-                print(test)
 
     def process_features_from_csv(self, filename):
         feature_data = []
@@ -626,7 +663,7 @@ class GameController(object):
         self.position_manager.match_player_elevation_to_target(new_room_object, door.x_to, door.y_to)
         self.game_view.manually_update_camera(x_change, y_change)
         self.change_room(door.room_to)
-        pygame.mixer.Sound("assets/sound_effects/popping_sound.mp3").play()
+        self.play_sound("go_through_door")
     # endregion
 
     # region TRIGGER MANAGEMENT
@@ -734,7 +771,10 @@ class InventoryManager(object):
         room = self.gc.gs.get_current_room()
         player = self.gc.gs.get_player_ghost()
         cube = room.access_adjacent_cube(player, player.facing)
-        details = {"room": room, "cube": cube, "adjacent_tile_filling": cube.filling_unique_name, "filling_type": cube.filling_type, "filling_subtype": cube.filling_subtype}
+        if not self.gc.position_manager.check_rooms_edges(player, player.facing, room):
+            details = {"room": room, "cube": cube, "adjacent_tile_filling": cube.filling_unique_name, "filling_type": cube.filling_type, "filling_subtype": cube.filling_subtype, "adjacent_tile_terrain": self.gc.position_manager.get_tile_terrain(room.room_name, cube.x, cube.y)}
+        else:
+            details = {"room": room, "cube": cube, "adjacent_tile_filling": None, "filling_type": None, "filling_subtype": None, "adjacent_tile_terrain": None}
 
         result = self.check_if_can_use_key_item(item, details)[0]
         message = self.check_if_can_use_key_item(item, details)[1]
