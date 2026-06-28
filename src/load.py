@@ -6,6 +6,7 @@ import pygame
 from feature_avatar_view_page import PlayerAvatar
 from definitions import Direction, Types, GameSettings
 from feature_ghost_data_page import PlayerGhost
+from feature_ghost_redefinition_page import CrowyGhost
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager
 from menu_avatars_view_page import MenuAvatar
@@ -61,8 +62,21 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Marsh", (Consolidated("Marsh", 50, 50, 1, 1)))
         gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
-        gs.gd.add_room_data("Zoo_Room", (Consolidated("Zoo_Room", 9, 30, 1, 1)))
+        gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
+
+    def install_classes(gc, gs):
+        bird_class_objects_file_name = "assets/import_data/bird_class_import.csv"
+        gc.import_classes_from_csv(bird_class_objects_file_name)
+
+        character_class_objects_file_name = "assets/import_data/character_class_import.csv"
+        gc.import_classes_from_csv(character_class_objects_file_name)
+
+        prop_class_objects_file_name = "assets/import_data/prop_class_import.csv"
+        gc.import_classes_from_csv(prop_class_objects_file_name)
+
+        deco_class_objects_file_name = "assets/import_data/deco_class_import.csv"
+        gc.import_classes_from_csv(deco_class_objects_file_name)
 
     def install_features(gc, gs):
         gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
@@ -79,6 +93,30 @@ def install_all_data(gc, gs):
             deco_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "deco_import_dict.csv"
             if os.path.isfile(deco_file_name):
                 gc.import_features_from_csv(deco_file_name)
+
+            unique_name = "Crow"
+            object_clas = gs.gd.get_feature_class("Crow")
+            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 2, 17, Direction.RIGHT, "yes")
+            item_ghost = gc.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
+
+            unique_name = "Cowboy"
+            object_clas = gs.gd.get_feature_class("Cowboy")
+            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 4, 17, Direction.DOWN, "yes")
+            item_ghost = gc.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
+
+            unique_name = "Clock"
+            object_clas = gs.gd.get_feature_class("Clock")
+            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 6, 17, Direction.DOWN, "yes")
+            item_ghost = gc.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
+
+            unique_name = "Weed"
+            object_clas = gs.gd.get_feature_class("Weed")
+            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 8, 17, Direction.DOWN, "yes")
+            item_ghost = gc.gs.add_deco_ghost(unique_name, feature_ghost_object)
+            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
 
     def install_doors(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
@@ -97,7 +135,7 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
         gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
-        gc.position_manager.add_door("Passage", "Staging_Area", "Zoo_Room", 6, 2, 5, 30)
+        gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -141,7 +179,7 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, Permit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
+        items_to_install = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
             gs.acquire_key_item(item.NAME)
@@ -234,6 +272,7 @@ def install_all_data(gc, gs):
     install_tileset(gc, gs)
     install_spritesheets(gc, gs)
     install_rooms(gc, gs)
+    install_classes(gc, gs)
     install_features(gc, gs)
     install_player_avatar(gc, gs)
     install_avatar_all(gc, gs)

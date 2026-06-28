@@ -1,0 +1,27 @@
+﻿type,NPC,feature_subtype,Birdy,species,Meadowlark,display_name,Meadowlark,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Nuthatch,display_name,Nuthatch,base_size_x,1,base_size_y,1,figure_size_x,1,figuzre_size_y,1
+type,NPC,feature_subtype,Birdy,species,Crow,display_name,Crow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Tanager,display_name,Tanager,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Starling,display_name,Starling,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Saw-whet_Owl,display_name,Saw-whet Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Barred_Owl,display_name,Barred Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Great_Horned_Owl,display_name,Great Horned Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Nighthawk,display_name,Nighthawk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,BlackBird,display_name,BlackBird,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Junko,display_name,Junko,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Flycatcher,display_name,Flycatcher,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Wood_Peewee,display_name,Wood Peewee,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Thrush,display_name,Thrush,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Robin,display_name,Robin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Goldfinch,display_name,Goldfinch,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Cormorant,display_name,Cormorant,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Seagull,display_name,Seagull,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Coot,display_name,Coot,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Green_Heron,display_name,Green Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Kingfisher,display_name,Kingfisher,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Redwing_BlackBird,display_name,Redwing BlackBird,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Mallard,display_name,Mallard,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Murrelet,display_name,Murrelet,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Harlequin_Duck,display_name,Harlequin Duck,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,Eurasian_Wigeon,display_name,Eurasian Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,NPC,feature_subtype,Birdy,species,American_Wigeon,display_name,American Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

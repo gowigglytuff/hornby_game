@@ -48,7 +48,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
-        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
+        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.ACTOR: NPCAvatar, Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
@@ -317,7 +317,7 @@ class GameView(object):
         return self.avatar_classes[avatar_type]
 
     def install_element_avatar(self, related_ghost):
-        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.NPC or related_ghost.feature_type == Types.HOUSE:
+        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.NPC or related_ghost.feature_type == Types.HOUSE or related_ghost.feature_type == Types.ACTOR:
             if related_ghost.feature_subtype == Types.BIRD:
                 self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
             else:

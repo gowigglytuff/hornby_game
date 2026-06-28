@@ -557,7 +557,7 @@ class PositionManager(object):
         npc_ghost_list = self.gc.game.gs.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
         for npc in npc_ghost_list.keys():
             npc_ghost = self.gc.gs.get_feature_ghost(npc)
-            if npc_ghost_list[npc].room == room_to_fill and npc_ghost.active:
+            if npc_ghost_list[npc].spawn_room == room_to_fill and npc_ghost.active:
                 fill_list.append(npc_ghost)
 
         for item in fill_list:

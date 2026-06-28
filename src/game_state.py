@@ -1,7 +1,9 @@
 import copy
 from random import choice
 
+import feature_ghost_redefinition_page
 from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
+from feature_ghost_redefinition_page import *
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings
@@ -71,6 +73,18 @@ class GameState(object):
 
     # region FEATURE CONTROL
 
+    def install_element_ghost_class(self, feature_dict):
+        ghost_install = None
+        if feature_dict["feature_subtype"] == "Birdy":
+            ghost_install = self.create_feature_ghost_class_bird(feature_dict)
+        if feature_dict["feature_subtype"] == "Character":
+            ghost_install = self.create_feature_ghost_class_NPC(feature_dict)
+        if feature_dict["feature_subtype"] == "Propy":
+            ghost_install = self.create_feature_ghost_class_prop(feature_dict)
+        if feature_dict["feature_subtype"] == "Decoy":
+            ghost_install = self.create_feature_ghost_class_deco(feature_dict)
+        return ghost_install
+
     def install_element(self, feature_dict):
         ghost_install = self.install_element_ghost(feature_dict)
         self.gv.install_element_avatar(ghost_install)
@@ -91,6 +105,125 @@ class GameState(object):
             test = self.get_feature_ghost(unique_name)
 
         return feature_ghost_object
+
+    def create_feature_ghost_class_bird(self, feature_dict):
+        # feature_dict = {"Classname": "Crow", "species": "Crow", "display_name": "Crow", "figure_size_x": 1, "figure_size_y": 1, "base_size_x": 1, "base_size_y": 1}
+
+        print(feature_dict)
+
+        feature_parent_dict = {""}
+
+        def class_init(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+            super(newclass, self).__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+            self.gc_input = gc_input
+            self.unique_name = unique_name
+            self.function = function
+            self.spawn_room = spawn_room
+            self.spawn_x = spawn_x
+            self.spawn_y = spawn_y
+            self.spawn_facing = spawn_facing
+            self.spawn_active = spawn_active
+            self.species = feature_dict["species"]
+            self.display_name = feature_dict["display_name"]
+            self.figure_size_x = int(feature_dict["figure_size_x"])
+            self.figure_size_y = int(feature_dict["figure_size_y"])
+            self.base_size_x = int(feature_dict["base_size_x"])
+            self.base_size_y = int(feature_dict["base_size_y"])
+            self.run_initialization()
+
+        newclass = type(feature_dict["species"], (getattr(feature_ghost_redefinition_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+        self.gd.add_feature_class(feature_dict["species"], newclass)
+        print(newclass)
+
+        return feature_dict
+
+    def create_feature_ghost_class_NPC(self, feature_dict):
+
+        def class_init(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+            super(newclass, self).__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+            self.gc_input = gc_input
+            self.unique_name = unique_name
+            self.function = function
+            self.spawn_room = spawn_room
+            self.spawn_x = spawn_x
+            self.spawn_y = spawn_y
+            self.spawn_facing = spawn_facing
+            self.spawn_active = spawn_active
+            self.species = feature_dict["species"]
+            self.display_name = feature_dict["display_name"]
+            self.figure_size_x = int(feature_dict["figure_size_x"])
+            self.figure_size_y = int(feature_dict["figure_size_y"])
+            self.base_size_x = int(feature_dict["base_size_x"])
+            self.base_size_y = int(feature_dict["base_size_y"])
+            self.base_phrase = feature_dict["base_phrase"]
+            self.good_gift_phrase = feature_dict["good_gift_phrase"]
+            self.bad_gift_phrase = feature_dict["bad_gift_phrase"]
+            self.neutral_gift_phrase = feature_dict["neutral_gift_phrase"]
+            self.bird_hint_phrase = feature_dict["bird_hint_phrase"]
+            self.good_gift_list = feature_dict["good_gift_list"]
+            self.bad_gift_list = feature_dict["bad_gift_list"]
+
+            self.run_initialization()
+
+        newclass = type(feature_dict["species"], (getattr(feature_ghost_redefinition_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+        self.gd.add_feature_class(feature_dict["species"], newclass)
+        print(newclass)
+
+        return feature_dict
+
+    def create_feature_ghost_class_prop(self, feature_dict):
+
+        def class_init(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+            super(newclass, self).__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+            self.gc_input = gc_input
+            self.unique_name = unique_name
+            self.function = function
+            self.spawn_room = spawn_room
+            self.spawn_x = spawn_x
+            self.spawn_y = spawn_y
+            self.spawn_facing = spawn_facing
+            self.spawn_active = spawn_active
+            self.species = feature_dict["species"]
+            self.display_name = feature_dict["display_name"]
+            self.figure_size_x = int(feature_dict["figure_size_x"])
+            self.figure_size_y = int(feature_dict["figure_size_y"])
+            self.base_size_x = int(feature_dict["base_size_x"])
+            self.base_size_y = int(feature_dict["base_size_y"])
+
+            self.run_initialization()
+
+        newclass = type(feature_dict["species"], (getattr(feature_ghost_redefinition_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+        self.gd.add_feature_class(feature_dict["species"], newclass)
+        print(newclass)
+
+        return feature_dict
+
+    def create_feature_ghost_class_deco(self, feature_dict):
+
+        def class_init(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+            super(newclass, self).__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+            self.gc_input = gc_input
+            self.unique_name = unique_name
+            self.function = function
+            self.spawn_room = spawn_room
+            self.spawn_x = spawn_x
+            self.spawn_y = spawn_y
+            self.spawn_facing = spawn_facing
+            self.spawn_active = spawn_active
+            self.species = feature_dict["species"]
+            self.display_name = feature_dict["display_name"]
+            self.figure_size_x = int(feature_dict["figure_size_x"])
+            self.figure_size_y = int(feature_dict["figure_size_y"])
+            self.base_size_x = int(feature_dict["base_size_x"])
+            self.base_size_y = int(feature_dict["base_size_y"])
+
+            self.run_initialization()
+
+        newclass = type(feature_dict["species"], (getattr(feature_ghost_redefinition_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+        self.gd.add_feature_class(feature_dict["species"], newclass)
+        print(newclass)
+
+        return feature_dict
 
     def add_feature_ghost(self, npc_name, npc_object):
         self.feature_ghost_list[npc_name] = npc_object
@@ -148,14 +281,14 @@ class GameState(object):
 
         for npc in npc_ghost_list.keys():
             npc_ghost = self.get_feature_ghost(npc)
-            if npc_ghost_list[npc].room == self.current_room and npc_ghost.active:
+            if npc_ghost_list[npc].spawn_room == self.current_room and npc_ghost.active:
                 feature_location_list.append([npc, npc_ghost.y, npc_ghost.x])
 
         deco_ghost_list = self.deco_ghost_list
 
         for deco in deco_ghost_list.keys():
             deco_ghost = self.get_deco_ghost(deco)
-            if deco_ghost_list[deco].room == self.current_room and deco_ghost.active:
+            if deco_ghost_list[deco].spawn_room == self.current_room and deco_ghost.active:
                 deco_location_list.append([deco, deco_ghost.y, deco_ghost.x])
 
         player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
@@ -177,14 +310,14 @@ class GameState(object):
     def get_list_of_feature_names_in_room(self, room_name):
         names_list =[]
         for item in self.feature_ghost_list.values():
-            if item.room == room_name:
+            if item.spawn_room == room_name:
                 names_list.append(item.name)
         return names_list
 
     def get_all_decos_in_room(self, room_name):
         deco_list = []
         for deco in self.deco_ghost_list.values():
-            if deco.room == room_name:
+            if deco.spawn_room == room_name:
                 deco_list.append(deco)
 
         return deco_list
@@ -193,7 +326,7 @@ class GameState(object):
         feature_list = []
         feature_list.append(self.get_player_ghost())
         for feature in self.feature_ghost_list.values():
-            if feature.room == room_name:
+            if feature.spawn_room == room_name:
                 feature_list.append(feature)
         return feature_list
     # endregion
@@ -405,6 +538,7 @@ class GameData(object):
                 "Blackbird", "Junko", "Flycatcher", "Wood_Peewee", "Thrush", "Robin", "Goldfinch", "Cormorant", "Seagull", "Coot", "Green_Heron",
                 "Kingfisher", "Redwing_Blackbird", "Mallard", "Murrelet", "Harlequin_Duck"]
 
+        self.feature_class_dict = {}
         self.sound_dict = {}
         self.terrain_dict = {0: "soil",
                              1: "water",
@@ -436,6 +570,12 @@ class GameData(object):
             number_result = next(k for k, v in self.terrain_dict.items() if v == word)
 
         return number_result, word_result
+
+    def add_feature_class(self, item_name, item_object):
+        self.feature_class_dict[item_name] = item_object
+
+    def get_feature_class(self, item_name):
+        return self.feature_class_dict[item_name]
 
     def add_sound_reference(self, item_name, item_object):
         self.sound_reference_dict[item_name] = item_object

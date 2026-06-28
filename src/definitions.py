@@ -47,6 +47,8 @@ class GameSettings(object):
 class Types(Enum):
     PROP = "Prop"
     NPC = "NPC"
+    CHARACTER = "NPC"
+    ACTOR = "Actor"
     DECO = "Deco"
     DEFAULT = "Default"
     HOUSE = "House"

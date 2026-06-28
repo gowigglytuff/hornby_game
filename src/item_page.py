@@ -209,7 +209,7 @@ class Hammer(KeyItem):
 
     def get_failure_message(self, details):
         message = None
-        if details["filling_subtype"] == Types.NPC:
+        if details["filling_subtype"] == Types.CHARACTER:
             message = "That's a disgusting idea."
         else:
             message = "You can't use the Hammer now"
@@ -255,7 +255,7 @@ class Pickaxe(KeyItem):
 
     def get_failure_message(self, details):
         message = None
-        if details["filling_subtype"] == Types.NPC:
+        if details["filling_subtype"] == Types.CHARACTER:
             message = "That's a disgusting idea."
 
         elif details["adjacent_tile_terrain"] == self.gc.gs.gd.get_terrain_number_or_word(None, "wall")[0] and self.gc.gs.get_player_ghost().facing == Direction.UP:
@@ -265,8 +265,24 @@ class Pickaxe(KeyItem):
             message = "You can't use the Pickaxe now"
 
         return message
-class Permit(KeyItem):
-    NAME = "Permit"
+
+
+class ArbutusPermit(KeyItem):
+    NAME = "Arbutus Permit"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
+class OakPermit(KeyItem):
+    NAME = "Oak Permit"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
+class PinePermit(KeyItem):
+    NAME = "Pine Permit"
 
     def __init__(self, gc):
         super().__init__(gc)

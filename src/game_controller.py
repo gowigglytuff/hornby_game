@@ -264,7 +264,7 @@ class GameController(object):
         if full:
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.gs.get_feature_ghost(cube.filling_unique_name)
-            if feature.feature_type == Types.NPC:
+            if feature.feature_type == Types.NPC or feature.feature_type == Types.CHARACTER:
                 if feature.feature_subtype == Types.BIRD:
                     self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
                 else:
@@ -300,7 +300,6 @@ class GameController(object):
     def talk_to_prop(self, prop_talking_to, player_direction):
         prop_talking_to_ghost = self.gs.feature_ghost_list[prop_talking_to]
         prop_talking_to_avatar = self.game_view.feature_avatar_list[prop_talking_to]
-        self.gs.gc.menu_controller.post_notice("You talked to " + prop_talking_to_ghost.species)
         prop_talking_to_ghost.get_interacted_with()
         details = {}
 
@@ -345,15 +344,18 @@ class GameController(object):
                 self.gs.gc.menu_controller.post_notice("There was nothing there")
 
     def pick_up_package(self, type, package_unique_name, room_name, package_items):
-        self.menu_controller.post_notice("You picked up the package")
+
         room_object = self.gs.get_room(room_name)
         ghost = self.gs.get_feature_ghost(package_unique_name)
         ghost.spawn_active = False
         self.position_manager.despawn_feature(package_unique_name, room_object)
+        item_type_result = None
         for item in package_items:
             if type == "Package":
-                self.inventory_manager.get_key_or_temp_item(item, 1)
+                item_type_result = self.inventory_manager.get_key_or_temp_item(item, 1)
+                self.menu_controller.post_notice("Added " + item + " to your bag.")
             if type == "Page":
+                self.menu_controller.post_notice("Added " + item + " to your Guide.")
                 self.inventory_manager.get_page(item)
 
     def look_in_basket(self, basket_unique_name, basket_items):
@@ -442,7 +444,7 @@ class GameController(object):
         doable = self.check_if_action_doable(feature_ghost, action_name)[0]
         direction = self.check_if_action_doable(feature_ghost, action_name)[1]
         vector = Direction.get_vector_from_direction(direction)
-        room_object = self.gs.get_room(feature_ghost.room)
+        room_object = self.gs.get_room(feature_ghost.spawn_room)
         if not already_animating:
             if doable:
                 success = True
@@ -462,7 +464,7 @@ class GameController(object):
             direction = Direction.RIGHT
         elif action_name == "walk_up":
             direction = Direction.UP
-        room_object = self.gs.get_room(feature_ghost.room)
+        room_object = self.gs.get_room(feature_ghost.spawn_room)
         can_move = self.position_manager.check_if_feature_can_move(feature_ghost, direction, room_object)
         return can_move, direction
 
@@ -519,6 +521,12 @@ class GameController(object):
     # endregion
 
     # region IMPORT FUNCTIONS
+    def import_classes_from_csv(self, filename):
+        feature_data = self.process_features_from_csv(filename)
+        for feature_dict in feature_data:
+            self.gs.install_element_ghost_class(feature_dict)
+
+
     def import_features_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
 
@@ -689,12 +697,16 @@ class InventoryManager(object):
         self.gc = gc  # type: GameController
 
     def get_key_or_temp_item(self, item_name, quantity):
+        item_type = None
         item_list = self.gc.game_data.item_data_list
         key_item_list = self.gc.game_data.key_item_data_list
         if item_name in key_item_list.keys():
             self.gc.gs.acquire_key_item(item_name)
+            item_type = "Key Item"
         elif item_name in item_list.keys():
             self.gc.gs.acquire_item(item_name, quantity)
+            item_type = "Item"
+        return item_type
 
     def fetch_page(self, page_name):
         return self.gc.gs.gd.bird_page_data_list[page_name]
