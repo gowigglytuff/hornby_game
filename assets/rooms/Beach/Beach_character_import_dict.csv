@@ -1,0 +1,4 @@
+﻿species,Sri,display_name,Sri,function,None,spawn_room,Beach,spawn_x,3,spawn_y,47,spawn_facing,Down,spawn_active,yes
+species,Tristan,display_name,Tristan,function,None,spawn_room,Beach,spawn_x,8,spawn_y,33,spawn_facing,Down,spawn_active,yes
+species,Cai,display_name,Cai,function,None,spawn_room,Beach,spawn_x,43,spawn_y,32,spawn_facing,Down,spawn_active,yes
+species,Seab,display_name,Seab,function,None,spawn_room,Beach,spawn_x,47,spawn_y,47,spawn_facing,Down,spawn_active,yes

@@ -1,0 +1,8 @@
+﻿species,Robin,display_name,Robin,function,None,spawn_room,Bird_Room,spawn_x,12,spawn_y,10,spawn_facing,Down,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Bird_Room,spawn_x,10,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Tanager,display_name,Tanager,function,None,spawn_room,Bird_Room,spawn_x,12,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Starling,display_name,Starling,function,None,spawn_room,Bird_Room,spawn_x,8,spawn_y,12,spawn_facing,Down,spawn_active,yes
+species,Tanager,display_name,Tanager,function,None,spawn_room,Bird_Room,spawn_x,10,spawn_y,17,spawn_facing,Down,spawn_active,yes
+species,Blackbird,display_name,Blackbird,function,None,spawn_room,Bird_Room,spawn_x,17,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Mallard,display_name,Mallard,function,None,spawn_room,Bird_Room,spawn_x,5,spawn_y,15,spawn_facing,Down,spawn_active,yes
+species,Pigeon,display_name,Pigeon,function,None,spawn_room,Bird_Room,spawn_x,4,spawn_y,18,spawn_facing,Down,spawn_active,yes

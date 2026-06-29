@@ -6,7 +6,6 @@ import time
 from random import choice
 
 from animations_page_view_page import CameraPanAnimation
-from feature_ghost_data_page import PropGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
@@ -264,7 +263,7 @@ class GameController(object):
         if full:
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.gs.get_feature_ghost(cube.filling_unique_name)
-            if feature.feature_type == Types.NPC or feature.feature_type == Types.CHARACTER:
+            if feature.feature_type == Types.ACTOR:
                 if feature.feature_subtype == Types.BIRD:
                     self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
                 else:
@@ -526,13 +525,6 @@ class GameController(object):
         for feature_dict in feature_data:
             self.gs.install_element_ghost_class(feature_dict)
 
-
-    def import_features_from_csv(self, filename):
-        feature_data = self.process_features_from_csv(filename)
-
-        for feature_dict in feature_data:
-            self.gs.install_element_ghost(feature_dict)
-
     def import_map_objects_from_csv(self, filename, room_name):
         map = []
         int_map = []
@@ -560,11 +552,21 @@ class GameController(object):
                     feature_list.append((x, y, feature_reference_dict[item]))
 
         for item in feature_list:
-            feature_type = self.gs.type_translator["Prop"]
-            feature_subtype = self.gs.sub_type_translator["Tree"]
+            print(item)
+            object_class = self.gs.gd.get_feature_class(item[2])
+            spawn_facing = Direction.DOWN
             unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = self.gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", self.gs, room_name, item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+            feature_ghost_object = object_class(self.gs, unique_name, "None", room_name, item[0], item[1],  spawn_facing, "yes")
+
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            test = self.gs.get_feature_ghost(unique_name)
+
+        # for item in feature_list:
+        #     feature_type = self.gs.type_translator["Prop"]
+        #     feature_subtype = self.gs.sub_type_translator["Tree"]
+        #     unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
+        #     feature_ghost_object = self.gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", self.gs, room_name, item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+        #     self.gs.add_feature_ghost(unique_name, feature_ghost_object)
 
     def import_pages_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
@@ -605,6 +607,31 @@ class GameController(object):
                 self.gs.add_feature_ghost(unique_name, feature_ghost_object)
                 test = self.gs.get_feature_ghost(unique_name)
 
+    def import_characters_from_csv(self, filename):
+        print(filename)
+        feature_data = self.process_features_from_csv(filename)
+
+        for feature_dict in feature_data:
+            object_class = self.gs.gd.get_feature_class(feature_dict["species"])
+            spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
+            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
+
+            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            test = self.gs.get_feature_ghost(unique_name)
+
+    def import_decos_from_csv(self, filename):
+        feature_data = self.process_features_from_csv(filename)
+
+        for feature_dict in feature_data:
+            object_class = self.gs.gd.get_feature_class(feature_dict["species"])
+            spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
+            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
+
+            self.gs.add_deco_ghost(unique_name, feature_ghost_object)
+            test = self.gs.get_feature_ghost(unique_name)
+
     def process_features_from_csv(self, filename):
         feature_data = []
         with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
@@ -618,23 +645,6 @@ class GameController(object):
                 feature_data.append(dict)
         return feature_data
 
-    def import_decos_from_csv(self, filename):
-        deco_data = []
-        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
-            data = csv.reader(data, delimiter=',')
-            for row in data:
-                deco_data.append(list(row))
-        for Feature in deco_data:
-            feature_type = self.gs.type_translator[Feature[0]]
-            feature_subtype = self.gs.sub_type_translator[Feature[10]]
-            unique_name = Feature[1] + "_" + str(GameSettings.get_unique_ID())
-            if feature_type == Types.DECO:
-                test = self.gs.ghost_classes["Deco"](Feature[1], self.gs, Feature[2], int(Feature[3]), int(Feature[4]),
-                                                             self.gs.direction_translations[Feature[5]], Feature[6], int(Feature[7]),
-                                                             int(Feature[8]), unique_name, str(Feature[9]), feature_subtype)
-                self.gs.add_deco_ghost(unique_name, test)
-
-        return deco_data
     # endregion
 
     # region ROOM MANAGEMENT

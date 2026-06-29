@@ -1,1 +1,6 @@
 ﻿type,Deco,feature_subtype,Decoy,species,Weed,display_name,Weed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Deco,feature_subtype,Decoy,species,DoormatEnter,display_name,Doormat,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Deco,feature_subtype,Decoy,species,DoormatExit,display_name,Doormat,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Deco,feature_subtype,Decoy,species,Doorway,display_name,Doorway,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Deco,feature_subtype,Decoy,species,LadderTop,display_name,Ladder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Deco,feature_subtype,Decoy,species,LadderBottom,display_name,Ladder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

@@ -81,42 +81,26 @@ def install_all_data(gc, gs):
     def install_features(gc, gs):
         gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
         for room_name in gs.gd.room_data_list.keys():
-            feature_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "feature_import_dict.csv"
-            if os.path.isfile(feature_file_name):
-                gc.import_features_from_csv(feature_file_name)
+
             map_objects_file_name = "assets/rooms/" + room_name + "/" + room_name + "_1_1_objects.csv"
             if os.path.isfile(map_objects_file_name):
                 gc.import_map_objects_from_csv(map_objects_file_name, room_name)
-            npc_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "NPC_import_dict.csv"
-            if os.path.isfile(npc_file_name):
-                gc.import_npcs_from_csv(npc_file_name)
+
+            prop_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "prop_import_dict.csv"
+            if os.path.isfile(prop_file_name):
+                gc.import_characters_from_csv(prop_file_name)
+
+            bird_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "bird_import_dict.csv"
+            if os.path.isfile(bird_file_name):
+                gc.import_characters_from_csv(bird_file_name)
+
             deco_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "deco_import_dict.csv"
             if os.path.isfile(deco_file_name):
-                gc.import_features_from_csv(deco_file_name)
+                gc.import_decos_from_csv(deco_file_name)
 
-            unique_name = "Crow"
-            object_clas = gs.gd.get_feature_class("Crow")
-            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 2, 17, Direction.RIGHT, "yes")
-            item_ghost = gc.gs.add_feature_ghost(unique_name, feature_ghost_object)
-            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
-
-            unique_name = "Cowboy"
-            object_clas = gs.gd.get_feature_class("Cowboy")
-            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 4, 17, Direction.DOWN, "yes")
-            item_ghost = gc.gs.add_feature_ghost(unique_name, feature_ghost_object)
-            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
-
-            unique_name = "Clock"
-            object_clas = gs.gd.get_feature_class("Clock")
-            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 6, 17, Direction.DOWN, "yes")
-            item_ghost = gc.gs.add_feature_ghost(unique_name, feature_ghost_object)
-            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
-
-            unique_name = "Weed"
-            object_clas = gs.gd.get_feature_class("Weed")
-            feature_ghost_object = object_clas(gs, unique_name, "None", "Aviary_Room", 8, 17, Direction.DOWN, "yes")
-            item_ghost = gc.gs.add_deco_ghost(unique_name, feature_ghost_object)
-            instal_avatar = gc.gs.gv.install_element_avatar(feature_ghost_object)
+            character_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "character_import_dict.csv"
+            if os.path.isfile(character_file_name):
+                gc.import_characters_from_csv(character_file_name)
 
     def install_doors(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)

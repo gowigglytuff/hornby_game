@@ -9,7 +9,9 @@ type,Prop,feature_subtype,Propy,species,Axe,display_name,Axe,base_size_x,1,base_
 type,Prop,feature_subtype,Propy,species,Permit,display_name,Pine Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Permit,display_name,Oak Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Permit,display_name,Arbutus Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Propy,species,Pine,display_name,Pine,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Arbutus,display_name,Arbutus,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Propy,species,Apple_Tree,display_name,Apple Tree,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Oak,display_name,Oak,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Alder,display_name,Alder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Clock,display_name,Clock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
@@ -19,3 +21,8 @@ type,Prop,feature_subtype,Propy,species,ElephantPicture,display_name,Elephant Pi
 type,Prop,feature_subtype,Propy,species,ChickenPicture,display_name,Chicken Picture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,ChairSide,display_name,Chair,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Propy,species,Bed,display_name,Bed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Propy,species,Sandcastle,display_name,Sandcastle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Propy,species,House,display_name,House,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4
+type,Prop,feature_subtype,Propy,species,Rock,display_name,Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Propy,species,Small_Rock,display_name,Small Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Propy,species,Small_Craig,display_name,Small Craig,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

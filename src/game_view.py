@@ -4,7 +4,7 @@ from animations_page_view_page import IndependentAnimation, BirdDisappearAnimati
 
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import NPCAvatar, TreeAvatar, OldgodAvatar, HouseAvatar, PropAvatar, DecoAvatar, BirdAvatar
+from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar
 from spritesheet import Spritesheet
@@ -48,7 +48,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
-        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.ACTOR: NPCAvatar, Types.NPC: NPCAvatar, Types.PROP: PropAvatar, Types.HOUSE: HouseAvatar, "Tree": TreeAvatar, "Oldgod": OldgodAvatar, "House": HouseAvatar, Types.DECO: DecoAvatar}
+        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.ACTOR: CharacterAvatar, Types.CHARACTER: CharacterAvatar, Types.PROP: PropAvatar, Types.DECO: DecoAvatar}
 
         self.camera = [0, 0]
         self.screen = pygame.display.set_mode(self.resolution)
@@ -94,13 +94,11 @@ class GameView(object):
 
     def translate_feature_type(self, type):
         list = None
-        if type == Types.NPC:
+        if type == Types.ACTOR:
             list = self.feature_avatar_list
         elif type == Types.DECO:
             list = self.deco_avatar_list
         elif type == Types.PROP:
-            list = self.feature_avatar_list
-        elif type == Types.HOUSE:
             list = self.feature_avatar_list
         return list
 
@@ -110,6 +108,7 @@ class GameView(object):
         feature_list = self.translate_feature_type(feature_type)
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
+        print(feature_name)
         chosen_avatar = feature_list[feature_name]
         feature_loc_x = camera_x + (feature_list[feature_name].image_x - 1) * self.square_size[0] + feature_list[feature_name].image_offset_x
         feature = camera_y + (feature_list[feature_name].image_y - 1) * self.square_size[1] - chosen_avatar.image_offset_y
@@ -317,12 +316,15 @@ class GameView(object):
         return self.avatar_classes[avatar_type]
 
     def install_element_avatar(self, related_ghost):
-        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.NPC or related_ghost.feature_type == Types.HOUSE or related_ghost.feature_type == Types.ACTOR:
+        print(related_ghost.unique_name)
+        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.ACTOR:
+            print(related_ghost.unique_name)
             if related_ghost.feature_subtype == Types.BIRD:
                 self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
             else:
                 self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
         elif related_ghost.feature_type == Types.DECO:
+            print(related_ghost.unique_name)
             self.add_deco_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
     def get_npc_avatar(self, name):

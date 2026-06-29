@@ -314,7 +314,7 @@ class Axe(KeyItem):
     def get_failure_message(self, details):
         message = None
         print(details["filling_type"])
-        if details["filling_type"] == Types.NPC:
+        if details["filling_type"] == Types.ACTOR:
             message = "That's a disgusting idea."
         else:
             message = "You can't use the Axe now"

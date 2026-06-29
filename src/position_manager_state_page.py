@@ -645,9 +645,9 @@ class PositionManager(object):
             door2_exit_direction = Direction.MATCH
             door2_has_image = False
 
-            doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat1_dict = {"species": "DoormatEnter", "display_name": "Doormat", "function": "None", "spawn_room": str(room_from), "spawn_x": str(door_from_x), "spawn_y": str(door_from_y + 1), "spawn_facing": "Down", "spawn_active": "yes"}
             install_list["doormat1"] = doormat1_dict
-            doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatExit", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y - 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat2_dict = {"species": "DoormatExit", "display_name": "Doormat", "function": "None", "spawn_room": str(room_to), "spawn_x": str(door_to_x), "spawn_y": str(door_to_y - 1), "spawn_facing": "Down", "spawn_active": "yes"}
             install_list["doormat2"] = doormat2_dict
 
             doorway1_deco_name = True
@@ -668,9 +668,9 @@ class PositionManager(object):
             door2_access_from = Direction.DOWN
             door2_exit_direction = Direction.SWITCH
 
-            doormat1_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat1_dict = {"species": "DoormatEnter", "display_name": "Doormat", "function": "None", "spawn_room": str(room_from), "spawn_x": str(door_from_x), "spawn_y": str(door_from_y + 1), "spawn_facing": "Down", "spawn_active": "yes"}
             install_list["doormat1"] = doormat1_dict
-            doormat2_dict = {"type": "Deco", "subtype": "Deco", "species": "DoormatEnter", "display_name": "Doormat", "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y + 1), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doormat2_dict = {"species": "DoormatEnter", "display_name": "Doormat", "function": "None", "spawn_room": str(room_to), "spawn_x": str(door_to_x), "spawn_y": str(door_to_y + 1), "spawn_facing": "Down", "spawn_active": "yes"}
             install_list["doormat2"] = doormat2_dict
 
             doorway1_deco_name = True
@@ -698,13 +698,13 @@ class PositionManager(object):
         # Door 1
         door1_object = Door(room_from, room_to, door_from_x + door1_entrance_x_offset, door_from_y + door1_entrance_y_offset, door_to_x + door1_exit_x_offset, door_to_y + door1_exit_y_offset, door1_access_from, door1_exit_direction)
         if door1_has_image:
-            doorway1_dict = {"type": "Deco", "subtype": "Deco", "species": door1_species, "display_name": door1_display_name, "function": "None", "room": str(room_from), "x": str(door_from_x), "y": str(door_from_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doorway1_dict = {"species": door1_species, "display_name": door1_display_name, "function": "None", "spawn_room": str(room_from), "spawn_x": str(door_from_x), "spawn_y": str(door_from_y), "spawn_facing": "Down", "spawn_active": "yes"}
             install_list["doorway1"] = doorway1_dict
 
         # Door 2
         door2_object = Door(room_to, room_from, door_to_x + door2_entrance_x_offset, door_to_y + door2_entrance_y_offset, door_from_x + door2_exit_x_offset, door_from_y + door2_exit_y_offset, door2_access_from, door2_exit_direction)
         if door2_has_image:
-            doorway2_dict = {"type": "Deco", "subtype": "Deco", "species": door2_species, "display_name": door2_display_name, "function": "None", "room": str(room_to), "x": str(door_to_x), "y": str(door_to_y), "direction": "Down", "base_size_x": "1", "base_size_y": "1", "figure_size_x": "1", "figure_size_y": "1", "spawn_active": "yes", "phrase": "How are you?"}
+            doorway2_dict = {"species": door2_species, "display_name": door2_display_name, "function": "None", "spawn_room": str(room_to), "spawn_x": str(door_to_x), "spawn_y": str(door_to_y), "spawn_facing": "Down", "spawn_active": "yes"}
             install_list["doorway2"] = doorway2_dict
 
         return_dict = {}

@@ -1,0 +1,11 @@
+﻿species,Garbagecan,display_name,Garbage Can,function,"{'Basket':""Milk-Cheese""}",spawn_room,Trophy_Room,spawn_x,2,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Package,display_name,Package,function,{'Package':'Cheese-Milk'},spawn_room,Trophy_Room,spawn_x,4,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Pickaxe,display_name,Pickaxe,function,{'Package':'Pickaxe'},spawn_room,Trophy_Room,spawn_x,4,spawn_y,23,spawn_facing,Down,spawn_active,yes
+species,Mermaid_crown,display_name,Mermaid Crown,function,{'Package':'Mermaid Crown'},spawn_room,Trophy_Room,spawn_x,8,spawn_y,23,spawn_facing,Down,spawn_active,yes
+species,Ghost_eye,display_name,Ghost Eye,function,{'Package':'Ghost Eye'},spawn_room,Trophy_Room,spawn_x,8,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Page,display_name,Page,function,{'Page':'Robintop'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Page,display_name,Page,function,{'Page':'Robinbottom'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,23,spawn_facing,Down,spawn_active,yes
+species,Axe,display_name,Axe,function,{'Package':'Axe'},spawn_room,Trophy_Room,spawn_x,2,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Permit,display_name,Pine Permit,function,{'Package':'Pine Permit'},spawn_room,Trophy_Room,spawn_x,4,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Permit,display_name,Oak Permit,function,{'Package':'Oak Permit'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Permit,display_name,Arbutus Permit,function,{'Package':'Arbutus Permit'},spawn_room,Trophy_Room,spawn_x,8,spawn_y,25,spawn_facing,Down,spawn_active,yes

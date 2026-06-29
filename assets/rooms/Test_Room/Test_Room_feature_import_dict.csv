@@ -1,3 +1,0 @@
-﻿type,Prop,subtype,Tree,species,Pine,display_name,Pine,function,None,room,Test_Room,x,12,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,How are you?
-type,Prop,subtype,Prop,species,Rock,display_name,Rock,function,None,room,Test_Room,x,3,y,12,direction,Down,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1,spawn_active,yes,phrase,It's beautiful today.
-type,House,subtype,House,species,House,display_name,House,function,None,room,Test_Room,x,4,y,17,direction,Down,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4,spawn_active,yes,phrase,How are you?

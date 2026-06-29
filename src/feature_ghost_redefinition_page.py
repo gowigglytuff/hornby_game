@@ -183,6 +183,7 @@ class PropyGhost(FeatureyGhost):
     def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
         super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.PROP
+        self.feature_subtype = Types.PROP
 
     def get_interacted_with(self):
         if self.function == "Basket":
@@ -192,16 +193,16 @@ class PropyGhost(FeatureyGhost):
             self.gs_input.gc.pick_up_package("Package", self.unique_name, self.spawn_room, self.function_items)
         elif self.function == "Page":
             self.gs_input.gc.pick_up_package("Page", self.unique_name, self.spawn_room, self.function_items)
-
-
         else:
-            pass
+            self.gs_input.gc.menu_controller.post_notice("It's a " + self.display_name + ".")
 
 
 class DecoyGhost(FeatureyGhost):
     def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
         super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.DECO
+        self.feature_subtype = Types.DECO
+
 
 
 class CrowyGhost(BirdyGhost):

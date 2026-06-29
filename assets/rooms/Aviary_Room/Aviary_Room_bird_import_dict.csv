@@ -1,0 +1,27 @@
+﻿species,Meadowlark,display_name,Meadowlark,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Nuthatch,display_name,Nuthatch,function,None,spawn_room,Aviary_Room,spawn_x,4,spawn_y,27,spawn_facing,Down,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,27,spawn_facing,Down,spawn_active,yes
+species,Tanager,display_name,Tanager,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,27,spawn_facing,Down,spawn_active,yes
+species,Starling,display_name,Starling,function,None,spawn_room,Aviary_Room,spawn_x,2,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Saw-whet_Owl,display_name,Saw-whet Owl,function,None,spawn_room,Aviary_Room,spawn_x,4,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Barred_Owl,display_name,Barred Owl,function,None,spawn_room,Aviary_Room,spawn_x,2,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Great_Horned_Owl,display_name,Great Horned Owl,function,None,spawn_room,Aviary_Room,spawn_x,2,spawn_y,13,spawn_facing,Down,spawn_active,yes
+species,Nighthawk,display_name,Nighthawk,function,None,spawn_room,Aviary_Room,spawn_x,4,spawn_y,13,spawn_facing,Down,spawn_active,yes
+species,Blackbird,display_name,Blackbird,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Junko,display_name,Junko,function,None,spawn_room,Aviary_Room,spawn_x,2,spawn_y,27,spawn_facing,Down,spawn_active,yes
+species,Flycatcher,display_name,Flycatcher,function,None,spawn_room,Aviary_Room,spawn_x,4,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Wood_Peewee,display_name,Wood Peewee,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Thrush,display_name,Thrush,function,None,spawn_room,Aviary_Room,spawn_x,2,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Robin,display_name,Robin,function,None,spawn_room,Aviary_Room,spawn_x,4,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Goldfinch,display_name,Goldfinch,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Cormorant,display_name,Cormorant,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Seagull,display_name,Seagull,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Coot,display_name,Coot,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,13,spawn_facing,Down,spawn_active,yes
+species,Green_Heron,display_name,Green Heron,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,13,spawn_facing,Down,spawn_active,yes
+species,Kingfisher,display_name,Kingfisher,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,15,spawn_facing,Down,spawn_active,yes
+species,Redwing_Blackbird,display_name,Redwing Blackbird,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,15,spawn_facing,Down,spawn_active,yes
+species,Mallard,display_name,Mallard,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,7,spawn_facing,Down,spawn_active,yes
+species,Murrelet,display_name,Murrelet,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,7,spawn_facing,Down,spawn_active,yes
+species,Harlequin_Duck,display_name,Harlequin Duck,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,9,spawn_facing,Down,spawn_active,yes
+species,Eurasian_Wigeon,display_name,Eurasian Wigeon,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,5,spawn_facing,Down,spawn_active,yes
+species,American_Wigeon,display_name,American Wigeon,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,5,spawn_facing,Down,spawn_active,yes

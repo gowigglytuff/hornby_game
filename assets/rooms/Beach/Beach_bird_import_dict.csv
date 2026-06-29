@@ -1,0 +1,6 @@
+﻿species,Cormorant,display_name,Cormorant,function,None,spawn_room,Beach,spawn_x,16,spawn_y,17,spawn_facing,Down,spawn_active,yes
+species,Seagull,display_name,Seagull,function,None,spawn_room,Beach,spawn_x,15,spawn_y,28,spawn_facing,Right,spawn_active,yes
+species,Seagull,display_name,Seagull,function,None,spawn_room,Beach,spawn_x,20,spawn_y,43,spawn_facing,Right,spawn_active,yes
+species,Seagull,display_name,Seagull,function,None,spawn_room,Beach,spawn_x,31,spawn_y,42,spawn_facing,Left,spawn_active,yes
+species,Seagull,display_name,Seagull,function,None,spawn_room,Beach,spawn_x,38,spawn_y,45,spawn_facing,Down,spawn_active,yes
+species,Seagull,display_name,Seagull,function,None,spawn_room,Beach,spawn_x,46,spawn_y,26,spawn_facing,Left,spawn_active,yes

@@ -121,15 +121,6 @@ class FeatureAvatar(object):
         return face
 
 
-class TreeAvatar(FeatureAvatar):
-    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.feature_type = Types.NPC
-        self.character_frame_x = 32
-        self.character_frame_y = 48
-        self.run_setup(base_size_x, base_size_y)
-
-
 class PropAvatar(FeatureAvatar):
     def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
@@ -139,19 +130,10 @@ class PropAvatar(FeatureAvatar):
         self.run_setup(base_size_x, base_size_y)
 
 
-class HouseAvatar(FeatureAvatar):
+class CharacterAvatar(FeatureAvatar):
     def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.feature_type = Types.PROP
-        self.character_frame_x = 32 * base_size_x
-        self.character_frame_y = 32 * base_size_y + 16
-        self.run_setup(base_size_x, base_size_y)
-
-
-class NPCAvatar(FeatureAvatar):
-    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.feature_type = Types.NPC
+        self.feature_type = Types.ACTOR
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y)
@@ -181,7 +163,7 @@ class NPCAvatar(FeatureAvatar):
 class BirdAvatar(FeatureAvatar):
     def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
         super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.feature_type = Types.NPC
+        self.feature_type = Types.ACTOR
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y)
@@ -216,17 +198,6 @@ class BirdAvatar(FeatureAvatar):
     def initiate_animation(self, animation_name):
         self.current_animation = animation_name
         self.currently_animating = True
-
-
-class OldgodAvatar(FeatureAvatar):
-    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
-        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
-        self.feature_type = Types.NPC
-        self.character_frame_x = 96
-        self.character_frame_y = 108
-        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
-        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
 
 
 class DecoAvatar(object):

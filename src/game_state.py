@@ -2,7 +2,7 @@ import copy
 from random import choice
 
 import feature_ghost_redefinition_page
-from feature_ghost_data_page import PlayerGhost, NpcGhost, PropGhost, HouseGhost, DecoGhost, BasketGhost, BirdGhost
+from feature_ghost_data_page import PlayerGhost
 from feature_ghost_redefinition_page import *
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
 from input_manager_controller_page import *
@@ -25,9 +25,9 @@ class GameState(object):
         self.gd = game_data  # type: GameData
         self.ms = MenuState(self)
         self.cc = ConditionChecker(self) # type:ConditionChecker
-        self.ghost_classes = {"NPC": NpcGhost, "Prop": PropGhost, "House": HouseGhost, "Deco": DecoGhost, "Basket": BasketGhost, "Bird": BirdGhost, "Tree": PropGhost}
-        self.type_translator = {"NPC": Types.NPC, "Prop": Types.PROP, "Deco": Types.DECO, "House": Types.HOUSE, "Basket": Types.BASKET}
-        self.sub_type_translator = {"None": None, "Basket": Types.BASKET, "Bird": Types.BIRD, "Tree": Types.TREE, "NPC": Types.NPC, "Prop": Types.PROP, "House": Types.HOUSE, "Deco": Types.DECO}
+        self.ghost_classes = {}
+        self.type_translator = {"Character": Types.CHARACTER, "Actor": Types.ACTOR, "Prop": Types.PROP, "Deco": Types.DECO}
+        self.sub_type_translator = {"None": None, "Character": Types.CHARACTER, "Bird": Types.BIRD, "Tree": Types.TREE, "Prop": Types.PROP, "Deco": Types.DECO}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "Pickaxe"
@@ -92,13 +92,22 @@ class GameState(object):
         return ghost_install
 
     def install_element_ghost(self, feature_dict):
-        feature_type = self.type_translator[feature_dict["type"]]
-        feature_subtype = self.sub_type_translator[feature_dict["subtype"]]
+        # print(feature_dict)
+        # feature_type = self.type_translator[feature_dict["type"]]
+        # feature_subtype = self.sub_type_translator[feature_dict["subtype"]]
+        # unique_name = feature_dict["subtype"] + "_" + str(GameSettings.get_unique_ID())
+        # feature_ghost_object = self.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
+        #                                                                       self.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
+        #                                                                       int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
+        #
+        object_class = self.gd.get_feature_class(feature_dict["species"])
+        spawn_facing = self.direction_translations[feature_dict["spawn_facing"]]
         unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = self.ghost_classes[feature_dict["subtype"]](feature_type, feature_subtype, feature_dict["species"], unique_name, feature_dict["display_name"], feature_dict["function"], self, feature_dict["room"], int(feature_dict["x"]), int(feature_dict["y"]),
-                                                                              self.direction_translations[feature_dict["direction"]], int(feature_dict["base_size_x"]),
-                                                                              int(feature_dict["base_size_y"]), int(feature_dict["figure_size_x"]), int(feature_dict["figure_size_y"]), feature_dict["spawn_active"], str(feature_dict["phrase"]))
-        if feature_subtype == Types.DECO:
+        feature_ghost_object = object_class(self, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
+
+        print(feature_ghost_object.display_name, feature_ghost_object.feature_subtype)
+
+        if feature_ghost_object.feature_subtype == Types.DECO:
             self.add_deco_ghost(unique_name, feature_ghost_object)
         else:
             self.add_feature_ghost(unique_name, feature_ghost_object)
@@ -575,6 +584,7 @@ class GameData(object):
         self.feature_class_dict[item_name] = item_object
 
     def get_feature_class(self, item_name):
+        print(item_name)
         return self.feature_class_dict[item_name]
 
     def add_sound_reference(self, item_name, item_object):
