@@ -110,6 +110,38 @@ class Mundane(object):
         return result
 
     @classmethod
+    def get_direction_from_word(cls, word):
+        result = None
+        if word == "Up":
+            result = Direction.UP
+
+        elif word == "Left":
+            result = Direction.LEFT
+
+        elif word == "Down":
+            result = Direction.DOWN
+
+        elif word == "Right":
+            result = Direction.RIGHT
+        return result
+
+    @classmethod
+    def get_word_from_direction(cls, word):
+        result = None
+        if word == Direction.UP:
+            result = "Up"
+
+        elif word == Direction.LEFT:
+            result = "Left"
+
+        elif word == Direction.DOWN:
+            result = "Down"
+
+        elif word == Direction.RIGHT:
+            result = "Right"
+        return result
+
+    @classmethod
     def is_even(cls, number):
         even = False
         if number % 2 == 0:

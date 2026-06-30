@@ -135,10 +135,6 @@ def install_all_data(gc, gs):
             related_ghost = gc.gs.feature_ghost_list[feature_item]
             gc.gs.gv.install_feature_avatar(related_ghost)
 
-        # deco_name_list = gs.get_all_deco_unique_names()
-        # for deco_item in deco_name_list:
-        #     related_ghost = gc.gs.feature_ghost_list[deco_item]
-        #     gc.gs.gv.install_element_avatar(related_ghost)
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()

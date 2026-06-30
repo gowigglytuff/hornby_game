@@ -65,7 +65,6 @@ class GameView(object):
         self.player_avatar = None
         self.menu_avatar_data_list = {}
         self.feature_avatar_list = {}
-        # self.deco_avatar_list = {}
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
                                  "chat_menu": ChatMenuAvatar,

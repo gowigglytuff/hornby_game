@@ -53,7 +53,8 @@ class GameState(object):
         self.mermaid_crown_counter = 0
         self.mermaid_crown_limit = 20
 
-        self.ghost_eye_mermaid_crown_initiation = [0,0]
+        self.ghost_eye_initiation = [0,0]
+        self.ghost_eye_initiation_facing = None
         self.ghost_eye_counter = 0
         self.ghost_eye_limit = 20
         self.ghost_eye_husk_name = None

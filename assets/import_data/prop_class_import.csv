@@ -26,3 +26,4 @@ type,Prop,feature_subtype,Prop,species,Arbutus,display_name,Arbutus,base_size_x,
 type,Prop,feature_subtype,Prop,species,Apple_Tree,display_name,Apple Tree,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Oak,display_name,Oak,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Alder,display_name,Alder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Husk,display_name,Husk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

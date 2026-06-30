@@ -117,18 +117,21 @@ class GameController(object):
         self.gs.update_accessible_terrains([1], [])
 
     def activate_ghost_eye(self):
+        player_ghost = self.gs.get_player_ghost()
         self.clear_key_down_cue()
         self.gs.using_ghost_eye = True
         self.gs.ghost_eye_initiation = [self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]]
         self.gs.ghost_eye_counter = 0
+        self.gs.ghost_eye_initiation_facing = copy.copy(player_ghost.facing)
+        husk_ghost = self.create_husk(self.gs.get_current_room(), player_ghost.x, player_ghost.y, player_ghost.facing, "green_shirt")
+        self.gs.ghost_eye_husk_name = husk_ghost.unique_name
         self.outfit_manager.put_on_temporary_outfit("ghost_eye")
 
-        player_ghost = self.gs.get_player_ghost()
-        feature_type = self.gs.type_translator["Prop"]
-        feature_subtype = self.gs.sub_type_translator["Tree"]
-        unique_name = "Husk" + "_" + str(GameSettings.get_unique_ID())
-        self.gs.ghost_eye_husk_name = unique_name
-        # feature_ghost_object = PropGhost(feature_type, feature_subtype, item[2], unique_name, "Husk", "None", self.gs, self.gs.get_current_room().room_name, player_ghost.x, player_ghost.y, Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
+    def create_husk(self, room_object, x, y, facing, outfit):
+        feature_dict = {"species": "Husk", "display_name": "Husk", "function": "None", "spawn_room": room_object.room_name, "spawn_x": str(x), "spawn_y": str(y), "spawn_facing": Mundane.get_word_from_direction(facing), "spawn_active": "no"}
+        ghost_install = self.gs.install_element(feature_dict)
+        ghost_install.active = True
+        return ghost_install
 
     def deactivate_ghost_eye(self):
         self.clear_key_down_cue()
@@ -140,11 +143,19 @@ class GameController(object):
         direction_y = Direction.UP
         if y_change < 0:
             direction_y = Direction.DOWN
-        self.scene_manager.play_scene(Scene(self, [CameraPanAnimation(direction_x, x_change), CameraPanAnimation(direction_y, y_change)]))
-        self.gs.using_ghost_eye = False
-        self.gs.ghost_eye_initiation = [0, 0]
-        self.gs.ghost_eye_counter = 0
-        self.outfit_manager.put_on_outfit(self.gs.revert_outfit)
+        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
+
+    def execute_action_from_animator(self, action_name):
+        if action_name == "delete_husk":
+            husk = self.gs.get_feature_ghost(self.gs.ghost_eye_husk_name)
+            self.position_manager.despawn_feature(husk.unique_name, self.gs.get_current_room())
+        elif action_name == "ghost_eye_followup":
+            print("bading")
+            self.outfit_manager.put_on_outfit(self.gs.revert_outfit)
+            self.gs.change_player_facing(self.gs.ghost_eye_initiation_facing)
+            self.gs.using_ghost_eye = False
+            self.gs.ghost_eye_initiation = [0, 0]
+            self.gs.ghost_eye_counter = 0
 
     def determine_mermaid_crown_end(self):
         if self.gs.using_mermaid_crown:
@@ -1085,7 +1096,11 @@ class SceneManager(object): #TODO: Work on this mess!!
                                                 "y_move": self.scene_list[self.current_scene].total_player_y_movement})
             self.end_scene()
         else:
-            self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action)
+            if next_action[0] == "animation":
+                self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action[1])
+            elif next_action[0] == "action":
+                self.gc.execute_action_from_animator(next_action[1])
+                self.continue_scene({"x_move": 0, "y_move": 0})
 
     def end_scene(self):
         self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
