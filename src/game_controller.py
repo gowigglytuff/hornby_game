@@ -36,7 +36,7 @@ class GameEvents(object):
         self.delta_time = 0
         self.timer_list = []
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate],
-                            .167: [self.gc.npc_event_popoff],
+                            .167: [self.gc.actor_event_popoff],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
                             1: [self.gc.gs.game_clock_pass_1_minute]}
@@ -105,7 +105,7 @@ class GameController(object):
 
     def load_feature(self, unique_name, ghost_object, avatar_object):
         self.gs.add_feature_ghost(unique_name, ghost_object)
-        self.game_view.add_npc_avatar(unique_name, avatar_object)
+        self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
 
     # region ITEM USE METHODS (mermaid crown, ghost eye)
@@ -184,7 +184,6 @@ class GameController(object):
 
     # region SOUNDS
     def play_sound(self, queue_name):
-        print(self.gs.gd.sound_reference_dict)
         sound_name = self.gs.gd.sound_reference_dict[queue_name]
         self.gs.gd.get_sound(sound_name).play()
     # endregion
@@ -249,7 +248,7 @@ class GameController(object):
             self.gs.gc.menu_controller.post_notice("There is nothing selected")
     # endregion
 
-    def npc_event_popoff(self):
+    def actor_event_popoff(self):
         # feature = self.gs.get_feature_ghost("Pigeon_142")
         # if ("Pigeon_142" in self.gs.feature_ghost_list.keys()) and feature.active:
         #     self.move_feature_chaotically("Pigeon_142")
@@ -267,13 +266,14 @@ class GameController(object):
                 if feature.feature_subtype == Types.BIRD:
                     self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
                 else:
-                    self.talk_to_npc(cube.filling_unique_name, player.facing)
-            if feature.feature_type == Types.PROP:
+                    self.talk_to_character(cube.filling_unique_name, player.facing)
+            elif feature.feature_type == Types.PROP:
+                print("bading!")
                 self.talk_to_prop(cube.filling_unique_name, player.facing)
             else:
                 pass
 
-    def talk_to_npc(self, npc_talking_to, player_direction):
+    def talk_to_character(self, character_talking_to, player_direction):
         direction_to_turn = Direction.DOWN
         if player_direction == Direction.DOWN:
             direction_to_turn = Direction.UP
@@ -284,17 +284,16 @@ class GameController(object):
         elif player_direction == Direction.RIGHT:
             direction_to_turn = Direction.LEFT
 
-        npc_talking_to_ghost = self.gs.feature_ghost_list[npc_talking_to]
-        npc_talking_to_avatar = self.game_view.feature_avatar_list[npc_talking_to]
-        self.gs.change_feature_facing(npc_talking_to, direction_to_turn)
-        self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(npc_talking_to_ghost.unique_name))
-        details = {"speaker_name": self.gs.get_feature_display_name(npc_talking_to_ghost.unique_name),
-                   "friendship_level": npc_talking_to_ghost.friendship_level,
-                   "face_image": npc_talking_to_avatar.face_image,
-                   "speaker_unique_name": npc_talking_to_ghost.unique_name}
+        character_talking_to_ghost = self.gs.feature_ghost_list[character_talking_to]
+        character_talking_to_avatar = self.game_view.feature_avatar_list[character_talking_to]
+        self.gs.change_feature_facing(character_talking_to, direction_to_turn)
+        self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
+        details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
+                   "friendship_level": character_talking_to_ghost.friendship_level,
+                   "face_image": character_talking_to_avatar.face_image,
+                   "speaker_unique_name": character_talking_to_ghost.unique_name}
 
         self.gs.gc.menu_controller.set_menu(ConversationOptionsMenuGhost.BASE, details)
-        # self.menu_manager.set_dialogue_menu("Something strange is going on around here, have you heard about the children disapearing? Their parents couldn't even remember their names...", npc_talking_to_ghost.name, 11, npc_talking_to_avatar.face_image)
 
     def talk_to_prop(self, prop_talking_to, player_direction):
         prop_talking_to_ghost = self.gs.feature_ghost_list[prop_talking_to]
@@ -437,7 +436,7 @@ class GameController(object):
     def attempt_feature_action(self, feature_unique_name, action_name):
         success = False
         feature_ghost = self.gs.get_feature_ghost(feature_unique_name)
-        feature_avatar = self.game_view.get_npc_avatar(feature_unique_name)
+        feature_avatar = self.game_view.get_feature_avatar(feature_unique_name)
 
         already_animating = self.check_if_feature_already_animating(feature_unique_name)
         doable = self.check_if_action_doable(feature_ghost, action_name)[0]
@@ -471,7 +470,7 @@ class GameController(object):
         return self.game_view.avatar_classes[avatar_type]
 
     def check_if_feature_already_animating(self, name):
-        avatar = self.game_view.get_npc_avatar(name)
+        avatar = self.game_view.get_feature_avatar(name)
         return avatar.currently_animating
 
     def reset_feature_to_spawn(self, feature):
@@ -481,7 +480,7 @@ class GameController(object):
 
     def update_view(self):
         current_room = self.gs.get_current_room().room_name
-        drawables_list = self.game_view.get_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.gs.get_feature_locations()[2], self.game_view.get_independent_anim_locations())
+        drawables_list = self.game_view.get_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.game_view.get_independent_anim_locations())
         self.game_view.draw_all(drawables_list, current_room)
 
         self.menu_controller.update_stat_menus()
@@ -523,7 +522,7 @@ class GameController(object):
     def import_classes_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
         for feature_dict in feature_data:
-            self.gs.install_element_ghost_class(feature_dict)
+            self.gs.create_feature_ghost_class(feature_dict)
 
     def import_map_objects_from_csv(self, filename, room_name):
         map = []
@@ -551,8 +550,9 @@ class GameController(object):
                     y = row_counter
                     feature_list.append((x, y, feature_reference_dict[item]))
 
+        feature_dict = {"species": 1, "display_name": 1, "function": "None", "spawn_room": 1, "spawn_x": 1, "spawn_y": 1, "spawn_facing": "Down", "spawn_active": "yes"}
+
         for item in feature_list:
-            print(item)
             object_class = self.gs.gd.get_feature_class(item[2])
             spawn_facing = Direction.DOWN
             unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
@@ -561,54 +561,12 @@ class GameController(object):
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
 
-        # for item in feature_list:
-        #     feature_type = self.gs.type_translator["Prop"]
-        #     feature_subtype = self.gs.sub_type_translator["Tree"]
-        #     unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-        #     feature_ghost_object = self.gs.ghost_classes["Tree"](feature_type, feature_subtype, item[2], unique_name, "Tree", "None", self.gs, room_name, item[0], item[1], Direction.DOWN, 1, 1, 1, 1, "yes", "Hi")
-        #     self.gs.add_feature_ghost(unique_name, feature_ghost_object)
-
     def import_pages_from_csv(self, filename):
         feature_data = self.process_features_from_csv(filename)
 
         return feature_data
 
-    def import_npcs_from_csv(self, filename):
-        feature_data = self.process_features_from_csv(filename)
-
-        for feature_dict in feature_data:
-            feature_type = self.gs.type_translator[feature_dict["type"]]
-            feature_subtype = self.gs.sub_type_translator[feature_dict["subtype"]]
-            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = self.gs.ghost_classes[feature_dict["subtype"]](feature_type,
-                                                                                          feature_subtype,
-                                                                                          feature_dict["species"],
-                                                                                          unique_name,
-                                                                                          feature_dict["display_name"],
-                                                                                          feature_dict["function"],
-                                                                                          self.gs,
-                                                                                          feature_dict["room"],
-                                                                                          int(feature_dict["x"]),
-                                                                                          int(feature_dict["y"]),
-                                                                                          self.gs.direction_translations[feature_dict["direction"]],
-                                                                                          int(feature_dict["base_size_x"]),
-                                                                                          int(feature_dict["base_size_y"]),
-                                                                                          int(feature_dict["figure_size_x"]),
-                                                                                          int(feature_dict["figure_size_y"]),
-                                                                                          feature_dict["spawn_active"],
-                                                                                          str(feature_dict["base_phrase"]),
-                                                                                          str(feature_dict["good_gift_phrase"]),
-                                                                                          str(feature_dict["bad_gift_phrase"]),
-                                                                                          str(feature_dict["neutral_gift_phrase"]),
-                                                                                          str(feature_dict["bird_hint_phrase"]))
-            if feature_subtype == Types.DECO:
-                self.gs.add_deco_ghost(unique_name, feature_ghost_object)
-            else:
-                self.gs.add_feature_ghost(unique_name, feature_ghost_object)
-                test = self.gs.get_feature_ghost(unique_name)
-
     def import_characters_from_csv(self, filename):
-        print(filename)
         feature_data = self.process_features_from_csv(filename)
 
         for feature_dict in feature_data:
@@ -618,18 +576,6 @@ class GameController(object):
             feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
 
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
-            test = self.gs.get_feature_ghost(unique_name)
-
-    def import_decos_from_csv(self, filename):
-        feature_data = self.process_features_from_csv(filename)
-
-        for feature_dict in feature_data:
-            object_class = self.gs.gd.get_feature_class(feature_dict["species"])
-            spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
-            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
-
-            self.gs.add_deco_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
 
     def process_features_from_csv(self, filename):
@@ -690,7 +636,7 @@ class GameController(object):
     def trigger_a_bird(self, unique_name, room, trigger):
         if room.room_name != "Aviary_Room":
             bird_ghost = self.gs.get_feature_ghost(unique_name)
-            bird_avatar = self.game_view.get_npc_avatar(unique_name)
+            bird_avatar = self.game_view.get_feature_avatar(unique_name)
 
             check_trigger_result = bird_ghost.check_trigger_result(trigger)
 
@@ -713,6 +659,7 @@ class InventoryManager(object):
         if item_name in key_item_list.keys():
             self.gc.gs.acquire_key_item(item_name)
             item_type = "Key Item"
+            self.gc.play_sound("acquire_key_item")
         elif item_name in item_list.keys():
             self.gc.gs.acquire_item(item_name, quantity)
             item_type = "Item"

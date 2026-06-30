@@ -6,7 +6,7 @@ import pygame
 from feature_avatar_view_page import PlayerAvatar
 from definitions import Direction, Types, GameSettings
 from feature_ghost_data_page import PlayerGhost
-from feature_ghost_redefinition_page import CrowyGhost
+
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager
 from menu_avatars_view_page import MenuAvatar
@@ -96,7 +96,7 @@ def install_all_data(gc, gs):
 
             deco_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "deco_import_dict.csv"
             if os.path.isfile(deco_file_name):
-                gc.import_decos_from_csv(deco_file_name)
+                gc.import_characters_from_csv(deco_file_name)
 
             character_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "character_import_dict.csv"
             if os.path.isfile(character_file_name):
@@ -130,15 +130,15 @@ def install_all_data(gc, gs):
         pass
 
     def install_avatar_all(gc, gs):
-        npc_name_list = gs.get_all_feature_unique_names()
-        for npc_item in npc_name_list:
-            related_ghost = gc.gs.feature_ghost_list[npc_item]
-            gc.gs.gv.install_element_avatar(related_ghost)
+        feature_name_list = gs.get_all_feature_unique_names()
+        for feature_item in feature_name_list:
+            related_ghost = gc.gs.feature_ghost_list[feature_item]
+            gc.gs.gv.install_feature_avatar(related_ghost)
 
-        deco_name_list = gs.get_all_deco_unique_names()
-        for deco_item in deco_name_list:
-            related_ghost = gc.gs.deco_ghost_list[deco_item]
-            gc.gs.gv.install_element_avatar(related_ghost)
+        # deco_name_list = gs.get_all_deco_unique_names()
+        # for deco_item in deco_name_list:
+        #     related_ghost = gc.gs.feature_ghost_list[deco_item]
+        #     gc.gs.gv.install_element_avatar(related_ghost)
 
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
@@ -229,7 +229,7 @@ def install_all_data(gc, gs):
         # pygame.mixer.music.play(-1)
 
     def add_sounds(gc, gs):
-        reference_dict = ["splash", "popping_sound", "rocks_falling", "pickaxe_tap"]
+        reference_dict = ["splash", "popping_sound", "rocks_falling", "pickaxe_tap", "triumph"]
         for item in reference_dict:
             sound_object = pygame.mixer.Sound("assets/sound_effects/" + item + ".mp3")
             sound_object.set_volume(.2)
@@ -240,7 +240,8 @@ def install_all_data(gc, gs):
                           "mermaid_swim": "splash",
                           "go_through_door": "popping_sound",
                           "pickaxe_fail": "pickaxe_tap",
-                          "pickaxe_success": "rocks_falling"}
+                          "pickaxe_success": "rocks_falling",
+                          "acquire_key_item": "triumph"}
         for item in reference_dict.keys():
             gs.gd.add_sound_reference(item, reference_dict[item])
 

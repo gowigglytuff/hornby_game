@@ -105,8 +105,8 @@ class FeatureAvatar(object):
         self.currently_animating = False
         self.current_animation = None
 
-    def run_setup(self, base_size_x, base_size_y):
-        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+    def run_setup(self, base_size_x, base_size_y, spritesheet_file_name):
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/feature_spritesheets/" + spritesheet_file_name +"/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         # self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4 + GameSettings.TILESIZE*1/4
         self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
@@ -127,7 +127,7 @@ class PropAvatar(FeatureAvatar):
         self.feature_type = Types.PROP
         self.character_frame_x = 32 * base_size_x
         self.character_frame_y = 32 * base_size_y + 16
-        self.run_setup(base_size_x, base_size_y)
+        self.run_setup(base_size_x, base_size_y, "prop_spritesheets")
 
 
 class CharacterAvatar(FeatureAvatar):
@@ -136,7 +136,7 @@ class CharacterAvatar(FeatureAvatar):
         self.feature_type = Types.ACTOR
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.run_setup(base_size_x, base_size_y)
+        self.run_setup(base_size_x, base_size_y, "character_spritesheets")
 
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
                                "walk_left": WalkAnimation(Direction.LEFT),
@@ -166,7 +166,7 @@ class BirdAvatar(FeatureAvatar):
         self.feature_type = Types.ACTOR
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.run_setup(base_size_x, base_size_y)
+        self.run_setup(base_size_x, base_size_y, "bird_spritesheets")
 
         self.animation_list = {"walk_front": SpeedWalkAnimation(Direction.DOWN),
                                "walk_left": SpeedWalkAnimation(Direction.LEFT),

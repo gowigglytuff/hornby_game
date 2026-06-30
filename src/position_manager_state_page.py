@@ -212,15 +212,6 @@ class PositionManager(object):
 
     # endregion
 
-    def remove_feature_from_map(self, feature_name, room):
-        chosen_feature = self.gc.gs.get_feature_ghost(feature_name)
-
-        room_object = room
-        current_cube = room_object.access_cube(chosen_feature.x, chosen_feature.y)
-        current_cube.empty_cube()
-
-        del feature_list[feature_name]
-
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
         room_object.access_adjacent_cube(checker_ghost, direction)
@@ -364,12 +355,13 @@ class PositionManager(object):
 
     def despawn_feature(self, feature_name, room_object):
         feature_ghost = self.gc.gs.get_feature_ghost(feature_name)
-        feature_avatar = self.gc.game_view.get_npc_avatar(feature_name)
+        feature_avatar = self.gc.game_view.get_feature_avatar(feature_name)
         feature_ghost.active = False
 
-        self.remove_feature_from_grid(feature_ghost, room_object)
-        if feature_ghost.feature_subtype == Types.BIRD:
+        if feature_ghost.feature_type != Types.DECO:
+            self.remove_feature_from_grid(feature_ghost, room_object)
 
+        if feature_ghost.feature_subtype == Types.BIRD:
             remove_trigger_list = feature_ghost.get_triggered()
             self.gc.trigger_manager.remove_triggers(room_object, feature_ghost)
         feature_ghost.reset_to_spawn()
@@ -377,18 +369,6 @@ class PositionManager(object):
         if feature_avatar.unique_name in self.gc.feature_animations_in_progress:
             self.gc.feature_animations_in_progress.remove(feature_avatar.unique_name)
             for item in feature_avatar.animation_list.values():
-                item.reset()
-
-    def despawn_deco(self, deco_name, room_object):
-        deco_ghost = self.gc.gs.get_deco_ghost(deco_name)
-        deco_avatar = self.gc.game_view.get_deco_avatar(deco_name)
-        deco_ghost.active = False
-
-        deco_ghost.reset_to_spawn()
-        deco_avatar.reset_to_spawn(deco_ghost)
-        if deco_avatar.unique_name in self.gc.feature_animations_in_progress:
-            self.gc.feature_animations_in_progress.remove(deco_avatar.unique_name)
-            for item in deco_avatar.animation_list.values():
                 item.reset()
 
     def despawn_all_room_elements(self, room_object):
@@ -399,10 +379,6 @@ class PositionManager(object):
             else:
                 self.despawn_feature(ghost.unique_name, room_object)
 
-        deco_ghosts = self.gc.gs.get_all_decos_in_room(room_object.room_name)
-        for ghost in deco_ghosts:
-            self.despawn_deco(ghost.unique_name, room_object)
-
     def spawn_all_initial_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
@@ -412,24 +388,17 @@ class PositionManager(object):
                 if ghost.spawn_active:
                     self.spawn_room_feature(ghost.unique_name, room_object)
 
-        deco_ghosts = self.gc.gs.get_all_decos_in_room(room_object.room_name)
-        for ghost in deco_ghosts:
-            if ghost.spawn_active:
-                self.spawn_room_deco(ghost.unique_name, room_object)
-
     def spawn_room_feature(self, feature_name, room_object):
         feature_ghost = self.gc.gs.get_feature_ghost(feature_name)
         feature_ghost.active = True
 
-        self.add_feature_to_grid(feature_ghost, room_object)
+        if feature_ghost.feature_type != Types.DECO:
+            self.add_feature_to_grid(feature_ghost, room_object)
 
         if feature_ghost.feature_subtype == Types.BIRD:
             add_trigger_list = feature_ghost.produce_trigger_list()
             self.gc.trigger_manager.add_triggers(room_object, add_trigger_list)
 
-    def spawn_room_deco(self, feature_name, room_object):
-        deco_ghost = self.gc.gs.get_deco_ghost(feature_name)
-        deco_ghost.active = True
 
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
@@ -554,11 +523,12 @@ class PositionManager(object):
     def fill_room_grid(self, room_to_fill):
         selected_room = self.gc.game.game_view.game_data.room_data_list[room_to_fill]
         fill_list = []
-        npc_ghost_list = self.gc.game.gs.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
-        for npc in npc_ghost_list.keys():
-            npc_ghost = self.gc.gs.get_feature_ghost(npc)
-            if npc_ghost_list[npc].spawn_room == room_to_fill and npc_ghost.active:
-                fill_list.append(npc_ghost)
+        feature_ghost_list = self.gc.game.gs.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
+        for feature in feature_ghost_list.keys():
+            feature_ghost = self.gc.gs.get_feature_ghost(feature)
+            if feature_ghost.feature_type != Types.DECO:
+                if feature_ghost.spawn_room == room_to_fill and feature_ghost.active:
+                    fill_list.append(feature_ghost)
 
         for item in fill_list:
             self.add_feature_to_grid(item, selected_room)

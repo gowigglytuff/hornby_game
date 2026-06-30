@@ -65,7 +65,7 @@ class GameView(object):
         self.player_avatar = None
         self.menu_avatar_data_list = {}
         self.feature_avatar_list = {}
-        self.deco_avatar_list = {}
+        # self.deco_avatar_list = {}
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
                                  "chat_menu": ChatMenuAvatar,
@@ -97,18 +97,16 @@ class GameView(object):
         if type == Types.ACTOR:
             list = self.feature_avatar_list
         elif type == Types.DECO:
-            list = self.deco_avatar_list
+            list = self.feature_avatar_list
         elif type == Types.PROP:
             list = self.feature_avatar_list
         return list
 
     # region DRAWING FEATURES
     def draw_feature(self, feature_name, feature_type):
-
         feature_list = self.translate_feature_type(feature_type)
         camera_x = -self.camera[0]
         camera_y = -self.camera[1]
-        print(feature_name)
         chosen_avatar = feature_list[feature_name]
         feature_loc_x = camera_x + (feature_list[feature_name].image_x - 1) * self.square_size[0] + feature_list[feature_name].image_offset_x
         feature = camera_y + (feature_list[feature_name].image_y - 1) * self.square_size[1] - chosen_avatar.image_offset_y
@@ -138,14 +136,12 @@ class GameView(object):
         anim_loc_y = camera_y + (animation_ob.image_y - 1) * self.square_size[1] - animation_ob.image_offset_y
         self.screen.blit(animation_ob.spritesheet.get_image(animation_ob.current_image_x, animation_ob.current_image_y), (anim_loc_x, anim_loc_y))
 
-
     def draw_all(self, drawables_list, current_room):
         self.draw_bg(current_room)
         for drawable in drawables_list:
             if not drawable[0].feature_type == "Player":
                 pass
         for drawable in drawables_list:
-
             if drawable[0].feature_type == "Player":
                 self.draw_player()
             elif drawable[0].feature_type == Types.INDANIM:
@@ -153,16 +149,12 @@ class GameView(object):
             else:
                 self.draw_feature(drawable[0].unique_name, drawable[0].feature_type)
 
-    def get_drawables_list(self, player_location, feature_locations, deco_locations, anim_locations):
+    def get_drawables_list(self, player_location, feature_locations, anim_locations):
         drawables_list = []
 
-        for deco in deco_locations:
-            deco_avatar = self.get_deco_avatar(deco[0])
-            drawables_list.append([deco_avatar, deco[1], deco_avatar.drawing_priority])
-
-        for npc in feature_locations:
-            npc_avatar = self.get_npc_avatar(npc[0])
-            drawables_list.append([npc_avatar, npc[1], npc_avatar.drawing_priority])
+        for feature in feature_locations:
+            feature_avatar = self.get_feature_avatar(feature[0])
+            drawables_list.append([feature_avatar, feature[1], feature_avatar.drawing_priority])
 
         for ind_anim in anim_locations:
             drawables_list.append([ind_anim[0], ind_anim[1], ind_anim[2]])
@@ -315,32 +307,20 @@ class GameView(object):
     def get_avatar_class(self, avatar_type):
         return self.avatar_classes[avatar_type]
 
-    def install_element_avatar(self, related_ghost):
-        print(related_ghost.unique_name)
-        if related_ghost.feature_type == Types.PROP or related_ghost.feature_type == Types.ACTOR:
-            print(related_ghost.unique_name)
-            if related_ghost.feature_subtype == Types.BIRD:
-                self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
-            else:
-                self.add_npc_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
-        elif related_ghost.feature_type == Types.DECO:
-            print(related_ghost.unique_name)
-            self.add_deco_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+    def install_feature_avatar(self, related_ghost):
+        if related_ghost.feature_subtype == Types.BIRD:
+            self.add_feature_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_subtype)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
+        else:
+            self.add_feature_avatar(related_ghost.unique_name, self.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing))
 
-    def get_npc_avatar(self, name):
+    def get_feature_avatar(self, name):
         return self.feature_avatar_list[name]
 
-    def get_deco_avatar(self, name):
-        return self.deco_avatar_list[name]
-
-    def add_npc_avatar(self, character_name, character_object):
+    def add_feature_avatar(self, character_name, character_object):
         self.feature_avatar_list[character_name] = character_object
 
-    def add_deco_avatar(self, deco_name, deco_object):
-        self.deco_avatar_list[deco_name] = deco_object
-
     def change_feature_avatar_facing(self, name, direction):
-        self.get_npc_avatar(name).face_feature(direction)
+        self.get_feature_avatar(name).face_feature(direction)
 
     def walk_feature_avatar(self, name, direction):
         feature_avatar = self.feature_avatar_list[name]
@@ -396,7 +376,7 @@ class AnimationManager(object):
             self.gv.animation_manager.perform_player_animation(self.gv.player_avatar)
 
         for feature_name in self.gv.gs.gc.feature_animations_in_progress:
-            thing_avatar = self.gv.get_npc_avatar(feature_name)
+            thing_avatar = self.gv.get_feature_avatar(feature_name)
             wrap_up = False
             if self.gv.gs.gc.check_if_feature_already_animating(feature_name):
                 wrap_up = self.gv.animation_manager.perform_feature_animation(thing_avatar)

@@ -696,15 +696,15 @@ class GalleryMenuGhost(MenuGhost):
             self.make_main_item(item, 0)
 
     def get_pigeon_image(self, pigeon_name):
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/special_spritesheets/Pigeon_special_spritesheet.png", 32, 48)
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/special_spritesheets/bird_spritesheets/Pigeon_special_spritesheet.png", 32, 48)
         image_choice = image.get_image(0, 0)
         if pigeon_name == "Pigeon 1":
             image_choice = image.get_image(0, 0)
-        if pigeon_name == "Pigeon 2":
+        elif pigeon_name == "Pigeon 2":
             image_choice = image.get_image(1, 0)
-        if pigeon_name == "Pigeon 3":
+        elif pigeon_name == "Pigeon 3":
             image_choice = image.get_image(2, 0)
-        if pigeon_name == "Pigeon 4":
+        elif pigeon_name == "Pigeon 4":
             image_choice = image.get_image(3, 0)
         return image_choice
 
@@ -722,10 +722,16 @@ class GalleryMenuGhost(MenuGhost):
         is_first_item = getattr(self, "is_first_" + self.current_gallery)
         is_last_item = getattr(self, "is_last_" + self.current_gallery)
 
+        spritesheet_file_name = None
+        if self.current_gallery == "Tree":
+            spritesheet_file_name = "prop_spritesheets"
+        elif self.current_gallery == "Bird":
+            spritesheet_file_name = "bird_spritesheets"
+
         if getattr(self, "selected_" + self.current_gallery) in ["Pigeon 1", "Pigeon 2", "Pigeon 3", "Pigeon 4"]:
             image_choice = self.get_pigeon_image(getattr(self, "selected_" + self.current_gallery))
         else:
-            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/npc_spritesheets/" + sprite_code + "_spritesheet.png", 32, 48)
+            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/feature_spritesheets/" + spritesheet_file_name + "/" + sprite_code + "_spritesheet.png", 32, 48)
             image_choice = image.get_image(0, 0)
 
         menu_specific = {"item_name": getattr(self, self.current_gallery + "_item_list")[getattr(self, "selected_" + self.current_gallery)][1],
