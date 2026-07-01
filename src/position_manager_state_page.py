@@ -891,6 +891,7 @@ class Plot(object):
         self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
         self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
         self.terrain_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
+        print(self.terrain_csv_file)
         self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.elevation_map = None
         self.terrain_map = None
@@ -902,7 +903,7 @@ class Plot(object):
         self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
 
     def make_terrain_map(self):
-        if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1":
+        if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1" or self.plot_name == "Habitat_Room_1_1":
             self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
         else:
             self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)

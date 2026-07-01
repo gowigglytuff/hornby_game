@@ -178,7 +178,7 @@ class GameController(object):
         direction_y = Direction.UP
         if y_change < 0:
             direction_y = Direction.DOWN
-        self.scene_manager.play_scene(Scene(self, [CameraPanAnimation(direction_x, x_change), CameraPanAnimation(direction_y, y_change)]))
+        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("animation", CameraPanAnimation(direction_y, y_change))]))
         self.gs.using_mermaid_crown = False
         self.gs.mermaid_crown_initiation = [0, 0]
         self.gs.mermaid_crown_counter = 0

@@ -26,3 +26,9 @@ type,Actor,feature_subtype,Bird,species,Murrelet,display_name,Murrelet,base_size
 type,Actor,feature_subtype,Bird,species,Harlequin_Duck,display_name,Harlequin Duck,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Eurasian_Wigeon,display_name,Eurasian Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,American_Wigeon,display_name,American Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Chicken,display_name,Chicken,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Canada_Jay,display_name,Canada Jay,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Stellar_Jay,display_name,Stellar Jay,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Song_Sparrow,display_name,Song Sparrow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Quail,display_name,Quail,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Sandpiper,display_name,Sandpiper,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
