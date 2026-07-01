@@ -36,10 +36,11 @@ class GameEvents(object):
         self.delta_time = 0
         self.timer_list = []
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate],
-                            .167: [self.gc.actor_event_popoff],
+                            .167: [],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
-                            1: [self.gc.gs.game_clock_pass_1_minute]}
+                            1: [self.gc.gs.game_clock_pass_1_minute],
+                           4: [self.gc.actor_event_popoff]}
         self.setup_timers()
 
     def setup_timers(self):
@@ -150,7 +151,6 @@ class GameController(object):
             husk = self.gs.get_feature_ghost(self.gs.ghost_eye_husk_name)
             self.position_manager.despawn_feature(husk.unique_name, self.gs.get_current_room())
         elif action_name == "ghost_eye_followup":
-            print("bading")
             self.outfit_manager.put_on_outfit(self.gs.revert_outfit)
             self.gs.change_player_facing(self.gs.ghost_eye_initiation_facing)
             self.gs.using_ghost_eye = False
@@ -260,6 +260,22 @@ class GameController(object):
     # endregion
 
     def actor_event_popoff(self):
+        feature_name = "Stellar_Jay_316"
+        feature_ghost = self.gs.get_feature_ghost(feature_name)
+        feature_avatar = self.gs.gv.get_feature_avatar(feature_name)
+        if (feature_name in self.gs.feature_ghost_list.keys()) and feature_ghost.active:
+            already_animating = self.check_if_feature_already_animating(feature_name)
+            if not already_animating:
+                if feature_avatar.option == 1:
+                    feature_avatar.initiate_animation("up_down")
+                    self.game_view.animation_manager.add_to_anim_in_progress(feature_name)
+                    feature_avatar.option = 0
+                elif feature_avatar.option == 0:
+                    feature_avatar.initiate_animation("look_around")
+                    self.game_view.animation_manager.add_to_anim_in_progress(feature_name)
+                    feature_avatar.option = 1
+
+
         # feature = self.gs.get_feature_ghost("Pigeon_142")
         # if ("Pigeon_142" in self.gs.feature_ghost_list.keys()) and feature.active:
         #     self.move_feature_chaotically("Pigeon_142")
@@ -279,7 +295,6 @@ class GameController(object):
                 else:
                     self.talk_to_character(cube.filling_unique_name, player.facing)
             elif feature.feature_type == Types.PROP:
-                print("bading!")
                 self.talk_to_prop(cube.filling_unique_name, player.facing)
             else:
                 pass
@@ -584,8 +599,8 @@ class GameController(object):
             object_class = self.gs.gd.get_feature_class(feature_dict["species"])
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            print(unique_name)
             feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
-
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
 

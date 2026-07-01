@@ -213,46 +213,46 @@ class PositionManager(object):
     # endregion
 
     # region CHECKING FOR MOVEMENT
-    def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
-        room_object.access_adjacent_cube(checker_ghost, direction)
-        x = checker_ghost.x
-        y = checker_ghost.y
-        size_x = checker_ghost.base_size_x
-        size_y = checker_ghost.base_size_y
-
-        x_array = []
-        y_array = []
-
-        final_report = False
-
-        x_counter = 0
-        for size in range(size_x):
-            x_counter += 1
-            x_array.append(x_counter)
-
-        y_counter = 0
-        for size in range(size_y):
-            y_counter += 1
-            y_array.append(y_counter)
-
-        for x_space in range(size_x):
-            for y_space in range(size_y):
-                hold_x = x
-                hold_y = y
-                if direction == Direction.DOWN:
-                    hold_y = hold_y + y_array[y_space]
-                elif direction == Direction.UP:
-                    hold_y = hold_y - y_array[y_space]
-                elif direction == Direction.LEFT:
-                    hold_x = hold_x - x_array[x_space]
-                elif direction == Direction.RIGHT:
-                    hold_x = hold_x + x_array[x_space]
-                cube_fill_status = room_object.check_cube_full(hold_x, hold_y)
-
-                if cube_fill_status:
-                    final_report = True
-
-        return final_report
+    # def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
+    #     room_object.access_adjacent_cube(checker_ghost, direction)
+    #     x = checker_ghost.x
+    #     y = checker_ghost.y
+    #     size_x = checker_ghost.base_size_x
+    #     size_y = checker_ghost.base_size_y
+    #
+    #     x_array = []
+    #     y_array = []
+    #
+    #     final_report = False
+    #
+    #     x_counter = 0
+    #     for size in range(size_x):
+    #         x_counter += 1
+    #         x_array.append(x_counter)
+    #
+    #     y_counter = 0
+    #     for size in range(size_y):
+    #         y_counter += 1
+    #         y_array.append(y_counter)
+    #
+    #     for x_space in range(size_x):
+    #         for y_space in range(size_y):
+    #             hold_x = x
+    #             hold_y = y
+    #             if direction == Direction.DOWN:
+    #                 hold_y = hold_y + y_array[y_space]
+    #             elif direction == Direction.UP:
+    #                 hold_y = hold_y - y_array[y_space]
+    #             elif direction == Direction.LEFT:
+    #                 hold_x = hold_x - x_array[x_space]
+    #             elif direction == Direction.RIGHT:
+    #                 hold_x = hold_x + x_array[x_space]
+    #             cube_fill_status = room_object.check_cube_full(hold_x, hold_y)
+    #
+    #             if cube_fill_status:
+    #                 final_report = True
+    #
+    #     return final_report
 
     def get_adjacent_tile_elevation(self, checker, direction, room):
         target_tile_x = checker.x
@@ -402,7 +402,7 @@ class PositionManager(object):
 
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
-        room_object.access_adjacent_cube(checker_ghost, direction)
+        adjacent_cube = room_object.access_adjacent_cube(checker_ghost, direction)
         x = checker_ghost.x
         y = checker_ghost.y
         size_x = checker_ghost.base_size_x
@@ -439,7 +439,6 @@ class PositionManager(object):
 
                 if cube_fill_status:
                     final_report = True
-
         return final_report
 
     def get_adjacent_tile_elevation(self, checker, direction, room):
@@ -891,7 +890,6 @@ class Plot(object):
         self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
         self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
         self.terrain_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
-        print(self.terrain_csv_file)
         self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
         self.elevation_map = None
         self.terrain_map = None

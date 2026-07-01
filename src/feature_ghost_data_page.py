@@ -145,6 +145,7 @@ class BirdGhost(ActorGhost):
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
+        self.action_list = ["up_down", "look_around"]
 
 
     def get_movement(self):
@@ -214,7 +215,6 @@ class PropGhost(FeatureGhost):
         self.feature_subtype = Types.PROP
 
     def get_interacted_with(self):
-        print(self.function)
         if self.function == "Basket":
             basket_items = copy.copy(self.function_items)
             self.gs_input.gc.look_in_basket(self.unique_name, basket_items)
@@ -232,7 +232,6 @@ class HuskGhost(PropGhost):
         self.feature_subtype = Types.PROP
 
     def get_interacted_with(self):
-        print(self.function)
         if self.function == "Basket":
             basket_items = copy.copy(self.function_items)
             self.gs_input.gc.look_in_basket(self.unique_name, basket_items)

@@ -91,6 +91,16 @@ class Mundane(object):
 
         return x_spacing
 
+    @classmethod
+    def is_factor(cls, big_number, small_number):
+        result = False
+        if big_number == 0:
+                result = True
+        elif big_number != 0:
+            if big_number % small_number == 0:
+                result = True
+        print(small_number, big_number, result)
+        return result
 
     @classmethod
     def direction_feedback(cls, direction, Left, Right, Up, Down):

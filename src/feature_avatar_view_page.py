@@ -1,6 +1,6 @@
 import pygame
 
-from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation, DeedleAnimation, SpeedWalkAnimation
+from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation, DeedleAnimation, SpeedWalkAnimation, UpdownAnimation, LookAroundAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types, Mundane
 
@@ -167,17 +167,19 @@ class BirdAvatar(FeatureAvatar):
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y, "bird_spritesheets")
-
-        self.animation_list = {"walk_front": SpeedWalkAnimation(Direction.DOWN),
-                               "walk_left": SpeedWalkAnimation(Direction.LEFT),
-                               "walk_right": SpeedWalkAnimation(Direction.RIGHT),
-                               "walk_up": SpeedWalkAnimation(Direction.UP),
-                               "snap_photo_down": StationaryAnimation(Direction.DOWN),
-                               "snap_photo_left": StationaryAnimation(Direction.LEFT),
-                               "snap_photo_right": StationaryAnimation(Direction.RIGHT),
-                               "snap_photo_up": StationaryAnimation(Direction.UP),
-                               "peck": BirdAnimation(Direction.DOWN),
-                               "deedle": DeedleAnimation(Direction.DOWN)}
+        self.option = 0
+        self.animation_list = {"up_down": UpdownAnimation(Direction.UP),
+                               "look_around": LookAroundAnimation(Direction.RIGHT)}
+        # self.animation_list = {"walk_front": SpeedWalkAnimation(Direction.DOWN),
+        #                        "walk_left": SpeedWalkAnimation(Direction.LEFT),
+        #                        "walk_right": SpeedWalkAnimation(Direction.RIGHT),
+        #                        "walk_up": SpeedWalkAnimation(Direction.UP),
+        #                        "snap_photo_down": StationaryAnimation(Direction.DOWN),
+        #                        "snap_photo_left": StationaryAnimation(Direction.LEFT),
+        #                        "snap_photo_right": StationaryAnimation(Direction.RIGHT),
+        #                        "snap_photo_up": StationaryAnimation(Direction.UP),
+        #                        "peck": BirdAnimation(Direction.DOWN),
+        #                        "deedle": DeedleAnimation(Direction.DOWN)}
         self.step_of_walk_pattern = 0
         self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
 
