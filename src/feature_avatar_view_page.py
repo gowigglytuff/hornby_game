@@ -141,7 +141,10 @@ class CharacterAvatar(FeatureAvatar):
         self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
                                "walk_left": WalkAnimation(Direction.LEFT),
                                "walk_right": WalkAnimation(Direction.RIGHT),
-                               "walk_up": WalkAnimation(Direction.UP)}
+                               "walk_up": WalkAnimation(Direction.UP),
+                               "up_down": UpdownAnimation(Direction.UP),
+                               "look_around": LookAroundAnimation(Direction.RIGHT)
+                               }
         self.step_of_walk_pattern = 0
         self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
 
@@ -201,6 +204,56 @@ class BirdAvatar(FeatureAvatar):
         self.current_animation = animation_name
         self.currently_animating = True
 
+
+class JayAvatar(BirdAvatar):
+    def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
+        super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
+        self.feature_type = Types.ACTOR
+        self.character_frame_x = 32
+        self.character_frame_y = 64
+        self.run_setup(base_size_x, base_size_y, "bird_spritesheets")
+        self.option = 0
+        self.animation_list = {"up_down": UpdownAnimation(Direction.UP),
+                               "look_around": LookAroundAnimation(Direction.RIGHT)}
+        # self.animation_list = {"walk_front": SpeedWalkAnimation(Direction.DOWN),
+        #                        "walk_left": SpeedWalkAnimation(Direction.LEFT),
+        #                        "walk_right": SpeedWalkAnimation(Direction.RIGHT),
+        #                        "walk_up": SpeedWalkAnimation(Direction.UP),
+        #                        "snap_photo_down": StationaryAnimation(Direction.DOWN),
+        #                        "snap_photo_left": StationaryAnimation(Direction.LEFT),
+        #                        "snap_photo_right": StationaryAnimation(Direction.RIGHT),
+        #                        "snap_photo_up": StationaryAnimation(Direction.UP),
+        #                        "peck": BirdAnimation(Direction.DOWN),
+        #                        "deedle": DeedleAnimation(Direction.DOWN)}
+        self.step_of_walk_pattern = 0
+        self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]
+
+    def next_walk_pattern_step(self):
+        current_step = self.walk_pattern[self.step_of_walk_pattern]
+        if self.step_of_walk_pattern < 7:
+            self.step_of_walk_pattern += 1
+        else:
+            self.step_of_walk_pattern = 0
+        return current_step
+
+    def get_face_image(self):
+        face = self.spritesheet.get_image(0, 0)
+        face = face.subsurface(4, 11, 24, 24)
+        face = pygame.transform.scale(face, [24 * 5, 24 * 5])
+        return face
+
+    def initiate_animation(self, animation_name):
+        self.current_animation = animation_name
+        self.currently_animating = True
+
+    def run_setup(self, base_size_x, base_size_y, spritesheet_file_name):
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/feature_spritesheets/bird_spritesheets/Canada_Jay2_spritesheet.png", self.character_frame_x, 64)
+        # self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
+        basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4 + GameSettings.TILESIZE*1/4
+        self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
+        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+        self.face_image = self.get_face_image()
+        self.face_feature(self.spawn_facing)
 
 class DecoAvatar(object):
     def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):

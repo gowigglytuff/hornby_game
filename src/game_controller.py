@@ -5,7 +5,7 @@ import random
 import time
 from random import choice
 
-from animations_page_view_page import CameraPanAnimation
+from animations_page_view_page import CameraPanAnimation, Switch
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
@@ -35,11 +35,12 @@ class GameEvents(object):
         self.previous_time = time.time()
         self.delta_time = 0
         self.timer_list = []
-        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate],
-                            .167: [],
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate],
+                            6: [self.gc.cowboy_action],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
                             1: [self.gc.gs.game_clock_pass_1_minute],
+                           1: [self.gc.rotate_birds],
                            4: [self.gc.actor_event_popoff]}
         self.setup_timers()
 
@@ -96,6 +97,7 @@ class GameController(object):
         self.scene_animations_in_progress = []
         self.move_counter = 0
         self.flashing_currently = False
+        self.rotation_number = 0
 
     # region GAME CONTROLS
     def set_active_keyboard_manager(self, active_manager_id):
@@ -108,6 +110,39 @@ class GameController(object):
         self.gs.add_feature_ghost(unique_name, ghost_object)
         self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
+
+    def rotate_birds(self):
+        direction = Direction.LEFT
+        if self.rotation_number == 0:
+            direction = Direction.LEFT
+            self.rotation_number = 1
+        elif self.rotation_number == 1:
+            direction = Direction.UP
+            self.rotation_number = 2
+        elif self.rotation_number == 2:
+            direction = Direction.RIGHT
+            self.rotation_number = 3
+        elif self.rotation_number == 3:
+            direction = Direction.DOWN
+            self.rotation_number = 0
+        bird_list = ["Vulture", "Stellar_Jay", "Canada_Jay", "Towhee", "Warbler", "Mallard", "Crow", "Seagull", "Quail", "Pigeon", "Song_Sparrow", "Cormorant", "Jay"]
+        birds_in_room = self.gs.get_all_features_in_room("Habitat_Room")
+        birds_in_room = birds_in_room + self.gs.get_all_features_in_room("Staging_Area")
+        for feature in birds_in_room:
+            if feature.feature_subtype == Types.BIRD:
+                if feature.species in bird_list:
+                    self.gs.change_feature_facing(feature.unique_name, direction)
+
+    def initiate_action(self, actor_ghost, action_object):
+    # if not self.check_if
+        self.gs.add_to_action_queue(actor_ghost.unique_name, action_object)
+
+    def cowboy_action(self):
+        unique_name = "Cowboy_6"
+        if unique_name not in self.gs.action_queue.keys():
+            ghost_object = self.gs.get_feature_ghost(unique_name)
+            self.initiate_action(ghost_object, Switch())
+
 
     # region ITEM USE METHODS (mermaid crown, ghost eye)
     def activate_mermaid_crown(self):
@@ -260,7 +295,7 @@ class GameController(object):
     # endregion
 
     def actor_event_popoff(self):
-        feature_name = "Stellar_Jay_316"
+        feature_name = "Stellar_Jay_326"
         feature_ghost = self.gs.get_feature_ghost(feature_name)
         feature_avatar = self.gs.gv.get_feature_avatar(feature_name)
         if (feature_name in self.gs.feature_ghost_list.keys()) and feature_ghost.active:

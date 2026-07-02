@@ -67,6 +67,73 @@ class GameState(object):
         self.current_key_inventory_dictionary = {}
         self.current_animations_to_execute = []
 
+        self.action_queue = {}
+
+    def check_if_actor_busy(self):
+        result = False
+        return result
+
+    def add_to_action_queue(self, item_name, item_action_object):
+        self.action_queue[item_name] = item_action_object
+
+    def remove_from_action_queue(self, item_name):
+        item = self.action_queue.pop(item_name)
+        item.reset()
+
+    def act_on_action_queue(self):
+        remove_list = []
+        for actor_ghost_name in self.action_queue.keys():
+            if not self.gc.check_if_feature_already_animating(actor_ghost_name):
+                action_object = self.action_queue[actor_ghost_name]
+                actor_ghost = self.get_feature_ghost(actor_ghost_name)
+                current_room = self.get_room(actor_ghost.spawn_room)
+                current_move = action_object.movement_list[action_object.current_action]
+                direction = None
+                if current_move[0] == -1:
+                    direction = Direction.LEFT
+                    action_type = "movement"
+                elif current_move[0] == 1:
+                    direction = Direction.RIGHT
+                    action_type = "movement"
+                elif current_move[1] == -1:
+                    direction = Direction.UP
+                    action_type = "movement"
+                elif current_move[1] == 1:
+                    direction = Direction.DOWN
+                    action_type = "movement"
+                else:
+                    action_type = "stationary"
+                can_move = True
+                if action_type == "movement":
+                    can_move = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+                if can_move:
+                    self.execute_action_step(actor_ghost_name, action_object)
+                    if action_object.check_if_complete():
+                        action_object.reset()
+                        remove_list.append(actor_ghost_name)
+        for actor_ghost_name in remove_list:
+                self.action_queue.pop(actor_ghost_name)
+
+    def execute_action_step(self, actor_ghost_name, action_object):
+        feature_avatar = self.gv.get_feature_avatar(actor_ghost_name)
+        actor_ghost = self.get_feature_ghost(actor_ghost_name)
+
+        current_move = action_object.movement_list[action_object.current_action]
+        current_animation_name = action_object.animation_sequence[action_object.current_action]
+        action_object.current_action += 1
+
+        feature_avatar.initiate_animation(current_animation_name)
+        self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
+
+        print(current_move[0])
+        target_x = actor_ghost.x + current_move[0]
+        target_y = actor_ghost.y + current_move[1]
+
+        current_room = self.get_room(actor_ghost.spawn_room)
+
+        self.gc.position_manager.move_ghost(actor_ghost, current_room, current_room, target_x, target_y)
+
+
     def add_pickaxe_door_entry(self, entry_name, entry_object):
         self.pickaxe_door_dict[entry_name] = entry_object
 
@@ -406,6 +473,7 @@ class GameData(object):
                              2: "mud",
                              3: "wall"}
         self.sound_reference_dict = {}
+        self.action_dict = {}
         self.room_data_list = {}
         self.door_data_list = {}
         self.keyboard_manager_data_list = {}
@@ -434,6 +502,12 @@ class GameData(object):
 
     def add_feature_class(self, item_name, item_object):
         self.feature_class_dict[item_name] = item_object
+
+    def add_action(self, item_name, item_object):
+        self.action_dict[item_name] = item_object
+
+    def get_action(self, item_name):
+        return self.feature_class_dict[item_name]
 
     def get_feature_class(self, item_name):
         return self.feature_class_dict[item_name]

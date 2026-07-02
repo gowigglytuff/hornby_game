@@ -62,6 +62,7 @@ class FeatureGhost(ABC):
         self.y = copy.copy(self.spawn_y)
         self.active = False
         self.facing = copy.copy(self.spawn_facing)
+        self.currently_animating = False
 
     def run_initialization(self):
         self.x = copy.copy(self.spawn_x)
@@ -206,6 +207,37 @@ class BirdGhost(ActorGhost):
 
     def get_removed(self):
         pass
+
+class JayGhost(BirdGhost):
+    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+        self.feature_subtype = Types.BIRD
+        self.proximity_x_trigger = 0
+        self.proximity_y_trigger = 0
+        self.action_list = ["up_down", "look_around"]
+        self.feature_type = Types.ACTOR  # example: "Prop"
+        self.feature_subtype = Types.BIRD  # example: "Tree"
+        self.species = "Jay"  # example: "Arbutus"
+        self.display_name = "Jay"
+        self.figure_size_x = 1
+        self.figure_size_y = 1
+        self.base_size_x = 1
+        self.base_size_y = 1
+
+        self.unique_name = unique_name  # example "Arbutus_102"
+        self.function = function  # example: "Basket"
+        self.set_up_function(self.function)
+        self.spawn_x = spawn_x
+        self.spawn_y = spawn_y
+        self.spawn_active = spawn_active
+        self.spawn_facing = spawn_facing
+        self.spawn_room = spawn_room
+
+        self.x = copy.copy(self.spawn_x)
+        self.y = copy.copy(self.spawn_y)
+        self.active = True
+        self.facing = copy.copy(self.spawn_facing)
+        self.run_initialization()
 
 
 class PropGhost(FeatureGhost):

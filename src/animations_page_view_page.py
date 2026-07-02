@@ -781,3 +781,37 @@ class CameraPanAnimation(object):
         self.current_frame = 0
         self.frame_counter = 0
         # self.complete = False
+
+
+class Action(object):
+    def __init__(self):
+        self.action_type = "movement"
+        self.movement_list = []
+        self.animation_sequence = []
+        self.initial_direction_facing = None
+        self.current_action = 0
+        self.total_actions = len(self.movement_list)
+
+    def initiate(self, initial_direction_facing):
+        self.initial_direction_facing = initial_direction_facing
+        self.total_actions = len(self.movement_list)
+
+    def check_if_complete(self):
+        result = False
+        if self.current_action == self.total_actions:
+            result = True
+        return result
+
+    def reset(self):
+        self.current_action = 0
+
+
+class Switch(Action):
+    def __init__(self):
+        super().__init__()
+        self.movement_list = [(-1, 0), (0, 0), (0, 0), (0, 0), (1, 0), (0, 0), (0, 0), (0, 0)]
+        self.animation_sequence = ["walk_left", "look_around", "up_down", "look_around", "walk_right", "look_around", "up_down", "look_around"]
+        assert len(self.movement_list) == len(self.animation_sequence)
+        self.initial_direction_facing = Direction.RIGHT
+        self.current_action = 0
+        self.total_actions = len(self.movement_list)

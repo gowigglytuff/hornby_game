@@ -361,6 +361,9 @@ class PositionManager(object):
         if feature_ghost.feature_type != Types.DECO:
             self.remove_feature_from_grid(feature_ghost, room_object)
 
+        if feature_ghost.unique_name in self.gc.gs.action_queue.keys():
+            self.gc.gs.remove_from_action_queue(feature_ghost.unique_name)
+
         if feature_ghost.feature_subtype == Types.BIRD:
             remove_trigger_list = feature_ghost.get_triggered()
             self.gc.trigger_manager.remove_triggers(room_object, feature_ghost)

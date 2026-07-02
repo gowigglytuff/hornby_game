@@ -34,3 +34,6 @@ species,Starling,display_name,Starling,function,None,spawn_room,Habitat_Room,spa
 species,Junko,display_name,Junko,function,None,spawn_room,Habitat_Room,spawn_x,9,spawn_y,17,spawn_facing,Down,spawn_active,yes
 species,Flycatcher,display_name,Flycatcher,function,None,spawn_room,Habitat_Room,spawn_x,11,spawn_y,15,spawn_facing,Down,spawn_active,yes
 species,Wood_Peewee,display_name,Wood Peewee,function,None,spawn_room,Habitat_Room,spawn_x,11,spawn_y,17,spawn_facing,Down,spawn_active,yes
+species,Vulture,display_name,Vulture,function,None,spawn_room,Habitat_Room,spawn_x,4,spawn_y,12,spawn_facing,Right,spawn_active,yes
+species,Towhee,display_name,Towhee,function,None,spawn_room,Habitat_Room,spawn_x,6,spawn_y,17,spawn_facing,Right,spawn_active,yes
+species,Warbler,display_name,Warbler,function,None,spawn_room,Habitat_Room,spawn_x,4,spawn_y,17,spawn_facing,Right,spawn_active,yes

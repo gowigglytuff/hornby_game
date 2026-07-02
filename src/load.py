@@ -3,9 +3,9 @@ import os
 
 import pygame
 
-from feature_avatar_view_page import PlayerAvatar
+from feature_avatar_view_page import PlayerAvatar, JayAvatar
 from definitions import Direction, Types, GameSettings
-from feature_ghost_data_page import PlayerGhost
+from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager
@@ -103,6 +103,16 @@ def install_all_data(gc, gs):
             if os.path.isfile(character_file_name):
                 gc.import_characters_from_csv(character_file_name)
 
+            feature_dict = {"species": "Jay", "display_name": "Jay", "function": "None", "spawn_room": "Staging_Area", "spawn_x": "7", "spawn_y": "7", "spawn_facing": "Right", "spawn_active": "yes"}
+            spawn_facing = gc.gs.direction_translations[feature_dict["spawn_facing"]]
+            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            feature_ghost_object = JayGhost(gc, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
+
+            gs.add_feature_ghost(unique_name, feature_ghost_object)
+
+            gc.gs.gv.add_feature_avatar(feature_ghost_object.unique_name, JayAvatar(feature_ghost_object.species, feature_ghost_object.x, feature_ghost_object.y, feature_ghost_object.unique_name, feature_ghost_object.figure_size_x, feature_ghost_object.figure_size_y, feature_ghost_object.spawn_facing))
+
+
     def install_doors(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Marsh", 3, 6, 21, 33)
@@ -135,7 +145,8 @@ def install_all_data(gc, gs):
         feature_name_list = gs.get_all_feature_unique_names()
         for feature_item in feature_name_list:
             related_ghost = gc.gs.feature_ghost_list[feature_item]
-            gc.gs.gv.install_feature_avatar(related_ghost)
+            if related_ghost.species != "Jay":
+                gc.gs.gv.install_feature_avatar(related_ghost)
 
 
     def install_triggers(gc, gs):
