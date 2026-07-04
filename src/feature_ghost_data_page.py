@@ -63,6 +63,22 @@ class FeatureGhost(ABC):
         self.active = False
         self.facing = copy.copy(self.spawn_facing)
         self.currently_animating = False
+        self.currently_chatting = False
+
+    def initiate_animation(self, animation_name):
+        self.currently_animating = True
+
+    def initiate_chat(self, animation_name):
+        self.currently_chatting = True
+
+    def check_if_busy(self):
+        busy = False
+        if self.currently_animating:
+            busy = True
+        if self.currently_chatting:
+            busy = True
+        return busy
+
 
     def run_initialization(self):
         self.x = copy.copy(self.spawn_x)
@@ -89,6 +105,8 @@ class FeatureGhost(ABC):
         self.x = self.spawn_x
         self.y = self.spawn_y
         self.facing = self.spawn_facing
+        self.currently_animating = False
+        self.currently_chatting = False
 
     def get_removed(self):
         pass

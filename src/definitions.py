@@ -99,7 +99,6 @@ class Mundane(object):
         elif big_number != 0:
             if big_number % small_number == 0:
                 result = True
-        print(small_number, big_number, result)
         return result
 
     @classmethod

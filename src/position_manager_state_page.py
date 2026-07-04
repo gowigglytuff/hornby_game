@@ -78,6 +78,31 @@ class PositionManager(object):
 
         return move_result, door_result
 
+    def check_if_spirit_can_move(self, direction, checker, room):
+
+        #alt test
+        alt_test = True
+        if pygame.K_LALT in self.gc.get_held_keys():
+            alt_test = False
+        if pygame.K_RALT in self.gc.get_held_keys():
+            alt_test = False
+
+        # already moving test
+        moving_test = True
+        if self.gc.check_if_player_already_animating():
+            moving_test = False
+
+        # room edge test
+        edge_test = True
+        if self.check_rooms_edges(checker, direction, room):
+            edge_test = False
+
+        move_result = False
+        if alt_test and moving_test and edge_test:
+            move_result = True
+
+        return move_result
+
     def check_for_door(self, room_name, x, y, checker, direction):
         door = False
         proper_angle = False
@@ -95,52 +120,6 @@ class PositionManager(object):
                 else:
                     pass
         return proper_angle
-
-    def check_if_cube_can_hold_ghost(self, feature, current_room, target_room, target_x, target_y):
-        #TODO: Work on this!!
-        target_room_object = target_room
-        new_cube = target_room_object.access_cube(target_x, target_y)
-
-        # room edge test
-        edge_test = True
-        if target_x >= target_room_object.right_edge_x or target_x <= 0:
-            edge_test = False
-
-        # # tile full test
-        # full_test = True
-        # if edge_test:
-        #     if self.ge(checker, direction, room):
-        #         full_test = False
-
-        # elevation test
-        elevation_test = True
-        if edge_test:
-            current_elevation = self.gc.gs.get_current_player_elevation()
-            adjacent_elevation = self.get_adjacent_tile_elevation(checker, direction, room)
-            if abs(int(adjacent_elevation) - current_elevation) > 1:
-                elevation_test = False
-
-        # door test
-        door_test = False
-        target_tile = self.get_adjacent_tile(self.gc.gs.player_ghost, direction, room)
-        door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y)
-
-        door_result = False
-        if elevation_test and alt_test and door_test:
-            door_result = True
-
-        move_result = False
-        if alt_test and moving_test and edge_test and full_test and elevation_test:
-            move_result = True
-
-        if feature_ghost.feature_type == "Player":
-            target_tile_elevation = self.get_tile_elevation(target_room_object.room_name, target_x, target_y)
-            self.gc.gs.set_player_elevation(target_tile_elevation)
-        else:
-            pass
-        if feature_ghost.feature_subtype == Types.BIRD:
-            self.gc.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
-
 
     def move_ghost(self, feature, current_room, target_room, target_x, target_y):
         self.gc.move_counter += 1
@@ -169,6 +148,19 @@ class PositionManager(object):
             pass
         if feature_ghost.feature_subtype == Types.BIRD:
             self.gc.trigger_manager.update_features_triggers(current_room_object, feature_ghost)
+
+    def move_spirit_ghost(self, feature, current_room, target_room, target_x, target_y):
+        feature_ghost = feature
+        current_x = copy.copy(feature_ghost.x)
+        current_y = copy.copy(feature_ghost.y)
+
+        # empty old cube
+        current_room_object = current_room
+        target_room_object = target_room
+
+        # update feature coords
+        feature_ghost.x = target_x
+        feature_ghost.y = target_y
 
     def match_player_elevation_to_target(self, target_room, target_x, target_y):
         new_tile_elevation = self.get_tile_elevation(target_room.room_name, target_x, target_y)

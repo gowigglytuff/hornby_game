@@ -35,8 +35,8 @@ class GameEvents(object):
         self.previous_time = time.time()
         self.delta_time = 0
         self.timer_list = []
-        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate],
-                            6: [self.gc.cowboy_action],
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
+                            2: [self.gc.cowboy_action],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
                             1: [self.gc.gs.game_clock_pass_1_minute],
@@ -85,7 +85,9 @@ class GameController(object):
         self.game_data = game_data  # type: GameData
 
         self.active_keyboard_manager = None
+        self.running_number = 1
         self.key_down_queue = []
+        # self.held_keys = [pygame.K_x]
         self.held_keys = []
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_controller = MenuController(self)  # type:MenuController
@@ -141,7 +143,8 @@ class GameController(object):
         unique_name = "Cowboy_6"
         if unique_name not in self.gs.action_queue.keys():
             ghost_object = self.gs.get_feature_ghost(unique_name)
-            self.initiate_action(ghost_object, Switch())
+            if not ghost_object.check_if_busy():
+                self.initiate_action(ghost_object, Switch())
 
 
     # region ITEM USE METHODS (mermaid crown, ghost eye)
@@ -162,6 +165,7 @@ class GameController(object):
         husk_ghost = self.create_husk(self.gs.get_current_room(), player_ghost.x, player_ghost.y, player_ghost.facing, "green_shirt")
         self.gs.ghost_eye_husk_name = husk_ghost.unique_name
         self.outfit_manager.put_on_temporary_outfit("ghost_eye")
+        self.set_active_keyboard_manager(GhostEyeKeyboardManager.ID)
 
     def create_husk(self, room_object, x, y, facing, outfit):
         feature_dict = {"species": "Husk", "display_name": "Husk", "function": "None", "spawn_room": room_object.room_name, "spawn_x": str(x), "spawn_y": str(y), "spawn_facing": Mundane.get_word_from_direction(facing), "spawn_active": "no"}
@@ -173,6 +177,7 @@ class GameController(object):
         self.clear_key_down_cue()
         x_change = self.gs.get_player_ghost_location()[0]-self.gs.ghost_eye_initiation[0]
         y_change = self.gs.get_player_ghost_location()[1]-self.gs.ghost_eye_initiation[1]
+        self.gs.change_player_facing(self.gs.ghost_eye_initiation_facing)
         direction_x = Direction.LEFT
         if x_change < 0:
             direction_x = Direction.RIGHT
@@ -191,6 +196,8 @@ class GameController(object):
             self.gs.using_ghost_eye = False
             self.gs.ghost_eye_initiation = [0, 0]
             self.gs.ghost_eye_counter = 0
+            self.set_active_keyboard_manager(InGameKeyboardManager.ID)
+
 
     def determine_mermaid_crown_end(self):
         if self.gs.using_mermaid_crown:
@@ -325,10 +332,11 @@ class GameController(object):
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
             feature = self.gs.get_feature_ghost(cube.filling_unique_name)
             if feature.feature_type == Types.ACTOR:
-                if feature.feature_subtype == Types.BIRD:
-                    self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
-                else:
-                    self.talk_to_character(cube.filling_unique_name, player.facing)
+                if not feature.check_if_busy():
+                    if feature.feature_subtype == Types.BIRD:
+                        self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
+                    else:
+                        self.talk_to_character(cube.filling_unique_name, player.facing)
             elif feature.feature_type == Types.PROP:
                 self.talk_to_prop(cube.filling_unique_name, player.facing)
             else:
@@ -348,6 +356,7 @@ class GameController(object):
         character_talking_to_ghost = self.gs.feature_ghost_list[character_talking_to]
         character_talking_to_avatar = self.game_view.feature_avatar_list[character_talking_to]
         self.gs.change_feature_facing(character_talking_to, direction_to_turn)
+        character_talking_to_ghost.currently_chatting = True
         self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
         details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
                    "friendship_level": character_talking_to_ghost.friendship_level,
@@ -469,6 +478,25 @@ class GameController(object):
             else:
                 pass
 
+    def initiate_spirit_movement(self, direction):
+        room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
+        target_tile = self.position_manager.get_adjacent_tile(self.gs.player_ghost, direction, room_object)
+        self.gs.change_player_facing(direction)
+        move_test = self.position_manager.check_if_spirit_can_move(direction, self.gs.player_ghost, room_object)
+        if move_test:
+            player = self.gs.get_player_ghost()
+            self.game_view.walk_player_avatar(direction)
+            self.position_manager.move_spirit_ghost(player, room_object, room_object, player.x + Direction.get_vector_from_direction(direction)[0], player.y + Direction.get_vector_from_direction(direction)[1])
+            self.spirit_moved_followup(player.x, player.y)
+
+    def spirit_moved_followup(self, player_x, player_y):
+        self.trigger_manager.check_for_map_triggers(player_x, player_y)
+        if self.gs.using_ghost_eye:
+            self.gs.ghost_eye_counter += 1
+            if self.gs.ghost_eye_counter == self.gs.ghost_eye_limit:
+                self.deactivate_ghost_eye()
+
+
     def player_moved_followup(self, player_x, player_y):
         if self.gs.gc.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, player_x, player_y) == 1:
             self.gs.gc.play_sound("mermaid_swim")
@@ -530,9 +558,10 @@ class GameController(object):
     def get_avatar_class(self, avatar_type):
         return self.game_view.avatar_classes[avatar_type]
 
-    def check_if_feature_already_animating(self, name):
-        avatar = self.game_view.get_feature_avatar(name)
-        return avatar.currently_animating
+    def check_if_feature_already_animating(self, unique_name):
+        avatar = self.game_view.get_feature_avatar(unique_name)
+        ghost_object = self.gs.get_feature_ghost(unique_name)
+        return ghost_object.currently_animating
 
     def reset_feature_to_spawn(self, feature):
         chosen_feature = self.gs.get_feature_ghost(feature)
@@ -560,6 +589,13 @@ class GameController(object):
     def get_held_keys(self):
         return self.held_keys
 
+    def check_if_run_held(self):
+        held = self.get_held_keys()
+        if pygame.K_x in held:
+            self.running_number = 0
+        else:
+            self.running_number = 1
+
     def remove_from_held_key(self, key):
         self.held_keys.remove(key)
 
@@ -575,8 +611,12 @@ class GameController(object):
                     direction = Direction.RIGHT
                 elif self.key_down_queue == pygame.K_LEFT:
                     direction = Direction.LEFT
+                    print(self.active_keyboard_manager.ID, InGameKeyboardManager.ID)
+                if self.active_keyboard_manager.ID == InGameKeyboardManager.ID:
+                    self.initiate_player_movement(direction)
+                elif self.active_keyboard_manager.ID == GhostEyeKeyboardManager.ID:
+                    self.initiate_spirit_movement(direction)
 
-                self.initiate_player_movement(direction)
     # endregion
 
     # region IMPORT FUNCTIONS
@@ -634,7 +674,6 @@ class GameController(object):
             object_class = self.gs.gd.get_feature_class(feature_dict["species"])
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            print(unique_name)
             feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
@@ -949,6 +988,7 @@ class MenuController(object):
             details["phrase"] = [speaker.receive_gift(chosen_item_name)]
             details["friendship_level"] = Mundane.get_friendship_hearts(speaker.friendship_level)
             self.gc.menu_controller.exit_all_menus()
+            speaker.currently_chatting = True
             self.gc.menu_controller.set_menu(ChatMenuGhost.BASE, details)
 
         else:
@@ -1028,21 +1068,22 @@ class MenuController(object):
         menu_selection = item_selected
         current_menu = self.gc.gs.ms.get_menu_ghost(ConversationOptionsMenuGhost.BASE)
         phrase_list = ["base_phrase", "good_gift_phrase", "bad_gift_phrase", "neutral_gift_phrase", "bird_hint_phrase"]
-        selected_phrase = getattr(self.gc.gs.get_feature_ghost(current_menu.speaker_unique_name), choice(phrase_list))
+        selected_phrase = copy.copy(getattr(self.gc.gs.get_feature_ghost(current_menu.speaker_unique_name), choice(phrase_list)))
         # selected_phrase = self.gs.get_feature_ghost(current_menu.speaker_unique_name).base_phrase
-        details = {"speaker_name": current_menu.talking_to,
-                   "friendship_level": current_menu.friendship,
-                   "face_image": current_menu.face_image,
-                   "speaker_unique_name": current_menu.speaker_unique_name,
+        details = {"speaker_name": copy.copy(current_menu.talking_to),
+                   "friendship_level": copy.copy(current_menu.friendship),
+                   "face_image": copy.copy(current_menu.face_image),
+                   "speaker_unique_name": copy.copy(current_menu.speaker_unique_name),
                    "phrase": [selected_phrase]}
 
         if menu_selection == "Talk":
+            self.gc.menu_controller.exit_menu(ConversationOptionsMenuGhost.BASE)
+            self.gc.gs.get_feature_ghost(details["speaker_unique_name"]).currently_chatting = True
             self.gc.menu_controller.set_menu(ChatMenuGhost.BASE, details)
 
         elif menu_selection == "Give Gift":
             details["master_menu"] = current_menu.BASE
             # self.gc.menu_controller.exit_menu(ConversationOptionsMenuGhost.BASE)
-
             self.gc.menu_controller.set_menu(GiftGivingMenuGhost.BASE, details)
 
         elif menu_selection == "Exit":
@@ -1107,8 +1148,12 @@ class MenuController(object):
 
     def exit_menu(self, menu_name):
         selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
+        if menu_name in ["conversation_options_menu", "chat_menu"]:
+
+            print("cool")
         selected_menu.reset_elements()
         self.gc.gs.ms.deactivate_menu(menu_name)
+
 
     def exit_all_menus(self):
         list = []

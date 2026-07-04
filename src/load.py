@@ -8,7 +8,7 @@ from definitions import Direction, Types, GameSettings
 from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
-from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager
+from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager
 from menu_avatars_view_page import MenuAvatar
 from position_manager_state_page import Door, Consolidated
 
@@ -159,6 +159,7 @@ def install_all_data(gc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(InSceneKeyboardManager.ID, InSceneKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(GhostEyeKeyboardManager.ID, GhostEyeKeyboardManager(gc))
 
     def set_initial_keyboard_manager(gc, gs):
         gc.set_active_keyboard_manager(InGameKeyboardManager.ID)

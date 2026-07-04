@@ -1,6 +1,7 @@
 import pygame
 
-from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation, DeedleAnimation, SpeedWalkAnimation, UpdownAnimation, LookAroundAnimation
+from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation, DeedleAnimation, SpeedWalkAnimation
+from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types, Mundane
 
@@ -22,10 +23,19 @@ class PlayerAvatar(object):
         self.size_y = 1
         self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
         self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
-        self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
-                               "walk_left": WalkAnimation(Direction.LEFT),
-                               "walk_right": WalkAnimation(Direction.RIGHT),
-                               "walk_up": WalkAnimation(Direction.UP),
+        self.animation_list = {"walk_front": WalkyAnimationy(Direction.DOWN),
+                               "walk_left": WalkyAnimationy(Direction.LEFT),
+                               "walk_right": WalkyAnimationy(Direction.RIGHT),
+                               "walk_up": WalkyAnimationy(Direction.UP),
+                               "run_front": RunAnimationy(Direction.DOWN),
+                               "run_left": RunAnimationy(Direction.LEFT),
+                               "run_right": RunAnimationy(Direction.RIGHT),
+                               "run_up": RunAnimationy(Direction.UP),
+                               "up_down": UpdownAnimation(None),
+                               "speedwalk_front": SpeedWalkyAnimationy(Direction.DOWN),
+                               "speedwalk_left": SpeedWalkyAnimationy(Direction.LEFT),
+                               "speedwalk_right": SpeedWalkyAnimationy(Direction.RIGHT),
+                               "speedwalk_up": SpeedWalkyAnimationy(Direction.UP),
                                "snap_photo_down": StationaryAnimation(Direction.DOWN),
                                "snap_photo_left": StationaryAnimation(Direction.LEFT),
                                "snap_photo_right": StationaryAnimation(Direction.RIGHT),
@@ -143,7 +153,11 @@ class CharacterAvatar(FeatureAvatar):
                                "walk_right": WalkAnimation(Direction.RIGHT),
                                "walk_up": WalkAnimation(Direction.UP),
                                "up_down": UpdownAnimation(Direction.UP),
-                               "look_around": LookAroundAnimation(Direction.RIGHT)
+                               "look_around": LookAroundAnimation(Direction.RIGHT),
+                               "run_front": RunAnimationy(Direction.DOWN),
+                               "run_left": RunAnimationy(Direction.LEFT),
+                               "run_right": RunAnimationy(Direction.RIGHT),
+                               "run_up": RunAnimationy(Direction.UP),
                                }
         self.step_of_walk_pattern = 0
         self.walk_pattern = [Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT, Direction.RIGHT]

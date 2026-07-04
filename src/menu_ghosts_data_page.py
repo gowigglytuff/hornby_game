@@ -545,6 +545,12 @@ class ConversationOptionsMenuGhost(MenuGhost):
             friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
         return friendship_counter
 
+    def reset_elements(self):
+        speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
+        speaker_ghost.currently_chatting = False
+        self.cursor_at[0] = 0
+        self.cursor_at[1] = 0
+
 
 class OutfitMenuGhost(MenuGhost):
     BASE = "outfit_menu"
@@ -660,14 +666,15 @@ class GalleryMenuGhost(MenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.galleries = ["Tree", "Bird"]
+        self.galleries = ["Tree", "Bird", "Pigeon"]
         # self.update_currently_displayed()
         self.Tree_item_list = {"Arbutus": ["Arbutus", "Arbutus"]}
         self.Bird_item_list = {"Robin": ["Robin", "Robin"],
                           "Tanager": ["Tanager", "Tanager"],
                           "Blackbird": ["Blackbird", "Blackbird"],
-                          "Mallard": ["Mallard", "Mallard"],
-                          "Pigeon 1": ["Pigeon 1", "Pigeon 1"],
+                          "Mallard": ["Mallard", "Mallard"]}
+
+        self.Pigeon_item_list = {"Pigeon 1": ["Pigeon 1", "Pigeon 1"],
                           "Pigeon 2": ["Pigeon 2", "Pigeon 2"],
                           "Pigeon 3": ["Pigeon 3", "Pigeon 3"],
                           "Pigeon 4": ["Pigeon 4", "Pigeon 4"]}
@@ -696,7 +703,7 @@ class GalleryMenuGhost(MenuGhost):
             self.make_main_item(item, 0)
 
     def get_pigeon_image(self, pigeon_name):
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/special_spritesheets/bird_spritesheets/Pigeon_special_spritesheet.png", 32, 48)
+        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/special_spritesheets/Pigeon_special_spritesheet.png", 32, 48)
         image_choice = image.get_image(0, 0)
         if pigeon_name == "Pigeon 1":
             image_choice = image.get_image(0, 0)
@@ -725,7 +732,7 @@ class GalleryMenuGhost(MenuGhost):
         spritesheet_file_name = None
         if self.current_gallery == "Tree":
             spritesheet_file_name = "prop_spritesheets"
-        elif self.current_gallery == "Bird":
+        elif self.current_gallery == "Bird" or self.current_gallery == "Pigeon":
             spritesheet_file_name = "bird_spritesheets"
 
         if getattr(self, "selected_" + self.current_gallery) in ["Pigeon 1", "Pigeon 2", "Pigeon 3", "Pigeon 4"]:
@@ -936,6 +943,12 @@ class ChatMenuGhost(MenuGhost):
         elif len(self.current_phrase) == 0:
             menu_selection = None
             self.gc.menu_controller.chat_menu_selection(menu_selection)
+
+    def reset_elements(self):
+        speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
+        speaker_ghost.currently_chatting = False
+        self.cursor_at[0] = 0
+        self.cursor_at[1] = 0
 
 
 class GameActionDialogueMenuGhost(MenuGhost):

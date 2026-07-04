@@ -44,7 +44,7 @@ class GameView(object):
         self.animation_manager = AnimationManager(self)
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
-        self.FPS = 64
+        self.FPS = 62
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
@@ -290,15 +290,40 @@ class GameView(object):
         self.get_player_avatar().x_image = self.base_locator_x * player_ghost_x
         self.get_player_avatar().y_image = self.base_locator_y * player_ghost_y
 
-    def walk_player_avatar(self, direction):
+    def player_perform_animation(self, name, direction):
+        # TODO: THIS IS TEMPORARY FOR TESTING
+        animation = name
+
         if direction == Direction.DOWN:
-            self.player_avatar.initiate_animation("walk_front")
+            animation = name + "_front"
         elif direction == Direction.UP:
-            self.player_avatar.initiate_animation("walk_up")
+            animation = name + "_up"
         elif direction == Direction.LEFT:
-            self.player_avatar.initiate_animation("walk_left")
+            animation = name + "_left"
         elif direction == Direction.RIGHT:
-            self.player_avatar.initiate_animation("walk_right")
+            animation = name + "_right"
+        else:
+            animation = name
+
+        self.player_avatar.initiate_animation(animation)
+
+    def walk_player_avatar(self, direction):
+        animation_direction = "front"
+        animation_speed = "walk"
+
+        if direction == Direction.DOWN:
+            animation_direction = "front"
+        elif direction == Direction.UP:
+            animation_direction = "up"
+        elif direction == Direction.LEFT:
+            animation_direction = "left"
+        elif direction == Direction.RIGHT:
+            animation_direction = "right"
+        if self.gs.gc.running_number == 1:
+            animation_speed = "speedwalk"
+        elif self.gs.gc.running_number == 0:
+            animation_speed = "run"
+        self.player_avatar.initiate_animation(animation_speed + "_" + animation_direction)
     # endregion
 
     #region FEATURE AVATARS
@@ -348,16 +373,16 @@ class GameView(object):
 
     # endregion
 
-    def perform_animation(self, animator):
-        animation_result = (animator.animation_list[animator.current_animation].animate())
-        animator.current_image_x = animation_result[2]
-        animator.current_image_y = animation_result[3]
-        self.camera[0] += animation_result[0]
-        self.camera[1] += animation_result[1]
-        complete = animation_result[4]
-        if complete:
-            animator.currently_animating = False
-            animator.current_animation = None
+    # def perform_animation(self, animator):
+    #     animation_result = (animator.animation_list[animator.current_animation].animate())
+    #     animator.current_image_x = animation_result[2]
+    #     animator.current_image_y = animation_result[3]
+    #     self.camera[0] += animation_result[0]
+    #     self.camera[1] += animation_result[1]
+    #     complete = animation_result[4]
+    #     if complete:
+    #         animator.currently_animating = False
+    #         animator.current_animation = None
 
 
 class AnimationManager(object):
@@ -375,12 +400,17 @@ class AnimationManager(object):
             self.gv.animation_manager.perform_player_animation(self.gv.player_avatar)
 
         for feature_name in self.gv.gs.gc.feature_animations_in_progress:
-            thing_avatar = self.gv.get_feature_avatar(feature_name)
+            feature_ghost = self.gv.gs.get_feature_ghost(feature_name)
+            feature_avatar = self.gv.get_feature_avatar(feature_name)
+
             wrap_up = False
             if self.gv.gs.gc.check_if_feature_already_animating(feature_name):
-                wrap_up = self.gv.animation_manager.perform_feature_animation(thing_avatar)
+                wrap_up = self.gv.animation_manager.perform_feature_animation(feature_avatar)
             if wrap_up:
                 self.gv.gs.gc.feature_animations_in_progress.remove(feature_name)
+                feature_avatar.currently_animating = False
+                feature_avatar.current_animation = None
+                feature_ghost.currently_animating = False
 
         # independent animations
         complete_animation_names = []
@@ -404,8 +434,10 @@ class AnimationManager(object):
 
     def perform_player_animation(self, animator):
         animation_result = (animator.animation_list[animator.current_animation].animate())
-        animator.current_image_x = animation_result[2]
-        animator.current_image_y = animation_result[3]
+        if animation_result[2] is not None:
+            animator.current_image_x = animation_result[2]
+        if animation_result[3] is not None:
+            animator.current_image_y = animation_result[3]
         self.gv.camera[0] += animation_result[0]
         self.gv.camera[1] += animation_result[1]
         complete = animation_result[4]
@@ -422,8 +454,6 @@ class AnimationManager(object):
         animator.move_avatar(animation_result[0], animation_result[1])
         complete = animation_result[4]
         if complete:
-            animator.currently_animating = False
-            animator.current_animation = None
             wrap_up = True
         return wrap_up
 

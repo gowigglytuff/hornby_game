@@ -83,7 +83,10 @@ class GameState(object):
     def act_on_action_queue(self):
         remove_list = []
         for actor_ghost_name in self.action_queue.keys():
-            if not self.gc.check_if_feature_already_animating(actor_ghost_name):
+            actor_ghost = self.get_feature_ghost(actor_ghost_name)
+            # is_already_animating = self.gc.check_if_feature_already_animating(actor_ghost_name)
+            is_already_animating = actor_ghost.check_if_busy()
+            if not is_already_animating:
                 action_object = self.action_queue[actor_ghost_name]
                 actor_ghost = self.get_feature_ghost(actor_ghost_name)
                 current_room = self.get_room(actor_ghost.spawn_room)
@@ -123,9 +126,9 @@ class GameState(object):
         action_object.current_action += 1
 
         feature_avatar.initiate_animation(current_animation_name)
+        actor_ghost.initiate_animation(current_animation_name)
         self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
 
-        print(current_move[0])
         target_x = actor_ghost.x + current_move[0]
         target_y = actor_ghost.y + current_move[1]
 

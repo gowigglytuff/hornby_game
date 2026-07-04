@@ -182,8 +182,74 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.scene_manager.pan_camera(Direction.DOWN, 5)
         # self.gc.activate_mermaid_crown()
         # self.gc.scene_manager.play_scene(Scene(self.gc, [CameraPanAnimation(Direction.LEFT, 5), CameraPanAnimation(Direction.UP, 5)]))
-        self.gc.pickaxe_make_door()
+        self.gc.gs.gv.player_perform_animation("up_down", None)
         pass
+
+    def key_direction_released(self, key):
+        if self.gc.key_down_queue == key:
+            self.gc.key_down_queue = []
+
+
+class GhostEyeKeyboardManager(KeyboardManager):
+    ID = "GhostEye"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.press_function_dict = {"up arrow": [],
+                                    "down arrow": [],
+                                    "right arrow": [],
+                                    "left arrow": [],
+                                    "return": [self.gc.clear_key_down_cue, self.gc.gs.produce_player_coords],
+                                    "space": [],
+                                    "a": [],
+                                    "s": [],
+                                    "left ctrl": [],
+                                    "left shift": [],
+                                    "escape": [],
+                                    "tab": [],
+                                    "caps lock": [self.gc.close_game]}
+        self.release_function_dict = {"a": [],
+                                      "s": [self.gc.determine_ghost_eyes_end],
+                                      "return": [],
+                                      "space": [],
+                                      "left ctrl": [],
+                                      "left shift": [],
+                                      "escape": [],
+                                      "tab": [],
+                                      "caps lock": []}
+
+
+    def parse_key_input(self, event_type, key):
+        if event_type == pygame.KEYDOWN:
+
+            self.gc.add_to_held_key(key)
+
+            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
+                self.key_direction_pressed(key)
+            else:
+                if pygame.key.name(key) in self.press_function_dict.keys():
+                    self.key_pressed(key)
+
+        elif event_type == pygame.KEYUP:
+            self.gc.remove_from_held_key(key)
+
+            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
+                self.key_direction_released(key)
+            else:
+                if pygame.key.name(key) in self.release_function_dict.keys():
+                    self.key_released(key)
+
+
+    def key_direction_pressed(self, key):
+        self.gc.key_down_queue = key
+
+    def key_pressed(self, key):
+        for item in self.press_function_dict[pygame.key.name(key)]:
+            item()
+
+    def key_released(self, key):
+        for item in self.release_function_dict[pygame.key.name(key)]:
+            item()
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:
