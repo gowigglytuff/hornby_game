@@ -65,6 +65,7 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
         gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
+        gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
 
     def install_classes(gc, gs):
         bird_class_objects_file_name = "assets/import_data/bird_class_import.csv"
@@ -132,6 +133,7 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 7, 2, 10, 20)
+        gc.position_manager.add_door("Double_back", "Staging_Area", "Mountain_Room", 3, 2, 28, 26)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))

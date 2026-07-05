@@ -896,7 +896,7 @@ class Plot(object):
         self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
 
     def make_terrain_map(self):
-        if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1" or self.plot_name == "Habitat_Room_1_1":
+        if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1" or self.plot_name == "Habitat_Room_1_1" or self.plot_name == "Mountain_Room_1_1":
             self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
         else:
             self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)

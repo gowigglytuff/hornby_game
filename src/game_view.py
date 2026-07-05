@@ -449,8 +449,10 @@ class AnimationManager(object):
 
         wrap_up = False
         animation_result = (animator.animation_list[animator.current_animation].animate())
-        animator.current_image_x = animation_result[2]
-        animator.current_image_y = animation_result[3]
+        if animation_result[2] is not None:
+            animator.current_image_x = animation_result[2]
+        if animation_result[3] is not None:
+            animator.current_image_y = animation_result[3]
         animator.move_avatar(animation_result[0], animation_result[1])
         complete = animation_result[4]
         if complete:

@@ -1,7 +1,6 @@
 import pygame
 
-from animations_page_view_page import WalkAnimation, StationaryAnimation, BirdAnimation, DeedleAnimation, SpeedWalkAnimation
-from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy
+from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types, Mundane
 
@@ -36,11 +35,10 @@ class PlayerAvatar(object):
                                "speedwalk_left": SpeedWalkyAnimationy(Direction.LEFT),
                                "speedwalk_right": SpeedWalkyAnimationy(Direction.RIGHT),
                                "speedwalk_up": SpeedWalkyAnimationy(Direction.UP),
-                               "snap_photo_down": StationaryAnimation(Direction.DOWN),
-                               "snap_photo_left": StationaryAnimation(Direction.LEFT),
-                               "snap_photo_right": StationaryAnimation(Direction.RIGHT),
-                               "snap_photo_up": StationaryAnimation(Direction.UP),
-                               "peck": BirdAnimation(Direction.DOWN)}
+                               "snap_photo_down": SnapPhotoAnimation(Direction.DOWN),
+                               "snap_photo_left": SnapPhotoAnimation(Direction.LEFT),
+                               "snap_photo_right": SnapPhotoAnimation(Direction.RIGHT),
+                               "snap_photo_up": SnapPhotoAnimation(Direction.UP)}
         self.animation_frame = 0
         self.currently_animating = False
         self.current_animation = None
@@ -148,12 +146,12 @@ class CharacterAvatar(FeatureAvatar):
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y, "character_spritesheets")
 
-        self.animation_list = {"walk_front": WalkAnimation(Direction.DOWN),
-                               "walk_left": WalkAnimation(Direction.LEFT),
-                               "walk_right": WalkAnimation(Direction.RIGHT),
-                               "walk_up": WalkAnimation(Direction.UP),
-                               "up_down": UpdownAnimation(Direction.UP),
-                               "look_around": LookAroundAnimation(Direction.RIGHT),
+        self.animation_list = {"walk_front": WalkyAnimationy(Direction.DOWN),
+                               "walk_left": WalkyAnimationy(Direction.LEFT),
+                               "walk_right": WalkyAnimationy(Direction.RIGHT),
+                               "walk_up": WalkyAnimationy(Direction.UP),
+                               "up_down": UpdownAnimation(None),
+                               "look_around": LookAroundAnimation(None),
                                "run_front": RunAnimationy(Direction.DOWN),
                                "run_left": RunAnimationy(Direction.LEFT),
                                "run_right": RunAnimationy(Direction.RIGHT),

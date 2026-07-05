@@ -87,8 +87,8 @@ class GameController(object):
         self.active_keyboard_manager = None
         self.running_number = 1
         self.key_down_queue = []
-        # self.held_keys = [pygame.K_x]
-        self.held_keys = []
+        self.held_keys = [pygame.K_x]
+        # self.held_keys = []
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_controller = MenuController(self)  # type:MenuController
         self.trigger_manager = TriggerManager(self) # type: TriggerManager

@@ -2,406 +2,34 @@ import random
 from definitions import Direction, GameSettings, Types, Mundane
 from spritesheet import Spritesheet
 
-
-class Animation(object):
-    def __init__(self, direction):
-        self.total_distance = 0
-        self.direction = direction
-        self.current_frame = 0
-        self.frequency = 0
-
-        self.complete = False
-
-        self.y_change = 0
-        self.x_change = 0
-        self.current_image_x = 0
-        self.current_image_y = 0
-
-        self.changing_variable = self.x_change
-        self.x_vector = 0
-        self.y_vector = 0
-        self.set_directions()
-
-    def animate(self):
-        pass
-
-    def set_directions(self):
-        self.x_vector = Mundane.direction_feedback(self.direction, -1, 1, 0, 0)
-        self.y_vector = Mundane.direction_feedback(self.direction, 0, 0, -1, 1)
-        self.changing_variable = Mundane.direction_feedback(self.direction, self.x_change, self.x_change, self.y_change, self.y_change)
-        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
-
-
-
-class WalkAnimation(Animation):
-    def __init__(self, direction):
-        super().__init__(direction)
-        self.foot = "left"
-        self.current_frame = 0
-        self.current_image_x = 0
-        self.current_image_y = 0
-        self.x_vector = 0
-        self.y_vector = 0
-        self.set_directions()
-        self.delta_time_tracker = 0
-
-    def animate(self):
-        if self.current_frame <= (GameSettings.TILESIZE-1):
-            if self.current_frame == 0:
-                if self.foot == "left":
-                    self.current_image_x = 3
-                elif self.foot == "right":
-                    self.current_image_x = 1
-                self.current_frame += 1
-            elif self.current_frame == (GameSettings.TILESIZE-1):
-                self.current_frame = 0
-                self.current_image_x = 0
-                self.complete = True
-            else:
-                self.current_frame += 1
-
-        return self.result()
-
-    def reset(self):
-        self.current_frame = 0
-        self.switch_foot()
-        self.complete = False
-
-    def switch_foot(self):
-        if self.foot == "left":
-            self.foot = "right"
-        elif self.foot == "right":
-            self.foot = "left"
-
-    def result(self):
-        y_change = self.y_vector
-        x_change = self.x_vector
-        sheet_x = self.current_image_x
-        sheet_y = self.current_image_y
-        complete = self.complete
-        if self.complete:
-            self.reset()
-
-        return x_change, y_change, sheet_x, sheet_y, complete
-
-class SpeedWalkAnimation(Animation):
-    def __init__(self, direction):
-        super().__init__(direction)
-        self.foot = "left"
-        self.current_frame = 0
-        self.current_image_x = 0
-        self.current_image_y = 0
-        self.x_vector = 0
-        self.y_vector = 0
-        self.set_directions()
-
-    def set_directions(self):
-        self.x_vector = Mundane.direction_feedback(self.direction, -2, 2, 0, 0)
-        self.y_vector = Mundane.direction_feedback(self.direction, 0, 0, -2, 2)
-        self.changing_variable = Mundane.direction_feedback(self.direction, self.x_change, self.x_change, self.y_change, self.y_change)
-        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
-
-    def animate(self):
-        if self.current_frame <= (GameSettings.TILESIZE/2-1):
-            if self.current_frame == 0:
-                if self.foot == "left":
-                    self.current_image_x = 3
-                elif self.foot == "right":
-                    self.current_image_x = 1
-                self.current_frame += 1
-            elif self.current_frame == (GameSettings.TILESIZE/2-1):
-                self.current_frame = 0
-                self.current_image_x = 0
-                self.complete = True
-            else:
-                self.current_frame += 1
-
-        return self.result()
-
-    def reset(self):
-        self.current_frame = 0
-        self.switch_foot()
-        self.complete = False
-
-    def switch_foot(self):
-        if self.foot == "left":
-            self.foot = "right"
-        elif self.foot == "right":
-            self.foot = "left"
-
-    def result(self):
-        y_change = self.y_vector
-        x_change = self.x_vector
-        sheet_x = self.current_image_x
-        sheet_y = self.current_image_y
-        complete = self.complete
-        if self.complete:
-            self.reset()
-
-        return x_change, y_change, sheet_x, sheet_y, complete
-
-
-class StationaryAnimation(object):
-    def __init__(self, direction):
-        self.direction = direction
-        self.current_frame = 0
-        self.frequency = 0
-
-        self.complete = False
-
-        self.y_change = 0
-        self.x_change = 0
-        self.current_image_x = 0
-        self.current_image_y = 0
-        self.changing_variable = self.x_change
-
-    def direction_to_y_image(self):
-        self.current_image_y = Mundane.direction_feedback(self.direction, 7, 6, 5, 4)
-
-    def direction_y_to_return_to(self):
-        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
-
-    def animate(self):
-        self.direction_to_y_image()
-        if self.current_frame == 0:
-            self.current_image_x = 0
-        elif self.current_frame == 20:
-            self.current_image_x = 1
-        elif self.current_frame == 40:
-            self.current_image_x = 2
-        elif self.current_frame == 60:
-            self.current_image_x = 3
-        self.current_frame += 1
-        if self.current_frame == 80:
-            self.current_frame = 0
-            self.complete = True
-            self.current_image_x = 0
-            self.direction_y_to_return_to()
-
-        return self.result()
-
-    def result(self):
-        y_change = 0
-        x_change = 0
-        sheet_x = self.current_image_x
-        sheet_y = self.current_image_y
-        complete = self.complete
-        if self.complete:
-            self.reset()
-
-        return x_change, y_change, sheet_x, sheet_y, complete
-
-    def reset(self):
-        self.current_frame = 0
-        self.complete = False
-
-
-class BirdAnimation(object):
-    def __init__(self, direction):
-        self.direction = direction
-        self.current_frame = 0
-        self.frequency = 0
-
-        self.complete = False
-
-        self.y_change = 0
-        self.x_change = 0
-        self.current_image_x = 0
-        self.current_image_y = 0
-        self.changing_variable = self.x_change
-
-    def direction_to_y_image(self):
-        if self.direction == Direction.UP:
-            self.current_image_y = 1
-
-        elif self.direction == Direction.LEFT:
-            self.current_image_y = 4
-
-        elif self.direction == Direction.DOWN:
-            self.current_image_y = 0
-
-        elif self.direction == Direction.RIGHT:
-            self.current_image_y = 3
-
-    def direction_y_to_return_to(self):
-        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
-
-
-    def animate(self):
-        self.direction_to_y_image()
-        if self.current_frame == 0:
-            self.current_image_x = 0
-        elif self.current_frame == 20:
-            self.current_image_x = 1
-        elif self.current_frame == 40:
-            self.current_image_x = 2
-        elif self.current_frame == 60:
-            self.current_image_x = 3
-        self.current_frame += 1
-        if self.current_frame == 80:
-            self.current_frame = 0
-            self.complete = True
-            self.current_image_x = 0
-            self.direction_y_to_return_to()
-
-        return self.result()
-
-    def result(self):
-        y_change = 0
-        x_change = 0
-        sheet_x = self.current_image_x
-        sheet_y = self.current_image_y
-        complete = self.complete
-        if self.complete:
-            self.reset()
-
-        return x_change, y_change, sheet_x, sheet_y, complete
-
-    def reset(self):
-        self.current_frame = 0
-        self.complete = False
-
-
-class DeedleAnimation(BirdAnimation):
-    def __init__(self, direction):
-        super().__init__(direction)
-        self.x_change = 0
-        self.y_change = 0
-        self.action = 1
-        self.action_name = None
-        self.current_alignment = "left"
-
-    def animate(self):
-        self.direction_to_y_image()
-        self.x_change = 0
-        self.y_change = 0
-        if self.current_frame == 20:
-            if self.action == 1:
-                my_list = []
-                if self.current_alignment == "left":
-                    my_list = ["hop_right", "deedle_right", "hop_up"]
-                elif self.current_alignment == "right":
-                    my_list = ["hop_left", "deedle_left", "hop_up"]
-                random_item = random.choice(my_list)
-                if random_item == "hop_left":
-                    self.x_change = -2
-                    self.y_change = -2
-                    self.current_alignment = "left"
-                elif random_item == "deedle_left":
-                    self.x_change = -6
-                    self.y_change = 0
-                    self.current_alignment = "left"
-                elif random_item == "hop_right":
-                    self.x_change = 2
-                    self.y_change = -2
-                    self.current_alignment = "right"
-                elif random_item == "deedle_right":
-                    self.x_change = 6
-                    self.y_change = 0
-                    self.current_alignment = "right"
-                elif random_item == "hop_up":
-                    self.x_change = 0
-                    self.y_change = -2
-                self.action_name = random_item
-                self.action = 2
-        if self.current_frame == 40:
-            if self.action == 2:
-                if self.action_name == "hop_left":
-                    self.x_change = -2
-                    self.y_change = 2
-                elif self.action_name == "hop_right":
-                    self.x_change = 2
-                    self.y_change = 2
-                elif self.action_name == "deedle_right":
-                    self.x_change = -2
-                    self.y_change = 0
-                elif self.action_name == "deedle_left":
-                    self.x_change = 2
-                    self.y_change = 0
-                elif self.action_name == "hop_up":
-                    self.x_change = 0
-                    self.y_change = 2
-                self.action_name = None
-                self.action = 1
-
-        self.current_frame += 1
-        if self.current_frame == 200:
-            self.current_frame = 0
-            self.complete = True
-            self.current_image_x = 0
-            self.direction_y_to_return_to()
-        return self.result()
-
-    def result(self):
-        y_change = self.y_change
-        x_change = self.x_change
-        sheet_x = 0
-        sheet_y = 0
-        complete = self.complete
-        if self.complete:
-            self.reset()
-
-        return x_change, y_change, sheet_x, sheet_y, complete
-
-    def reset(self):
-        self.current_frame = 0
-        self.complete = False
-
-
-class HopAnimation(object):
-    def __init__(self, direction):
-        self.direction = direction
-        self.current_frame = 0
-        self.frequency = 0
-
-        self.complete = False
-
-        self.y_change = 0
-        self.x_change = 0
-        self.current_image_x = 0
-        self.current_image_y = 0
-        self.changing_variable = self.x_change
-
-    def direction_to_y_image(self):
-        self.current_image_y = Mundane.direction_feedback(self.direction, 4, 3, 1, 0)
-
-    def direction_y_to_return_to(self):
-        self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
-
-    def animate(self):
-        self.direction_to_y_image()
-        if self.current_frame == 0:
-            self.current_image_x = 0
-        elif self.current_frame == 20:
-            self.current_image_x = 1
-        elif self.current_frame == 40:
-            self.current_image_x = 2
-        elif self.current_frame == 60:
-            self.current_image_x = 3
-        self.current_frame += 1
-        if self.current_frame == 80:
-            self.current_frame = 0
-            self.complete = True
-            self.current_image_x = 0
-            self.direction_y_to_return_to()
-
-        return self.result()
-
-    def result(self):
-        y_change = 0
-        x_change = 0
-        sheet_x = self.current_image_x
-        sheet_y = self.current_image_y
-        complete = self.complete
-        if self.complete:
-            self.reset()
-
-        return x_change, y_change, sheet_x, sheet_y, complete
-
-    def reset(self):
-        self.current_frame = 0
-        self.complete = False
-
+#
+# class Animation(object):
+#     def __init__(self, direction):
+#         self.total_distance = 0
+#         self.direction = direction
+#         self.current_frame = 0
+#         self.frequency = 0
+#
+#         self.complete = False
+#
+#         self.y_change = 0
+#         self.x_change = 0
+#         self.current_image_x = 0
+#         self.current_image_y = 0
+#
+#         self.changing_variable = self.x_change
+#         self.x_vector = 0
+#         self.y_vector = 0
+#         self.set_directions()
+#
+#     def animate(self):
+#         pass
+#
+#     def set_directions(self):
+#         self.x_vector = Mundane.direction_feedback(self.direction, -1, 1, 0, 0)
+#         self.y_vector = Mundane.direction_feedback(self.direction, 0, 0, -1, 1)
+#         self.changing_variable = Mundane.direction_feedback(self.direction, self.x_change, self.x_change, self.y_change, self.y_change)
+#         self.current_image_y = Mundane.direction_feedback(self.direction, 3, 2, 1, 0)
 
 
 class IndependentAnimation(object):
@@ -578,9 +206,9 @@ class Action(object):
 class Switch(Action):
     def __init__(self):
         super().__init__()
-        self.movement_list = [(-1, 0), (1, 0)]
+        self.movement_list = [(-1, 0), (0, 0), (0, 0), (0, 0), (1, 0), (0, 0), (0, 0), (0, 0)]
         self.animation_sequence = ["walk_left", "look_around", "up_down", "look_around", "walk_right", "look_around", "up_down", "look_around"]
-        self.animation_sequence = ["walk_left", "walk_right"]
+        # self.animation_sequence = ["walk_left", "walk_right"]
         assert len(self.movement_list) == len(self.animation_sequence)
         self.initial_direction_facing = Direction.RIGHT
         self.current_action = 0
