@@ -91,6 +91,7 @@ class GameState(object):
                 actor_ghost = self.get_feature_ghost(actor_ghost_name)
                 current_room = self.get_room(actor_ghost.spawn_room)
                 current_move = action_object.movement_list[action_object.current_action]
+                print("pow", current_move)
                 direction = None
                 if current_move[0] == -1:
                     direction = Direction.LEFT

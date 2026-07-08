@@ -3,9 +3,10 @@ import csv
 import os
 import random
 import time
+from functools import partial
 from random import choice
 
-from animations_page_view_page import CameraPanAnimation, Switch
+from animations_page_view_page import CameraPanAnimation, Switch, CustomAction
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
@@ -36,29 +37,35 @@ class GameEvents(object):
         self.delta_time = 0
         self.timer_list = []
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
-                            2: [self.gc.cowboy_action],
+                            2: [],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
                             1: [self.gc.gs.game_clock_pass_1_minute],
-                           1: [self.gc.rotate_birds],
-                           4: [self.gc.actor_event_popoff]}
-        self.setup_timers()
+                           4: []}
 
-    def setup_timers(self):
+        self.actor_events_dict = {}
+        self.user_event_number = 200
+        self.setup_initial_timers()
+
+    def setup_initial_timers(self):
         userevent_numbers = 200
 
         for timer in self.event_dict.keys():
-            event_name = str(timer) + "_second_timer_id"
-            setattr(self, event_name, pygame.USEREVENT + userevent_numbers)
+            self.setup_timer(timer)
 
-            new_timer = getattr(self, event_name)
+    def setup_timer(self, timer):
+        event_name = str(timer) + "_second_timer_id"
+        setattr(self, event_name, pygame.USEREVENT + self.user_event_number)
 
-            self.timer_list.append(new_timer)
-            userevent_numbers += 1
+        new_timer = getattr(self, event_name)
 
-            one_second_equiv = 1000
-            timer_equiv = timer * one_second_equiv
-            pygame.time.set_timer(new_timer, int(timer_equiv))
+        self.timer_list.append(new_timer)
+        self.user_event_number += 1
+
+        one_second_equiv = 1000
+        timer_equiv = timer * one_second_equiv
+        pygame.time.set_timer(new_timer, int(timer_equiv))
+
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -71,6 +78,12 @@ class GameEvents(object):
             for timer in self.event_dict.keys():
                 if event.type == getattr(self, str(timer) + "_second_timer_id"):
                     for popoff in self.event_dict[timer]:
+                        popoff()
+
+
+            for timer in self.actor_events_dict.keys():
+                if event.type == getattr(self, str(timer) + "_second_timer_id"):
+                    for popoff in self.actor_events_dict[timer]:
                         popoff()
 
 
@@ -113,6 +126,16 @@ class GameController(object):
         self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
 
+    def add_actor_activation_to_timer(self, actor_unique_name, feature_behaviour_trigger):
+        # frequency = feature_behaviour_trigger/4
+        frequency = 2
+        if frequency in self.game.game_events.actor_events_dict.keys():
+            self.game.game_events.actor_events_dict[frequency].append(partial(self.actor_activation, actor_unique_name))
+        else:
+            self.game.game_events.actor_events_dict[frequency] = [partial(self.actor_activation, actor_unique_name)]
+            self.game.game_events.setup_timer(feature_behaviour_trigger)
+
+
     def rotate_birds(self):
         direction = Direction.LEFT
         if self.rotation_number == 0:
@@ -135,9 +158,18 @@ class GameController(object):
                 if feature.species in bird_list:
                     self.gs.change_feature_facing(feature.unique_name, direction)
 
-    def initiate_action(self, actor_ghost, action_object):
-    # if not self.check_if
-        self.gs.add_to_action_queue(actor_ghost.unique_name, action_object)
+    def initiate_action(self, actor_unique_name, action_object):
+        self.gs.add_to_action_queue(actor_unique_name, action_object)
+
+    def actor_activation(self, actor_unique_name):
+        ghost_object = self.gs.get_feature_ghost(actor_unique_name)
+        movement_list = []
+        animation_sequence = []
+        for pair in self.gs.get_feature_ghost(actor_unique_name).action_list:
+            movement_list.append(pair[1])
+            animation_sequence.append(pair[0])
+            if not ghost_object.check_if_busy():
+                self.initiate_action(actor_unique_name, CustomAction(movement_list, animation_sequence))
 
     def cowboy_action(self):
         unique_name = "Cowboy_6"
@@ -302,7 +334,7 @@ class GameController(object):
     # endregion
 
     def actor_event_popoff(self):
-        feature_name = "Stellar_Jay_326"
+        feature_name = "Stellar_Jay_400"
         feature_ghost = self.gs.get_feature_ghost(feature_name)
         feature_avatar = self.gs.gv.get_feature_avatar(feature_name)
         if (feature_name in self.gs.feature_ghost_list.keys()) and feature_ghost.active:
@@ -611,7 +643,6 @@ class GameController(object):
                     direction = Direction.RIGHT
                 elif self.key_down_queue == pygame.K_LEFT:
                     direction = Direction.LEFT
-                    print(self.active_keyboard_manager.ID, InGameKeyboardManager.ID)
                 if self.active_keyboard_manager.ID == InGameKeyboardManager.ID:
                     self.initiate_player_movement(direction)
                 elif self.active_keyboard_manager.ID == GhostEyeKeyboardManager.ID:
@@ -734,7 +765,7 @@ class GameController(object):
 
 
     def trigger_a_bird(self, unique_name, room, trigger):
-        if room.room_name != "Aviary_Room":
+        if room.room_name != "Aviary_Room" and room.room_name != "Habitat_Room":
             bird_ghost = self.gs.get_feature_ghost(unique_name)
             bird_avatar = self.game_view.get_feature_avatar(unique_name)
 
@@ -1148,9 +1179,6 @@ class MenuController(object):
 
     def exit_menu(self, menu_name):
         selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
-        if menu_name in ["conversation_options_menu", "chat_menu"]:
-
-            print("cool")
         selected_menu.reset_elements()
         self.gc.gs.ms.deactivate_menu(menu_name)
 

@@ -213,3 +213,14 @@ class Switch(Action):
         self.initial_direction_facing = Direction.RIGHT
         self.current_action = 0
         self.total_actions = len(self.movement_list)
+
+
+class CustomAction(Action):
+    def __init__(self, movement_list, animation_sequence):
+        super().__init__()
+        self.movement_list = movement_list
+        self.animation_sequence = animation_sequence
+        assert len(self.movement_list) == len(self.animation_sequence)
+        self.initial_direction_facing = Direction.RIGHT
+        self.current_action = 0
+        self.total_actions = len(self.movement_list)

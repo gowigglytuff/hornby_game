@@ -58,6 +58,7 @@ class Types(Enum):
     BIRD = "Bird"
     TREE = "Tree"
     INDANIM = "independent_animation"
+    FEEDER = "Feeder"
 
 class Names(Enum):
     BASICMENU = "Basic Menu"

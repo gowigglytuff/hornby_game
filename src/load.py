@@ -104,14 +104,14 @@ def install_all_data(gc, gs):
             if os.path.isfile(character_file_name):
                 gc.import_characters_from_csv(character_file_name)
 
-            feature_dict = {"species": "Jay", "display_name": "Jay", "function": "None", "spawn_room": "Staging_Area", "spawn_x": "7", "spawn_y": "7", "spawn_facing": "Right", "spawn_active": "yes"}
-            spawn_facing = gc.gs.direction_translations[feature_dict["spawn_facing"]]
-            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = JayGhost(gc, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
+        feature_dict = {"species": "Jay", "display_name": "Jay", "function": "None", "spawn_room": "Staging_Area", "spawn_x": "7", "spawn_y": "7", "spawn_facing": "Right", "spawn_active": "yes"}
+        spawn_facing = gc.gs.direction_translations[feature_dict["spawn_facing"]]
+        unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+        feature_ghost_object = JayGhost(gc, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
 
-            gs.add_feature_ghost(unique_name, feature_ghost_object)
+        gs.add_feature_ghost(unique_name, feature_ghost_object)
 
-            gc.gs.gv.add_feature_avatar(feature_ghost_object.unique_name, JayAvatar(feature_ghost_object.species, feature_ghost_object.x, feature_ghost_object.y, feature_ghost_object.unique_name, feature_ghost_object.figure_size_x, feature_ghost_object.figure_size_y, feature_ghost_object.spawn_facing))
+        gc.gs.gv.add_feature_avatar(feature_ghost_object.unique_name, JayAvatar(feature_ghost_object.species, feature_ghost_object.x, feature_ghost_object.y, feature_ghost_object.unique_name, feature_ghost_object.figure_size_x, feature_ghost_object.figure_size_y, feature_ghost_object.spawn_facing))
 
 
     def install_doors(gc, gs):

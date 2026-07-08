@@ -76,7 +76,6 @@ class Animationy(object):
         if self.tick_animation():
 
             result_dict = self.check_action(self.current_frame)
-            print(result_dict)
             if "x_speed" in result_dict.keys():
                 self.x_speed = result_dict["x_speed"]
 
@@ -99,7 +98,6 @@ class Animationy(object):
         return self.result()
 
     def check_action(self, frame_number):
-        print("frame number", frame_number)
         numbs = []
         for x in range(self.number_of_intervals):
             numbs.append((x+1)*self.interval)

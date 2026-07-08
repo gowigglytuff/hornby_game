@@ -65,6 +65,7 @@ class FeatureGhost(ABC):
         self.currently_animating = False
         self.currently_chatting = False
 
+
     def initiate_animation(self, animation_name):
         self.currently_animating = True
 
@@ -128,8 +129,11 @@ class ActorGhost(FeatureGhost, ABC):
         super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.ACTOR
         self.trigger_list = []
-        self.action_list = []
+        self.action_list = [("up_down", (0, 0))]
+        self.behaviour_trigger = self.assign_behaviour_trigger()
 
+    def assign_behaviour_trigger(self):
+        return random.randint(1, 100)
 
 class CharacterGhost(ActorGhost):
     def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
@@ -164,7 +168,7 @@ class BirdGhost(ActorGhost):
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
-        self.action_list = ["up_down", "look_around"]
+        # self.action_list = ["up_down", "look_around"]
 
 
     def get_movement(self):
@@ -232,7 +236,7 @@ class JayGhost(BirdGhost):
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 0
         self.proximity_y_trigger = 0
-        self.action_list = ["up_down", "look_around"]
+        # self.action_list = ["up_down", "look_around"]
         self.feature_type = Types.ACTOR  # example: "Prop"
         self.feature_subtype = Types.BIRD  # example: "Tree"
         self.species = "Jay"  # example: "Arbutus"
@@ -281,16 +285,11 @@ class HuskGhost(PropGhost):
         self.feature_type = Types.PROP
         self.feature_subtype = Types.PROP
 
-    def get_interacted_with(self):
-        if self.function == "Basket":
-            basket_items = copy.copy(self.function_items)
-            self.gs_input.gc.look_in_basket(self.unique_name, basket_items)
-        elif self.function == "Package":
-            self.gs_input.gc.pick_up_package("Package", self.unique_name, self.spawn_room, self.function_items)
-        elif self.function == "Page":
-            self.gs_input.gc.pick_up_package("Page", self.unique_name, self.spawn_room, self.function_items)
-        else:
-            self.gs_input.gc.menu_controller.post_notice("It's a " + self.display_name + ".")
+class FeederGhost(PropGhost):
+    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+        self.feature_type = Types.PROP
+        self.feature_subtype = Types.FEEDER
 
 
 class DecoGhost(FeatureGhost):
