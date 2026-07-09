@@ -91,7 +91,6 @@ class GameState(object):
                 actor_ghost = self.get_feature_ghost(actor_ghost_name)
                 current_room = self.get_room(actor_ghost.spawn_room)
                 current_move = action_object.movement_list[action_object.current_action]
-                print("pow", current_move)
                 direction = None
                 if current_move[0] == -1:
                     direction = Direction.LEFT
@@ -193,8 +192,15 @@ class GameState(object):
 
         return feature_dict
 
+    def delete_feature_forever(self, feature_unique_name):
+        self.delete_feature_ghost_forever(feature_unique_name)
+        self.gv.delete_feature_avatar_forever(feature_unique_name)
+
     def add_feature_ghost(self, feature_name, feature_object):
         self.feature_ghost_list[feature_name] = feature_object
+
+    def delete_feature_ghost_forever(self, feature_unique_name):
+        self.feature_ghost_list.pop(feature_unique_name)
 
     def change_feature_facing(self, name, direction):
         self.change_feature_ghost_facing(name, direction)

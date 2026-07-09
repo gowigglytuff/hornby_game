@@ -343,6 +343,9 @@ class GameView(object):
     def add_feature_avatar(self, character_name, character_object):
         self.feature_avatar_list[character_name] = character_object
 
+    def delete_feature_avatar_forever(self, feature_unique_name):
+        self.feature_avatar_list.pop(feature_unique_name)
+
     def change_feature_avatar_facing(self, name, direction):
         self.get_feature_avatar(name).face_feature(direction)
 

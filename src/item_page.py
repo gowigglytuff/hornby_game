@@ -293,6 +293,43 @@ class Wrench(KeyItem):
     def __init__(self, gc):
         super().__init__(gc)
 
+class GreenSeed(KeyItem):
+    NAME = "Green_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class YellowSeed(KeyItem):
+    NAME = "Yellow_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class RedSeed(KeyItem):
+    NAME = "Red_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class PurpleSeed(KeyItem):
+    NAME = "Purple_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class OrangeSeed(KeyItem):
+    NAME = "Orange_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class PinkSeed(KeyItem):
+    NAME = "Pink_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
 class Axe(KeyItem):
     NAME = "Axe"
 

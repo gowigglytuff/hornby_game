@@ -738,7 +738,7 @@ class GalleryMenuGhost(MenuGhost):
         if getattr(self, "selected_" + self.current_gallery) in ["Pigeon 1", "Pigeon 2", "Pigeon 3", "Pigeon 4"]:
             image_choice = self.get_pigeon_image(getattr(self, "selected_" + self.current_gallery))
         else:
-            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/feature_spritesheets/" + spritesheet_file_name + "/" + sprite_code + "_spritesheet.png", 32, 48)
+            image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/feature_spritesheets/" + spritesheet_file_name + "/" + sprite_code + "_spritesheet.png", 32, 64)
             image_choice = image.get_image(0, 0)
 
         menu_specific = {"item_name": getattr(self, self.current_gallery + "_item_list")[getattr(self, "selected_" + self.current_gallery)][1],

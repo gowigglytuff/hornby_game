@@ -175,9 +175,11 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
+        items_to_install = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe, GreenSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
+        items_to_acquire = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
+        for item in items_to_acquire:
             gs.acquire_key_item(item.NAME)
 
     def install_pickaxe_door_entry(gc, gs):

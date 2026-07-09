@@ -180,7 +180,7 @@ class BirdAvatar(FeatureAvatar):
         super().__init__(species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing)
         self.feature_type = Types.ACTOR
         self.character_frame_x = 32
-        self.character_frame_y = 48
+        self.character_frame_y = 64
         self.run_setup(base_size_x, base_size_y, "bird_spritesheets")
         self.option = 0
         self.animation_list = {"up_down": UpdownAnimation(Direction.UP),

@@ -353,12 +353,26 @@ class PositionManager(object):
         if feature_ghost.feature_type != Types.DECO:
             self.remove_feature_from_grid(feature_ghost, room_object)
 
-        if feature_ghost.unique_name in self.gc.gs.action_queue.keys():
-            self.gc.gs.remove_from_action_queue(feature_ghost.unique_name)
+        if feature_ghost.feature_subtype == Types.FEEDER:
+            if feature_ghost.filled_with_seed:
+                feature_ghost.filled_with_seed = False
+                feature_to_spawn = feature_ghost.function_items[1]
+                bird_dict = {"species": feature_to_spawn, "display_name": feature_to_spawn, "function": "None", "spawn_room": feature_ghost.spawn_room, "spawn_x": feature_ghost.x, "spawn_y": feature_ghost.y + 1, "spawn_facing": "Down", "spawn_active": "yes"}
+                bird_ghost = self.gc.gs.install_element(bird_dict)
+                bird_ghost.active = False
+                bird_ghost.marked_for_death = True
+                bird_ghost.is_calm = True
 
         if feature_ghost.feature_subtype == Types.BIRD:
             remove_trigger_list = feature_ghost.get_triggered()
             self.gc.trigger_manager.remove_triggers(room_object, feature_ghost)
+
+        if feature_ghost.unique_name in self.gc.gs.action_queue.keys():
+            self.gc.gs.remove_from_action_queue(feature_ghost.unique_name)
+
+        if feature_ghost.unique_name in self.gc.gs.action_queue.keys():
+            self.gc.gs.remove_from_action_queue(feature_ghost.unique_name)
+
         feature_ghost.reset_to_spawn()
         feature_avatar.reset_to_spawn(feature_ghost)
         if feature_avatar.unique_name in self.gc.feature_animations_in_progress:
@@ -366,13 +380,17 @@ class PositionManager(object):
             for item in feature_avatar.animation_list.values():
                 item.reset()
 
+        if feature_ghost.marked_for_death:
+            self.gc.gs.delete_feature_forever(feature_ghost.unique_name)
+
     def despawn_all_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
             if ghost.species == "Player":
                 pass
             else:
-                self.despawn_feature(ghost.unique_name, room_object)
+                if ghost.active:
+                    self.despawn_feature(ghost.unique_name, room_object)
 
     def spawn_all_initial_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)

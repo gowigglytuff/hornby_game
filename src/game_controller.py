@@ -78,13 +78,21 @@ class GameEvents(object):
             for timer in self.event_dict.keys():
                 if event.type == getattr(self, str(timer) + "_second_timer_id"):
                     for popoff in self.event_dict[timer]:
+
                         popoff()
 
 
             for timer in self.actor_events_dict.keys():
                 if event.type == getattr(self, str(timer) + "_second_timer_id"):
                     for popoff in self.actor_events_dict[timer]:
-                        popoff()
+                        if popoff.args[0] in self.gc.gs.feature_ghost_list.keys():
+                            feature_ghost = self.gc.gs.get_feature_ghost(popoff.args[0])
+                            if feature_ghost.active:
+                                if feature_ghost.behaviour_counter == 100:
+                                    popoff()
+                                    feature_ghost.behaviour_counter = 0
+                                else:
+                                    feature_ghost.behaviour_counter += 1
 
 
 
@@ -128,13 +136,15 @@ class GameController(object):
 
     def add_actor_activation_to_timer(self, actor_unique_name, feature_behaviour_trigger):
         # frequency = feature_behaviour_trigger/4
-        frequency = 2
+        frequency = .1
         if frequency in self.game.game_events.actor_events_dict.keys():
             self.game.game_events.actor_events_dict[frequency].append(partial(self.actor_activation, actor_unique_name))
         else:
             self.game.game_events.actor_events_dict[frequency] = [partial(self.actor_activation, actor_unique_name)]
-            self.game.game_events.setup_timer(feature_behaviour_trigger)
+            self.game.game_events.setup_timer(frequency)
 
+    def clear_activation_timer(self):
+        self.game.game_events.actor_events_dict = {}
 
     def rotate_birds(self):
         direction = Direction.LEFT
@@ -730,6 +740,7 @@ class GameController(object):
         self.position_manager.despawn_all_room_elements(room_object)
         self.position_manager.clear_room_grid(room_name)
         self.trigger_manager.remove_all_triggers(room_object)
+        self.game.game_events.actor_events_dict = {}
 
     def load_up_room(self, room_name):
         room_object = self.gs.get_room(room_name)
@@ -932,7 +943,7 @@ class TriggerManager(object):
             for trigger in existing_trigger:
                 if trigger[0] == feature_ghost.unique_name:
                     existing_trigger.pop(existing_trigger.index(trigger))
-                    tracker +=1
+                    tracker += 1
 
     def check_for_map_triggers(self, player_x, player_y):
         room = self.gc.gs.get_current_room()

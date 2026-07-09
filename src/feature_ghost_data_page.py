@@ -64,6 +64,7 @@ class FeatureGhost(ABC):
         self.facing = copy.copy(self.spawn_facing)
         self.currently_animating = False
         self.currently_chatting = False
+        self.marked_for_death = False
 
 
     def initiate_animation(self, animation_name):
@@ -131,9 +132,19 @@ class ActorGhost(FeatureGhost, ABC):
         self.trigger_list = []
         self.action_list = [("up_down", (0, 0))]
         self.behaviour_trigger = self.assign_behaviour_trigger()
+        self.behaviour_counter = copy.copy(self.behaviour_trigger)
 
     def assign_behaviour_trigger(self):
         return random.randint(1, 100)
+
+    def reset_to_spawn(self):
+        self.x = self.spawn_x
+        self.y = self.spawn_y
+        self.facing = self.spawn_facing
+        self.currently_animating = False
+        self.currently_chatting = False
+        self.behaviour_counter = copy.copy(self.behaviour_trigger)
+
 
 class CharacterGhost(ActorGhost):
     def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
@@ -147,6 +158,7 @@ class CharacterGhost(ActorGhost):
         self.friendship_level = 0
         self.good_gift_list = None
         self.bad_gift_list = None
+        # self.action_list = [("walk_left", (-1, 0)), ("walk_right", (1, 0))]
 
     def receive_gift(self, gift_name):
         result_phrase = None
@@ -168,7 +180,9 @@ class BirdGhost(ActorGhost):
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
-        # self.action_list = ["up_down", "look_around"]
+        self.action_list = [("up_down", (0, 0))]
+        self.is_calm = False
+
 
 
     def get_movement(self):
@@ -177,16 +191,19 @@ class BirdGhost(ActorGhost):
 
     def check_if_calm(self):
         is_calm = False
-        if self.species == "Blackbird":
-            tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Clock")
-            if tree_check:
-                is_calm = True
-        elif self.species == "Robin":
-            time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
-            if time_check:
-                is_calm = True
-        elif self.species == "Crow":
-                is_calm = True
+        if self.is_calm:
+            is_calm = True
+        else:
+            if self.species == "Blackbird":
+                tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Clock")
+                if tree_check:
+                    is_calm = True
+            elif self.species == "Robin":
+                time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
+                if time_check:
+                    is_calm = True
+            elif self.species == "Crow":
+                    is_calm = True
         return is_calm
 
     def check_trigger_result(self, trigger):
@@ -276,8 +293,17 @@ class PropGhost(FeatureGhost):
             self.gs_input.gc.pick_up_package("Package", self.unique_name, self.spawn_room, self.function_items)
         elif self.function == "Page":
             self.gs_input.gc.pick_up_package("Page", self.unique_name, self.spawn_room, self.function_items)
+        elif self.function == "Feeder":
+            required_seed = self.function_items[0] + "_Seed"
+            current_inventory = self.gs_input.current_key_inventory_dictionary
+            if required_seed in current_inventory:
+                self.gs_input.gv.get_feature_avatar(self.unique_name).current_image_x = 1
+                self.filled_with_seed = True
+            else:
+                self.gs_input.gc.menu_controller.post_notice("You've no seed for this feeder...")
         else:
             self.gs_input.gc.menu_controller.post_notice("It's a " + self.display_name + ".")
+
 
 class HuskGhost(PropGhost):
     def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
@@ -285,11 +311,13 @@ class HuskGhost(PropGhost):
         self.feature_type = Types.PROP
         self.feature_subtype = Types.PROP
 
+
 class FeederGhost(PropGhost):
     def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
         super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.PROP
         self.feature_subtype = Types.FEEDER
+        self.filled_with_seed = False
 
 
 class DecoGhost(FeatureGhost):

@@ -26,3 +26,4 @@ species,Murrelet,display_name,Murrelet,function,None,spawn_room,Aviary_Room,spaw
 species,Harlequin_Duck,display_name,Harlequin Duck,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,9,spawn_facing,Down,spawn_active,yes
 species,Eurasian_Wigeon,display_name,Eurasian Wigeon,function,None,spawn_room,Aviary_Room,spawn_x,8,spawn_y,5,spawn_facing,Down,spawn_active,yes
 species,American_Wigeon,display_name,American Wigeon,function,None,spawn_room,Aviary_Room,spawn_x,6,spawn_y,5,spawn_facing,Down,spawn_active,yes
+species,Booby,display_name,Booby,function,None,spawn_room,Aviary_Room,spawn_x,9,spawn_y,2,spawn_facing,Down,spawn_active,yes
