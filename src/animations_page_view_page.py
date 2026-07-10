@@ -183,15 +183,9 @@ class CameraPanAnimation(object):
 class Action(object):
     def __init__(self):
         self.action_type = "movement"
-        self.movement_list = []
-        self.animation_sequence = []
-        self.initial_direction_facing = None
+        self.sequence = []
         self.current_action = 0
-        self.total_actions = len(self.movement_list)
-
-    def initiate(self, initial_direction_facing):
-        self.initial_direction_facing = initial_direction_facing
-        self.total_actions = len(self.movement_list)
+        self.total_actions = len(self.sequence)
 
     def check_if_complete(self):
         result = False
@@ -202,25 +196,36 @@ class Action(object):
     def reset(self):
         self.current_action = 0
 
+    @ classmethod
+    def move(self, direction):
+        return ("move", direction)
+
+    @classmethod
+    def face(self, direction):
+        direction_word = Mundane.get_word_from_direction(direction)
+        return ("face", direction)
+
+    @classmethod
+    def stationary(self):
+        return ("stationary", None)
+
+    @classmethod
+    def outfit_change(self, outfit_name):
+        return ("outfit_change", outfit_name)
+
+    @classmethod
+    def hold(self, seconds):
+        return ("hold", seconds)
+
 
 class Switch(Action):
     def __init__(self):
         super().__init__()
-        self.movement_list = [(-1, 0), (0, 0), (0, 0), (0, 0), (1, 0), (0, 0), (0, 0), (0, 0)]
-        self.animation_sequence = ["walk_left", "look_around", "up_down", "look_around", "walk_right", "look_around", "up_down", "look_around"]
-        # self.animation_sequence = ["walk_left", "walk_right"]
-        assert len(self.movement_list) == len(self.animation_sequence)
-        self.initial_direction_facing = Direction.RIGHT
-        self.current_action = 0
-        self.total_actions = len(self.movement_list)
-
+        self.sequence = [("walk_left", self.move(Direction.LEFT)), ("look_around", self.face(Direction.RIGHT)), ("hold", self.hold(2)), ("up_down", self.stationary()), ("look_around", self.face(Direction.RIGHT)), ("walk_right", self.move(Direction.RIGHT))]
+        self.total_actions = len(self.sequence)
 
 class CustomAction(Action):
-    def __init__(self, movement_list, animation_sequence):
+    def __init__(self, sequence):
         super().__init__()
-        self.movement_list = movement_list
-        self.animation_sequence = animation_sequence
-        assert len(self.movement_list) == len(self.animation_sequence)
-        self.initial_direction_facing = Direction.RIGHT
-        self.current_action = 0
-        self.total_actions = len(self.movement_list)
+        self.sequence = sequence
+        self.total_actions = len(self.sequence)

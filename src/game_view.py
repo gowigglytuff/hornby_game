@@ -7,6 +7,7 @@ from input_manager_controller_page import *
 from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar
+from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
@@ -44,7 +45,7 @@ class GameView(object):
         self.animation_manager = AnimationManager(self)
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
-        self.FPS = 62
+        self.FPS = GameSettings.FPS
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
@@ -193,7 +194,29 @@ class GameView(object):
             item_text = my_font.render(item.text, True, (0, 0, 0))
             final_image.blit(item_text, [item.x, item.y])
 
+        full_menu = final_image
 
+        self.screen.blit(full_menu, (x, y))
+
+    def draw_scene_dialogue(self, ghost, avatar, x, y):
+        dialogue_avatar = avatar
+        dialogue_info = ghost.generate_menu_information_package()
+        final_dialogue_text = dialogue_avatar.get_menu_text_drawing_instructions(dialogue_info)
+        final_dialogue_images = dialogue_avatar.get_menu_image_drawing_instructions(dialogue_info)
+
+        # compile menu
+        final_image = pygame.Surface((dialogue_avatar.overlay_image.get_width(), dialogue_avatar.overlay_image.get_height()))
+        final_image.blit(dialogue_avatar.overlay_image, [0, 0])
+
+        if final_dialogue_images:
+            for item in final_dialogue_images:
+                image = item.image
+                final_image.blit(image, [item.x, item.y])
+
+        for item in final_dialogue_text:
+            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
+            item_text = my_font.render(item.text, True, (0, 0, 0))
+            final_image.blit(item_text, [item.x, item.y])
 
         full_menu = final_image
 
@@ -292,19 +315,20 @@ class GameView(object):
 
     def player_perform_animation(self, name, direction):
         # TODO: THIS IS TEMPORARY FOR TESTING
-        animation = name
+        animation_name = name
 
         if direction == Direction.DOWN:
-            animation = name + "_front"
+            animation_name = name + "_front"
         elif direction == Direction.UP:
-            animation = name + "_up"
+            animation_name = name + "_up"
         elif direction == Direction.LEFT:
-            animation = name + "_left"
+            animation_name = name + "_left"
         elif direction == Direction.RIGHT:
-            animation = name + "_right"
+            animation_name = name + "_right"
         else:
-            animation = name
+            animation_name = name
 
+        animation = self.animation_manager.get_animation(animation_name)
         self.player_avatar.initiate_animation(animation)
 
     def walk_player_avatar(self, direction):
@@ -323,7 +347,9 @@ class GameView(object):
             animation_speed = "speedwalk"
         elif self.gs.gc.running_number == 0:
             animation_speed = "run"
-        self.player_avatar.initiate_animation(animation_speed + "_" + animation_direction)
+        animation_name = animation_speed + "_" + animation_direction
+        animation = self.animation_manager.get_animation(animation_name)
+        self.player_avatar.initiate_animation(animation)
     # endregion
 
     #region FEATURE AVATARS
@@ -351,14 +377,19 @@ class GameView(object):
 
     def walk_feature_avatar(self, name, direction):
         feature_avatar = self.feature_avatar_list[name]
+        animation_name = None
         if direction == Direction.DOWN:
-            feature_avatar.initiate_animation("walk_front")
+            animation_name = "walk_front"
         elif direction == Direction.UP:
-            feature_avatar.initiate_animation("walk_up")
+            animation_name = "walk_up"
         elif direction == Direction.LEFT:
-            feature_avatar.initiate_animation("walk_left")
+            animation_name = "walk_left"
         elif direction == Direction.RIGHT:
-            feature_avatar.initiate_animation("walk_right")
+            animation_name = "walk_right"
+
+        animation_name = animation_name
+        animation = self.animation_manager.get_animation(animation_name)
+        feature_avatar.initiate_animation(animation)
     #endregion
 
     # region INDEPENDENT ANIMATION
@@ -394,6 +425,29 @@ class AnimationManager(object):
         self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
         self.independent_animation_trigger_queue = []
         self.active_independent_animations = {}
+        self.animation_dict = {"up_down": UpdownAnimation(Direction.UP),
+                               "look_around": LookAroundAnimation(Direction.RIGHT),
+                               "walk_front": WalkyAnimationy(Direction.DOWN),
+                               "walk_left": WalkyAnimationy(Direction.LEFT),
+                               "walk_right": WalkyAnimationy(Direction.RIGHT),
+                               "walk_up": WalkyAnimationy(Direction.UP),
+                               "snap_photo_down": SnapPhotoAnimation(Direction.DOWN),
+                               "snap_photo_left": SnapPhotoAnimation(Direction.LEFT),
+                               "snap_photo_right": SnapPhotoAnimation(Direction.RIGHT),
+                               "snap_photo_up": SnapPhotoAnimation(Direction.UP),
+                               "run_front": RunAnimationy(Direction.DOWN),
+                               "run_left": RunAnimationy(Direction.LEFT),
+                               "run_right": RunAnimationy(Direction.RIGHT),
+                               "run_up": RunAnimationy(Direction.UP),
+                               "speedwalk_front": SpeedWalkyAnimationy(Direction.DOWN),
+                               "speedwalk_left": SpeedWalkyAnimationy(Direction.LEFT),
+                               "speedwalk_right": SpeedWalkyAnimationy(Direction.RIGHT),
+                               "speedwalk_up": SpeedWalkyAnimationy(Direction.UP),
+                               "hold": HoldAnimation(Direction.UP, 2)}
+
+    def get_animation(self, name):
+        return copy.copy(self.animation_dict[name])
+
 
     def add_to_anim_in_progress(self, feature_unique_name):
         self.gv.gs.gc.feature_animations_in_progress.append(feature_unique_name)
@@ -436,7 +490,7 @@ class AnimationManager(object):
                     self.gv.gs.gc.scene_manager.continue_scene(follow_up_package)
 
     def perform_player_animation(self, animator):
-        animation_result = (animator.animation_list[animator.current_animation].animate())
+        animation_result = animator.current_animation.animate()
         if animation_result[2] is not None:
             animator.current_image_x = animation_result[2]
         if animation_result[3] is not None:
@@ -451,7 +505,7 @@ class AnimationManager(object):
     def perform_feature_animation(self, animator):
 
         wrap_up = False
-        animation_result = (animator.animation_list[animator.current_animation].animate())
+        animation_result = animator.current_animation.animate()
         if animation_result[2] is not None:
             animator.current_image_x = animation_result[2]
         if animation_result[3] is not None:

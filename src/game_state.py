@@ -5,7 +5,7 @@ import feature_ghost_data_page
 from feature_ghost_data_page import PlayerGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
 from input_manager_controller_page import *
-from definitions import Direction, Types, GameSettings
+from definitions import Direction, Types, GameSettings, Mundane
 from position_manager_state_page import Room, Door
 if TYPE_CHECKING:
     from game_controller import GameController
@@ -80,40 +80,67 @@ class GameState(object):
         item = self.action_queue.pop(item_name)
         item.reset()
 
+    # def act_on_action_queue(self):
+    #     remove_list = []
+    #     for actor_ghost_name in self.action_queue.keys():
+    #         actor_ghost = self.get_feature_ghost(actor_ghost_name)
+    #         is_busy = actor_ghost.check_if_busy()
+    #         if not is_busy:
+    #             action_object = self.action_queue[actor_ghost_name]
+    #             actor_ghost = self.get_feature_ghost(actor_ghost_name)
+    #             current_room = self.get_room(actor_ghost.spawn_room)
+    #             current_move = action_object.movement_list[action_object.current_action]
+    #             direction = None
+    #             if current_move[0] == -1:
+    #                 direction = Direction.LEFT
+    #                 action_type = "movement"
+    #             elif current_move[0] == 1:
+    #                 direction = Direction.RIGHT
+    #                 action_type = "movement"
+    #             elif current_move[1] == -1:
+    #                 direction = Direction.UP
+    #                 action_type = "movement"
+    #             elif current_move[1] == 1:
+    #                 direction = Direction.DOWN
+    #                 action_type = "movement"
+    #             else:
+    #                 action_type = "stationary"
+    #             can_move = True
+    #             if action_type == "movement":
+    #                 can_move = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+    #             if can_move:
+    #                 self.execute_action_step(actor_ghost_name, action_object)
+    #                 if action_object.check_if_complete():
+    #                     action_object.reset()
+    #                     remove_list.append(actor_ghost_name)
+    #     for actor_ghost_name in remove_list:
+    #             self.action_queue.pop(actor_ghost_name)
+
     def act_on_action_queue(self):
         remove_list = []
         for actor_ghost_name in self.action_queue.keys():
             actor_ghost = self.get_feature_ghost(actor_ghost_name)
-            # is_already_animating = self.gc.check_if_feature_already_animating(actor_ghost_name)
-            is_already_animating = actor_ghost.check_if_busy()
-            if not is_already_animating:
+            is_busy = actor_ghost.check_if_busy()
+            if not is_busy:
                 action_object = self.action_queue[actor_ghost_name]
-                actor_ghost = self.get_feature_ghost(actor_ghost_name)
                 current_room = self.get_room(actor_ghost.spawn_room)
-                current_move = action_object.movement_list[action_object.current_action]
-                direction = None
-                if current_move[0] == -1:
-                    direction = Direction.LEFT
-                    action_type = "movement"
-                elif current_move[0] == 1:
-                    direction = Direction.RIGHT
-                    action_type = "movement"
-                elif current_move[1] == -1:
-                    direction = Direction.UP
-                    action_type = "movement"
-                elif current_move[1] == 1:
-                    direction = Direction.DOWN
-                    action_type = "movement"
-                else:
-                    action_type = "stationary"
-                can_move = True
-                if action_type == "movement":
-                    can_move = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
-                if can_move:
+                current_move = action_object.sequence[action_object.current_action][1]
+
+                action_type = current_move[0]
+                direction = current_move[1]
+
+                can_act = True
+                if action_type == "move":
+                    can_act = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+
+                if can_act:
                     self.execute_action_step(actor_ghost_name, action_object)
                     if action_object.check_if_complete():
                         action_object.reset()
                         remove_list.append(actor_ghost_name)
+                else:
+                    self.change_feature_facing(actor_ghost_name, direction)
+
         for actor_ghost_name in remove_list:
                 self.action_queue.pop(actor_ghost_name)
 
@@ -121,20 +148,41 @@ class GameState(object):
         feature_avatar = self.gv.get_feature_avatar(actor_ghost_name)
         actor_ghost = self.get_feature_ghost(actor_ghost_name)
 
-        current_move = action_object.movement_list[action_object.current_action]
-        current_animation_name = action_object.animation_sequence[action_object.current_action]
+        current_animation_name, current_move = action_object.sequence[action_object.current_action]
         action_object.current_action += 1
 
-        feature_avatar.initiate_animation(current_animation_name)
+        animation = self.gv.animation_manager.get_animation(current_animation_name)
+        feature_avatar.initiate_animation(animation)
         actor_ghost.initiate_animation(current_animation_name)
         self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
 
-        target_x = actor_ghost.x + current_move[0]
-        target_y = actor_ghost.y + current_move[1]
+        action_type = current_move[0]
 
-        current_room = self.get_room(actor_ghost.spawn_room)
 
-        self.gc.position_manager.move_ghost(actor_ghost, current_room, current_room, target_x, target_y)
+        if action_type == "move":
+            direction = current_move[1]
+            x_move = Mundane.direction_feedback(direction, -1, 1, 0, 0)
+            y_move = Mundane.direction_feedback(direction, 0, 0, -1, 1)
+
+            target_x = actor_ghost.x + x_move
+            target_y = actor_ghost.y + y_move
+            current_room = self.get_room(actor_ghost.spawn_room)
+            self.gc.position_manager.move_ghost(actor_ghost, current_room, current_room, target_x, target_y)
+
+        elif action_type == "face":
+            direction = current_move[1]
+            self.change_feature_ghost_facing(actor_ghost.unique_name, direction)
+
+        elif action_type == "stationary":
+            pass
+
+        elif action_type == "hold":
+            pass
+
+        elif action_type == "outfit_change":
+            outfit = current_move[1]
+            # TODO: Implement this!
+
 
 
     def add_pickaxe_door_entry(self, entry_name, entry_object):

@@ -4,6 +4,7 @@ import random
 from abc import ABC
 from typing import TYPE_CHECKING
 
+from animations_page_view_page import Action, Switch, CustomAction
 from definitions import Direction, Types
 from menu_ghosts_data_page import AcquireMenuGhost
 
@@ -65,6 +66,7 @@ class FeatureGhost(ABC):
         self.currently_animating = False
         self.currently_chatting = False
         self.marked_for_death = False
+        self.action_frequency = 1
 
 
     def initiate_animation(self, animation_name):
@@ -130,7 +132,7 @@ class ActorGhost(FeatureGhost, ABC):
         super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.ACTOR
         self.trigger_list = []
-        self.action_list = [("up_down", (0, 0))]
+        self.action_list = None
         self.behaviour_trigger = self.assign_behaviour_trigger()
         self.behaviour_counter = copy.copy(self.behaviour_trigger)
 
@@ -158,7 +160,10 @@ class CharacterGhost(ActorGhost):
         self.friendship_level = 0
         self.good_gift_list = None
         self.bad_gift_list = None
-        # self.action_list = [("walk_left", (-1, 0)), ("walk_right", (1, 0))]
+        self.action_list = Switch()
+
+    def get_action(self):
+        return Switch()
 
     def receive_gift(self, gift_name):
         result_phrase = None
@@ -180,14 +185,15 @@ class BirdGhost(ActorGhost):
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
-        self.action_list = [("up_down", (0, 0))]
+        self.action_list = CustomAction([("up_down", Action.stationary())])
         self.is_calm = False
 
-
-
-    def get_movement(self):
-        movement = random.choice(self.action_list)
-        return movement
+    def get_action(self):
+        result = CustomAction([("up_down", Action.stationary())])
+        if self.species == "Pigeon":
+            result = CustomAction([("up_down", Action.stationary())])
+            print("oig")
+        return result
 
     def check_if_calm(self):
         is_calm = False

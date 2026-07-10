@@ -202,6 +202,33 @@ class UpdownAnimation(Animationy):
                                   3: {"y_speed": 1}
                                   }
 
+class HoldAnimation(Animationy):
+    def __init__(self, direction, seconds):
+        super().__init__(direction)
+        self.step_distance = 1
+        self.set_up_step_distances_and_images()
+        self.total_acts = self.calculate_frames_to_seconds(seconds)
+
+        self.hit_every_xth_frame = 1
+        self.number_of_intervals = 1
+        self.interval = self.total_acts / self.number_of_intervals
+        self.frame_action_dict = {0: {"x_speed": 0,
+                                      "y_speed": 0}
+                                  }
+
+    def animate(self):
+        if self.tick_animation():
+            self.current_frame += 1
+        else:
+            self.y_change = 0
+            self.x_change = 0
+        return self.result()
+
+    def calculate_frames_to_seconds(self, seconds):
+        fps = GameSettings.FPS
+        number_of_frames = fps * seconds
+        return number_of_frames
+
 
 class LookAroundAnimation(Animationy):
     def __init__(self, direction):

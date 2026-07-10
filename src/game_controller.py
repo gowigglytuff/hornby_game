@@ -6,14 +6,14 @@ import time
 from functools import partial
 from random import choice
 
-from animations_page_view_page import CameraPanAnimation, Switch, CustomAction
+from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
-from scenes import Scene
+from scenes import Scene, SceneDialogueAvatar, SceneDialogueGhost
 
 
 class Game(object):
@@ -37,7 +37,7 @@ class GameEvents(object):
         self.delta_time = 0
         self.timer_list = []
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
-                            2: [],
+                            .1: [self.gc.pigeon_activation],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
                             1: [self.gc.gs.game_clock_pass_1_minute],
@@ -112,10 +112,10 @@ class GameController(object):
         # self.held_keys = []
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_controller = MenuController(self)  # type:MenuController
-        self.trigger_manager = TriggerManager(self) # type: TriggerManager
+        self.trigger_manager = TriggerManager(self)  # type: TriggerManager
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
-        self.outfit_manager = OutfitManager(self) # type: OutfitManager
-        self.scene_manager = SceneManager(self)     # SceneManager
+        self.outfit_manager = OutfitManager(self)  # type: OutfitManager
+        self.scene_manager = SceneManager(self)     # type: SceneManager
         self.feature_animations_in_progress = []
         self.scene_animations_in_progress = []
         self.move_counter = 0
@@ -134,8 +134,7 @@ class GameController(object):
         self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
 
-    def add_actor_activation_to_timer(self, actor_unique_name, feature_behaviour_trigger):
-        # frequency = feature_behaviour_trigger/4
+    def add_actor_activation_to_timer(self, actor_unique_name):
         frequency = .1
         if frequency in self.game.game_events.actor_events_dict.keys():
             self.game.game_events.actor_events_dict[frequency].append(partial(self.actor_activation, actor_unique_name))
@@ -173,20 +172,44 @@ class GameController(object):
 
     def actor_activation(self, actor_unique_name):
         ghost_object = self.gs.get_feature_ghost(actor_unique_name)
-        movement_list = []
-        animation_sequence = []
-        for pair in self.gs.get_feature_ghost(actor_unique_name).action_list:
-            movement_list.append(pair[1])
-            animation_sequence.append(pair[0])
-            if not ghost_object.check_if_busy():
-                self.initiate_action(actor_unique_name, CustomAction(movement_list, animation_sequence))
+        sequence = self.gs.get_feature_ghost(actor_unique_name).get_action()
+        if not ghost_object.check_if_busy():
+            self.initiate_action(actor_unique_name, sequence)
+
+    def pigeon_activation(self):
+        unique_name = "Pigeon_39"
+        if unique_name in self.gs.feature_ghost_list.keys():
+            ghost_object = self.gs.get_feature_ghost(unique_name)
+            if ghost_object.active:
+                if ghost_object.spawn_room == self.gs.get_current_room().room_name:
+                    print("hey")
+                    if not ghost_object.check_if_busy():
+                        self.move_feature_chaotically(unique_name)
+
+    def move_feature_chaotically(self, feature_unique_name):
+        ghost_object = self.gs.get_feature_ghost(feature_unique_name)
+        already_animating = self.check_if_feature_already_animating(feature_unique_name)
+        if not already_animating:
+            complete = False
+            while not complete:
+                result = [("run_left", Action.move(Direction.LEFT)), ("run_right", Action.move(Direction.RIGHT)), ("run_up", Action.move(Direction.UP)), ("run_front", Action.move(Direction.DOWN))]
+                if result:
+                    chosen_movement = result.pop(random.choice(range(len(result))))
+                    result = self.position_manager.check_if_feature_can_move(ghost_object, chosen_movement[1][1], self.gs.get_room(ghost_object.spawn_room))
+                    if result:
+                        self.initiate_action(ghost_object.unique_name, CustomAction([chosen_movement]))
+                        complete = True
+
+                else:
+                    complete = True
 
     def cowboy_action(self):
-        unique_name = "Cowboy_6"
+        unique_name = "Cowboy_5"
+        ghost_object = self.gs.get_feature_ghost(unique_name)
         if unique_name not in self.gs.action_queue.keys():
-            ghost_object = self.gs.get_feature_ghost(unique_name)
             if not ghost_object.check_if_busy():
-                self.initiate_action(ghost_object, Switch())
+                self.initiate_action(ghost_object.unique_name, Switch())
+
 
 
     # region ITEM USE METHODS (mermaid crown, ghost eye)
@@ -343,28 +366,6 @@ class GameController(object):
             self.gs.gc.menu_controller.post_notice("There is nothing selected")
     # endregion
 
-    def actor_event_popoff(self):
-        feature_name = "Stellar_Jay_400"
-        feature_ghost = self.gs.get_feature_ghost(feature_name)
-        feature_avatar = self.gs.gv.get_feature_avatar(feature_name)
-        if (feature_name in self.gs.feature_ghost_list.keys()) and feature_ghost.active:
-            already_animating = self.check_if_feature_already_animating(feature_name)
-            if not already_animating:
-                if feature_avatar.option == 1:
-                    feature_avatar.initiate_animation("up_down")
-                    self.game_view.animation_manager.add_to_anim_in_progress(feature_name)
-                    feature_avatar.option = 0
-                elif feature_avatar.option == 0:
-                    feature_avatar.initiate_animation("look_around")
-                    self.game_view.animation_manager.add_to_anim_in_progress(feature_name)
-                    feature_avatar.option = 1
-
-
-        # feature = self.gs.get_feature_ghost("Pigeon_142")
-        # if ("Pigeon_142" in self.gs.feature_ghost_list.keys()) and feature.active:
-        #     self.move_feature_chaotically("Pigeon_142")
-        pass
-
     # region INTERACT WITH OBJECTS (package, basket)
     def player_interact(self):
         player = self.gs.get_player_ghost()
@@ -419,7 +420,8 @@ class GameController(object):
             direction = Mundane.direction_feedback(facing, "left", "right", "up", "down")
             vector_x = Mundane.direction_feedback(facing, -1, 1, 0, 0)
             vector_y = Mundane.direction_feedback(facing, 0, 0, -1, 1)
-            self.game_view.player_avatar.initiate_animation("snap_photo_" + direction)
+            animation = self.game_view.animation_manager.get_animation("snap_photo_" + direction)
+            self.game_view.player_avatar.initiate_animation(animation)
 
             camera_range = 2
             pl = self.gs.get_player_ghost_location()
@@ -552,18 +554,6 @@ class GameController(object):
             if self.gs.ghost_eye_counter == self.gs.ghost_eye_limit:
                 self.deactivate_ghost_eye()
 
-    def move_feature_chaotically(self, feature_unique_name):
-        already_animating = self.check_if_feature_already_animating(feature_unique_name)
-        if not already_animating:
-            complete = False
-            while not complete:
-                movements = ["walk_front", "walk_left", "walk_right", "walk_up"]
-                if movements:
-                    chosen_movement = movements.pop(random.choice(range(len(movements))))
-                    complete = self.attempt_feature_action(feature_unique_name, chosen_movement)
-                else:
-                    complete = True
-
     def attempt_feature_action(self, feature_unique_name, action_name):
         success = False
         feature_ghost = self.gs.get_feature_ghost(feature_unique_name)
@@ -577,7 +567,8 @@ class GameController(object):
         if not already_animating:
             if doable:
                 success = True
-                feature_avatar.initiate_animation(action_name)
+                animation = self.game_view.animation_manager.get_animation(action_name)
+                feature_avatar.initiate_animation(animation)
                 self.game_view.animation_manager.add_to_anim_in_progress(feature_unique_name)
                 self.position_manager.move_ghost(feature_ghost, room_object, room_object, feature_ghost.x + vector[0], feature_ghost.y + vector[1])
         return success
@@ -621,7 +612,13 @@ class GameController(object):
             avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
             self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
 
-    # region INPUT EVENTS
+        for scene_dialogue in self.gs.gc.scene_manager.currently_displayed_dialogue:
+            ghost = self.gs.gc.scene_manager.dialogue_ghost_dict[scene_dialogue]
+            avatar = self.gs.gc.scene_manager.dialogue_avatar_dict[scene_dialogue]
+            avatar_display_details = self.gs.gc.scene_manager.dialogue_avatar_dict[scene_dialogue].menu_display_details
+            self.game_view.draw_scene_dialogue(ghost, avatar, avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
+
+            # region INPUT EVENTS
     def clear_key_down_cue(self):
         self.key_down_queue = []
 
@@ -715,6 +712,7 @@ class GameController(object):
             object_class = self.gs.gd.get_feature_class(feature_dict["species"])
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            print(feature_dict["spawn_room"], unique_name)
             feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
@@ -1214,6 +1212,9 @@ class SceneManager(object): #TODO: Work on this mess!!
         self.player_movement_x = 0
         self.player_movement_y = 0
         self.current_scene = None
+        self.currently_displayed_dialogue = ["scene_1"]
+        self.dialogue_ghost_dict = {"scene_1": SceneDialogueGhost(self.gc)}
+        self.dialogue_avatar_dict = {"scene_1": SceneDialogueAvatar(self.gc, "scene_avatar")}
 
     def play_scene(self, scene_object):
         self.scene_list["play"] = scene_object

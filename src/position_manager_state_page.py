@@ -414,7 +414,7 @@ class PositionManager(object):
             if feature_ghost.feature_subtype == Types.BIRD:
                 add_trigger_list = feature_ghost.produce_trigger_list()
                 self.gc.trigger_manager.add_triggers(room_object, add_trigger_list)
-            self.gc.add_actor_activation_to_timer(feature_ghost.unique_name, feature_ghost.behaviour_trigger)
+            self.gc.add_actor_activation_to_timer(feature_ghost.unique_name)
 
 
 

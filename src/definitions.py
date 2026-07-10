@@ -35,6 +35,7 @@ class GameSettings(object):
     MENUSEGMENTSIZE = 5
     MENUEDGE = 50
     UNIQUEID = 1
+    FPS = 62
 
     FONT_SIZE = 10
 

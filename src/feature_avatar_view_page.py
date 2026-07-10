@@ -54,8 +54,8 @@ class PlayerAvatar(object):
         self.update_avatar_image(0, y_img)
 
 
-    def initiate_animation(self, animation_name):
-        self.current_animation = animation_name
+    def initiate_animation(self, animation_obect):
+        self.current_animation = animation_obect
         self.currently_animating = True
 
     def update_avatar_image(self, image_x, image_y):
@@ -87,8 +87,8 @@ class FeatureAvatar(object):
         y_img = Mundane.direction_feedback(direction, 3, 2, 1, 0)
         self.update_avatar_image(0, y_img)
 
-    def initiate_animation(self, animation_name):
-        self.current_animation = animation_name
+    def initiate_animation(self, animation_obect):
+        self.current_animation = animation_obect
         self.currently_animating = True
 
     def update_avatar_image(self, image_x, image_y):
@@ -212,8 +212,8 @@ class BirdAvatar(FeatureAvatar):
         face = pygame.transform.scale(face, [24 * 5, 24 * 5])
         return face
 
-    def initiate_animation(self, animation_name):
-        self.current_animation = animation_name
+    def initiate_animation(self, animation_obect):
+        self.current_animation = animation_obect
         self.currently_animating = True
 
 
@@ -254,8 +254,8 @@ class JayAvatar(BirdAvatar):
         face = pygame.transform.scale(face, [24 * 5, 24 * 5])
         return face
 
-    def initiate_animation(self, animation_name):
-        self.current_animation = animation_name
+    def initiate_animation(self, animation_obect):
+        self.current_animation = animation_obect
         self.currently_animating = True
 
     def run_setup(self, base_size_x, base_size_y, spritesheet_file_name):
