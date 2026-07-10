@@ -33,9 +33,11 @@ type,Prop,feature_subtype,Feeder,species,Purple_Birdfeeder,display_name,Feeder,b
 type,Prop,feature_subtype,Feeder,species,Pink_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Feeder,species,Orange_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Feeder,species,Yellow_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Blue_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Green_Seed,display_name,Green Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Red_Seed,display_name,Red Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Purple_Seed,display_name,Purple Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Pink_Seed,display_name,Pink Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Orange_Seed,display_name,Orange Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Yellow_Seed,display_name,Yellow Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Blue_Seed,display_name,Blue Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

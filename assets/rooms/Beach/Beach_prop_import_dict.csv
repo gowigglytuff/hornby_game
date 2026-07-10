@@ -1,7 +1,8 @@
 ﻿species,Sandcastle,display_name,Sandcastle,function,None,spawn_room,Beach,spawn_x,28,spawn_y,30,spawn_facing,Down,spawn_active,yes
-species,Green_Birdfeeder,display_name,Feeder,function,{'Feeder':'Green-Green_Heron'},spawn_room,Beach,spawn_x,33,spawn_y,30,spawn_facing,Down,spawn_active,yes
+species,Green_Birdfeeder,display_name,Feeder,function,{'Feeder':'Green-Kakapo'},spawn_room,Beach,spawn_x,33,spawn_y,30,spawn_facing,Down,spawn_active,yes
 species,Red_Birdfeeder,display_name,Feeder,function,{'Feeder':'Red-Cardinal'},spawn_room,Beach,spawn_x,34,spawn_y,30,spawn_facing,Down,spawn_active,yes
-species,Purple_Birdfeeder,display_name,Feeder,function,{'Feeder':'Purple-Booby'},spawn_room,Beach,spawn_x,35,spawn_y,30,spawn_facing,Down,spawn_active,yes
+species,Purple_Birdfeeder,display_name,Feeder,function,{'Feeder':'Purple-Agami_Heron'},spawn_room,Beach,spawn_x,35,spawn_y,30,spawn_facing,Down,spawn_active,yes
 species,Pink_Birdfeeder,display_name,Feeder,function,{'Feeder':'Pink-Flamingo'},spawn_room,Beach,spawn_x,36,spawn_y,30,spawn_facing,Down,spawn_active,yes
-species,Orange_Birdfeeder,display_name,Feeder,function,{'Feeder':'Orange-Robin'},spawn_room,Beach,spawn_x,37,spawn_y,30,spawn_facing,Down,spawn_active,yes
+species,Orange_Birdfeeder,display_name,Feeder,function,{'Feeder':'Orange-Bearded_Vulture'},spawn_room,Beach,spawn_x,37,spawn_y,30,spawn_facing,Down,spawn_active,yes
 species,Yellow_Birdfeeder,display_name,Feeder,function,{'Feeder':'Yellow-Macaroni_Penguin'},spawn_room,Beach,spawn_x,38,spawn_y,30,spawn_facing,Down,spawn_active,yes
+species,Blue_Birdfeeder,display_name,Feeder,function,{'Feeder':'Blue-Booby'},spawn_room,Beach,spawn_x,39,spawn_y,30,spawn_facing,Down,spawn_active,yes

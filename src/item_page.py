@@ -311,6 +311,12 @@ class RedSeed(KeyItem):
     def __init__(self, gc):
         super().__init__(gc)
 
+class BlueSeed(KeyItem):
+    NAME = "Blue_Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
 class PurpleSeed(KeyItem):
     NAME = "Purple_Seed"
 

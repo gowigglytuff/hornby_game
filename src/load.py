@@ -66,6 +66,7 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
         gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
+        gs.gd.add_room_data("Well_Room", (Consolidated("Well_Room", 35, 30, 1, 1)))
 
     def install_classes(gc, gs):
         bird_class_objects_file_name = "assets/import_data/bird_class_import.csv"
@@ -134,6 +135,7 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 7, 2, 10, 20)
         gc.position_manager.add_door("Double_back", "Staging_Area", "Mountain_Room", 3, 2, 28, 26)
+        gc.position_manager.add_door("Passage", "Staging_Area", "Well_Room", 1, 2, 7, 29)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))
@@ -175,8 +177,8 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe, GreenSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
-        items_to_acquire = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
+        items_to_install = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
+        items_to_acquire = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
         for item in items_to_acquire:

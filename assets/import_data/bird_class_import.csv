@@ -36,6 +36,10 @@ type,Actor,feature_subtype,Bird,species,Warbler,display_name,Warbler,base_size_x
 type,Actor,feature_subtype,Bird,species,Towhee,display_name,Towhee,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Vulture,display_name,Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Booby,display_name,Booby,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Flamingo,display_name,Booby,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Cardinal,display_name,Booby,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Macaroni_Penguin,display_name,Booby,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Flamingo,display_name,Flamingo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Cardinal,display_name,Cardinal,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Macaroni_Penguin,display_name,Macaroni_Penguin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Agami_Heron,display_name,Agami_Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Kakapo,display_name,Kakapo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Bearded_Vulture,display_name,Bearded_Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Quetzalcoatl,display_name,Quetzalcoatl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

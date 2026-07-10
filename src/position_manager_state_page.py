@@ -355,8 +355,10 @@ class PositionManager(object):
 
         if feature_ghost.feature_subtype == Types.FEEDER:
             if feature_ghost.filled_with_seed:
+
                 feature_ghost.filled_with_seed = False
                 feature_to_spawn = feature_ghost.function_items[1]
+                print(feature_to_spawn)
                 bird_dict = {"species": feature_to_spawn, "display_name": feature_to_spawn, "function": "None", "spawn_room": feature_ghost.spawn_room, "spawn_x": feature_ghost.x, "spawn_y": feature_ghost.y + 1, "spawn_facing": "Down", "spawn_active": "yes"}
                 bird_ghost = self.gc.gs.install_element(bird_dict)
                 bird_ghost.active = False
