@@ -218,7 +218,7 @@ def install_all_data(gc, gs):
                 avatar_name = menu.BASE + "_avatar"
                 items = menu.generate_menu_information_package()
                 gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
-
+                print(avatar_name)
                 gs.gv.set_menu_display_coordinates(menu.BASE)
 
     def install_outfits(gc, gs):

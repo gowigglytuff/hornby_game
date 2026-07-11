@@ -1300,3 +1300,84 @@ class GuideMenuGhost(MenuGhost):
 
     def reset_elements(self):
         self.current_page = 0
+
+
+class SceneDialogueMenuGhost(MenuGhost):
+    BASE = "scene_dialogue_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = " "
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.talking_to = None
+        self.friendship = 0
+        self.face_image = None
+        self.phrase = None
+        self.update_currently_displayed()
+        self.speaking_queue = []
+        self.current_phrase = []
+
+
+    def update_currently_displayed(self):
+        self.currently_displayed_items = []
+        if self.size <= self.max_displayed_items:
+            for item in range(self.size):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+        else:
+            for item in range(self.max_displayed_items):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+
+    def prepare_menu_for_display(self, details):
+        self.talking_to = details["speaker_name"]
+        self.friendship = details["friendship_level"]
+        self.face_image = details["face_image"]
+        self.speaker_unique_name = details["speaker_unique_name"]
+        self.menu_item_list = details["phrase"]
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"friendship_level": self.friendship,
+                         "face_image": self.face_image,
+                         "speaker_name": self.talking_to}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.set_speaking_queue()
+
+    def set_current_phrase(self, phrases):
+        self.current_phrase = textwrap.wrap(phrases[0], width=20)
+        self.set_speaking_queue()
+
+    def set_speaking_queue(self):
+        phrase_counter = 0
+        self.menu_item_list = []
+        if len(self.current_phrase) > 2:
+            for line in range(3):
+                self.menu_item_list.append(self.current_phrase.pop(0))
+
+        elif (len(self.current_phrase) <= 2) and (len(self.current_phrase) > 0):
+            for line in range(len(self.current_phrase)):
+                self.menu_item_list.append(self.current_phrase.pop(0))
+
+        elif len(self.current_phrase) == 0:
+            menu_selection = None
+            self.gc.menu_controller.scene_menu_selection(menu_selection)
+
+    def reset_elements(self):
+        pass

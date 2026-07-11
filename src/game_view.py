@@ -6,7 +6,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar, SceneDialogueMenuAvatar
 from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
@@ -69,6 +69,7 @@ class GameView(object):
         self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
                                  "conversation_options_menu": ConversationOptionsMenuAvatar,
                                  "chat_menu": ChatMenuAvatar,
+                                  "scene_dialogue_menu": SceneDialogueMenuAvatar,
                                   "outfit_menu": OutfitMenuAvatar,
                                   "map_menu": MapMenuAvatar,
                                   "guide_menu": GuideMenuAvatar,
@@ -190,30 +191,6 @@ class GameView(object):
                 final_image.blit(image, [item.x, item.y])
 
         for item in final_menu_text:
-            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
-            item_text = my_font.render(item.text, True, (0, 0, 0))
-            final_image.blit(item_text, [item.x, item.y])
-
-        full_menu = final_image
-
-        self.screen.blit(full_menu, (x, y))
-
-    def draw_scene_dialogue(self, ghost, avatar, x, y):
-        dialogue_avatar = avatar
-        dialogue_info = ghost.generate_menu_information_package()
-        final_dialogue_text = dialogue_avatar.get_menu_text_drawing_instructions(dialogue_info)
-        final_dialogue_images = dialogue_avatar.get_menu_image_drawing_instructions(dialogue_info)
-
-        # compile menu
-        final_image = pygame.Surface((dialogue_avatar.overlay_image.get_width(), dialogue_avatar.overlay_image.get_height()))
-        final_image.blit(dialogue_avatar.overlay_image, [0, 0])
-
-        if final_dialogue_images:
-            for item in final_dialogue_images:
-                image = item.image
-                final_image.blit(image, [item.x, item.y])
-
-        for item in final_dialogue_text:
             my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
             item_text = my_font.render(item.text, True, (0, 0, 0))
             final_image.blit(item_text, [item.x, item.y])

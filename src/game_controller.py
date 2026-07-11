@@ -13,7 +13,7 @@ from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, A
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
-from scenes import Scene, SceneDialogueAvatar, SceneDialogueGhost
+from scenes import Scene
 
 
 class Game(object):
@@ -74,25 +74,26 @@ class GameEvents(object):
         elif event.type in [pygame.KEYDOWN, pygame.KEYUP]:
             self.gc.active_keyboard_manager.parse_key_input(event.type, event.key)
 
-        elif event.type in self.timer_list:
-            for timer in self.event_dict.keys():
-                if event.type == getattr(self, str(timer) + "_second_timer_id"):
-                    for popoff in self.event_dict[timer]:
+        if self.gc.scene_manager.waiting_for_response == False:
+            if event.type in self.timer_list:
+                for timer in self.event_dict.keys():
+                    if event.type == getattr(self, str(timer) + "_second_timer_id"):
+                        for popoff in self.event_dict[timer]:
 
-                        popoff()
+                            popoff()
 
 
-            for timer in self.actor_events_dict.keys():
-                if event.type == getattr(self, str(timer) + "_second_timer_id"):
-                    for popoff in self.actor_events_dict[timer]:
-                        if popoff.args[0] in self.gc.gs.feature_ghost_list.keys():
-                            feature_ghost = self.gc.gs.get_feature_ghost(popoff.args[0])
-                            if feature_ghost.active:
-                                if feature_ghost.behaviour_counter == 100:
-                                    popoff()
-                                    feature_ghost.behaviour_counter = 0
-                                else:
-                                    feature_ghost.behaviour_counter += 1
+                for timer in self.actor_events_dict.keys():
+                    if event.type == getattr(self, str(timer) + "_second_timer_id"):
+                        for popoff in self.actor_events_dict[timer]:
+                            if popoff.args[0] in self.gc.gs.feature_ghost_list.keys():
+                                feature_ghost = self.gc.gs.get_feature_ghost(popoff.args[0])
+                                if feature_ghost.active:
+                                    if feature_ghost.behaviour_counter == 100:
+                                        popoff()
+                                        feature_ghost.behaviour_counter = 0
+                                    else:
+                                        feature_ghost.behaviour_counter += 1
 
 
 
@@ -249,7 +250,7 @@ class GameController(object):
         direction_y = Direction.UP
         if y_change < 0:
             direction_y = Direction.DOWN
-        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
+        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("action", "dialogue"), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
 
     def execute_action_from_animator(self, action_name):
         if action_name == "delete_husk":
@@ -262,6 +263,17 @@ class GameController(object):
             self.gs.ghost_eye_initiation = [0, 0]
             self.gs.ghost_eye_counter = 0
             self.set_active_keyboard_manager(InGameKeyboardManager.ID)
+        elif action_name == "dialogue":
+            character_talking_to_avatar = self.gs.gv.get_feature_avatar("Cowboy_2")
+
+            details = {"speaker_name": "Jane",
+                       "friendship_level": 3,
+                       "face_image": character_talking_to_avatar.face_image,
+                       "speaker_unique_name": "Jane",
+                       "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+
+            self.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
+            self.scene_manager.waiting_for_response = True
 
 
     def determine_mermaid_crown_end(self):
@@ -612,12 +624,6 @@ class GameController(object):
             avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
             self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
 
-        for scene_dialogue in self.gs.gc.scene_manager.currently_displayed_dialogue:
-            ghost = self.gs.gc.scene_manager.dialogue_ghost_dict[scene_dialogue]
-            avatar = self.gs.gc.scene_manager.dialogue_avatar_dict[scene_dialogue]
-            avatar_display_details = self.gs.gc.scene_manager.dialogue_avatar_dict[scene_dialogue].menu_display_details
-            self.game_view.draw_scene_dialogue(ghost, avatar, avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
-
             # region INPUT EVENTS
     def clear_key_down_cue(self):
         self.key_down_queue = []
@@ -958,7 +964,7 @@ class MenuController(object):
         self.gc = gc  # type: GameController
         self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, NumberSelectionMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
+                               GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
     def menu_cursor_down(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
@@ -1135,6 +1141,9 @@ class MenuController(object):
     def chat_menu_selection(self, item_selected):
         self.gc.menu_controller.exit_all_menus()
 
+    def scene_menu_selection(self, item_selected):
+        self.gc.menu_controller.exit_scene_menu(SceneDialogueMenuGhost.BASE)
+
     def post_notice(self, phrase):
         self.gc.gs.ms.get_menu_ghost(GameActionDialogueMenuGhost.BASE).show_dialogue(phrase)
 
@@ -1191,6 +1200,11 @@ class MenuController(object):
         selected_menu.reset_elements()
         self.gc.gs.ms.deactivate_menu(menu_name)
 
+    def exit_scene_menu(self, menu_name):
+        selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
+        selected_menu.reset_elements()
+        self.gc.gs.ms.deactivate_menu(menu_name)
+        self.gc.scene_manager.waiting_for_response = False
 
     def exit_all_menus(self):
         list = []
@@ -1213,8 +1227,10 @@ class SceneManager(object): #TODO: Work on this mess!!
         self.player_movement_y = 0
         self.current_scene = None
         self.currently_displayed_dialogue = ["scene_1"]
-        self.dialogue_ghost_dict = {"scene_1": SceneDialogueGhost(self.gc)}
-        self.dialogue_avatar_dict = {"scene_1": SceneDialogueAvatar(self.gc, "scene_avatar")}
+        self.waiting_for_response = False
+
+    def finish_waiting_for_response(self):
+        self.waiting_for_response = False
 
     def play_scene(self, scene_object):
         self.scene_list["play"] = scene_object

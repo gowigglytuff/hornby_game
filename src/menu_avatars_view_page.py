@@ -76,7 +76,7 @@ class MenuAvatar(object):
 
         generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
-        skip_list = ["conversation_options_menu_avatar", "guide_menu_avatar", "chat_menu_avatar", "outfit_menu_avatar", "map_menu_avatar", "picture_menu_avatar", "quiz_menu_avatar", "stat_menu_avatar", "game_action_dialogue_menu_avatar"]
+        skip_list = ["conversation_options_menu_avatar", "guide_menu_avatar", "chat_menu_avatar", "outfit_menu_avatar", "map_menu_avatar", "picture_menu_avatar", "quiz_menu_avatar", "stat_menu_avatar", "game_action_dialogue_menu_avatar", "scene_dialogue_menu_avatar"]
 
         if self.name in dictionary.keys():
             self.menu_display_details = dictionary[self.name]
@@ -694,6 +694,68 @@ class QuizMenuAvatar(MenuAvatar):
         loc_x = 20
         loc_y = 50
         image = ImageDisplay(picture, loc_x, loc_y)
+        final_menu_images.append(image)
+
+        return final_menu_images
+
+
+class SceneDialogueMenuAvatar(MenuAvatar):
+    NAME = "scene_dialogue_menu_avatar"
+
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
+
+        self.menu_display_details = {"default_width": 200, "default_height": 100, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
+
+        self.offset_x = 130
+        self.offset_y = 20
+        self.image_offset_x = 10
+        self.image_offset_y = 10
+        self.cursor_offset_x = self.offset_x - 10
+
+        self.set_menu_width = 70
+        self.set_menu_height = 25
+
+        self.fill_out_menu_info(items)
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+        speaker_name = menu_info.menu_specific_details_dict["speaker_name"]
+        friendship_level = menu_info.menu_specific_details_dict["friendship_level"]
+
+        final_menu_text = []
+
+
+        if cursor_image:
+            cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
+            cursor_loc_y = (cursor_at[1] * self.menu_spread_y) + self.menu_spread_y + self.offset_y
+            final_menu_text.append(TextDisplay(cursor_image, cursor_loc_x, cursor_loc_y))
+
+        for position_y in range(len(text_display_list)):
+            loc_x = self.menu_spread_x + self.offset_x
+            loc_y = (position_y * self.menu_spread_y) + self.menu_spread_y + self.offset_y
+            text = TextDisplay(text_display_list[position_y], loc_x, loc_y)
+            final_menu_text.append(text)
+
+        # name and Friendship
+        loc_x = self.menu_spread_x + self.offset_x
+        loc_y = self.offset_y
+        text = TextDisplay(speaker_name + " [" + str(friendship_level) + "]", loc_x, loc_y)
+        final_menu_text.append(text)
+
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        face = menu_info.menu_specific_details_dict["face_image"]
+
+        final_menu_images = []
+
+        loc_x = self.image_offset_x
+        loc_y = self.image_offset_y
+        image = ImageDisplay(face, loc_x, loc_y)
         final_menu_images.append(image)
 
         return final_menu_images

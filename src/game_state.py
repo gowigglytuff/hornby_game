@@ -118,6 +118,7 @@ class GameState(object):
 
     def act_on_action_queue(self):
         remove_list = []
+
         for actor_ghost_name in self.action_queue.keys():
             actor_ghost = self.get_feature_ghost(actor_ghost_name)
             is_busy = actor_ghost.check_if_busy()
@@ -151,10 +152,11 @@ class GameState(object):
         current_animation_name, current_move = action_object.sequence[action_object.current_action]
         action_object.current_action += 1
 
-        animation = self.gv.animation_manager.get_animation(current_animation_name)
-        feature_avatar.initiate_animation(animation)
-        actor_ghost.initiate_animation(current_animation_name)
-        self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
+        if current_animation_name:
+            animation = self.gv.animation_manager.get_animation(current_animation_name)
+            feature_avatar.initiate_animation(animation)
+            actor_ghost.initiate_animation(current_animation_name)
+            self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
 
         action_type = current_move[0]
 
@@ -182,6 +184,18 @@ class GameState(object):
         elif action_type == "outfit_change":
             outfit = current_move[1]
             # TODO: Implement this!
+
+        elif action_type == "dialogue_menu":
+            character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
+
+            details = {"speaker_name": "Jane",
+                       "friendship_level": 3,
+                       "face_image": character_talking_to_avatar.face_image,
+                       "speaker_unique_name": "Jane",
+                       "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+
+            self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
+            self.gc.scene_manager.waiting_for_response = True
 
 
 
@@ -465,7 +479,10 @@ class MenuState(object):
             self.visible_menus.remove(menu_to_deactivate)
 
         if len(self.menu_stack) == 0:
-            self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+            if menu_to_deactivate == SceneDialogueMenuGhost.BASE:
+                self.gs.gc.set_active_keyboard_manager(InSceneKeyboardManager.ID)
+            else:
+                self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
     # endregion
 
 class ConditionChecker(object):

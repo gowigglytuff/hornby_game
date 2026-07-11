@@ -4,7 +4,7 @@ import pygame
 
 from animations_page_view_page import CameraPanAnimation
 from definitions import Direction
-from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost, MenuGhost
+from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost, MenuGhost, SceneDialogueMenuGhost
 from scenes import Scene
 
 if TYPE_CHECKING:
@@ -182,7 +182,17 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.scene_manager.pan_camera(Direction.DOWN, 5)
         # self.gc.activate_mermaid_crown()
         # self.gc.scene_manager.play_scene(Scene(self.gc, [CameraPanAnimation(Direction.LEFT, 5), CameraPanAnimation(Direction.UP, 5)]))
-        self.gc.gs.gv.player_perform_animation("up_down", None)
+        # self.gc.gs.gv.player_perform_animation("up_down", None)
+
+        character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
+
+        details = {"speaker_name": "Jane",
+                   "friendship_level": 3,
+                   "face_image": character_talking_to_avatar.face_image,
+                   "speaker_unique_name": "Jane",
+                   "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+
+        self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
         pass
 
     def key_direction_released(self, key):

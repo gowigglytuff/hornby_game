@@ -223,6 +223,7 @@ class Switch(Action):
         super().__init__()
         self.sequence = [("walk_left", self.move(Direction.LEFT)), ("look_around", self.face(Direction.RIGHT)), ("hold", self.hold(2)), ("up_down", self.stationary()), ("look_around", self.face(Direction.RIGHT)), ("walk_right", self.move(Direction.RIGHT))]
         self.total_actions = len(self.sequence)
+# , (None, ("dialogue_menu", None))
 
 class CustomAction(Action):
     def __init__(self, sequence):
