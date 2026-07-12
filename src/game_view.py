@@ -464,7 +464,9 @@ class AnimationManager(object):
                 wrap_up, follow_up_package = self.gv.animation_manager.perform_scene_animation(scene_animation)
                 if wrap_up:
                     self.gv.gs.gc.scene_animations_in_progress.remove(scene_animation)
+                    self.gv.gs.gc.scene_manager.waiting_for_animation_to_finish = False
                     self.gv.gs.gc.scene_manager.continue_scene(follow_up_package)
+
 
     def perform_player_animation(self, animator):
         animation_result = animator.current_animation.animate()

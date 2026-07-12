@@ -192,7 +192,6 @@ class BirdGhost(ActorGhost):
         result = CustomAction([("up_down", Action.stationary())])
         if self.species == "Pigeon":
             result = CustomAction([("up_down", Action.stationary())])
-            print("oig")
         return result
 
     def check_if_calm(self):

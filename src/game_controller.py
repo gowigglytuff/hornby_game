@@ -44,6 +44,7 @@ class GameEvents(object):
                            4: []}
 
         self.actor_events_dict = {}
+        self.delayed_trigger_list = []
         self.user_event_number = 200
         self.setup_initial_timers()
 
@@ -66,6 +67,20 @@ class GameEvents(object):
         timer_equiv = timer * one_second_equiv
         pygame.time.set_timer(new_timer, int(timer_equiv))
 
+    def parse_delayed_triggers(self):
+        remove_dict = []
+        for item in self.delayed_trigger_list:
+            result = item.check_condition()
+            if result:
+                item.activate()
+                remove_dict.append(item)
+        for item in remove_dict:
+            self.delayed_trigger_list.remove(item)
+
+    def add_delayed_trigger(self, condition, reaction):
+        trigger_object = DelayedTrigger(self.gc, condition, reaction)
+        self.delayed_trigger_list.append(trigger_object)
+
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -83,17 +98,17 @@ class GameEvents(object):
                             popoff()
 
 
-                for timer in self.actor_events_dict.keys():
-                    if event.type == getattr(self, str(timer) + "_second_timer_id"):
-                        for popoff in self.actor_events_dict[timer]:
-                            if popoff.args[0] in self.gc.gs.feature_ghost_list.keys():
-                                feature_ghost = self.gc.gs.get_feature_ghost(popoff.args[0])
-                                if feature_ghost.active:
-                                    if feature_ghost.behaviour_counter == 100:
-                                        popoff()
-                                        feature_ghost.behaviour_counter = 0
-                                    else:
-                                        feature_ghost.behaviour_counter += 1
+                # for timer in self.actor_events_dict.keys():
+                #     if event.type == getattr(self, str(timer) + "_second_timer_id"):
+                #         for popoff in self.actor_events_dict[timer]:
+                #             if popoff.args[0] in self.gc.gs.feature_ghost_list.keys():
+                #                 feature_ghost = self.gc.gs.get_feature_ghost(popoff.args[0])
+                #                 if feature_ghost.active:
+                #                     if feature_ghost.behaviour_counter == 100:
+                #                         popoff()
+                #                         feature_ghost.behaviour_counter = 0
+                #                     else:
+                #                         feature_ghost.behaviour_counter += 1
 
 
 
@@ -183,7 +198,6 @@ class GameController(object):
             ghost_object = self.gs.get_feature_ghost(unique_name)
             if ghost_object.active:
                 if ghost_object.spawn_room == self.gs.get_current_room().room_name:
-                    print("hey")
                     if not ghost_object.check_if_busy():
                         self.move_feature_chaotically(unique_name)
 
@@ -250,7 +264,9 @@ class GameController(object):
         direction_y = Direction.UP
         if y_change < 0:
             direction_y = Direction.DOWN
-        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("action", "dialogue"), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
+
+        custom = CustomAction([("walk_left", Action.move(Direction.LEFT)), ("hold", ("release", None))])
+        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("character_action", ("Cai_290", copy.copy(custom))), ("character_action", ("Cai_290", copy.copy(custom))), ("character_action", ("Cai_290", copy.copy(custom))), ("action", "dialogue"), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
 
     def execute_action_from_animator(self, action_name):
         if action_name == "delete_husk":
@@ -1205,6 +1221,7 @@ class MenuController(object):
         selected_menu.reset_elements()
         self.gc.gs.ms.deactivate_menu(menu_name)
         self.gc.scene_manager.waiting_for_response = False
+        self.gc.scene_manager.continue_scene({"x_move": 0, "y_move": 0})
 
     def exit_all_menus(self):
         list = []
@@ -1228,6 +1245,7 @@ class SceneManager(object): #TODO: Work on this mess!!
         self.current_scene = None
         self.currently_displayed_dialogue = ["scene_1"]
         self.waiting_for_response = False
+        self.waiting_for_animation_to_finish = False
 
     def finish_waiting_for_response(self):
         self.waiting_for_response = False
@@ -1239,19 +1257,32 @@ class SceneManager(object): #TODO: Work on this mess!!
         self.continue_scene({"x_move": 0, "y_move": 0})
 
     def continue_scene(self, previous_follow_up):
-        self.scene_list[self.current_scene].total_player_x_movement += previous_follow_up["x_move"]
-        self.scene_list[self.current_scene].total_player_y_movement += previous_follow_up["y_move"]
-        next_action, complete = self.scene_list[self.current_scene].return_current_action()
-        if complete:
-            self.scene_end_character_movements({"x_move": self.scene_list[self.current_scene].total_player_x_movement,
-                                                "y_move": self.scene_list[self.current_scene].total_player_y_movement})
-            self.end_scene()
-        else:
-            if next_action[0] == "animation":
-                self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action[1])
-            elif next_action[0] == "action":
-                self.gc.execute_action_from_animator(next_action[1])
-                self.continue_scene({"x_move": 0, "y_move": 0})
+        if not self.waiting_for_animation_to_finish:
+            self.scene_list[self.current_scene].total_player_x_movement += previous_follow_up["x_move"]
+            self.scene_list[self.current_scene].total_player_y_movement += previous_follow_up["y_move"]
+            next_action, complete = self.scene_list[self.current_scene].return_current_action()
+            if complete:
+                self.scene_end_character_movements({"x_move": self.scene_list[self.current_scene].total_player_x_movement,
+                                                    "y_move": self.scene_list[self.current_scene].total_player_y_movement})
+                self.end_scene()
+            else:
+                if next_action[0] == "animation":
+                    self.waiting_for_animation_to_finish = True
+                    self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action[1])
+                elif next_action[0] == "action":
+                    self.gc.execute_action_from_animator(next_action[1])
+                    self.continue_scene({"x_move": 0, "y_move": 0})
+                elif next_action[0] == "character_action":
+                    self.gc.initiate_action(next_action[1][0], next_action[1][1])
+                    self.waiting_for_animation_to_finish = True
+        # else:
+        #     self.continue_scene({"x_move": 0, "y_move": 0})
+
+    def roll_scene_animation(self):
+        pass
+
+    def check_if_animator_done(self):
+        pass
 
     def end_scene(self):
         self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
@@ -1281,3 +1312,28 @@ class SceneManager(object): #TODO: Work on this mess!!
         self.gc.position_manager.move_ghost(player_object, current_room_object, current_room_object, x_change, y_change)
         self.gc.position_manager.match_player_elevation_to_target(current_room_object, x_change, y_change)
         # self.gc.game_view.manually_update_camera(x_change, y_change)
+
+
+class SceneStep(object): #TODO: Work on this mess!!
+    def __init__(self, gc, actor, visual_action, physical_action):
+        self.gc = gc
+        self.actor = actor
+        self.visual_action = visual_action
+        self.physical_action = physical_action
+
+
+class DelayedTrigger(object):
+    def __init__(self, gc, condition, reaction):
+        self.gc = gc
+        self.condition = condition
+        self.reaction = reaction
+
+    def activate(self):
+            self.reaction(self.gc)
+
+    def check_condition(self):
+        result = False
+        if self.condition(self.gc):
+            result = True
+
+        return result

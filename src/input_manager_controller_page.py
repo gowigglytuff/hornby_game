@@ -8,7 +8,7 @@ from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost
 from scenes import Scene
 
 if TYPE_CHECKING:
-    from game_controller import GameController
+    from game_controller import GameController, DelayedTrigger
 
 
 class KeyboardManager(object):
@@ -184,16 +184,26 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.scene_manager.play_scene(Scene(self.gc, [CameraPanAnimation(Direction.LEFT, 5), CameraPanAnimation(Direction.UP, 5)]))
         # self.gc.gs.gv.player_perform_animation("up_down", None)
 
-        character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
+        # character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
+        #
+        # details = {"speaker_name": "Jane",
+        #            "friendship_level": 3,
+        #            "face_image": character_talking_to_avatar.face_image,
+        #            "speaker_unique_name": "Jane",
+        #            "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+        #
+        # self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
 
-        details = {"speaker_name": "Jane",
-                   "friendship_level": 3,
-                   "face_image": character_talking_to_avatar.face_image,
-                   "speaker_unique_name": "Jane",
-                   "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+        def condition(gc):
+            result = False
+            if gc.gs.cc.check_clock_time(1, 10, 1, 10):
+                result = True
+            return result
 
-        self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
-        pass
+        def reaction(gc):
+            print("it happened!")
+
+        self.gc.game.game_events.add_delayed_trigger(condition, reaction)
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

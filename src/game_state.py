@@ -118,7 +118,6 @@ class GameState(object):
 
     def act_on_action_queue(self):
         remove_list = []
-
         for actor_ghost_name in self.action_queue.keys():
             actor_ghost = self.get_feature_ghost(actor_ghost_name)
             is_busy = actor_ghost.check_if_busy()
@@ -180,6 +179,10 @@ class GameState(object):
 
         elif action_type == "hold":
             pass
+
+        elif action_type == "release":
+            self.gc.scene_manager.waiting_for_animation_to_finish = False
+            self.gc.scene_manager.continue_scene({"x_move": 0, "y_move": 0})
 
         elif action_type == "outfit_change":
             outfit = current_move[1]
