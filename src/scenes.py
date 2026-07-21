@@ -18,13 +18,14 @@ class Scene(object):
         self.total_player_y_movement = 0
 
     def return_current_action(self):
-        if self.current_action == self.number_of_actions:
-            result = None
+        print(self.current_action, self.number_of_actions)
+        if self.current_action == self.number_of_actions - 1:
+            result = self.actions_list[self.current_action]
             self.complete = True
         else:
             result = self.actions_list[self.current_action]
             self.current_action += 1
-        return result, self.complete
+        return result
 
     def reset(self):
         self.current_action = 0

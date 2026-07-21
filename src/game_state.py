@@ -68,6 +68,7 @@ class GameState(object):
         self.current_animations_to_execute = []
 
         self.action_queue = {}
+        self.recently_completed_actions = []
 
     def check_if_actor_busy(self):
         result = False
@@ -121,34 +122,44 @@ class GameState(object):
         for actor_ghost_name in self.action_queue.keys():
             actor_ghost = self.get_feature_ghost(actor_ghost_name)
             is_busy = actor_ghost.check_if_busy()
-            if not is_busy:
-                action_object = self.action_queue[actor_ghost_name]
-                current_room = self.get_room(actor_ghost.spawn_room)
-                current_move = action_object.sequence[action_object.current_action][1]
+            action_object = self.action_queue[actor_ghost_name]
 
-                action_type = current_move[0]
-                direction = current_move[1]
+            complete = action_object.check_if_complete()
+            if complete:
+                if not action_object.waiting_on_animation:
+                    action_object.reset()
+                    remove_list.append(actor_ghost_name)
+            else:
+                if not is_busy:
+                    current_room = self.get_room(actor_ghost.spawn_room)
+                    current_move = action_object.sequence[action_object.current_action][1]
 
-                can_act = True
-                if action_type == "move":
-                    can_act = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+                    action_type = current_move[0]
+                    direction = current_move[1]
 
-                if can_act:
-                    self.execute_action_step(actor_ghost_name, action_object)
-                    if action_object.check_if_complete():
-                        action_object.reset()
-                        remove_list.append(actor_ghost_name)
-                else:
-                    self.change_feature_facing(actor_ghost_name, direction)
+                    can_act = True
+                    if action_type == "move":
+                        can_act = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+
+                    if can_act:
+                        self.execute_action_step(actor_ghost_name, action_object)
+
+                    else:
+                        self.change_feature_facing(actor_ghost_name, direction)
 
         for actor_ghost_name in remove_list:
-                self.action_queue.pop(actor_ghost_name)
+            if len(self.recently_completed_actions) >= 10:
+                self.recently_completed_actions.pop(0)
+                self.recently_completed_actions.append(self.action_queue.pop(actor_ghost_name))
+            else:
+                self.recently_completed_actions.append(self.action_queue.pop(actor_ghost_name))
 
     def execute_action_step(self, actor_ghost_name, action_object):
         feature_avatar = self.gv.get_feature_avatar(actor_ghost_name)
         actor_ghost = self.get_feature_ghost(actor_ghost_name)
 
         current_animation_name, current_move = action_object.sequence[action_object.current_action]
+        print("this one:", current_animation_name)
         action_object.current_action += 1
 
         if current_animation_name:
@@ -156,6 +167,18 @@ class GameState(object):
             feature_avatar.initiate_animation(animation)
             actor_ghost.initiate_animation(current_animation_name)
             self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
+            action_object.waiting_on_animation = True
+
+            def condition(gc):
+                result = False
+                if actor_ghost.unique_name not in gc.feature_animations_in_progress:
+                    result = True
+                return result
+
+            def reaction(gc):
+                gc.gs.action_queue[actor_ghost.unique_name].waiting_on_animation = False
+
+            self.gc.game.game_events.add_delayed_trigger(condition, reaction)
 
         action_type = current_move[0]
 
@@ -622,6 +645,7 @@ class GameData(object):
 
     def add_door_data(self, door_name, door_object):
         self.door_data_list[door_name] = door_object
+        print(door_name)
 
     def add_temp_item_data(self, item_name, item_object):
         self.temp_item_data_list[item_name] = item_object

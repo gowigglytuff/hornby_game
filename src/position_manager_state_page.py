@@ -3,7 +3,7 @@ import math
 from typing import TYPE_CHECKING
 import pygame
 from definitions import Direction, Types
-from tile_map import TileMap, ElevationMap, TerrainMap, FakeCSVMap
+from tile_map import TileMap, ElevationMap, TerrainMap, FakeCSVMap, SpecialBackground
 
 if TYPE_CHECKING:
     from game_controller import GameController
@@ -66,7 +66,18 @@ class PositionManager(object):
         # door test
         door_test = False
         target_tile = self.get_adjacent_tile(self.gc.gs.player_ghost, direction, room)
-        door_test = self.check_for_door(room.room_name, target_tile.x, target_tile.y, checker, direction)
+        x = copy.copy(checker.x)
+        y = copy.copy(checker.y)
+
+        if direction == Direction.DOWN:
+            y = y + 1
+        elif direction == Direction.UP:
+            y = y - 1
+        elif direction == Direction.LEFT:
+            x = x - 1
+        elif direction == Direction.RIGHT:
+            x = x + 1
+        door_test = self.check_for_door(room.room_name, x, y, checker, direction)
 
         door_result = False
         if alt_test and door_test:
@@ -107,6 +118,7 @@ class PositionManager(object):
         door = False
         proper_angle = False
         hypothetical_door = room_name + "_" + str(x) + "_" + str(y)
+        print(hypothetical_door, self.gc.game_data.door_data_list.keys())
         for door_name in self.gc.game_data.door_data_list.keys():
             if door_name == hypothetical_door:
                 door = True
@@ -314,20 +326,6 @@ class PositionManager(object):
 
         return [result_x, result_y]
 
-    def get_adjacent_tile(self, checker, direction, room):
-        x = copy.copy(checker.x)
-        y = copy.copy(checker.y)
-        if direction == Direction.DOWN:
-            y = y + 1
-        elif direction == Direction.UP:
-            y = y - 1
-        elif direction == Direction.LEFT:
-            x = x - 1
-        elif direction == Direction.RIGHT:
-            x = x + 1
-        chosen_cube = room.access_cube(x, y)
-        return chosen_cube
-
     def check_rooms_edges(self, checker, direction, room):
         result = False
         if direction == Direction.DOWN:
@@ -358,7 +356,6 @@ class PositionManager(object):
 
                 feature_ghost.filled_with_seed = False
                 feature_to_spawn = feature_ghost.function_items[1]
-                print(feature_to_spawn)
                 bird_dict = {"species": feature_to_spawn, "display_name": feature_to_spawn, "function": "None", "spawn_room": feature_ghost.spawn_room, "spawn_x": feature_ghost.x, "spawn_y": feature_ghost.y + 1, "spawn_facing": "Down", "spawn_active": "yes"}
                 bird_ghost = self.gc.gs.install_element(bird_dict)
                 bird_ghost.active = False
@@ -507,8 +504,14 @@ class PositionManager(object):
         return [result_x, result_y]
 
     def get_adjacent_tile(self, checker, direction, room):
+        x, y = self.get_adjacent_coords(checker, direction)
+        chosen_cube = room.access_cube(x, y)
+        return chosen_cube
+
+    def get_adjacent_coords(self, checker, direction):
         x = copy.copy(checker.x)
         y = copy.copy(checker.y)
+
         if direction == Direction.DOWN:
             y = y + 1
         elif direction == Direction.UP:
@@ -517,8 +520,7 @@ class PositionManager(object):
             x = x - 1
         elif direction == Direction.RIGHT:
             x = x + 1
-        chosen_cube = room.access_cube(x, y)
-        return chosen_cube
+        return x, y
 
     def check_rooms_edges(self, checker, direction, room):
         result = False
@@ -641,6 +643,28 @@ class PositionManager(object):
             doormat1_deco_name = True
             doorway2_deco_name = False
             doormat2_deco_name = True
+
+        elif door_type == "Walk_Down":
+            door1_exit_y_offset = 1
+            door1_access_from = Direction.UP
+            door1_exit_direction = Direction.MATCH
+            door1_has_image = False
+
+            door2_exit_y_offset = -1
+            door2_access_from = Direction.DOWN
+            door2_exit_direction = Direction.MATCH
+            door2_has_image = False
+
+            doormat1_dict = {"species": "DoormatExit", "display_name": "Doormat", "function": "None", "spawn_room": str(room_from), "spawn_x": str(door_from_x), "spawn_y": str(door_from_y-1), "spawn_facing": "Down", "spawn_active": "yes"}
+            install_list["doormat1"] = doormat1_dict
+            doormat2_dict = {"species": "DoormatEnter", "display_name": "Doormat", "function": "None", "spawn_room": str(room_to), "spawn_x": str(door_to_x), "spawn_y": str(door_to_y+1), "spawn_facing": "Down", "spawn_active": "yes"}
+            install_list["doormat2"] = doormat2_dict
+
+            doorway1_deco_name = False
+            doormat1_deco_name = True
+            doorway2_deco_name = False
+            doormat2_deco_name = True
+
 
         elif door_type == "Double_back":
             door1_species = "Doorway"
@@ -954,3 +978,29 @@ class Consolidated(Room):
             for y in range(self.total_plots_y):
                 y += 1
                 self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.room_name, x, y, self.plot_size_x, self.plot_size_y))
+
+
+class SpecialPlot(Plot):
+    def __init__(self, room, plot_x, plot_y, plot_size_x, plot_size_y):
+        super().__init__(room, plot_x, plot_y, plot_size_x, plot_size_y)
+        self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
+        self.shapes_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes.csv"
+        self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
+        bg = SpecialBackground(self.background_csv_file, self.shapes_csv_file).return_map()
+        self.background_map = [copy.copy(bg), copy.copy(bg), copy.copy(bg), copy.copy(bg)]
+        self.make_elevation_map()
+
+
+class SpecialRoom(Room):
+    def __init__(self, room_name, x_size, y_size, total_plots_x, total_plots_y):
+        super().__init__(room_name, x_size, y_size)
+        self.total_plots_x = total_plots_x
+        self.total_plots_y = total_plots_y
+        self.initiate_room()
+
+    def add_all_plots(self):
+        for x in range(self.total_plots_x):
+            x += 1
+            for y in range(self.total_plots_y):
+                y += 1
+                self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), SpecialPlot(self.room_name, x, y, self.plot_size_x, self.plot_size_y))

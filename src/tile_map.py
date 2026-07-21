@@ -57,7 +57,7 @@ class TileSet(object):
 
 class TileMap:
     def __init__(self, filename):
-        rows = 28
+        rows = 35
         columns = 23
         self.tile_set_1 = TileSet(GameSettings.TILESET_IMAGE1, 16, 16, rows, columns).load_tile_images()
         self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, 16, 16, rows, columns).load_tile_images()
@@ -133,6 +133,93 @@ class TileMap:
         self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
         return tiles
 
+
+class SpecialBackground:
+    def __init__(self, bg_filename, shapes_filename):
+        rows = 6
+        columns = 3
+        TILESET_IMAGE1 = "assets/tile_set/tile_experiment.png"
+        self.tile_set_1 = TileSet(TILESET_IMAGE1, 16, 16, rows, columns).load_tile_images()
+        # self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, 16, 16, rows, columns).load_tile_images()
+        # self.tile_set_3 = TileSet(GameSettings.TILESET_IMAGE3, 16, 16, rows, columns).load_tile_images()
+        # self.tile_set_4 = TileSet(GameSettings.TILESET_IMAGE4, 16, 16, rows, columns).load_tile_images()
+        self.tile_size = 16
+        self.start_x, self.start_y = 0, 0
+        self.tiles_1 = self.load_tiles(bg_filename, self.tile_set_1)
+        self.tiles_shapes_1 = self.load_tiles(shapes_filename, self.tile_set_1)
+        # self.tiles_2 = self.load_tiles(filename, self.tile_set_2)
+        # self.tiles_3 = self.load_tiles(filename, self.tile_set_3)
+        # self.tiles_4 = self.load_tiles(filename, self.tile_set_4)
+        self.map_surface_1 = pygame.Surface((self.map_w, self.map_h))
+        self.map_surface_1.set_colorkey((50, 100, 200))
+        self.map_shapes_1 = pygame.Surface((self.map_w, self.map_h))
+        self.map_shapes_1.set_colorkey((50, 100, 150))
+
+        # self.map_surface_2 = pygame.Surface((self.map_w, self.map_h))
+        # self.map_surface_2.set_colorkey((0, 0, 0))
+        # self.map_surface_3 = pygame.Surface((self.map_w, self.map_h))
+        # self.map_surface_3.set_colorkey((0, 0, 0))
+        # self.map_surface_4 = pygame.Surface((self.map_w, self.map_h))
+        # self.map_surface_4.set_colorkey((0, 0, 0))
+        self.load_map()
+        # self.load_map_2()
+        # self.load_map_3()
+        # self.load_map_4()
+
+    def return_map(self):
+        return self.map_surface_1
+
+    def load_map(self):
+        for tile in self.tiles_1:
+            tile.draw_tile(self.map_surface_1)
+        for tile in self.tiles_shapes_1:
+            tile.draw_tile(self.map_shapes_1)
+        # colorkey = self.map_shapes_1.get_at((0, 0))
+        # self.map_shapes_1.set_colorkey(colorkey, pygame.RLEACCEL)
+        # self.map_shapes_1.set_colorkey((50, 100, 150))
+        self.map_surface_1.blit(self.map_shapes_1, (0, 0))
+
+    # def return_map_2(self):
+    #     return self.map_surface_2
+    #
+    # def load_map_2(self):
+    #     for tile in self.tiles_2:
+    #         tile.draw_tile(self.map_surface_2)
+    #
+    # def return_map_3(self):
+    #     return self.map_surface_3
+    #
+    # def load_map_3(self):
+    #     for tile in self.tiles_3:
+    #         tile.draw_tile(self.map_surface_3)
+    #
+    # def return_map_4(self):
+    #     return self.map_surface_4
+    #
+    # def load_map_4(self):
+    #     for tile in self.tiles_4:
+    #         tile.draw_tile(self.map_surface_4)
+
+    def read_csv(self, filename):
+        tile_map = []
+        with open(os.path.join(filename)) as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                tile_map.append(list(row))
+        return tile_map
+
+    def load_tiles(self, filename, tile_source):
+        tiles = []
+        tile_map = self.read_csv(filename)
+        x, y = 0, 0
+        for row in tile_map:
+            x = 0
+            for tile in row:
+                tiles.append(Tilling(tile_source[int(tile)], x * self.tile_size, y * self.tile_size))
+                x += 1
+            y += 1
+        self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
+        return tiles
 
 class ElevationMap:
     def __init__(self, name, filename):

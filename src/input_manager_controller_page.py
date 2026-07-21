@@ -194,16 +194,17 @@ class InGameKeyboardManager(KeyboardManager):
         #
         # self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
 
-        def condition(gc):
-            result = False
-            if gc.gs.cc.check_clock_time(1, 10, 1, 10):
-                result = True
-            return result
-
-        def reaction(gc):
-            print("it happened!")
-
-        self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+        # def condition(gc):
+        #     result = False
+        #     if gc.gs.cc.check_clock_time(1, 10, 1, 10):
+        #         result = True
+        #     return result
+        #
+        # def reaction(gc):
+        #     print("it happened!")
+        #
+        # self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+        self.gc.scene_manager.initiate_scene("scene_1")
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

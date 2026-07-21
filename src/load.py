@@ -10,7 +10,7 @@ from feature_ghost_data_page import PlayerGhost, JayGhost
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager
 from menu_avatars_view_page import MenuAvatar
-from position_manager_state_page import Door, Consolidated
+from position_manager_state_page import Door, Consolidated, SpecialRoom
 
 
 def init_game(g):
@@ -67,6 +67,10 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
         gs.gd.add_room_data("Well_Room", (Consolidated("Well_Room", 35, 30, 1, 1)))
+        gs.gd.add_room_data("Entry_Room", (Consolidated("Entry_Room", 7, 9, 1, 1)))
+        gs.gd.add_room_data("Forest", (Consolidated("Forest", 35, 30, 1, 1)))
+        gs.gd.add_room_data("Experiment", (SpecialRoom("Experiment", 8, 8, 1, 1)))
+
 
     def install_classes(gc, gs):
         bird_class_objects_file_name = "assets/import_data/bird_class_import.csv"
@@ -121,7 +125,6 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Beach", 5, 6, 35, 35)
         gc.position_manager.add_door("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
-        gc.position_manager.add_door("Double_back", "Staging_Area", "Marsh", 5, 2, 22, 17)
         gc.position_manager.add_door("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
         gc.position_manager.add_door("Ladder", "Cave", "Cave", 15, 8, 5, 7)
         gc.position_manager.add_door("Feature_Passage", "Test_Room", "My_House", 5, 17, 2, 5)
@@ -134,8 +137,15 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 7, 2, 10, 20)
-        gc.position_manager.add_door("Double_back", "Staging_Area", "Mountain_Room", 3, 2, 28, 26)
+
         gc.position_manager.add_door("Passage", "Staging_Area", "Well_Room", 1, 2, 7, 29)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Entry_Room", 1, 6, 1, 6)
+
+        gc.position_manager.add_door("Double_back", "Entry_Room", "Marsh", 5, 2, 22, 17)
+        gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 6, 51, 25, 0)
+        gc.position_manager.add_door("Double_back", "Forest", "Mountain_Room", 2, 2, 28, 26)
+
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Experiment", 1, 5, 2, 2)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))

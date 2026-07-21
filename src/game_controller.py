@@ -68,8 +68,10 @@ class GameEvents(object):
         pygame.time.set_timer(new_timer, int(timer_equiv))
 
     def parse_delayed_triggers(self):
+
         remove_dict = []
         for item in self.delayed_trigger_list:
+            print(item.condition)
             result = item.check_condition()
             if result:
                 item.activate()
@@ -184,6 +186,7 @@ class GameController(object):
                     self.gs.change_feature_facing(feature.unique_name, direction)
 
     def initiate_action(self, actor_unique_name, action_object):
+        print(action_object)
         self.gs.add_to_action_queue(actor_unique_name, action_object)
 
     def actor_activation(self, actor_unique_name):
@@ -267,6 +270,7 @@ class GameController(object):
 
         custom = CustomAction([("walk_left", Action.move(Direction.LEFT)), ("hold", ("release", None))])
         self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("character_action", ("Cai_290", copy.copy(custom))), ("character_action", ("Cai_290", copy.copy(custom))), ("character_action", ("Cai_290", copy.copy(custom))), ("action", "dialogue"), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
+
 
     def execute_action_from_animator(self, action_name):
         if action_name == "delete_husk":
@@ -535,11 +539,13 @@ class GameController(object):
     def initiate_player_movement(self, direction):
         room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
         target_tile = self.position_manager.get_adjacent_tile(self.gs.player_ghost, direction, room_object)
+        target_x, target_y = self.position_manager.get_adjacent_coords(self.gs.player_ghost, direction)
         self.gs.change_player_facing(direction)
         move_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[0]
         door_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[1]
+        print(move_status, door_status)
         if door_status:
-            self.go_through_door(room_object.room_name + "_" + str(target_tile.x) + "_" + str(target_tile.y))
+            self.go_through_door(room_object.room_name + "_" + str(target_x) + "_" + str(target_y))
         elif not door_status:
             if move_status:
                 player = self.gs.get_player_ghost()
@@ -1221,7 +1227,7 @@ class MenuController(object):
         selected_menu.reset_elements()
         self.gc.gs.ms.deactivate_menu(menu_name)
         self.gc.scene_manager.waiting_for_response = False
-        self.gc.scene_manager.continue_scene({"x_move": 0, "y_move": 0})
+        self.gc.scene_manager.process_scene_queue()
 
     def exit_all_menus(self):
         list = []
@@ -1246,6 +1252,61 @@ class SceneManager(object): #TODO: Work on this mess!!
         self.currently_displayed_dialogue = ["scene_1"]
         self.waiting_for_response = False
         self.waiting_for_animation_to_finish = False
+        self.active_scene = None
+        # scene = Scene(self.gc, [SceneStep(self.gc, "camera", "camera", CameraPanAnimation(Direction.RIGHT, 3), None),
+        #               SceneStep(self.gc, "character_dialogue", "Cowboy_2", "dialogue", None),
+        #               SceneStep(self.gc, "character_action", "Cowboy_2", "walk_left", Action.move(Direction.LEFT)),
+        #               SceneStep(self.gc, "camera", "camera", CameraPanAnimation(Direction.LEFT, 3), None)])
+        scene = Scene(self.gc, [SceneStep(self.gc, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT)),
+                                SceneStep(self.gc, "character_dialogue", "Cowboy_5", "dialogue", None),
+                                SceneStep(self.gc, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT)),
+                                SceneStep(self.gc, "character_dialogue", "Cowboy_5", "dialogue", None)
+                                          ])
+        self.scene_dict = {"scene_1": scene}
+
+    def initiate_scene(self, scene_name):
+        self.active_scene = copy.copy(self.scene_dict[scene_name])
+        self.gc.set_active_keyboard_manager(InSceneKeyboardManager.ID)
+        self.process_scene_queue()
+
+    def process_scene_queue(self):
+        if self.active_scene.complete:
+            self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+        else:
+            next_step = self.active_scene.return_current_action()
+            print(next_step.step_type)
+            self.execute_scene_step(next_step)
+
+    def execute_scene_step(self, scene_step_object):
+        print(scene_step_object)
+        if scene_step_object.step_type == "camera":
+            pass
+
+        elif scene_step_object.step_type == "character_dialogue":
+            character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_5")
+
+            details = {"speaker_name": "Cowboy_5",
+                       "friendship_level": 3,
+                       "face_image": character_talking_to_avatar.face_image,
+                       "speaker_unique_name": "Jane",
+                       "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+
+            self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
+            self.gc.scene_manager.waiting_for_response = True
+
+        elif scene_step_object.step_type == "character_action":
+            action = CustomAction([(scene_step_object.visual_action, scene_step_object.physical_action)])
+            self.gc.initiate_action(scene_step_object.actor, action)
+
+            def condition(gc):
+                result = False
+                if action in gc.gs.recently_completed_actions:
+                    result = True
+                return result
+
+            def reaction(gc):
+                gc.scene_manager.process_scene_queue()
+            self.gc.game.game_events.add_delayed_trigger(condition, reaction)
 
     def finish_waiting_for_response(self):
         self.waiting_for_response = False
@@ -1315,8 +1376,9 @@ class SceneManager(object): #TODO: Work on this mess!!
 
 
 class SceneStep(object): #TODO: Work on this mess!!
-    def __init__(self, gc, actor, visual_action, physical_action):
+    def __init__(self, gc, step_type, actor, visual_action, physical_action):
         self.gc = gc
+        self.step_type = step_type
         self.actor = actor
         self.visual_action = visual_action
         self.physical_action = physical_action

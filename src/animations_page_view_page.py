@@ -1,3 +1,4 @@
+import copy
 import random
 from definitions import Direction, GameSettings, Types, Mundane
 from spritesheet import Spritesheet
@@ -186,15 +187,17 @@ class Action(object):
         self.sequence = []
         self.current_action = 0
         self.total_actions = len(self.sequence)
+        self.complete = False
+        self.waiting_on_animation = False
 
     def check_if_complete(self):
-        result = False
         if self.current_action == self.total_actions:
-            result = True
-        return result
+            self.complete = True
+        return copy.copy(self.complete)
 
     def reset(self):
         self.current_action = 0
+        self.complete = False
 
     @ classmethod
     def move(self, direction):
