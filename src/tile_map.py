@@ -135,9 +135,9 @@ class TileMap:
 
 
 class SpecialBackground:
-    def __init__(self, bg_filename, shapes_filename):
-        rows = 6
-        columns = 3
+    def __init__(self, bg_filename, shapes_filename_list):
+        rows = 30
+        columns = 30
         TILESET_IMAGE1 = "assets/tile_set/tile_experiment.png"
         self.tile_set_1 = TileSet(TILESET_IMAGE1, 16, 16, rows, columns).load_tile_images()
         # self.tile_set_2 = TileSet(GameSettings.TILESET_IMAGE2, 16, 16, rows, columns).load_tile_images()
@@ -146,14 +146,25 @@ class SpecialBackground:
         self.tile_size = 16
         self.start_x, self.start_y = 0, 0
         self.tiles_1 = self.load_tiles(bg_filename, self.tile_set_1)
-        self.tiles_shapes_1 = self.load_tiles(shapes_filename, self.tile_set_1)
+        self.shapes_number = 0
+        for item in shapes_filename_list:
+            self.shapes_number += 1
+            setattr(self, "tile_shapes_" + str(self.shapes_number), self.load_tiles(item, self.tile_set_1))
+            shape_item = getattr(self, "tile_shapes_" + str(self.shapes_number))
+            base = pygame.Surface((self.map_w, self.map_h))
+            base.set_colorkey((50, 100, 150))
+            setattr(self, "map_shapes_" + str(self.shapes_number), base)
+
+
         # self.tiles_2 = self.load_tiles(filename, self.tile_set_2)
         # self.tiles_3 = self.load_tiles(filename, self.tile_set_3)
         # self.tiles_4 = self.load_tiles(filename, self.tile_set_4)
         self.map_surface_1 = pygame.Surface((self.map_w, self.map_h))
         self.map_surface_1.set_colorkey((50, 100, 200))
-        self.map_shapes_1 = pygame.Surface((self.map_w, self.map_h))
-        self.map_shapes_1.set_colorkey((50, 100, 150))
+        # self.map_shapes_1 = pygame.Surface((self.map_w, self.map_h))
+        # self.map_shapes_1.set_colorkey((50, 100, 150))
+        # self.map_shapes_2 = pygame.Surface((self.map_w, self.map_h))
+        # self.map_shapes_2.set_colorkey((50, 100, 150))
 
         # self.map_surface_2 = pygame.Surface((self.map_w, self.map_h))
         # self.map_surface_2.set_colorkey((0, 0, 0))
@@ -172,12 +183,20 @@ class SpecialBackground:
     def load_map(self):
         for tile in self.tiles_1:
             tile.draw_tile(self.map_surface_1)
-        for tile in self.tiles_shapes_1:
-            tile.draw_tile(self.map_shapes_1)
+
+        for number in range(self.shapes_number):
+            number += 1
+            attribute = getattr(self, "tile_shapes_" + str(number))
+            map_shapes = getattr(self, "map_shapes_" + str(number))
+            for tile in attribute:
+                tile.draw_tile(map_shapes)
+            self.map_surface_1.blit(map_shapes, (0, 0))
+
         # colorkey = self.map_shapes_1.get_at((0, 0))
         # self.map_shapes_1.set_colorkey(colorkey, pygame.RLEACCEL)
         # self.map_shapes_1.set_colorkey((50, 100, 150))
-        self.map_surface_1.blit(self.map_shapes_1, (0, 0))
+        # self.map_surface_1.blit(self.map_shapes_1, (0, 0))
+        # self.map_surface_1.blit(self.map_shapes_2, (0, 0))
 
     # def return_map_2(self):
     #     return self.map_surface_2

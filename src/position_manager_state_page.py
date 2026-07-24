@@ -2,7 +2,7 @@ import copy
 import math
 from typing import TYPE_CHECKING
 import pygame
-from definitions import Direction, Types
+from definitions import Direction, Types, Mundane
 from tile_map import TileMap, ElevationMap, TerrainMap, FakeCSVMap, SpecialBackground
 
 if TYPE_CHECKING:
@@ -118,7 +118,6 @@ class PositionManager(object):
         door = False
         proper_angle = False
         hypothetical_door = room_name + "_" + str(x) + "_" + str(y)
-        print(hypothetical_door, self.gc.game_data.door_data_list.keys())
         for door_name in self.gc.game_data.door_data_list.keys():
             if door_name == hypothetical_door:
                 door = True
@@ -984,9 +983,18 @@ class SpecialPlot(Plot):
     def __init__(self, room, plot_x, plot_y, plot_size_x, plot_size_y):
         super().__init__(room, plot_x, plot_y, plot_size_x, plot_size_y)
         self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
+        shapes_path = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes"
+        print(shapes_path)
+        shapes_list = Mundane.get_file_names_from_directory(shapes_path)
+        self.shape_csv_list = []
+        print(shapes_list)
+        if shapes_list is not None:
+            for item in shapes_list:
+                self.shape_csv_list.append("assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes/" + item)
         self.shapes_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes.csv"
+        self.shapes2_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes2.csv"
         self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
-        bg = SpecialBackground(self.background_csv_file, self.shapes_csv_file).return_map()
+        bg = SpecialBackground(self.background_csv_file, self.shape_csv_list).return_map()
         self.background_map = [copy.copy(bg), copy.copy(bg), copy.copy(bg), copy.copy(bg)]
         self.make_elevation_map()
 

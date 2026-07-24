@@ -4,7 +4,7 @@ import os
 import pygame
 
 from feature_avatar_view_page import PlayerAvatar, JayAvatar
-from definitions import Direction, Types, GameSettings
+from definitions import Direction, Types, GameSettings, Mundane
 from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
@@ -56,20 +56,21 @@ def install_all_data(gc, gs):
     def install_rooms(gc, gs):
         gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
-        gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
-        gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
-        gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
-        gs.gd.add_room_data("Marsh", (Consolidated("Marsh", 50, 50, 1, 1)))
-        gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
-        gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
-        gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
-        gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
-        gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
-        gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
-        gs.gd.add_room_data("Well_Room", (Consolidated("Well_Room", 35, 30, 1, 1)))
-        gs.gd.add_room_data("Entry_Room", (Consolidated("Entry_Room", 7, 9, 1, 1)))
-        gs.gd.add_room_data("Forest", (Consolidated("Forest", 35, 30, 1, 1)))
-        gs.gd.add_room_data("Experiment", (SpecialRoom("Experiment", 8, 8, 1, 1)))
+        gs.gd.add_room_data("Marsh", (SpecialRoom("Marsh", 50, 50, 1, 1)))
+        # gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
+        # gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
+        # gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
+
+        # gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
+        # gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
+        # gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
+        # gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
+        # gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
+        # gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
+        # gs.gd.add_room_data("Well_Room", (Consolidated("Well_Room", 35, 30, 1, 1)))
+        # gs.gd.add_room_data("Entry_Room", (Consolidated("Entry_Room", 7, 9, 1, 1)))
+        # gs.gd.add_room_data("Forest", (Consolidated("Forest", 35, 30, 1, 1)))
+        # gs.gd.add_room_data("Experiment", (SpecialRoom("Experiment", 13, 13, 1, 1)))
 
 
     def install_classes(gc, gs):
@@ -122,30 +123,30 @@ def install_all_data(gc, gs):
     def install_doors(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Marsh", 3, 6, 21, 33)
-        gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
-        gc.position_manager.add_door("Ladder", "Staging_Area", "Beach", 5, 6, 35, 35)
-        gc.position_manager.add_door("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
-        gc.position_manager.add_door("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
-        gc.position_manager.add_door("Ladder", "Cave", "Cave", 15, 8, 5, 7)
-        gc.position_manager.add_door("Feature_Passage", "Test_Room", "My_House", 5, 17, 2, 5)
-        gc.position_manager.add_door("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
-        gc.position_manager.add_door("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
-        gc.position_manager.add_door("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
-        gc.position_manager.add_door("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
-        gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
-        gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
-        gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
-        gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
-        gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 7, 2, 10, 20)
-
-        gc.position_manager.add_door("Passage", "Staging_Area", "Well_Room", 1, 2, 7, 29)
-        gc.position_manager.add_door("Ladder", "Staging_Area", "Entry_Room", 1, 6, 1, 6)
-
-        gc.position_manager.add_door("Double_back", "Entry_Room", "Marsh", 5, 2, 22, 17)
-        gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 6, 51, 25, 0)
-        gc.position_manager.add_door("Double_back", "Forest", "Mountain_Room", 2, 2, 28, 26)
-
-        gc.position_manager.add_door("Ladder", "Staging_Area", "Experiment", 1, 5, 2, 2)
+        # gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
+        # gc.position_manager.add_door("Ladder", "Staging_Area", "Beach", 5, 6, 35, 35)
+        # gc.position_manager.add_door("Passage", "Test_Room", "Cave", 8, 12, 8, 12)
+        # gc.position_manager.add_door("Passage", "Test_Room", "Cave", 15, 10, 15, 10)
+        # gc.position_manager.add_door("Ladder", "Cave", "Cave", 15, 8, 5, 7)
+        # gc.position_manager.add_door("Feature_Passage", "Test_Room", "My_House", 5, 17, 2, 5)
+        # gc.position_manager.add_door("Ladder", "Test_Room", "Bird_Room", 8, 10, 4, 4)
+        # gc.position_manager.add_door("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
+        # gc.position_manager.add_door("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
+        # gc.position_manager.add_door("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
+        # gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
+        # gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
+        # gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
+        # gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
+        # gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 7, 2, 10, 20)
+        #
+        # gc.position_manager.add_door("Passage", "Staging_Area", "Well_Room", 1, 2, 7, 29)
+        # gc.position_manager.add_door("Ladder", "Staging_Area", "Entry_Room", 1, 6, 1, 6)
+        #
+        # gc.position_manager.add_door("Double_back", "Entry_Room", "Marsh", 5, 2, 22, 17)
+        # gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 6, 51, 25, 0)
+        # gc.position_manager.add_door("Double_back", "Forest", "Mountain_Room", 2, 2, 28, 26)
+        #
+        # gc.position_manager.add_door("Ladder", "Staging_Area", "Experiment", 1, 5, 2, 2)
 
     def install_spritesheets(gc, gs):
         # gc.game_data.add_spritesheet("player_base_spritesheet", Spritesheet("player_base_spritesheet", "assets/spritesheets/Player_CS.png", 32, 40))

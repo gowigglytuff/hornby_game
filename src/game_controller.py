@@ -71,7 +71,6 @@ class GameEvents(object):
 
         remove_dict = []
         for item in self.delayed_trigger_list:
-            print(item.condition)
             result = item.check_condition()
             if result:
                 item.activate()
@@ -186,7 +185,6 @@ class GameController(object):
                     self.gs.change_feature_facing(feature.unique_name, direction)
 
     def initiate_action(self, actor_unique_name, action_object):
-        print(action_object)
         self.gs.add_to_action_queue(actor_unique_name, action_object)
 
     def actor_activation(self, actor_unique_name):
@@ -543,7 +541,6 @@ class GameController(object):
         self.gs.change_player_facing(direction)
         move_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[0]
         door_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[1]
-        print(move_status, door_status)
         if door_status:
             self.go_through_door(room_object.room_name + "_" + str(target_x) + "_" + str(target_y))
         elif not door_status:
@@ -740,7 +737,6 @@ class GameController(object):
             object_class = self.gs.gd.get_feature_class(feature_dict["species"])
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            print(feature_dict["spawn_room"], unique_name)
             feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
@@ -1274,11 +1270,9 @@ class SceneManager(object): #TODO: Work on this mess!!
             self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
         else:
             next_step = self.active_scene.return_current_action()
-            print(next_step.step_type)
             self.execute_scene_step(next_step)
 
     def execute_scene_step(self, scene_step_object):
-        print(scene_step_object)
         if scene_step_object.step_type == "camera":
             pass
 

@@ -1,4 +1,5 @@
 import copy
+import os
 from enum import Enum
 
 _ENUM_BASE = 83571983457
@@ -189,3 +190,10 @@ class Mundane(object):
         elif friendship >= 16:
             friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
         return friendship_counter
+
+    @classmethod
+    def get_file_names_from_directory(cls, dir_path):
+        # print(os.listdir(dir_path))
+        # Filter to get names of files only
+        files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+        return files

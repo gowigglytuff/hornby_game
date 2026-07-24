@@ -159,7 +159,6 @@ class GameState(object):
         actor_ghost = self.get_feature_ghost(actor_ghost_name)
 
         current_animation_name, current_move = action_object.sequence[action_object.current_action]
-        print("this one:", current_animation_name)
         action_object.current_action += 1
 
         if current_animation_name:
@@ -645,7 +644,6 @@ class GameData(object):
 
     def add_door_data(self, door_name, door_object):
         self.door_data_list[door_name] = door_object
-        print(door_name)
 
     def add_temp_item_data(self, item_name, item_object):
         self.temp_item_data_list[item_name] = item_object
