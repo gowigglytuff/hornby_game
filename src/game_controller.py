@@ -699,7 +699,8 @@ class GameController(object):
             int_list = [int(i) for i in row]
             int_map.append(int_list)
 
-        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus", 4: "Rock", 5: "Small_Rock", 6: "Small_Craig"}
+        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus", 4: "Rock", 5: "Small_Rock", 6: "Small_Craig",
+                                  8: "Fence_Vertical", 9: "Fence_Horizontal", 10: "Fence_Bottom_Left", 11: "Fence_Bottom_Right", 12: "Fence_Top_Left", 13: "Fence_Top_Right"}
 
         feature_list = []
 

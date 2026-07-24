@@ -40,4 +40,10 @@ type,Prop,feature_subtype,Prop,species,Purple_Seed,display_name,Purple Seed,base
 type,Prop,feature_subtype,Prop,species,Pink_Seed,display_name,Pink Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Orange_Seed,display_name,Orange Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Yellow_Seed,display_name,Yellow Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Blue_Seed,display_name,Blue Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Blue_Seed,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Horizontal,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Bottom_Left,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Vertical,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Bottom_Right,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Top_Left,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Top_Right,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

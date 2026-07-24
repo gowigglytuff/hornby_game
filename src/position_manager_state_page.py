@@ -984,18 +984,20 @@ class SpecialPlot(Plot):
         super().__init__(room, plot_x, plot_y, plot_size_x, plot_size_y)
         self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
         shapes_path = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes"
-        print(shapes_path)
+
         shapes_list = Mundane.get_file_names_from_directory(shapes_path)
         self.shape_csv_list = []
-        print(shapes_list)
+
         if shapes_list is not None:
+            shapes_list_number = 0
             for item in shapes_list:
+                shapes_list_number += 1
                 self.shape_csv_list.append("assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes/" + item)
+
         self.shapes_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes.csv"
         self.shapes2_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes2.csv"
         self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
-        bg = SpecialBackground(self.background_csv_file, self.shape_csv_list).return_map()
-        self.background_map = [copy.copy(bg), copy.copy(bg), copy.copy(bg), copy.copy(bg)]
+        self.background_map = SpecialBackground(self.background_csv_file, self.shape_csv_list).return_map_list()
         self.make_elevation_map()
 
 
