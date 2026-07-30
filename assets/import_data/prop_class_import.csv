@@ -22,10 +22,14 @@ type,Prop,feature_subtype,Prop,species,Rock,display_name,Rock,base_size_x,1,base
 type,Prop,feature_subtype,Prop,species,Small_Rock,display_name,Small Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Small_Craig,display_name,Small Craig,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Pine,display_name,Pine,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fir,display_name,Fir,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Arbutus,display_name,Arbutus,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Apple_Tree,display_name,Apple Tree,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Oak,display_name,Oak,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Alder,display_name,Alder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Cottonwood,display_name,Cottonwood,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Scotch_Broom,display_name,Scotch Broom,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Hawthorn,display_name,Hawthorn,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Husk,display_name,Husk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Feeder,species,Green_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Feeder,species,Red_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

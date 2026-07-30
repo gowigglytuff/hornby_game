@@ -942,10 +942,11 @@ class Plot(object):
         self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
 
     def make_terrain_map(self):
-        if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1" or self.plot_name == "Habitat_Room_1_1" or self.plot_name == "Mountain_Room_1_1":
-            self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
-        else:
-            self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)
+        # if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1" or self.plot_name == "Habitat_Room_1_1" or self.plot_name == "Mountain_Room_1_1":
+        #     self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
+        # else:
+        #     self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)
+        self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
 
     def get_elevation(self, x, y):
         elevation = self.elevation_map.get_elevation(x, y)
@@ -979,11 +980,17 @@ class Consolidated(Room):
                 self.add_room_plot(self.room_name + "_" + str(x) + "_" + str(y), ConsolidatedPlot(self.room_name, x, y, self.plot_size_x, self.plot_size_y))
 
 
-class SpecialPlot(Plot):
+class SpecialPlot(object):
     def __init__(self, room, plot_x, plot_y, plot_size_x, plot_size_y):
-        super().__init__(room, plot_x, plot_y, plot_size_x, plot_size_y)
-        self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
-        shapes_path = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes"
+        self.plot_x = plot_x
+        self.plot_y = plot_y
+        self.plot_size_x = plot_size_x
+        self.plot_size_y = plot_size_y
+        self.room = room
+        self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
+
+        # self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
+        shapes_path = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background"
 
         shapes_list = Mundane.get_file_names_from_directory(shapes_path)
         self.shape_csv_list = []
@@ -992,14 +999,33 @@ class SpecialPlot(Plot):
             shapes_list_number = 0
             for item in shapes_list:
                 shapes_list_number += 1
-                self.shape_csv_list.append("assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes/" + item)
+                self.shape_csv_list.append("assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background/" + item)
 
         self.shapes_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes.csv"
         self.shapes2_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Shapes2.csv"
         self.elevation_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Elevation.csv"
-        self.background_map = SpecialBackground(self.background_csv_file, self.shape_csv_list).return_map_list()
+        self.terrain_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Terrain.csv"
+        self.background_map = SpecialBackground(self.shape_csv_list).return_map_list()
         self.make_elevation_map()
+        self.make_terrain_map()
 
+    def make_elevation_map(self):
+        self.elevation_map = ElevationMap(self.plot_name, self.elevation_csv_file)
+
+    def make_terrain_map(self):
+        # if self.plot_name == "Marsh_1_1" or self.plot_name == "Beach_1_1" or self.plot_name == "Habitat_Room_1_1" or self.plot_name == "Mountain_Room_1_1":
+        #     self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
+        # else:
+        #     self.terrain_map = FakeCSVMap(self.plot_name, self.terrain_csv_file, self.plot_size_x, self.plot_size_y)
+        self.terrain_map = TerrainMap(self.plot_name, self.terrain_csv_file)
+
+    def get_elevation(self, x, y):
+        elevation = self.elevation_map.get_elevation(x, y)
+        return elevation
+
+    def get_terrain(self, x, y):
+        terrain = self.terrain_map.get_terrain(x, y)
+        return terrain
 
 class SpecialRoom(Room):
     def __init__(self, room_name, x_size, y_size, total_plots_x, total_plots_y):

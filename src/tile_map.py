@@ -135,7 +135,7 @@ class TileMap:
 
 
 class SpecialBackground:
-    def __init__(self, bg_filename, shapes_filename_list):
+    def __init__(self, shapes_filename_list):
         self.rows = 30
         self.columns = 30
         self.number_frames = 4
@@ -144,7 +144,7 @@ class SpecialBackground:
             frame += 1
             self.establish_tileset_frame(frame)
             tile_set = getattr(self, "tile_set_" + str(frame))
-            setattr(self, "tiles_" + str(frame), self.load_tiles(bg_filename, tile_set))
+            setattr(self, "tiles_" + str(frame), self.load_tiles(shapes_filename_list[0], tile_set))
 
         self.start_x, self.start_y = 0, 0
         self.shapes_filename_list = shapes_filename_list
@@ -179,8 +179,8 @@ class SpecialBackground:
             base.set_colorkey((50, 100, 150))
             setattr(self, "map_shapes_" + str(self.shapes_number), base)
 
-        for tile in getattr(self, "tiles_" + str(layer_number)):
-            tile.draw_tile(map_surface)
+        # for tile in getattr(self, "tiles_" + str(layer_number)):
+        #     tile.draw_tile(map_surface)
 
         for number in range(self.shapes_number):
             number += 1
@@ -205,6 +205,8 @@ class SpecialBackground:
         for row in tile_map:
             x = 0
             for tile in row:
+                if tile == "-1":
+                    tile = "29"
                 tiles.append(Tilling(tile_source[int(tile)], x * self.tile_size, y * self.tile_size))
                 x += 1
             y += 1
