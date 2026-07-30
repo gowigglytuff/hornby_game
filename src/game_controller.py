@@ -637,6 +637,8 @@ class GameController(object):
         drawables_list = self.game_view.get_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.game_view.get_independent_anim_locations())
         self.game_view.draw_all(drawables_list, current_room)
 
+        self.game_view.draw_view_window()
+
         self.menu_controller.update_stat_menus()
         for menu in (self.gs.ms.static_menus + self.gs.ms.visible_menus):
             ghost = self.gs.ms.menu_ghost_data_list[menu + "_ghost"]

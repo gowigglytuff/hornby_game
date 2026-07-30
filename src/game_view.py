@@ -46,6 +46,8 @@ class GameView(object):
         self.clock = pygame.time.Clock()
         self.resolution = GameSettings.RESOLUTION
         self.FPS = GameSettings.FPS
+        self.view_window = ViewWindow(self, GameSettings.RESOLUTION[0], GameSettings.RESOLUTION[1], 400, 400)
+        self.show_view_window = True
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
@@ -175,6 +177,11 @@ class GameView(object):
     def build_overlay_image(self, name, x_size, y_size, header=None):
         image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
         return image
+
+    def draw_view_window(self):
+        if self.show_view_window:
+            final_image = self.view_window.image
+            self.screen.blit(final_image, [0, 0])
 
     def draw_special_menu(self, menu_name, menu_info, x, y):
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
@@ -503,3 +510,26 @@ class AnimationManager(object):
         if complete:
             wrap_up = True
         return wrap_up, animation_result[3]
+
+
+class ViewWindow(object):
+    def __init__(self, gv_input, big_x, big_y, little_x, little_y):
+        self.gv = gv_input # type:GameView
+        loc_x = (big_x - little_x)/2
+        loc_y = (big_y - little_y)/2
+
+        COLOR_KEY = (50, 100, 150)  # Magenta (transparent)
+        SQUARE_COLOR = (50, 50, 50)  # Blue shape
+        FRAME_COLOR = (0, 0, 0)
+        frame_size = 12
+        inner_frame_size = 6
+
+        punched_square = pygame.Surface((big_x, big_y))
+        punched_square.fill(COLOR_KEY)
+
+        pygame.draw.rect(punched_square, SQUARE_COLOR, (0, 0, big_x, big_y))
+        pygame.draw.rect(punched_square, FRAME_COLOR, (loc_x-frame_size, loc_y-frame_size, little_x + (frame_size*2), little_y + (frame_size*2)))
+        pygame.draw.rect(punched_square, SQUARE_COLOR, (loc_x-inner_frame_size, loc_y-inner_frame_size, little_x + (inner_frame_size*2), little_y + (inner_frame_size*2)))
+        pygame.draw.rect(punched_square, COLOR_KEY, (loc_x, loc_y, little_x, little_y))
+        punched_square.set_colorkey(COLOR_KEY)
+        self.image = punched_square

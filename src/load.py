@@ -122,8 +122,11 @@ def install_all_data(gc, gs):
 
 
     def install_doors(gc, gs):
-        gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
+        # gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Marsh", 3, 6, 16, 40)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Forest", 2, 8, 8, 13)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Mountain", 4, 8, 21, 42)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Mountain", 6, 8, 12, 23)
         gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 6, 49, 25, 1)
         gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 5, 49, 26, 1)
         # gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
