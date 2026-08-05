@@ -138,6 +138,7 @@ class GameController(object):
         self.move_counter = 0
         self.flashing_currently = False
         self.rotation_number = 0
+        self.held_step = SceneStep(self, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT))
 
     # region GAME CONTROLS
     def set_active_keyboard_manager(self, active_manager_id):
@@ -260,14 +261,37 @@ class GameController(object):
         y_change = self.gs.get_player_ghost_location()[1]-self.gs.ghost_eye_initiation[1]
         self.gs.change_player_facing(self.gs.ghost_eye_initiation_facing)
         direction_x = Direction.LEFT
+        slide_x = "slide_left"
         if x_change < 0:
             direction_x = Direction.RIGHT
+            slide_x = "slide_right"
         direction_y = Direction.UP
+        slide_y = "slide_up"
         if y_change < 0:
             direction_y = Direction.DOWN
+            slide_y = "slide_down"
+
+        scene_queue = []
+
+        for tile in range(x_change):
+            step = SceneStep(self, "player_action", "Player", slide_x, Action.move(direction_x))
+            scene_queue.append(step)
+
+        for tile in range(y_change):
+            step = SceneStep(self, "player_action", "Player", slide_y, Action.move(direction_y))
+            scene_queue.append(step)
+
+
+        scene = Scene(self, [SceneStep(self, "player_action", "Player", "slide", Action.move(Direction.LEFT)),
+                            SceneStep(self, "character_dialogue", "Cowboy_3", "dialogue", None),
+                            SceneStep(self, "character_action", "Cowboy_3", "walk_left", Action.move(Direction.LEFT)),
+                            SceneStep(self, "character_dialogue", "Cowboy_3", "dialogue", None)
+                      ])
 
         custom = CustomAction([("walk_left", Action.move(Direction.LEFT)), ("hold", ("release", None))])
-        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)), ("character_action", ("Cai_290", copy.copy(custom))), ("character_action", ("Cai_290", copy.copy(custom))), ("character_action", ("Cai_290", copy.copy(custom))), ("action", "dialogue"), ("animation", CameraPanAnimation(direction_y, y_change)), ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
+        self.scene_manager.play_scene(Scene(self, [("animation", CameraPanAnimation(direction_x, x_change)),
+                                                   ("animation", CameraPanAnimation(direction_y, y_change)),
+                                                   ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
 
 
     def execute_action_from_animator(self, action_name):
@@ -705,7 +729,8 @@ class GameController(object):
                                   5: "Small_Rock", 6: "Small_Craig", 7: "Fir", 8: "Fence_Vertical",
                                   9: "Fence_Horizontal", 10: "Fence_Bottom_Left", 11: "Fence_Bottom_Right", 12: "Fence_Top_Left",
                                   13: "Fence_Top_Right", 14: "", 15: "", 16: "Scotch_Broom",
-                                  17: "Hawthorn", 18: "Cottonwood", 19: "Alder", 20: "", }
+                                  17: "Hawthorn", 18: "Cottonwood", 19: "Alder", 20: "Nootka_Rose",
+                                  21: "Ocean_Spray", 22: "Willow", 23: "White_Poplar", 24: "Willow"}
 
         feature_list = []
 
@@ -1259,12 +1284,15 @@ class SceneManager(object): #TODO: Work on this mess!!
         #               SceneStep(self.gc, "character_dialogue", "Cowboy_2", "dialogue", None),
         #               SceneStep(self.gc, "character_action", "Cowboy_2", "walk_left", Action.move(Direction.LEFT)),
         #               SceneStep(self.gc, "camera", "camera", CameraPanAnimation(Direction.LEFT, 3), None)])
-        scene = Scene(self.gc, [SceneStep(self.gc, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT)),
-                                SceneStep(self.gc, "character_dialogue", "Cowboy_5", "dialogue", None),
-                                SceneStep(self.gc, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT)),
-                                SceneStep(self.gc, "character_dialogue", "Cowboy_5", "dialogue", None)
+        scene = Scene(self.gc, [SceneStep(self.gc, "character_action", "Cowboy_3", "walk_left", Action.move(Direction.LEFT)),
+                                SceneStep(self.gc, "character_dialogue", "Cowboy_3", "dialogue", None),
+                                SceneStep(self.gc, "character_action", "Cowboy_3", "walk_left", Action.move(Direction.LEFT)),
+                                SceneStep(self.gc, "character_dialogue", "Cowboy_3", "dialogue", None),
                                           ])
-        self.scene_dict = {"scene_1": scene}
+        scene_2 = Scene(self, [SceneStep(self, "player_action", "Player", ["slide", PlayerSlideAnimation(2, 3)], Action.slide(2, 3))])
+
+        self.scene_dict = {"scene_1": scene,
+                           "scene_2": scene_2}
 
     def initiate_scene(self, scene_name):
         self.active_scene = copy.copy(self.scene_dict[scene_name])
@@ -1275,38 +1303,58 @@ class SceneManager(object): #TODO: Work on this mess!!
         if self.active_scene.complete:
             self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
         else:
-            next_step = self.active_scene.return_current_action()
-            self.execute_scene_step(next_step)
+            next_step, last_action = self.active_scene.return_current_action2()
+            self.execute_scene_step(next_step, last_action)
 
-    def execute_scene_step(self, scene_step_object):
-        if scene_step_object.step_type == "camera":
+
+    def execute_scene_step(self, scene_step_object, last_action):
+        if last_action:
+            self.active_scene.complete = True
+        if scene_step_object == "pass":
             pass
+        else:
+            if scene_step_object.step_type == "camera":
+                pass
 
-        elif scene_step_object.step_type == "character_dialogue":
-            character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_5")
+            elif scene_step_object.step_type == "character_dialogue":
+                character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_3")
 
-            details = {"speaker_name": "Cowboy_5",
-                       "friendship_level": 3,
-                       "face_image": character_talking_to_avatar.face_image,
-                       "speaker_unique_name": "Jane",
-                       "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+                details = {"speaker_name": "Cowboy_3",
+                           "friendship_level": 3,
+                           "face_image": character_talking_to_avatar.face_image,
+                           "speaker_unique_name": "Jane",
+                           "phrase": ["Hi there, I hope that you're having an amazing day!"]}
 
-            self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
-            self.gc.scene_manager.waiting_for_response = True
+                self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
+                self.gc.scene_manager.waiting_for_response = True
 
-        elif scene_step_object.step_type == "character_action":
-            action = CustomAction([(scene_step_object.visual_action, scene_step_object.physical_action)])
-            self.gc.initiate_action(scene_step_object.actor, action)
+            elif scene_step_object.step_type == "character_action":
+                action = CustomAction([(scene_step_object.visual_action, scene_step_object.physical_action)])
+                self.gc.initiate_action(scene_step_object.actor, action)
 
-            def condition(gc):
-                result = False
-                if action in gc.gs.recently_completed_actions:
-                    result = True
-                return result
+                def condition(gc):
+                    result = False
+                    if action in gc.gs.recently_completed_actions:
+                        result = True
+                    return result
 
-            def reaction(gc):
-                gc.scene_manager.process_scene_queue()
-            self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+                def reaction(gc):
+                    gc.scene_manager.process_scene_queue()
+                self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+
+            elif scene_step_object.step_type == "player_action":
+                action = CustomAction([(scene_step_object.visual_action, scene_step_object.physical_action)])
+                self.gc.initiate_action(scene_step_object.actor, action)
+
+                def condition(gc):
+                    result = False
+                    if action in gc.gs.recently_completed_actions:
+                        result = True
+                    return result
+
+                def reaction(gc):
+                    gc.scene_manager.process_scene_queue()
+                self.gc.game.game_events.add_delayed_trigger(condition, reaction)
 
     def finish_waiting_for_response(self):
         self.waiting_for_response = False
@@ -1322,22 +1370,31 @@ class SceneManager(object): #TODO: Work on this mess!!
             self.scene_list[self.current_scene].total_player_x_movement += previous_follow_up["x_move"]
             self.scene_list[self.current_scene].total_player_y_movement += previous_follow_up["y_move"]
             next_action, complete = self.scene_list[self.current_scene].return_current_action()
+
+            result = "continue"
+
+            if next_action[0] == "animation":
+                self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action[1])
+                result = "wait"
+            elif next_action[0] == "action":
+                self.gc.execute_action_from_animator(next_action[1])
+                result = "continue"
+            elif next_action[0] == "character_action":
+                self.gc.initiate_action(next_action[1][0], next_action[1][1])
+                result = "wait"
+            elif next_action[0] == "pass":
+                pass
+
             if complete:
                 self.scene_end_character_movements({"x_move": self.scene_list[self.current_scene].total_player_x_movement,
                                                     "y_move": self.scene_list[self.current_scene].total_player_y_movement})
                 self.end_scene()
             else:
-                if next_action[0] == "animation":
-                    self.waiting_for_animation_to_finish = True
-                    self.gc.game_view.animation_manager.add_to_scene_anim_in_progress(next_action[1])
-                elif next_action[0] == "action":
-                    self.gc.execute_action_from_animator(next_action[1])
+                if result == "continue":
                     self.continue_scene({"x_move": 0, "y_move": 0})
-                elif next_action[0] == "character_action":
-                    self.gc.initiate_action(next_action[1][0], next_action[1][1])
+                elif result == "wait":
                     self.waiting_for_animation_to_finish = True
-        # else:
-        #     self.continue_scene({"x_move": 0, "y_move": 0})
+
 
     def roll_scene_animation(self):
         pass

@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from animations_page_view_page import CameraPanAnimation
+from animations_page_view_page import CameraPanAnimation, Action, PlayerSlideAnimation
 from definitions import Direction
 from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost, MenuGhost, SceneDialogueMenuGhost
 from scenes import Scene
 
 if TYPE_CHECKING:
-    from game_controller import GameController, DelayedTrigger
+    from game_controller import GameController, DelayedTrigger, SceneStep
 
 
 class KeyboardManager(object):
@@ -204,7 +204,15 @@ class InGameKeyboardManager(KeyboardManager):
         #     print("it happened!")
         #
         # self.gc.game.game_events.add_delayed_trigger(condition, reaction)
-        self.gc.scene_manager.initiate_scene("scene_1")
+        # scene = Scene(self, [("animation", PlayerSlideAnimation(Direction.LEFT, 2, Direction.UP, 3))])
+        # self.gc.scene_manager.play_scene(scene)
+
+
+        self.gc.scene_manager.initiate_scene("scene_2")
+        # custom = CustomAction([("walk_left", Action.move(Direction.LEFT)), ("hold", ("release", None))])
+        # scene_action = ("animation", CameraPanAnimation(direction_x, x_change))
+        # self.gc.scene_manager.play_scene(Scene(self, [self.gc.held_step]))
+
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

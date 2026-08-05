@@ -1,0 +1,4 @@
+﻿species,Stellar_Jay,display_name,Stellar Jay,function,None,spawn_room,Mountain,spawn_x,5,spawn_y,25,spawn_facing,Right,spawn_active,yes
+species,Canada_Jay,display_name,Canada Jay,function,None,spawn_room,Mountain,spawn_x,33,spawn_y,11,spawn_facing,Right,spawn_active,yes
+species,Quail,display_name,Quail,function,None,spawn_room,Mountain,spawn_x,10,spawn_y,48,spawn_facing,Right,spawn_active,yes
+species,Ptarmigan,display_name,Ptarmigan,function,None,spawn_room,Mountain,spawn_x,9,spawn_y,11,spawn_facing,Right,spawn_active,yes

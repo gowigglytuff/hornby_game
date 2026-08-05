@@ -47,7 +47,7 @@ class GameView(object):
         self.resolution = GameSettings.RESOLUTION
         self.FPS = GameSettings.FPS
         self.view_window = ViewWindow(self, GameSettings.RESOLUTION[0], GameSettings.RESOLUTION[1], 400, 400)
-        self.show_view_window = True
+        self.show_view_window = False
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y

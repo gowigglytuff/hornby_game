@@ -30,6 +30,10 @@ type,Prop,feature_subtype,Prop,species,Alder,display_name,Alder,base_size_x,1,ba
 type,Prop,feature_subtype,Prop,species,Cottonwood,display_name,Cottonwood,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Scotch_Broom,display_name,Scotch Broom,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Hawthorn,display_name,Hawthorn,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Nootka_Rose,display_name,Nootka Rose,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Ocean_Spray,display_name,Ocean Spray,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,White_Poplar,display_name,White Poplar,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Willow,display_name,Willow Spray,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Husk,display_name,Husk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Feeder,species,Green_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Feeder,species,Red_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

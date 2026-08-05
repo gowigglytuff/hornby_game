@@ -128,6 +128,10 @@ class PositionManager(object):
                     proper_angle = True
                 elif (door_object.access_from == Direction.UP) and (checker.y == door_object.y_from - 1):
                     proper_angle = True
+                elif (door_object.access_from == Direction.LEFT) and (checker.x == door_object.x_from - 1):
+                    proper_angle = True
+                elif (door_object.access_from == Direction.RIGHT) and (checker.x == door_object.x_from + 1):
+                    proper_angle = True
                 else:
                     pass
         return proper_angle
@@ -664,6 +668,26 @@ class PositionManager(object):
             doorway2_deco_name = False
             doormat2_deco_name = True
 
+        elif door_type == "Walk_Right":
+            door1_exit_x_offset = 1
+            door1_access_from = Direction.LEFT
+            door1_exit_direction = Direction.MATCH
+            door1_has_image = False
+
+            door2_exit_x_offset = -1
+            door2_access_from = Direction.RIGHT
+            door2_exit_direction = Direction.MATCH
+            door2_has_image = False
+
+            doormat1_dict = {"species": "DoormatRight", "display_name": "Doormat", "function": "None", "spawn_room": str(room_from), "spawn_x": str(door_from_x - 1), "spawn_y": str(door_from_y), "spawn_facing": "Down", "spawn_active": "yes"}
+            install_list["doormat1"] = doormat1_dict
+            doormat2_dict = {"species": "DoormatLeft", "display_name": "Doormat", "function": "None", "spawn_room": str(room_to), "spawn_x": str(door_to_x + 1), "spawn_y": str(door_to_y), "spawn_facing": "Down", "spawn_active": "yes"}
+            install_list["doormat2"] = doormat2_dict
+
+            doorway1_deco_name = False
+            doormat1_deco_name = True
+            doorway2_deco_name = True
+            doormat2_deco_name = False
 
         elif door_type == "Double_back":
             door1_species = "Doorway"

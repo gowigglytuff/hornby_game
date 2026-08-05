@@ -120,18 +120,18 @@ class GameState(object):
     def act_on_action_queue(self):
         remove_list = []
         for actor_ghost_name in self.action_queue.keys():
-            actor_ghost = self.get_feature_ghost(actor_ghost_name)
-            is_busy = actor_ghost.check_if_busy()
-            action_object = self.action_queue[actor_ghost_name]
+            if actor_ghost_name == "Player":
+                player_ghost = self.get_player_ghost()
+                # is_busy = actor_ghost.check_if_busy()
+                action_object = self.action_queue[actor_ghost_name]
 
-            complete = action_object.check_if_complete()
-            if complete:
-                if not action_object.waiting_on_animation:
-                    action_object.reset()
-                    remove_list.append(actor_ghost_name)
-            else:
-                if not is_busy:
-                    current_room = self.get_room(actor_ghost.spawn_room)
+                complete = action_object.check_if_complete()
+                if complete:
+                    if not action_object.waiting_on_animation:
+                        action_object.reset()
+                        remove_list.append(actor_ghost_name)
+                else:
+                    current_room = self.get_current_room()
                     current_move = action_object.sequence[action_object.current_action][1]
 
                     action_type = current_move[0]
@@ -139,13 +139,44 @@ class GameState(object):
 
                     can_act = True
                     if action_type == "move":
-                        can_act = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+                        can_act = self.gc.position_manager.check_if_feature_can_move(player_ghost, direction, current_room)
+                        if can_act:
+                            self.execute_action_step(actor_ghost_name, action_object)
+                        else:
+                            self.change_feature_facing(actor_ghost_name, direction)
 
-                    if can_act:
+                    if action_type == "slide":
                         self.execute_action_step(actor_ghost_name, action_object)
 
-                    else:
-                        self.change_feature_facing(actor_ghost_name, direction)
+
+            else:
+                actor_ghost = self.get_feature_ghost(actor_ghost_name)
+                is_busy = actor_ghost.check_if_busy()
+                action_object = self.action_queue[actor_ghost_name]
+
+                complete = action_object.check_if_complete()
+                if complete:
+                    if not action_object.waiting_on_animation:
+                        action_object.reset()
+                        remove_list.append(actor_ghost_name)
+                else:
+                    if not is_busy:
+                        current_room = self.get_room(actor_ghost.spawn_room)
+                        current_move = action_object.sequence[action_object.current_action][1]
+
+                        action_type = current_move[0]
+                        direction = current_move[1]
+
+                        can_act = True
+                        if action_type == "move":
+                            can_act = self.gc.position_manager.check_if_feature_can_move(actor_ghost, direction, current_room)
+                            if can_act:
+                                self.execute_action_step(actor_ghost_name, action_object)
+                            else:
+                                self.change_feature_facing(actor_ghost_name, direction)
+
+                        if action_type == "slide":
+                            self.execute_action_step(actor_ghost_name, action_object)
 
         for actor_ghost_name in remove_list:
             if len(self.recently_completed_actions) >= 10:
@@ -155,72 +186,147 @@ class GameState(object):
                 self.recently_completed_actions.append(self.action_queue.pop(actor_ghost_name))
 
     def execute_action_step(self, actor_ghost_name, action_object):
-        feature_avatar = self.gv.get_feature_avatar(actor_ghost_name)
-        actor_ghost = self.get_feature_ghost(actor_ghost_name)
+        if actor_ghost_name == "Player":
+            player_avatar = self.gv.get_player_avatar()
+            player_ghost = self.get_player_ghost()
 
-        current_animation_name, current_move = action_object.sequence[action_object.current_action]
-        action_object.current_action += 1
+            current_animation_name, current_move = action_object.sequence[action_object.current_action]
+            action_object.current_action += 1
 
-        if current_animation_name:
-            animation = self.gv.animation_manager.get_animation(current_animation_name)
-            feature_avatar.initiate_animation(animation)
-            actor_ghost.initiate_animation(current_animation_name)
-            self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
-            action_object.waiting_on_animation = True
+            if current_animation_name:
+                if current_animation_name[0] == "slide":
+                    animation = current_animation_name[1]
+                    player_avatar.initiate_animation(animation)
+                    # self.gv.animation_manager.add_to_anim_in_progress(player_ghost.unique_name)
+                    action_object.waiting_on_animation = True
 
-            def condition(gc):
-                result = False
-                if actor_ghost.unique_name not in gc.feature_animations_in_progress:
-                    result = True
-                return result
+                    def condition(gc):
+                        result = False
+                        if player_avatar.currently_animating == False:
+                            result = True
+                        return result
 
-            def reaction(gc):
-                gc.gs.action_queue[actor_ghost.unique_name].waiting_on_animation = False
+                    def reaction(gc):
+                        gc.gs.action_queue[player_ghost.unique_name].waiting_on_animation = False
 
-            self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+                    self.gc.game.game_events.add_delayed_trigger(condition, reaction)
 
-        action_type = current_move[0]
+            action_type = current_move[0]
+
+            if action_type == "move":
+                direction = current_move[1]
+                x_move = Mundane.direction_feedback(direction, -1, 1, 0, 0)
+                y_move = Mundane.direction_feedback(direction, 0, 0, -1, 1)
+
+                target_x = player_ghost.x + x_move
+                target_y = player_ghost.y + y_move
+                current_room = self.get_current_room()
+                self.gc.position_manager.move_ghost(player_ghost, current_room, current_room, target_x, target_y)
+
+            if action_type == "slide":
+                x_move = current_move[1][0]
+                y_move = current_move[1][1]
+
+                target_x = player_ghost.x + x_move
+                target_y = player_ghost.y + y_move
+                current_room = self.get_current_room()
+                self.gc.position_manager.move_ghost(player_ghost, current_room, current_room, target_x, target_y)
+
+        else:
+            feature_avatar = self.gv.get_feature_avatar(actor_ghost_name)
+            actor_ghost = self.get_feature_ghost(actor_ghost_name)
+
+            current_animation_name, current_move = action_object.sequence[action_object.current_action]
+            action_object.current_action += 1
+
+            if current_animation_name:
+                if current_animation_name[0] == "slide":
+                    animation = current_animation_name[1]
+                    feature_avatar.initiate_animation(animation)
+                    actor_ghost.initiate_animation(current_animation_name)
+                    self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
+                    action_object.waiting_on_animation = True
+
+                    def condition(gc):
+                        result = False
+                        if actor_ghost.unique_name not in gc.feature_animations_in_progress:
+                            result = True
+                        return result
+
+                    def reaction(gc):
+                        gc.gs.action_queue[actor_ghost.unique_name].waiting_on_animation = False
+
+                    self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+
+                else:
+                    animation = self.gv.animation_manager.get_animation(current_animation_name)
+                    feature_avatar.initiate_animation(animation)
+                    actor_ghost.initiate_animation(current_animation_name)
+                    self.gv.animation_manager.add_to_anim_in_progress(actor_ghost.unique_name)
+                    action_object.waiting_on_animation = True
+
+                    def condition(gc):
+                        result = False
+                        if actor_ghost.unique_name not in gc.feature_animations_in_progress:
+                            result = True
+                        return result
+
+                    def reaction(gc):
+                        gc.gs.action_queue[actor_ghost.unique_name].waiting_on_animation = False
+
+                    self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+
+            action_type = current_move[0]
 
 
-        if action_type == "move":
-            direction = current_move[1]
-            x_move = Mundane.direction_feedback(direction, -1, 1, 0, 0)
-            y_move = Mundane.direction_feedback(direction, 0, 0, -1, 1)
+            if action_type == "move":
+                direction = current_move[1]
+                x_move = Mundane.direction_feedback(direction, -1, 1, 0, 0)
+                y_move = Mundane.direction_feedback(direction, 0, 0, -1, 1)
 
-            target_x = actor_ghost.x + x_move
-            target_y = actor_ghost.y + y_move
-            current_room = self.get_room(actor_ghost.spawn_room)
-            self.gc.position_manager.move_ghost(actor_ghost, current_room, current_room, target_x, target_y)
+                target_x = actor_ghost.x + x_move
+                target_y = actor_ghost.y + y_move
+                current_room = self.get_room(actor_ghost.spawn_room)
+                self.gc.position_manager.move_ghost(actor_ghost, current_room, current_room, target_x, target_y)
 
-        elif action_type == "face":
-            direction = current_move[1]
-            self.change_feature_ghost_facing(actor_ghost.unique_name, direction)
+            if action_type == "slide":
+                x_move = current_move[1][0]
+                y_move = current_move[1][1]
 
-        elif action_type == "stationary":
-            pass
+                target_x = actor_ghost.x + x_move
+                target_y = actor_ghost.y + y_move
+                current_room = self.get_room(actor_ghost.spawn_room)
+                self.gc.position_manager.move_ghost(actor_ghost, current_room, current_room, target_x, target_y)
 
-        elif action_type == "hold":
-            pass
+            elif action_type == "face":
+                direction = current_move[1]
+                self.change_feature_ghost_facing(actor_ghost.unique_name, direction)
 
-        elif action_type == "release":
-            self.gc.scene_manager.waiting_for_animation_to_finish = False
-            self.gc.scene_manager.continue_scene({"x_move": 0, "y_move": 0})
+            elif action_type == "stationary":
+                pass
 
-        elif action_type == "outfit_change":
-            outfit = current_move[1]
-            # TODO: Implement this!
+            elif action_type == "hold":
+                pass
 
-        elif action_type == "dialogue_menu":
-            character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
+            elif action_type == "release":
+                self.gc.scene_manager.waiting_for_animation_to_finish = False
+                self.gc.scene_manager.continue_scene({"x_move": 0, "y_move": 0})
 
-            details = {"speaker_name": "Jane",
-                       "friendship_level": 3,
-                       "face_image": character_talking_to_avatar.face_image,
-                       "speaker_unique_name": "Jane",
-                       "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+            elif action_type == "outfit_change":
+                outfit = current_move[1]
+                # TODO: Implement this!
 
-            self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
-            self.gc.scene_manager.waiting_for_response = True
+            elif action_type == "dialogue_menu":
+                character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
+
+                details = {"speaker_name": "Jane",
+                           "friendship_level": 3,
+                           "face_image": character_talking_to_avatar.face_image,
+                           "speaker_unique_name": "Jane",
+                           "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+
+                self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
+                self.gc.scene_manager.waiting_for_response = True
 
 
 

@@ -180,6 +180,131 @@ class CameraPanAnimation(object):
         self.frame_counter = 0
         # self.complete = False
 
+class PlayerSlideAnimation(object):
+    AN_TYPE = "camera"
+    def __init__(self, x_distance, y_distance):
+        self.complete = False
+        self.y_change = 0
+        self.x_change = 0
+        self.y_speed = 0
+        self.x_speed = 0
+
+        self.y_speed_1 = 0
+        self.x_speed_1 = 0
+
+        self.y_speed_2 = 0
+        self.x_speed_2 = 0
+
+        self.total_tiles = 0
+        self.total_movement_distance = 0
+        self.frame_counter = 0
+        self.frame_speed = 10
+        self.direction = None
+        self.current_frame = 0
+        self.speed_multiplier = 1
+        self.speed_tracker = 0
+        self.set_animation(x_distance, y_distance)
+
+    def set_animation(self, x_distance, y_distance):
+        self.complete = False
+        self.phase_1_complete = False
+        self.total_tiles_x = abs(x_distance)
+        self.total_movement_distance_x = abs(x_distance) * GameSettings.TILESIZE
+
+        vector_x = 0
+        if x_distance < 0:
+            vector_x = -1
+        if x_distance >= 0:
+            vector_x = 1
+
+        self.y_speed_1 = 0
+        self.x_speed_1 = vector_x * 2
+
+        self.phase_2_complete = False
+        self.total_tiles_y = abs(y_distance)
+        self.total_movement_distance_y = abs(y_distance) * GameSettings.TILESIZE
+
+        vector_y = 0
+        if y_distance < 0:
+            vector_y = -1
+        if y_distance >= 0:
+            vector_y = 1
+
+        self.y_speed_2 = vector_y * 2
+        self.x_speed_2 = 0
+
+        self.total_tiles = self.total_tiles_x + self.total_tiles_y
+        self.total_movement_distance = self.total_movement_distance_y + self.total_movement_distance_x
+
+    def animate(self):
+        if not self.phase_1_complete:
+            if self.speed_tracker == self.speed_multiplier:
+                self.y_change = self.y_speed_1
+                self.x_change = self.x_speed_1
+                self.speed_tracker = 0
+            else:
+                self.y_change = 0
+                self.x_change = 0
+                self.speed_tracker += 1
+
+            if self.frame_counter == self.total_movement_distance_x:
+                self.phase_1_complete = True
+                self.frame_counter += 1
+            else:
+                self.frame_counter += 1
+        if self.phase_1_complete:
+            if self.speed_tracker == self.speed_multiplier:
+                self.y_change = self.y_speed_2
+                self.x_change = self.x_speed_2
+                self.speed_tracker = 0
+            else:
+                self.y_change = 0
+                self.x_change = 0
+                self.speed_tracker += 1
+
+            if self.frame_counter >= self.total_movement_distance:
+                self.phase_2_complete = True
+                self.complete = True
+            else:
+                self.frame_counter += 1
+
+
+        return self.result()
+
+    # def result(self):
+    #     camera_y_change = self.y_change
+    #     camera_x_change = self.x_change
+    #     complete = self.complete
+    #     follow_up_package = {"x_move": self.total_tiles_x, "y_move": self.total_tiles_y}
+    #
+    #     if self.complete:
+    #         self.reset()
+    #
+    #     return camera_x_change, camera_y_change, complete, follow_up_package
+
+    def result(self):
+        y_change = copy.copy(self.y_change)
+        x_change = copy.copy(self.x_change)
+        sheet_x = None
+        sheet_y = None
+        complete = False
+        if self.complete:
+            complete = True
+            sheet_x = None
+            sheet_y = None
+            self.reset()
+
+        return x_change, y_change, sheet_x, sheet_y, complete
+
+    def reset(self):
+        self.y_change = 0
+        self.x_change = 0
+        self.speed_tracker = 0
+        self.current_frame = 0
+        self.frame_counter = 0
+        self.complete = False
+        self.phase_1_complete = False
+        self.phase_2_complete = False
 
 class Action(object):
     def __init__(self):
@@ -202,6 +327,10 @@ class Action(object):
     @ classmethod
     def move(self, direction):
         return ("move", direction)
+
+    @ classmethod
+    def slide(self, distance_x, distance_y):
+        return ("slide", (distance_x, distance_y))
 
     @classmethod
     def face(self, direction):

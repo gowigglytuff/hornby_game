@@ -1,0 +1,5 @@
+﻿species,Blackbird,display_name,Blackbird,function,None,spawn_room,Forest,spawn_x,9,spawn_y,18,spawn_facing,Right,spawn_active,yes
+species,Nuthatch,display_name,Nuthatch,function,None,spawn_room,Forest,spawn_x,17,spawn_y,6,spawn_facing,Right,spawn_active,yes
+species,Towhee,display_name,Towhee,function,None,spawn_room,Forest,spawn_x,29,spawn_y,17,spawn_facing,Right,spawn_active,yes
+species,Warbler,display_name,Warbler,function,None,spawn_room,Forest,spawn_x,11,spawn_y,4,spawn_facing,Right,spawn_active,yes
+species,Tanager,display_name,Tanager,function,None,spawn_room,Forest,spawn_x,18,spawn_y,26,spawn_facing,Right,spawn_active,yes

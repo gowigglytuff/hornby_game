@@ -32,8 +32,8 @@ class GameSettings(object):
     TILESET_SIZE = 40
     # RESOLUTION = (375, 600)
     SCREEN_OFFSET_Y = 0
-    # RESOLUTION = (312*4, 312*3)
-    RESOLUTION = (850, 850)
+    RESOLUTION = (312*4, 312*3)
+    # RESOLUTION = (850, 850)
     MENUSEGMENTSIZE = 5
     MENUEDGE = 50
     UNIQUEID = 1

@@ -16,6 +16,7 @@ type,Actor,feature_subtype,Bird,species,Thrush,display_name,Thrush,base_size_x,1
 type,Actor,feature_subtype,Bird,species,Robin,display_name,Robin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Goldfinch,display_name,Goldfinch,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Cormorant,display_name,Cormorant,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Osprey,display_name,Osprey,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Seagull,display_name,Seagull,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Coot,display_name,Coot,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Green_Heron,display_name,Green Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
@@ -43,3 +44,5 @@ type,Actor,feature_subtype,Bird,species,Agami_Heron,display_name,Agami_Heron,bas
 type,Actor,feature_subtype,Bird,species,Kakapo,display_name,Kakapo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Bearded_Vulture,display_name,Bearded_Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Actor,feature_subtype,Bird,species,Quetzalcoatl,display_name,Quetzalcoatl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Ptarmigan,display_name,Ptarmigan,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Bushtit,display_name,Bushtit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
