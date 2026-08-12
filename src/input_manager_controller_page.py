@@ -128,6 +128,7 @@ class InGameKeyboardManager(KeyboardManager):
                                     "s": [self.gc.activate_ghost_eye],
                                     "left ctrl": [self.gc.clear_key_down_cue, self.gc.menu_controller.set_start_menu],
                                     "left shift": [self.key_lshift_pressed],
+                                    "right shift": [self.key_rshift_pressed],
                                     "escape": [],
                                     "tab": [self.gc.use_selected_tool],
                                     "caps lock": [self.gc.close_game]}
@@ -138,7 +139,7 @@ class InGameKeyboardManager(KeyboardManager):
                                       "left ctrl": [],
                                       "left shift": [],
                                       "escape": [],
-                                      "tab": [],
+                                      "tab": [self.gc.end_selected_tool_use],
                                       "caps lock": []}
 
 
@@ -174,7 +175,7 @@ class InGameKeyboardManager(KeyboardManager):
         for item in self.release_function_dict[pygame.key.name(key)]:
             item()
 
-    def key_lshift_pressed(self):
+    def key_rshift_pressed(self):
         # self.gc.game_view.trigger_independent_animation("bird_disappear_animation")
         # player = self.gc.game_view.get_player_avatar()
         # player.spritesheet = self.gc.game_view.outfit_manager.lab
@@ -244,7 +245,7 @@ class GhostEyeKeyboardManager(KeyboardManager):
                                       "left ctrl": [],
                                       "left shift": [],
                                       "escape": [],
-                                      "tab": [],
+                                      "tab": [self.gc.end_selected_tool_use],
                                       "caps lock": []}
 
 

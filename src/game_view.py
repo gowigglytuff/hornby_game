@@ -12,31 +12,49 @@ from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
 
-class OutfitManager(object): #TODO: work on this
+
+class OutfitManager(object):
     def __init__(self, gc):
         self.gc = gc
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.red_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_red_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.green_shirt = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_green_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
-        self.lab_coat = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_lab_coat_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.outfits_list = {}
 
     def put_on_outfit(self, outfit_name):
         outgoing_outfit = copy.copy(self.gc.gs.current_outfit)
         self.gc.gs.current_outfit = outfit_name
         self.gc.gs.revert_outfit = outfit_name
         player = self.gc.game_view.get_player_avatar()
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_name + "_spritesheet.png",  32, 48)
-        player.spritesheet = image
+        image = self.outfits_list[outfit_name].spritesheet
+        player.spritesheet = copy.copy(image)
 
     def put_on_temporary_outfit(self, outfit_name):
         outgoing_outfit = copy.copy(self.gc.gs.current_outfit)
         self.gc.gs.revert_outfit = outgoing_outfit
         self.gc.gs.current_outfit = outfit_name
         player = self.gc.game_view.get_player_avatar()
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_name + "_spritesheet.png",  32, 48)
-        player.spritesheet = image
+        image = self.outfits_list[outfit_name].spritesheet
+        player.spritesheet = copy.copy(image)
 
+    def add_outfit(self, file_name, display_name):
+        outfit_object = Outfit(self.gc.gs.gv, file_name, display_name, self.character_frame_x, self.character_frame_y)
+        self.outfits_list[file_name] = outfit_object
+
+    def get_outfit(self, outfit_name):
+        return self.outfits_list[outfit_name]
+
+    def acquire_outfit(self, outfit_name):
+        outfit = self.get_outfit(outfit_name)
+        outfit.acquired = True
+
+    def get_acquired_outfits(self):
+        outfits_list = copy.copy(self.outfits_list)
+        acquired_outfits = []
+        for outfit in outfits_list.keys():
+            if outfits_list[outfit].acquired:
+                acquired_outfits.append(outfits_list[outfit])
+        final_list = sorted(acquired_outfits, key = lambda x: x.display_name)
+        return final_list
 
 class GameView(object):
     def __init__(self, game_data, game_state):
@@ -533,3 +551,15 @@ class ViewWindow(object):
         pygame.draw.rect(punched_square, COLOR_KEY, (loc_x, loc_y, little_x, little_y))
         punched_square.set_colorkey(COLOR_KEY)
         self.image = punched_square
+
+
+class Outfit(object):
+    def __init__(self, gv_input, file_name, display_name, character_frame_x, character_frame_y):
+        self.gv = gv_input  # type:GameView
+        self.character_frame_x = character_frame_x
+        self.character_frame_y = character_frame_y
+        self.file_name = file_name
+        self.display_name = display_name
+        self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/Player_" + self.file_name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.acquired = False
+

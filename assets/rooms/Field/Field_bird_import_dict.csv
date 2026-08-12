@@ -3,3 +3,4 @@ species,Song_Sparrow,display_name,Song Sparrow,function,None,spawn_room,Field,sp
 species,Meadowlark,display_name,Meadowlark,function,None,spawn_room,Field,spawn_x,28,spawn_y,17,spawn_facing,Right,spawn_active,yes
 species,Vulture,display_name,Vulture,function,None,spawn_room,Field,spawn_x,16,spawn_y,3,spawn_facing,Right,spawn_active,yes
 species,Goldfinch,display_name,Goldfinch,function,None,spawn_room,Field,spawn_x,5,spawn_y,10,spawn_facing,Right,spawn_active,yes
+species,Coopers_Hawk,display_name,Coopers Hawk,function,None,spawn_room,Field,spawn_x,3,spawn_y,21,spawn_facing,Right,spawn_active,yes

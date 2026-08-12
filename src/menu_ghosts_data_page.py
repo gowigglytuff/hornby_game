@@ -3,6 +3,7 @@ import math
 import textwrap
 
 from definitions import GameSettings, Types, Mundane
+from game_view import Outfit
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -338,7 +339,7 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
         super().__init__(gc)
         self.menu_header = None
         self.menu_item_list = []
-        self.menu_header = "<   ITEMS   >"
+        self.menu_header = "    ITEMS    "
         self.menu_images_list = []
         self.cursor = "-"
         self.shifts = 0
@@ -428,7 +429,10 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
 
         if sub_menu_selection == "Use":
             chosen_item = self.gc.inventory_manager.gc.gs.gd.key_item_data_list[chosen_item_name]
-            self.gc.inventory_manager.use_key_item(chosen_item)
+            if chosen_item.use_type == "continuous":
+                self.gc.gs.selected_tool = chosen_item_name
+            else:
+                self.gc.inventory_manager.use_key_item(chosen_item)
             self.prepare_menu_for_display(None)
             self.gc.menu_controller.exit_all_menus()
 
@@ -567,13 +571,8 @@ class OutfitMenuGhost(MenuGhost):
         self.max_displayed_items = 14
         self.currently_displayed_items = []
         self.update_currently_displayed()
-        self.outfit_list = {"green_shirt": ["green_shirt", "Green Shirt"],
-                            "red_shirt": ["red_shirt", "Red Shirt"],
-                            "ghost_eye": ["ghost_eye", "Ghost Eye"],
-                            "lab_coat": ["lab", "Lab Coat"],
-                            "ninja_shinobi": ["ninja_shinobi", "Ninja Shinobi"],
-                            "au_naturel": ["au_naturel", "Au Naturel"]}
-        self.selected_outfit = "green_shirt"
+        self.current_outfits_list = []
+        self.selected_outfit = Outfit(gc.gs.gv, "green_shirt", "Green Shirt", 32, 48)
         self.is_last_outfit = False
         self.is_first_outfit = False
         self.outfit_number = 0
@@ -588,6 +587,7 @@ class OutfitMenuGhost(MenuGhost):
                 self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
 
     def prepare_menu_for_display(self, details):
+        self.current_outfits_list = self.gc.outfit_manager.get_acquired_outfits()
         self.make_main_outfit(0)
 
     def generate_menu_information_package(self):
@@ -599,14 +599,12 @@ class OutfitMenuGhost(MenuGhost):
         for item in range(len(source)):
             text_display_list.append(source[item])
 
-        outfit_sprite_code = self.selected_outfit
-
         is_first_outfit = self.is_first_outfit
         is_last_outfit = self.is_last_outfit
-        image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_" + outfit_sprite_code + "_spritesheet.png",  32, 48)
+        image = self.selected_outfit.spritesheet
         image_choice = image.get_image(0, 0)
 
-        menu_specific = {"outfit_name": self.outfit_list[self.selected_outfit][1],
+        menu_specific = {"outfit_name": self.selected_outfit.display_name,
                          "is_first_outfit": is_first_outfit,
                          "is_last_outfit": is_last_outfit,
                          "outfit_image": image_choice}
@@ -615,12 +613,12 @@ class OutfitMenuGhost(MenuGhost):
         return menu_information
 
     def do_option(self):
-        self.gc.outfit_manager.put_on_outfit(self.selected_outfit)
+        self.gc.outfit_manager.put_on_outfit(self.selected_outfit.file_name)
         self.gc.menu_controller.exit_all_menus()
 
 
     def cursor_left(self):
-        length = len(self.outfit_list)
+        length = len(self.current_outfits_list)
         if 0 < self.outfit_number:
             new_number = self.outfit_number - 1
             self.make_main_outfit(new_number)
@@ -628,7 +626,7 @@ class OutfitMenuGhost(MenuGhost):
             pass
 
     def cursor_right(self):
-        length = len(self.outfit_list)
+        length = len(self.current_outfits_list)
         if (length - 1) > self.outfit_number:
             new_number = self.outfit_number + 1
             self.make_main_outfit(new_number)
@@ -637,11 +635,13 @@ class OutfitMenuGhost(MenuGhost):
 
     def make_main_outfit(self, number):
         self.outfit_number = number
-        outfit_keys = self.outfit_list.keys()
-        sorted_keys = sorted(outfit_keys)
-        self.selected_outfit = sorted_keys[number]
+        # outfit_keys = self.outfit_list.keys()
+        # sorted_keys = sorted(outfit_keys)
+        # self.selected_outfit = sorted_keys[number]
 
-        length = len(sorted_keys)
+        self.selected_outfit = self.current_outfits_list[number]
+
+        length = len(self.current_outfits_list)
         if number == (length - 1):
             self.is_last_outfit = True
         else:

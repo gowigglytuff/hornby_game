@@ -2,3 +2,4 @@
 species,Canada_Jay,display_name,Canada Jay,function,None,spawn_room,Mountain,spawn_x,33,spawn_y,11,spawn_facing,Right,spawn_active,yes
 species,Quail,display_name,Quail,function,None,spawn_room,Mountain,spawn_x,10,spawn_y,48,spawn_facing,Right,spawn_active,yes
 species,Ptarmigan,display_name,Ptarmigan,function,None,spawn_room,Mountain,spawn_x,9,spawn_y,11,spawn_facing,Right,spawn_active,yes
+species,Golden_Eagle,display_name,Golden Eagle,function,None,spawn_room,Mountain,spawn_x,14,spawn_y,3,spawn_facing,Left,spawn_active,yes

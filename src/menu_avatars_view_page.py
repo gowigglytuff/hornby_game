@@ -201,7 +201,7 @@ class StatMenuAvatar(MenuAvatar):
     def __init__(self, gc, name, items):
         super().__init__(gc, name,  items)
         self.menu_display_details = {"default_width": None, "default_height": None, "align_x": "center", "align_y": "top", "coordinates": [0, 0]}
-        self.set_menu_width = 75
+        self.set_menu_width = 80
         self.set_menu_height = 8
         self.fill_out_menu_info(items)
 

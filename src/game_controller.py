@@ -418,6 +418,11 @@ class GameController(object):
             self.inventory_manager.use_key_item(tool)
         else:
             self.gs.gc.menu_controller.post_notice("There is nothing selected")
+
+    def end_selected_tool_use(self):
+        if self.gs.selected_tool != "None":
+            tool = self.inventory_manager.gc.gs.gd.key_item_data_list[self.gs.selected_tool]
+            self.inventory_manager.end_key_item_use(tool)
     # endregion
 
     # region INTERACT WITH OBJECTS (package, basket)
@@ -432,6 +437,7 @@ class GameController(object):
                 if not feature.check_if_busy():
                     if feature.feature_subtype == Types.BIRD:
                         self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
+                        self.talk_to_bird(cube.filling_unique_name, player.facing)
                     else:
                         self.talk_to_character(cube.filling_unique_name, player.facing)
             elif feature.feature_type == Types.PROP:
@@ -453,6 +459,7 @@ class GameController(object):
         character_talking_to_ghost = self.gs.feature_ghost_list[character_talking_to]
         character_talking_to_avatar = self.game_view.feature_avatar_list[character_talking_to]
         self.gs.change_feature_facing(character_talking_to, direction_to_turn)
+
         character_talking_to_ghost.currently_chatting = True
         self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
         details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
@@ -461,6 +468,21 @@ class GameController(object):
                    "speaker_unique_name": character_talking_to_ghost.unique_name}
 
         self.gs.gc.menu_controller.set_menu(ConversationOptionsMenuGhost.BASE, details)
+
+    def talk_to_bird(self, bird_talking_to, player_direction):
+        direction_to_turn = Direction.DOWN
+        if player_direction == Direction.DOWN:
+            direction_to_turn = Direction.UP
+        elif player_direction == Direction.UP:
+            direction_to_turn = Direction.DOWN
+        elif player_direction == Direction.LEFT:
+            direction_to_turn = Direction.RIGHT
+        elif player_direction == Direction.RIGHT:
+            direction_to_turn = Direction.LEFT
+
+        character_talking_to_ghost = self.gs.feature_ghost_list[bird_talking_to]
+        character_talking_to_avatar = self.game_view.feature_avatar_list[bird_talking_to]
+        self.gs.change_feature_facing(bird_talking_to, direction_to_turn)
 
     def talk_to_prop(self, prop_talking_to, player_direction):
         prop_talking_to_ghost = self.gs.feature_ghost_list[prop_talking_to]
@@ -949,6 +971,8 @@ class InventoryManager(object):
 
         self.gc.gs.gc.menu_controller.post_notice(message)
 
+    def end_key_item_use(self, item):
+        self.gc.gs.gd.key_item_data_list[item.NAME].end_tool_use()
 
 class TriggerManager(object):
     def __init__(self, gc):

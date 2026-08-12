@@ -66,7 +66,7 @@ def install_all_data(gc, gs):
         # gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
         # gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
         gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
-        gs.gd.add_room_data("Beach", (Consolidated("Beach", 50, 50, 1, 1)))
+        gs.gd.add_room_data("Beach", (SpecialRoom("Beach", 50, 50, 1, 1)))
         gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
         # gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
         gs.gd.add_room_data("Mountain", (SpecialRoom("Mountain", 35, 50, 1, 1)))
@@ -248,7 +248,10 @@ def install_all_data(gc, gs):
                 gs.gv.set_menu_display_coordinates(menu.BASE)
 
     def install_outfits(gc, gs):
-        pass
+        outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ["red_shirt", "Red Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]
+        for outfit_pair in outfits_list:
+            gc.outfit_manager.add_outfit(outfit_pair[0], outfit_pair[1])
+            gc.outfit_manager.acquire_outfit(outfit_pair[0])
 
     def install_tileset(gc, gs):
         pass

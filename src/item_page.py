@@ -177,8 +177,12 @@ class KeyItem(object):
         base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", self.image_size_x, self.image_size_y).get_image(0, 0)
         base.blit(spritesheet, [30, 20])
         self.menu_image = base
+        self.use_type = "one_time"
 
     def item_use(self, details):
+        pass
+
+    def end_tool_use(self):
         pass
 
     def use_requirements_met(self, details):
@@ -188,6 +192,12 @@ class KeyItem(object):
     def fail_to_use_item(self):
         self.gc.update_game_dialogue("You can't use that now")
 
+    def get_success_message(self, details):
+        return "You used the item"
+
+    def get_failure_message(self, details):
+        message = "You can't use that now"
+        return message
 
 class Hammer(KeyItem):
     NAME = "Hammer"
@@ -221,14 +231,26 @@ class MermaidCrown(KeyItem):
 
     def __init__(self, gc):
         super().__init__(gc)
+        self.use_type = "continuous"
 
+    def item_use(self, details):
+        self.gc.activate_mermaid_crown()
+
+    def end_tool_use(self):
+        self.gc.determine_mermaid_crown_end()
 
 class GhostEye(KeyItem):
     NAME = "Ghost Eye"
 
     def __init__(self, gc):
         super().__init__(gc)
+        self.use_type = "continuous"
 
+    def item_use(self, details):
+        self.gc.activate_ghost_eye()
+
+    def end_tool_use(self):
+        self.gc.determine_ghost_eyes_end()
 
 class Shovel(KeyItem):
     NAME = "Shovel"
