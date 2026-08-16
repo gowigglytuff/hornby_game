@@ -39,18 +39,18 @@ class PlayerGhost(object):
 
 
 class FeatureGhost(ABC):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
         self.gs_input = gc_input  # type: GameState
         self.feature_type = None  # example: "Prop"
         self.feature_subtype = None  # example: "Tree"
         self.species = None  # example: "Arbutus"
-        self.display_name = None
         self.figure_size_x = None
         self.figure_size_y = None
         self.base_size_x = None
         self.base_size_y = None
 
         self.unique_name = unique_name  # example "Arbutus_102"
+        self.display_name = display_name
         self.function = function  # example: "Basket"
         self.set_up_function(self.function)
         self.spawn_x = spawn_x
@@ -128,8 +128,8 @@ class FeatureGhost(ABC):
 
 
 class ActorGhost(FeatureGhost, ABC):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.ACTOR
         self.trigger_list = []
         self.action_list = None
@@ -149,8 +149,8 @@ class ActorGhost(FeatureGhost, ABC):
 
 
 class CharacterGhost(ActorGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_subtype = Types.CHARACTER
         self.base_phrase = None
         self.good_gift_phrase = None
@@ -180,8 +180,8 @@ class CharacterGhost(ActorGhost):
 
 
 class BirdGhost(ActorGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
@@ -208,7 +208,7 @@ class BirdGhost(ActorGhost):
                 if time_check:
                     is_calm = True
             elif self.species == "Crow":
-                    is_calm = True
+                    is_calm = False
         return is_calm
 
     def check_trigger_result(self, trigger):
@@ -253,8 +253,8 @@ class BirdGhost(ActorGhost):
         pass
 
 class JayGhost(BirdGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_subtype = Types.BIRD
         self.proximity_x_trigger = 0
         self.proximity_y_trigger = 0
@@ -285,8 +285,8 @@ class JayGhost(BirdGhost):
 
 
 class PropGhost(FeatureGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.PROP
         self.feature_subtype = Types.PROP
 
@@ -299,8 +299,8 @@ class PropGhost(FeatureGhost):
         elif self.function == "Page":
             self.gs_input.gc.pick_up_package("Page", self.unique_name, self.spawn_room, self.function_items)
         elif self.function == "Feeder":
-            required_seed = self.function_items[0] + "_Seed"
-            current_inventory = self.gs_input.current_key_inventory_dictionary
+            required_seed = self.function_items[0] + " Seed"
+            current_inventory = self.gs_input.current_treasure_inventory_dictionary
             if required_seed in current_inventory:
                 self.gs_input.gv.get_feature_avatar(self.unique_name).current_image_x = 1
                 self.filled_with_seed = True
@@ -311,22 +311,22 @@ class PropGhost(FeatureGhost):
 
 
 class HuskGhost(PropGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.PROP
         self.feature_subtype = Types.PROP
 
 
 class FeederGhost(PropGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.PROP
         self.feature_subtype = Types.FEEDER
         self.filled_with_seed = False
 
 
 class DecoGhost(FeatureGhost):
-    def __init__(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.DECO
         self.feature_subtype = Types.DECO

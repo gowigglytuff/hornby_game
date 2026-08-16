@@ -289,70 +289,28 @@ class Pickaxe(KeyItem):
         return message
 
 
-class ArbutusPermit(KeyItem):
-    NAME = "Arbutus Permit"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-
-class OakPermit(KeyItem):
-    NAME = "Oak Permit"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-
-class PinePermit(KeyItem):
-    NAME = "Pine Permit"
-
-    def __init__(self, gc):
-        super().__init__(gc)
+# class ArbutusPermit(KeyItem):
+#     NAME = "Arbutus Permit"
+#
+#     def __init__(self, gc):
+#         super().__init__(gc)
+#
+#
+# class OakPermit(KeyItem):
+#     NAME = "Oak Permit"
+#
+#     def __init__(self, gc):
+#         super().__init__(gc)
+#
+#
+# class PinePermit(KeyItem):
+#     NAME = "Pine Permit"
+#
+#     def __init__(self, gc):
+#         super().__init__(gc)
 
 class Wrench(KeyItem):
     NAME = "Wrench"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class GreenSeed(KeyItem):
-    NAME = "Green_Seed"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class YellowSeed(KeyItem):
-    NAME = "Yellow_Seed"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class RedSeed(KeyItem):
-    NAME = "Red_Seed"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class BlueSeed(KeyItem):
-    NAME = "Blue_Seed"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class PurpleSeed(KeyItem):
-    NAME = "Purple_Seed"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class OrangeSeed(KeyItem):
-    NAME = "Orange_Seed"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-
-class PinkSeed(KeyItem):
-    NAME = "Pink_Seed"
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -386,6 +344,104 @@ class Axe(KeyItem):
 
         return message
 
+class TreasureItem(object):
+    '''
+    :type gc: GameController
+    :return: None
+    '''
+    NAME = None
+    def __init__(self, gc):
+        self.gc = gc
+        self.name = self.NAME
+        self.image_size_x = 90
+        self.image_size_y = 76
+        spritesheet = Spritesheet("items", "assets/spritesheets/item_spritesheets/food_images.png", 24, 24).get_image(0, 0)
+        base = Spritesheet("base", "assets/spritesheets/menu_spritesheets/yes_no_menu.png", self.image_size_x, self.image_size_y).get_image(0, 0)
+        base.blit(spritesheet, [30, 20])
+        self.menu_image = base
+        self.use_type = "one_time"
+
+    def item_use(self, details):
+        pass
+
+    def end_tool_use(self):
+        pass
+
+    def use_requirements_met(self, details):
+        result = True
+        return result
+
+    def fail_to_use_item(self):
+        self.gc.update_game_dialogue("You can't use that now")
+
+    def get_success_message(self, details):
+        return "You used the item"
+
+    def get_failure_message(self, details):
+        message = "You can't use that now"
+        return message
+
+class ArbutusPermit(TreasureItem):
+    NAME = "Arbutus Permit"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
+class OakPermit(TreasureItem):
+    NAME = "Oak Permit"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
+class PinePermit(TreasureItem):
+    NAME = "Pine Permit"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class GreenSeed(TreasureItem):
+    NAME = "Green Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class YellowSeed(TreasureItem):
+    NAME = "Yellow Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class RedSeed(TreasureItem):
+    NAME = "Red Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class BlueSeed(TreasureItem):
+    NAME = "Blue Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class PurpleSeed(TreasureItem):
+    NAME = "Purple Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class OrangeSeed(TreasureItem):
+    NAME = "Orange Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class PinkSeed(TreasureItem):
+    NAME = "Pink Seed"
+
+    def __init__(self, gc):
+        super().__init__(gc)
 
 class BirdPage(object):
     '''

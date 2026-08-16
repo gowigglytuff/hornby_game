@@ -209,11 +209,14 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.scene_manager.play_scene(scene)
 
 
-        self.gc.scene_manager.initiate_scene("scene_2")
+        # self.gc.scene_manager.initiate_scene("scene_2")
         # custom = CustomAction([("walk_left", Action.move(Direction.LEFT)), ("hold", ("release", None))])
         # scene_action = ("animation", CameraPanAnimation(direction_x, x_change))
         # self.gc.scene_manager.play_scene(Scene(self, [self.gc.held_step]))
 
+        print(self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu"))
+        print(self.gc.game_data.treasure_item_data_list)
+        print(self.gc.gs.current_treasure_inventory_dictionary)
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

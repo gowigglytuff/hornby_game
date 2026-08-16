@@ -447,6 +447,69 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
             self.gc.menu_controller.exit_all_menus()
 
 
+class TreasureInventoryMenuGhost(InventoryMenuGhost):
+    BASE = "treasure_inventory_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_item_list = []
+        self.menu_header = "< TREASURES >"
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.prepare_menu_for_display(None)
+        self.update_currently_displayed()
+
+    def get_menu_items_to_display(self):
+        menu_length_calc = 0
+        if self.size >= self.max_displayed_items:
+            menu_length_calc = self.max_displayed_items
+        elif self.size < self.max_displayed_items:
+            menu_length_calc = self.size
+
+        displayable_item_list = []
+
+        for option in range(menu_length_calc):
+            item = self.currently_displayed_items[option]
+            displayable_item_list.append(self.currently_displayed_items[option])
+
+        return displayable_item_list
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Use", "Toss", "Select", "Cancel"]})
+
+    def do_option(self, choice=None):
+        sub_menu_selection = choice
+        chosen_item_name = self.get_current_menu_item()
+
+        if sub_menu_selection == "Use":
+            chosen_item = self.gc.inventory_manager.gc.gs.gd.treasure_item_data_list[chosen_item_name]
+            if chosen_item.use_type == "continuous":
+                self.gc.gs.selected_tool = chosen_item_name
+            else:
+                self.gc.inventory_manager.use_treasure_item(chosen_item)
+            self.prepare_menu_for_display(None)
+            self.gc.menu_controller.exit_all_menus()
+
+        elif sub_menu_selection == "Toss":
+            self.gc.menu_controller.exit_all_menus()
+
+        elif sub_menu_selection == "Select":
+            self.gc.gs.selected_tool = chosen_item_name
+            self.gc.menu_controller.exit_all_menus()
+
+        elif sub_menu_selection == "Cancel":
+            self.gc.menu_controller.exit_all_menus()
+
+
 class ConversationOptionsMenuGhost(MenuGhost):
     BASE = "conversation_options_menu"
     NAME = BASE + "_ghost"

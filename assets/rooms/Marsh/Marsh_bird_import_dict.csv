@@ -1,0 +1,9 @@
+﻿species,Coot,display_name,Coot,function,None,spawn_room,Marsh,spawn_x,16,spawn_y,46,spawn_facing,Right,spawn_active,yes
+species,Osprey,display_name,Osprey,function,None,spawn_room,Marsh,spawn_x,8,spawn_y,16,spawn_facing,Right,spawn_active,yes
+species,Green_Heron,display_name,Green Heron,function,None,spawn_room,Marsh,spawn_x,36,spawn_y,17,spawn_facing,Right,spawn_active,yes
+species,Kingfisher,display_name,Kingfisher,function,None,spawn_room,Marsh,spawn_x,34,spawn_y,4,spawn_facing,Right,spawn_active,yes
+species,Blue_Heron,display_name,Blue Heron,function,None,spawn_room,Marsh,spawn_x,33,spawn_y,42,spawn_facing,Left,spawn_active,yes
+species,Redwing_Blackbird,display_name,Redwing Blackbird,function,None,spawn_room,Marsh,spawn_x,20,spawn_y,4,spawn_facing,Down,spawn_active,yes
+species,Mallard,display_name,Mallard,function,None,spawn_room,Marsh,spawn_x,35,spawn_y,30,spawn_facing,Right,spawn_active,yes
+species,Eurasian_Wigeon,display_name,Eurasian Wigeon,function,None,spawn_room,Marsh,spawn_x,41,spawn_y,47,spawn_facing,Down,spawn_active,yes
+species,American_Wigeon,display_name,American Wigeon,function,None,spawn_room,Marsh,spawn_x,24,spawn_y,38,spawn_facing,Left,spawn_active,yes

@@ -3,7 +3,7 @@ from random import choice
 
 import feature_ghost_data_page
 from feature_ghost_data_page import PlayerGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from position_manager_state_page import Room, Door
@@ -65,6 +65,7 @@ class GameState(object):
         self.night_filter_current_alpha = 0
         self.current_inventory_dictionary = {}
         self.current_key_inventory_dictionary = {}
+        self.current_treasure_inventory_dictionary = {}
         self.current_animations_to_execute = []
 
         self.action_queue = {}
@@ -345,7 +346,7 @@ class GameState(object):
         object_class = self.gd.get_feature_class(feature_dict["species"])
         spawn_facing = self.direction_translations[feature_dict["spawn_facing"]]
         unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = object_class(self, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
+        feature_ghost_object = object_class(self, unique_name, feature_dict["display_name"], feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
 
         self.add_feature_ghost(unique_name, feature_ghost_object)
         test = self.get_feature_ghost(unique_name)
@@ -353,8 +354,8 @@ class GameState(object):
         return feature_ghost_object
 
     def create_feature_ghost_class(self, feature_dict):
-        def class_init(self, gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-            super(newclass, self).__init__(gc_input, unique_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+        def class_init(self, gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+            super(newclass, self).__init__(gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
             self.gc_input = gc_input
             self.unique_name = unique_name
             self.function = function
@@ -364,7 +365,7 @@ class GameState(object):
             self.spawn_facing = spawn_facing
             self.spawn_active = spawn_active
             self.species = feature_dict["species"]
-            self.display_name = feature_dict["display_name"]
+            self.display_name = diplay_name
             self.figure_size_x = int(feature_dict["figure_size_x"])
             self.figure_size_y = int(feature_dict["figure_size_y"])
             self.base_size_x = int(feature_dict["base_size_x"])
@@ -495,6 +496,14 @@ class GameState(object):
         else:
             current_inventory[key_item.NAME] = {"name": key_item.NAME}
 
+    def acquire_treasure_item(self, treasure_item_name):
+        treasure_item = self.gc.game_data.treasure_item_data_list[treasure_item_name]
+        current_inventory = self.current_treasure_inventory_dictionary
+        if treasure_item.NAME in current_inventory:
+            pass
+        else:
+            current_inventory[treasure_item.NAME] = {"name": treasure_item.NAME}
+
     def get_inventory_items(self, menu_name):
         result = None
         if menu_name == SuppliesInventoryMenuGhost.BASE:
@@ -502,6 +511,9 @@ class GameState(object):
 
         elif menu_name == KeyInventoryMenuGhost.BASE:
             result = self.current_key_inventory_dictionary
+
+        elif menu_name == TreasureInventoryMenuGhost.BASE:
+            result = self.current_treasure_inventory_dictionary
         return result
 
     # endregion
@@ -568,7 +580,7 @@ class MenuState(object):
         self.active_menu = []
         self.menu_stack = []
         self.visible_menus = []
-        self.start_menu_stack = [SuppliesInventoryMenuGhost.BASE, KeyInventoryMenuGhost.BASE]
+        self.start_menu_stack = [SuppliesInventoryMenuGhost.BASE, KeyInventoryMenuGhost.BASE, TreasureInventoryMenuGhost.BASE]
 
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object
@@ -584,6 +596,9 @@ class MenuState(object):
 
         elif menu_name == KeyInventoryMenuGhost.BASE:
             result = self.gs.current_key_inventory_dictionary
+
+        elif menu_name == TreasureInventoryMenuGhost.BASE:
+            result = self.gs.current_treasure_inventory_dictionary
         return result
 
     def get_menu_items_list(self, menu_name):
@@ -686,6 +701,7 @@ class GameData(object):
         self.overlay_data_list = {}
         self.temp_item_data_list = {}
         self.key_item_data_list = {}
+        self.treasure_item_data_list = {}
         self.goal_data_list = {}
         self.outfit_data_list = {}
         self.animation_list = {}
@@ -729,6 +745,9 @@ class GameData(object):
 
     def add_key_item_data(self, item_name, item_object):
         self.key_item_data_list[item_name] = item_object
+
+    def add_treasure_item_data(self, item_name, item_object):
+        self.treasure_item_data_list[item_name] = item_object
 
     def add_bird_page_data(self, page_name, page_object):
         self.bird_page_data_list[page_name] = page_object

@@ -1,57 +1,57 @@
-﻿type,Prop,feature_subtype,Prop,species,Garbagecan,display_name,Garbage Can,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Package,display_name,Package,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Pickaxe,display_name,Pickaxe,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Mermaid_crown,display_name,Mermaid Crown,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Ghost_eye,display_name,Ghost Eye,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Page,display_name,Page,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Page,display_name,Page,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Axe,display_name,Axe,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Permit,display_name,Pine Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Permit,display_name,Oak Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Permit,display_name,Arbutus Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Clock,display_name,Clock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Chair,display_name,Chair,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Table,display_name,Table,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,ElephantPicture,display_name,Elephant Picture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,ChickenPicture,display_name,Chicken Picture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,ChairSide,display_name,Chair,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Bed,display_name,Bed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Sandcastle,display_name,Sandcastle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,House,display_name,House,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4
-type,Prop,feature_subtype,Prop,species,Rock,display_name,Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Small_Rock,display_name,Small Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Small_Craig,display_name,Small Craig,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Pine,display_name,Pine,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fir,display_name,Fir,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Arbutus,display_name,Arbutus,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Apple_Tree,display_name,Apple Tree,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Oak,display_name,Oak,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Alder,display_name,Alder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Cottonwood,display_name,Cottonwood,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Scotch_Broom,display_name,Scotch Broom,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Hawthorn,display_name,Hawthorn,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Nootka_Rose,display_name,Nootka Rose,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Ocean_Spray,display_name,Ocean Spray,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,White_Poplar,display_name,White Poplar,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Willow,display_name,Willow Spray,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Husk,display_name,Husk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Green_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Red_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Purple_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Pink_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Orange_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Yellow_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Feeder,species,Blue_Birdfeeder,display_name,Feeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Green_Seed,display_name,Green Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Red_Seed,display_name,Red Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Purple_Seed,display_name,Purple Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Pink_Seed,display_name,Pink Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Orange_Seed,display_name,Orange Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Yellow_Seed,display_name,Yellow Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Blue_Seed,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fence_Horizontal,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fence_Bottom_Left,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fence_Vertical,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fence_Bottom_Right,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fence_Top_Left,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,Fence_Top_Right,display_name,Fence,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+﻿type,Prop,feature_subtype,Prop,species,Garbagecan,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Package,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Pickaxe,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Mermaid_crown,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Ghost_eye,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Page,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Page,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Axe,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Permit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Clock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Chair,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Table,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,ElephantPicture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,ChickenPicture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,ChairSide,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Bed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Sandcastle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,House,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4
+type,Prop,feature_subtype,Prop,species,Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Small_Rock,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Small_Craig,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Pine,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fir,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Arbutus,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Apple_Tree,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Oak,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Alder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Cottonwood,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Scotch_Broom,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Hawthorn,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Nootka_Rose,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Ocean_Spray,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,White_Poplar,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Willow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Husk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Green_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Red_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Purple_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Pink_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Orange_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Yellow_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Feeder,species,Blue_Birdfeeder,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Green_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Red_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Purple_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Pink_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Orange_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Yellow_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Blue_Seed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Horizontal,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Bottom_Left,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Vertical,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Bottom_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Top_Left,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fence_Top_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

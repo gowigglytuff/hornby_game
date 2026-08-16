@@ -69,8 +69,9 @@ class MenuAvatar(object):
         dictionary = {"start_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "acquire_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
-                         "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "key_inventory_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "key_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "treasure_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "gift_giving_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "number_selection_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}}
 

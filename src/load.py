@@ -70,7 +70,9 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
         # gs.gd.add_room_data("Mountain_Room", (Consolidated("Mountain_Room", 35, 30, 1, 1)))
         gs.gd.add_room_data("Mountain", (SpecialRoom("Mountain", 35, 50, 1, 1)))
-        # gs.gd.add_room_data("Well_Room", (Consolidated("Well_Room", 35, 30, 1, 1)))
+        gs.gd.add_room_data("Well_Room", (SpecialRoom("Well_Room", 13, 30, 1, 1)))
+        gs.gd.add_room_data("Skywalk", (SpecialRoom("Skywalk", 13, 30, 1, 1)))
+        gs.gd.add_room_data("Nightwalk", (SpecialRoom("Nightwalk", 13, 30, 1, 1)))
         # gs.gd.add_room_data("Entry_Room", (Consolidated("Entry_Room", 7, 9, 1, 1)))
         gs.gd.add_room_data("Forest", (SpecialRoom("Forest", 35, 30, 1, 1)))
         # gs.gd.add_room_data("Experiment", (SpecialRoom("Experiment", 13, 13, 1, 1)))
@@ -116,7 +118,7 @@ def install_all_data(gc, gs):
         feature_dict = {"species": "Jay", "display_name": "Jay", "function": "None", "spawn_room": "Staging_Area", "spawn_x": "7", "spawn_y": "7", "spawn_facing": "Right", "spawn_active": "yes"}
         spawn_facing = gc.gs.direction_translations[feature_dict["spawn_facing"]]
         unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = JayGhost(gc, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
+        feature_ghost_object = JayGhost(gc, unique_name, feature_dict["display_name"], feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
 
         gs.add_feature_ghost(unique_name, feature_ghost_object)
 
@@ -136,6 +138,9 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Walk_Down", "Field", "Marsh", 16, 31, 41, 0)
         gc.position_manager.add_door("Walk_Right", "Marsh", "Marsh2", 51, 10, 0, 10)
         gc.position_manager.add_door("Walk_Right", "Marsh", "Marsh2", 51, 9, 0, 9)
+        gc.position_manager.add_door("Passage", "Marsh", "Well_Room", 37, 42, 7, 29)
+        gc.position_manager.add_door("Walk_Down", "Skywalk", "Mountain", 7, 31, 19, 0)
+        gc.position_manager.add_door("Walk_Down", "Nightwalk", "Mountain", 7, 31, 18, 0)
 
 
         # gc.position_manager.add_door("Ladder", "Staging_Area", "Cave", 4, 6, 8, 10)
@@ -204,12 +209,20 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
-        items_to_acquire = [Hammer, ArbutusPermit, PinePermit, OakPermit, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
+        items_to_install = [Hammer, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
+        items_to_acquire = [Hammer, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
         for item in items_to_acquire:
             gs.acquire_key_item(item.NAME)
+
+    def install_treasure_items(gc, gs):
+        items_to_install = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
+        items_to_acquire = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed]
+        for item in items_to_install:
+            gs.gd.add_treasure_item_data(item.NAME, item(gc))
+        for item in items_to_acquire:
+            gs.acquire_treasure_item(item.NAME)
 
     def install_pickaxe_door_entry(gc, gs):
         pickaxe_door_dict = {"Marsh_13_13": ["Cave", 6, 5, "Double_back"],
@@ -296,6 +309,7 @@ def install_all_data(gc, gs):
     install_temp_items(gc, gs)
     install_outfits(gc, gs)
     install_key_items(gc, gs)
+    install_treasure_items(gc, gs)
     install_bird_pages(gc, gs)
     install_menus(gc, gs)
     install_goals(gc, gs)

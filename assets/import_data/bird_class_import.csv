@@ -1,52 +1,54 @@
-﻿type,Actor,feature_subtype,Bird,species,Meadowlark,display_name,Meadowlark,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Nuthatch,display_name,Nuthatch,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Crow,display_name,Crow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Tanager,display_name,Tanager,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Starling,display_name,Starling,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Saw-whet_Owl,display_name,Saw-whet Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Barred_Owl,display_name,Barred Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Great_Horned_Owl,display_name,Great Horned Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Nighthawk,display_name,Nighthawk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Blackbird,display_name,Blackbird,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Junko,display_name,Junko,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Pigeon,display_name,Pigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Flycatcher,display_name,Flycatcher,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Wood_Peewee,display_name,Wood Peewee,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Thrush,display_name,Thrush,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Robin,display_name,Robin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Goldfinch,display_name,Goldfinch,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Cormorant,display_name,Cormorant,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Osprey,display_name,Osprey,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Seagull,display_name,Seagull,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Coot,display_name,Coot,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Green_Heron,display_name,Green Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Kingfisher,display_name,Kingfisher,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Redwing_Blackbird,display_name,Redwing Blackbird,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Mallard,display_name,Mallard,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Murrelet,display_name,Murrelet,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Harlequin_Duck,display_name,Harlequin Duck,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Eurasian_Wigeon,display_name,Eurasian Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,American_Wigeon,display_name,American Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Puffin,display_name,Puffin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Chicken,display_name,Chicken,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Canada_Jay,display_name,Canada Jay,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Stellar_Jay,display_name,Stellar Jay,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Song_Sparrow,display_name,Song Sparrow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Quail,display_name,Quail,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Sandpiper,display_name,Sandpiper,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Warbler,display_name,Warbler,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Towhee,display_name,Towhee,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Vulture,display_name,Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Booby,display_name,Booby,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Flamingo,display_name,Flamingo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Cardinal,display_name,Cardinal,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Macaroni_Penguin,display_name,Macaroni_Penguin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Agami_Heron,display_name,Agami_Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Kakapo,display_name,Kakapo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Bearded_Vulture,display_name,Bearded_Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Quetzalcoatl,display_name,Quetzalcoatl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Ptarmigan,display_name,Ptarmigan,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Bushtit,display_name,Bushtit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Coopers_Hawk,display_name,Coopers Hawk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Golden_Eagle,display_name,Golden_Eagle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Actor,feature_subtype,Bird,species,Bald_Eagle,display_name,Bald Eagle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+﻿type,Actor,feature_subtype,Bird,species,Meadowlark,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Nuthatch,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Crow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Tanager,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Starling,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Saw-whet_Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Barred_Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Great_Horned_Owl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Nighthawk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Blackbird,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Junko,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Pigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Flycatcher,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Wood_Peewee,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Thrush,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Robin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Goldfinch,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Cormorant,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Osprey,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Seagull,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Coot,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Green_Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Kingfisher,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Redwing_Blackbird,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Mallard,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Murrelet,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Harlequin_Duck,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Eurasian_Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,American_Wigeon,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Puffin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Chicken,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Canada_Jay,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Stellar_Jay,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Song_Sparrow,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Quail,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Sandpiper,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Warbler,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Towhee,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Booby,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Flamingo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Cardinal,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Macaroni_Penguin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Agami_Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Kakapo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Bearded_Vulture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Quetzalcoatl,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Ptarmigan,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Bushtit,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Coopers_Hawk,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Golden_Eagle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Bald_Eagle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Blue_Heron,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Actor,feature_subtype,Bird,species,Owl_of_Athena,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

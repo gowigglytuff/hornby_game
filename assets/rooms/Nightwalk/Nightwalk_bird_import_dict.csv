@@ -1,0 +1,15 @@
+﻿species,Owl_of_Athena,display_name,Owl of Athena,function,None,spawn_room,Nightwalk,spawn_x,7,spawn_y,10,spawn_facing,Down,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,15,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,17,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,19,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,21,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,15,spawn_facing,Left,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,17,spawn_facing,Left,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,19,spawn_facing,Left,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,21,spawn_facing,Left,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,23,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,25,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,5,spawn_y,27,spawn_facing,Right,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,23,spawn_facing,Left,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,25,spawn_facing,Left,spawn_active,yes
+species,Crow,display_name,Crow,function,None,spawn_room,Nightwalk,spawn_x,9,spawn_y,27,spawn_facing,Left,spawn_active,yes

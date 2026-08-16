@@ -9,7 +9,7 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -540,7 +540,7 @@ class GameController(object):
         item_type_result = None
         for item in package_items:
             if type == "Package":
-                item_type_result = self.inventory_manager.get_key_or_temp_item(item, 1)
+                item_type_result = self.inventory_manager.get_any_type_item(item, 1)
                 self.menu_controller.post_notice("Added " + item + " to your bag.")
             if type == "Page":
                 self.menu_controller.post_notice("Added " + item + " to your Guide.")
@@ -556,7 +556,7 @@ class GameController(object):
             self.menu_controller.post_notice("It appears to be empty.")
 
     def take_from_basket(self, basket_unique_name, name_item_taken):
-        self.inventory_manager.get_key_or_temp_item(name_item_taken, 1)
+        self.inventory_manager.get_any_type_item(name_item_taken, 1)
         self.menu_controller.post_notice("You took the " + name_item_taken)
         ghost = self.gs.get_feature_ghost(basket_unique_name)
         ghost.function_items.remove(name_item_taken)
@@ -773,7 +773,7 @@ class GameController(object):
             object_class = self.gs.gd.get_feature_class(item[2])
             spawn_facing = Direction.DOWN
             unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = object_class(self.gs, unique_name, "None", room_name, item[0], item[1],  spawn_facing, "yes")
+            feature_ghost_object = object_class(self.gs, unique_name, item[2], "None", room_name, item[0], item[1],  spawn_facing, "yes")
 
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
@@ -789,8 +789,9 @@ class GameController(object):
         for feature_dict in feature_data:
             object_class = self.gs.gd.get_feature_class(feature_dict["species"])
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
+            display_name = feature_dict["display_name"]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = object_class(self.gs, unique_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
+            feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
 
@@ -869,10 +870,11 @@ class InventoryManager(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
 
-    def get_key_or_temp_item(self, item_name, quantity):
+    def get_any_type_item(self, item_name, quantity):
         item_type = None
         item_list = self.gc.game_data.item_data_list
         key_item_list = self.gc.game_data.key_item_data_list
+        treasure_item_list = self.gc.game_data.treasure_item_data_list
         if item_name in key_item_list.keys():
             self.gc.gs.acquire_key_item(item_name)
             item_type = "Key Item"
@@ -880,6 +882,9 @@ class InventoryManager(object):
         elif item_name in item_list.keys():
             self.gc.gs.acquire_item(item_name, quantity)
             item_type = "Item"
+        elif item_name in treasure_item_list.keys():
+            self.gc.gs.acquire_treasure_item(item_name)
+            item_type = "Treasure Item"
         return item_type
 
     def fetch_page(self, page_name):
@@ -943,12 +948,30 @@ class InventoryManager(object):
             message = chosen_item.get_failure_message(details)
         return success, message
 
+    def check_if_can_use_treasure_item(self, item, details):
+        chosen_item = self.gc.gs.gd.treasure_item_data_list[item.NAME]
+        success = False
+        message = None
+        if chosen_item.use_requirements_met(details):
+            success = True
+            message = chosen_item.get_success_message(details)
+        else:
+            message = chosen_item.get_failure_message(details)
+        return success, message
+
     def get_key_item(self, key_item):
         current_key_inventory = self.gc.gs.ms.get_menu_items_list("key_inventory_menu")
         if key_item.NAME in current_key_inventory:
             pass
         else:
             current_key_inventory[key_item.NAME] = {"name": key_item.NAME}
+
+    def get_treasure_item(self, treasure_item):
+        current_treasure_inventory = self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu")
+        if treasure_item.NAME in current_treasure_inventory:
+            pass
+        else:
+            current_treasure_inventory[treasure_item.NAME] = {"name": treasure_item.NAME}
 
     def use_key_item(self, item):
         current_key_inventory = self.gc.gs.ms.get_menu_items_list("key_inventory_menu")
@@ -967,6 +990,27 @@ class InventoryManager(object):
 
         if result:
             self.gc.gs.gd.key_item_data_list[item.NAME].item_use(details)
+            successes += 1
+
+        self.gc.gs.gc.menu_controller.post_notice(message)
+
+    def use_treasure_item(self, item):
+        current_key_inventory = self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu")
+        successes = 0
+
+        room = self.gc.gs.get_current_room()
+        player = self.gc.gs.get_player_ghost()
+        cube = room.access_adjacent_cube(player, player.facing)
+        if not self.gc.position_manager.check_rooms_edges(player, player.facing, room):
+            details = {"room": room, "cube": cube, "adjacent_tile_filling": cube.filling_unique_name, "filling_type": cube.filling_type, "filling_subtype": cube.filling_subtype, "adjacent_tile_terrain": self.gc.position_manager.get_tile_terrain(room.room_name, cube.x, cube.y)}
+        else:
+            details = {"room": room, "cube": cube, "adjacent_tile_filling": None, "filling_type": None, "filling_subtype": None, "adjacent_tile_terrain": None}
+
+        result = self.check_if_can_use_treasure_item(item, details)[0]
+        message = self.check_if_can_use_treasure_item(item, details)[1]
+
+        if result:
+            self.gc.gs.gd.treasure_item_data_list[item.NAME].item_use(details)
             successes += 1
 
         self.gc.gs.gc.menu_controller.post_notice(message)
@@ -1036,7 +1080,7 @@ class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
         self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, NumberSelectionMenuGhost,
-                               SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost,
+                               SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
     def menu_cursor_down(self):
