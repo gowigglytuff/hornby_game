@@ -7,3 +7,4 @@ species,Redwing_Blackbird,display_name,Redwing Blackbird,function,None,spawn_roo
 species,Mallard,display_name,Mallard,function,None,spawn_room,Marsh,spawn_x,35,spawn_y,30,spawn_facing,Right,spawn_active,yes
 species,Eurasian_Wigeon,display_name,Eurasian Wigeon,function,None,spawn_room,Marsh,spawn_x,41,spawn_y,47,spawn_facing,Down,spawn_active,yes
 species,American_Wigeon,display_name,American Wigeon,function,None,spawn_room,Marsh,spawn_x,24,spawn_y,38,spawn_facing,Left,spawn_active,yes
+species,Pterodactyl,display_name,Pterodactyl,function,None,spawn_room,Marsh,spawn_x,10,spawn_y,38,spawn_facing,Left,spawn_active,yes

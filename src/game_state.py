@@ -354,35 +354,97 @@ class GameState(object):
         return feature_ghost_object
 
     def create_feature_ghost_class(self, feature_dict):
-        def class_init(self, gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-            super(newclass, self).__init__(gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
-            self.gc_input = gc_input
-            self.unique_name = unique_name
-            self.function = function
-            self.spawn_room = spawn_room
-            self.spawn_x = spawn_x
-            self.spawn_y = spawn_y
-            self.spawn_facing = spawn_facing
-            self.spawn_active = spawn_active
-            self.species = feature_dict["species"]
-            self.display_name = diplay_name
-            self.figure_size_x = int(feature_dict["figure_size_x"])
-            self.figure_size_y = int(feature_dict["figure_size_y"])
-            self.base_size_x = int(feature_dict["base_size_x"])
-            self.base_size_y = int(feature_dict["base_size_y"])
-            if self.feature_subtype == Types.CHARACTER:
-                self.base_phrase = feature_dict["base_phrase"]
-                self.good_gift_phrase = feature_dict["good_gift_phrase"]
-                self.bad_gift_phrase = feature_dict["bad_gift_phrase"]
-                self.neutral_gift_phrase = feature_dict["neutral_gift_phrase"]
-                self.bird_hint_phrase = feature_dict["bird_hint_phrase"]
-                self.good_gift_list = feature_dict["good_gift_list"]
-                self.bad_gift_list = feature_dict["bad_gift_list"]
+        if feature_dict["feature_subtype"] == "Character":
+            def class_init(self, gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active, base_phrase,
+                           good_gift_phrase, bad_gift_phrase, neutral_gift_phrase, bird_hint_phrase, good_gift_list, bad_gift_list, friend_phrase, friend_action, is_friend):
+                super(newclass, self).__init__(gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+                self.gc_input = gc_input
+                self.unique_name = unique_name
+                self.function = function
+                self.spawn_room = spawn_room
+                self.spawn_x = spawn_x
+                self.spawn_y = spawn_y
+                self.spawn_facing = spawn_facing
+                self.spawn_active = spawn_active
+                self.display_name = diplay_name
+                self.base_phrase = base_phrase
+                self.good_gift_phrase = good_gift_phrase
+                self.bad_gift_phrase = bad_gift_phrase
+                self.neutral_gift_phrase = neutral_gift_phrase
+                self.bird_hint_phrase = bird_hint_phrase
+                self.good_gift_list = good_gift_list
+                self.bad_gift_list = bad_gift_list
+                self.friend_phrase = friend_phrase
+                print(friend_action)
+                friend_action_setup = self.break_out_combined_attr(friend_action)
+                self.friend_action = friend_action_setup[0]
+                self.friend_action_details = friend_action_setup[1][0]
+                self.friend_action_quantity = friend_action_setup[1][1]
+                if self.friend_action_quantity != "none":
+                    self.friend_action_quantity = int(self.friend_action_quantity)
+                else:
+                    self.friend_action_quantity = None
+                self.is_friend = is_friend
+                self.species = feature_dict["species"]
+                self.figure_size_x = int(feature_dict["figure_size_x"])
+                self.figure_size_y = int(feature_dict["figure_size_y"])
+                self.base_size_x = int(feature_dict["base_size_x"])
+                self.base_size_y = int(feature_dict["base_size_y"])
 
-            self.run_initialization()
 
-        newclass = type(feature_dict["species"], (getattr(feature_ghost_data_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
-        self.gd.add_feature_class(feature_dict["species"], newclass)
+                self.run_initialization()
+
+            newclass = type(feature_dict["species"], (getattr(feature_ghost_data_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+            self.gd.add_feature_class(feature_dict["species"], newclass)
+
+        elif feature_dict["feature_subtype"] == "Bird":
+            def class_init(self, gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+                super(newclass, self).__init__(gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+                self.gc_input = gc_input
+                self.unique_name = unique_name
+                self.function = function
+                self.spawn_room = spawn_room
+                self.spawn_x = spawn_x
+                self.spawn_y = spawn_y
+                self.spawn_facing = spawn_facing
+                self.spawn_active = spawn_active
+                self.species = feature_dict["species"]
+                self.display_name = diplay_name
+                self.figure_size_x = int(feature_dict["figure_size_x"])
+                self.figure_size_y = int(feature_dict["figure_size_y"])
+                self.base_size_x = int(feature_dict["base_size_x"])
+                self.base_size_y = int(feature_dict["base_size_y"])
+                self.approach_outfit = feature_dict["ap_outfit"]
+                self.approach_word = feature_dict["ap_word"]
+                self.approach_angle = feature_dict["ap_angle"]
+
+                self.run_initialization()
+
+            newclass = type(feature_dict["species"], (getattr(feature_ghost_data_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+            self.gd.add_feature_class(feature_dict["species"], newclass)
+
+        else:
+            def class_init(self, gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+                super(newclass, self).__init__(gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+                self.gc_input = gc_input
+                self.unique_name = unique_name
+                self.function = function
+                self.spawn_room = spawn_room
+                self.spawn_x = spawn_x
+                self.spawn_y = spawn_y
+                self.spawn_facing = spawn_facing
+                self.spawn_active = spawn_active
+                self.species = feature_dict["species"]
+                self.display_name = diplay_name
+                self.figure_size_x = int(feature_dict["figure_size_x"])
+                self.figure_size_y = int(feature_dict["figure_size_y"])
+                self.base_size_x = int(feature_dict["base_size_x"])
+                self.base_size_y = int(feature_dict["base_size_y"])
+
+                self.run_initialization()
+
+            newclass = type(feature_dict["species"], (getattr(feature_ghost_data_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
+            self.gd.add_feature_class(feature_dict["species"], newclass)
 
         return feature_dict
 

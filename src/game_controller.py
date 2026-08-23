@@ -437,6 +437,7 @@ class GameController(object):
                 if not feature.check_if_busy():
                     if feature.feature_subtype == Types.BIRD:
                         self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
+                        print(feature.approach_outfit)
                         self.talk_to_bird(cube.filling_unique_name, player.facing)
                     else:
                         self.talk_to_character(cube.filling_unique_name, player.facing)
@@ -544,7 +545,12 @@ class GameController(object):
                 self.menu_controller.post_notice("Added " + item + " to your bag.")
             if type == "Page":
                 self.menu_controller.post_notice("Added " + item + " to your Guide.")
-                self.inventory_manager.get_page(item)
+                self.inventory_manager.acquire_page(item)
+
+    def unlock_lock(self, lock_unique_name, room_name):
+        room_object = self.gs.get_room(room_name)
+        ghost = self.gs.get_feature_ghost(lock_unique_name)
+        self.position_manager.despawn_feature(lock_unique_name, room_object)
 
     def look_in_basket(self, basket_unique_name, basket_items):
         if basket_items:
@@ -783,7 +789,7 @@ class GameController(object):
 
         return feature_data
 
-    def import_characters_from_csv(self, filename):
+    def import_characters_from_csv(self, filename, feature_subtype):
         feature_data = self.process_features_from_csv(filename)
 
         for feature_dict in feature_data:
@@ -791,7 +797,15 @@ class GameController(object):
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             display_name = feature_dict["display_name"]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
+            if feature_subtype == "Character":
+                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"],
+                                                    int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"],
+                                                    feature_dict["base_phrase"], feature_dict["good_gift_phrase"], feature_dict["bad_gift_phrase"],
+                                                    feature_dict["neutral_gift_phrase"], feature_dict["bird_hint_phrase"], feature_dict["good_gift_list"],
+                                                    feature_dict["bad_gift_list"], feature_dict["friend_phrase"], feature_dict["friend_action"], False)
+            else:
+                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"],
+                                                    int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
             self.gs.add_feature_ghost(unique_name, feature_ghost_object)
             test = self.gs.get_feature_ghost(unique_name)
 
@@ -875,6 +889,7 @@ class InventoryManager(object):
         item_list = self.gc.game_data.item_data_list
         key_item_list = self.gc.game_data.key_item_data_list
         treasure_item_list = self.gc.game_data.treasure_item_data_list
+        bird_page_list = self.gc.gs.gd.bird_page_data_list
         if item_name in key_item_list.keys():
             self.gc.gs.acquire_key_item(item_name)
             item_type = "Key Item"
@@ -885,12 +900,15 @@ class InventoryManager(object):
         elif item_name in treasure_item_list.keys():
             self.gc.gs.acquire_treasure_item(item_name)
             item_type = "Treasure Item"
+        elif item_name in bird_page_list:
+            self.acquire_page(item_name)
+            item_type = "Bird Page"
         return item_type
 
     def fetch_page(self, page_name):
         return self.gc.gs.gd.bird_page_data_list[page_name]
 
-    def get_page(self, page_name):
+    def acquire_page(self, page_name):
         self.gc.gs.held_pages.append(page_name)
 
     def get_item(self, item_name, quantity):
@@ -1075,6 +1093,24 @@ class TriggerManager(object):
     def check_for_triggers(self, room_object, x, y):
         return self.trigger_list[room_object.room_name][x, y]
 
+    def advanced_trigger_test(self, bird_species_name):
+        advanced_test = False
+        if bird_species_name == "Seagull":
+            # checks to see if there is more than one Seagull currently active on the map
+            features_in_room = self.gc.gs.get_all_features_in_room(self.gc.gs.get_current_room().room_name)
+            seagull_count = 0
+            for feature in features_in_room:
+                if feature.feature_type != "Player":
+                    if feature.active and feature.species == "Seagull":
+                        seagull_count += 1
+
+            if seagull_count <= 1:
+                advanced_test = True
+
+        else:
+            advanced_test = True
+        return advanced_test
+
 
 class MenuController(object):
     def __init__(self, gc):
@@ -1148,8 +1184,11 @@ class MenuController(object):
             self.gc.inventory_manager.remove_item(chosen_item, 1)
             self.gc.menu_controller.post_notice("You gave " + speaker.display_name + " a " + chosen_item.name)
 
-            details["phrase"] = [speaker.receive_gift(chosen_item_name)]
+            phrase, follow_up = speaker.receive_gift(chosen_item_name)
+
+            details["phrase"] = [phrase]
             details["friendship_level"] = Mundane.get_friendship_hearts(speaker.friendship_level)
+            details["follow_up"] = follow_up
             self.gc.menu_controller.exit_all_menus()
             speaker.currently_chatting = True
             self.gc.menu_controller.set_menu(ChatMenuGhost.BASE, details)
@@ -1237,7 +1276,8 @@ class MenuController(object):
                    "friendship_level": copy.copy(current_menu.friendship),
                    "face_image": copy.copy(current_menu.face_image),
                    "speaker_unique_name": copy.copy(current_menu.speaker_unique_name),
-                   "phrase": [selected_phrase]}
+                   "phrase": [selected_phrase],
+                   "follow_up": {"action": None}}
 
         if menu_selection == "Talk":
             self.gc.menu_controller.exit_menu(ConversationOptionsMenuGhost.BASE)
@@ -1255,7 +1295,29 @@ class MenuController(object):
         else:
             self.gc.menu_controller.exit_all_menus()
 
-    def chat_menu_selection(self, item_selected):
+    def chat_menu_selection(self, item_selected, follow_up):
+        if follow_up:
+            if follow_up["action"] == "Gift":
+                item_type = self.gc.inventory_manager.get_any_type_item(follow_up["item"], follow_up["quantity"])
+
+                phrase_1 = None
+                phrase_2 = None
+                print(item_type)
+                if item_type in ["Key Item", "Treasure Item"]:
+                    phrase_1 = "You received the " + follow_up["item"] + "."
+                    phrase_2 = "Put the " + follow_up["item"] + " in bag."
+                elif item_type in ["Item"]:
+                    phrase_1 = "You received " + str(follow_up["quantity"]) + " " + follow_up["item"] + "(s)."
+                    phrase_2 = "Put " + follow_up["item"] + "(s) in bag"
+                elif item_type in ["Bird Page"]:
+                    phrase_1 = "You received the " + follow_up["item"] + "."
+                    phrase_2 = "Put the " + follow_up["item"] + " in guide."
+                else:
+                    pass
+                self.gc.menu_controller.post_notice(phrase_1)
+                self.gc.menu_controller.post_notice(phrase_2)
+            else:
+                pass
         self.gc.menu_controller.exit_all_menus()
 
     def scene_menu_selection(self, item_selected):

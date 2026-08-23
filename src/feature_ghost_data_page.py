@@ -94,7 +94,9 @@ class FeatureGhost(ABC):
             self.active = False
             self.spawn_active = False
         self.facing = copy.copy(self.spawn_facing)
-        self.set_up_function(self.function)
+        function_setup = self.break_out_combined_attr(self.function)
+        self.function = function_setup[0]
+        self.function_items = function_setup[1]
 
     def return_base_coordinates_list(self, bottom_left_x, bottom_left_y):
         coordinates_list = []
@@ -126,6 +128,19 @@ class FeatureGhost(ABC):
         else:
             pass
 
+    def break_out_combined_attr(self, attr_string):
+        base = None
+        details = None
+        if attr_string != "None":
+            my_dict = ast.literal_eval(attr_string)
+            base = list(my_dict)[0]
+            function_values = list(my_dict.values())
+            list_access = function_values[0]
+            function_values_split = list_access.split("-")
+            details = function_values_split
+        else:
+            pass
+        return base, details
 
 class ActorGhost(FeatureGhost, ABC):
     def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
@@ -157,7 +172,9 @@ class CharacterGhost(ActorGhost):
         self.bad_gift_phrase = None
         self.neutral_gift_phrase = None
         self.bird_hint_phrase = None
-        self.friendship_level = 0
+        self.friend_phrase = None
+        self.friendship_level = 15
+        self.max_friendship = 16
         self.good_gift_list = None
         self.bad_gift_list = None
         self.action_list = Switch()
@@ -167,6 +184,7 @@ class CharacterGhost(ActorGhost):
 
     def receive_gift(self, gift_name):
         result_phrase = None
+        follow_up = None
         if gift_name in self.good_gift_list:
             result_phrase = self.good_gift_phrase
             self.friendship_level += 5
@@ -176,7 +194,19 @@ class CharacterGhost(ActorGhost):
         else:
             result_phrase = self.neutral_gift_phrase
             self.friendship_level += 1
-        return result_phrase
+
+        if not self.is_friend:
+            if self.friendship_level >= self.max_friendship:
+                self.achieve_friendship()
+                result_phrase = result_phrase + " " + self.friend_phrase
+                follow_up = {"action": self.friend_action,
+                             "item": self.friend_action_details,
+                             "quantity": self.friend_action_quantity}
+
+        return result_phrase, follow_up
+
+    def achieve_friendship(self):
+        self.is_friend = True
 
 
 class BirdGhost(ActorGhost):
@@ -186,6 +216,9 @@ class BirdGhost(ActorGhost):
         self.proximity_x_trigger = 2
         self.proximity_y_trigger = 2
         self.action_list = CustomAction([("up_down", Action.stationary())])
+        self.approach_outfit = None
+        self.approach_word = None
+        self.approach_angle = None
         self.is_calm = False
 
     def get_action(self):
@@ -199,16 +232,44 @@ class BirdGhost(ActorGhost):
         if self.is_calm:
             is_calm = True
         else:
-            if self.species == "Blackbird":
-                tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Clock")
-                if tree_check:
-                    is_calm = True
-            elif self.species == "Robin":
-                time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
-                if time_check:
-                    is_calm = True
-            elif self.species == "Crow":
-                    is_calm = False
+            pass
+
+        outfit_test = False
+        if self.approach_outfit == self.gs_input.current_outfit:
+            outfit_test = True
+        elif self.approach_outfit == "none":
+            outfit_test = True
+
+        angle_test = False
+        if (self.approach_angle == "up" and self.y > self.gs_input.get_player_ghost_location()[1])  or (self.approach_angle == "down" and self.y < self.gs_input.get_player_ghost_location()[1]) or (self.approach_angle == "left" and self.x > self.gs_input.get_player_ghost_location()[0]) or (self.approach_angle == "right" and self.x < self.gs_input.get_player_ghost_location()[0]):
+            angle_test = True
+        elif self.approach_angle == "none":
+            angle_test = True
+        else:
+            pass
+
+        word_test = False
+        if self.approach_word != "none":
+            word_test = self.gs_input.cc.check_if_word_in_posted_notice(self.approach_word)
+        else:
+            word_test = True
+
+        advanced_test = self.gs_input.gc.trigger_manager.advanced_trigger_test(self.species)
+
+        # else:
+        #     if self.species == "Blackbird":
+        #         tree_check = self.gs_input.cc.check_if_word_in_posted_notice("Clock")
+        #         if tree_check:
+        #             is_calm = True
+        #     elif self.species == "Robin":
+        #         time_check = self.gs_input.cc.check_clock_time(None, 10, None, 20)
+        #         if time_check:
+        #             is_calm = True
+        #     elif self.species == "Crow":
+        #             is_calm = False
+        if outfit_test and angle_test and word_test and advanced_test:
+            is_calm = True
+
         return is_calm
 
     def check_trigger_result(self, trigger):
@@ -291,6 +352,7 @@ class PropGhost(FeatureGhost):
         self.feature_subtype = Types.PROP
 
     def get_interacted_with(self):
+        print(self.function)
         if self.function == "Basket":
             basket_items = copy.copy(self.function_items)
             self.gs_input.gc.look_in_basket(self.unique_name, basket_items)
@@ -298,6 +360,14 @@ class PropGhost(FeatureGhost):
             self.gs_input.gc.pick_up_package("Package", self.unique_name, self.spawn_room, self.function_items)
         elif self.function == "Page":
             self.gs_input.gc.pick_up_package("Page", self.unique_name, self.spawn_room, self.function_items)
+        elif self.function == "Lock":
+            required_key = self.function_items[0] + " Key"
+            current_inventory = self.gs_input.current_treasure_inventory_dictionary
+            if required_key in current_inventory:
+                self.gs_input.gc.unlock_lock(self.unique_name, self.spawn_room)
+            else:
+                self.gs_input.gc.menu_controller.post_notice("You don't have the right key")
+
         elif self.function == "Feeder":
             required_seed = self.function_items[0] + " Seed"
             current_inventory = self.gs_input.current_treasure_inventory_dictionary

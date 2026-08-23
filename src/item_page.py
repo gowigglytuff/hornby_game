@@ -443,6 +443,48 @@ class PinkSeed(TreasureItem):
     def __init__(self, gc):
         super().__init__(gc)
 
+class XKey(TreasureItem):
+    NAME = "X Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class HeartKey(TreasureItem):
+    NAME = "Heart Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class PhiKey(TreasureItem):
+    NAME = "Phi Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class GammaKey(TreasureItem):
+    NAME = "Gamma Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class OmegaKey(TreasureItem):
+    NAME = "Omega Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class SigmaKey(TreasureItem):
+    NAME = "Sigma Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+class XiKey(TreasureItem):
+    NAME = "Xi Key"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
 class BirdPage(object):
     '''
     :type gc: GameController

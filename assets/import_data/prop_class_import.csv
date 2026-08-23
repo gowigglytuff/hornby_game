@@ -55,3 +55,7 @@ type,Prop,feature_subtype,Prop,species,Fence_Vertical,base_size_x,1,base_size_y,
 type,Prop,feature_subtype,Prop,species,Fence_Bottom_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Fence_Top_Left,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Fence_Top_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Heart_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,X_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Phi_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Gamma_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

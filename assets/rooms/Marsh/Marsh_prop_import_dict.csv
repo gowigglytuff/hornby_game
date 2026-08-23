@@ -2,3 +2,5 @@
 species,Garbagecan,display_name,Garbage Can,function,"{'Basket':""Milk-Cheese""}",spawn_room,Marsh,spawn_x,34,spawn_y,11,spawn_facing,Down,spawn_active,yes
 species,Garbagecan,display_name,Garbage Can,function,"{'Basket':""Milk-Cheese""}",spawn_room,Marsh,spawn_x,10,spawn_y,33,spawn_facing,Down,spawn_active,yes
 species,Yellow_Seed,display_name,Yellow Seed,function,{'Package':'Yellow Seed'},spawn_room,Marsh,spawn_x,10,spawn_y,35,spawn_facing,Down,spawn_active,yes
+species,Gamma_Gate,display_name,Gamma Gate,function,{'Lock':'Gamma'},spawn_room,Marsh,spawn_x,40,spawn_y,2,spawn_facing,Down,spawn_active,yes
+species,Gamma_Gate,display_name,Gamma Gate,function,{'Lock':'Gamma'},spawn_room,Marsh,spawn_x,41,spawn_y,2,spawn_facing,Down,spawn_active,yes

@@ -73,6 +73,7 @@ def install_all_data(gc, gs):
         gs.gd.add_room_data("Well_Room", (SpecialRoom("Well_Room", 13, 30, 1, 1)))
         gs.gd.add_room_data("Skywalk", (SpecialRoom("Skywalk", 13, 30, 1, 1)))
         gs.gd.add_room_data("Nightwalk", (SpecialRoom("Nightwalk", 13, 30, 1, 1)))
+        gs.gd.add_room_data("Pasture", (SpecialRoom("Pasture", 30, 45, 1, 1)))
         # gs.gd.add_room_data("Entry_Room", (Consolidated("Entry_Room", 7, 9, 1, 1)))
         gs.gd.add_room_data("Forest", (SpecialRoom("Forest", 35, 30, 1, 1)))
         # gs.gd.add_room_data("Experiment", (SpecialRoom("Experiment", 13, 13, 1, 1)))
@@ -101,19 +102,19 @@ def install_all_data(gc, gs):
 
             prop_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "prop_import_dict.csv"
             if os.path.isfile(prop_file_name):
-                gc.import_characters_from_csv(prop_file_name)
+                gc.import_characters_from_csv(prop_file_name, "Prop")
 
             bird_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "bird_import_dict.csv"
             if os.path.isfile(bird_file_name):
-                gc.import_characters_from_csv(bird_file_name)
+                gc.import_characters_from_csv(bird_file_name, "Bird")
 
             deco_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "deco_import_dict.csv"
             if os.path.isfile(deco_file_name):
-                gc.import_characters_from_csv(deco_file_name)
+                gc.import_characters_from_csv(deco_file_name, "Deco")
 
             character_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "character_import_dict.csv"
             if os.path.isfile(character_file_name):
-                gc.import_characters_from_csv(character_file_name)
+                gc.import_characters_from_csv(character_file_name, "Character")
 
         feature_dict = {"species": "Jay", "display_name": "Jay", "function": "None", "spawn_room": "Staging_Area", "spawn_x": "7", "spawn_y": "7", "spawn_facing": "Right", "spawn_active": "yes"}
         spawn_facing = gc.gs.direction_translations[feature_dict["spawn_facing"]]
@@ -132,6 +133,7 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Forest", 2, 8, 8, 13)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Mountain", 4, 8, 21, 42)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Mountain", 6, 8, 12, 23)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Pasture", 2, 4, 3, 27)
         gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 6, 49, 25, 1)
         gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 5, 49, 26, 1)
         gc.position_manager.add_door("Walk_Down", "Field", "Marsh", 15, 31, 40, 0)
@@ -154,7 +156,7 @@ def install_all_data(gc, gs):
         # gc.position_manager.add_door("Ladder", "Staging_Area", "Bird_Room", 6, 6, 15, 15)
         # gc.position_manager.add_door("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
         # gc.position_manager.add_door("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
-        # gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
+        gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
         # gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
         # gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
@@ -217,8 +219,10 @@ def install_all_data(gc, gs):
             gs.acquire_key_item(item.NAME)
 
     def install_treasure_items(gc, gs):
-        items_to_install = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed, YellowSeed]
-        items_to_acquire = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed, PinkSeed]
+        items_to_install = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed,
+                            PinkSeed, YellowSeed, XKey, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
+        items_to_acquire = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed,
+                            PinkSeed, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
         for item in items_to_install:
             gs.gd.add_treasure_item_data(item.NAME, item(gc))
         for item in items_to_acquire:
@@ -239,8 +243,8 @@ def install_all_data(gc, gs):
             elif page["segment"] == "bottom":
                 gs.gd.add_bird_page_data(page["bird"] + page["segment"], BirdPage(gc, page["bird"], page["segment"], None, None, None, page["approach"]))
 
-        for page in gs.gd.bird_page_data_list.keys():
-            gc.inventory_manager.get_page(gs.gd.bird_page_data_list[page].page_name)
+        # for page in gs.gd.bird_page_data_list.keys():
+        #     gc.inventory_manager.acquire_page(gs.gd.bird_page_data_list[page].page_name)
 
 
     def install_menus(gc, gs):
@@ -261,7 +265,7 @@ def install_all_data(gc, gs):
                 gs.gv.set_menu_display_coordinates(menu.BASE)
 
     def install_outfits(gc, gs):
-        outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ["red_shirt", "Red Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]
+        outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ["red_shirt", "Red Shirt"], ["blue_shirt", "Blue Shirt"], ["yellow_shirt", "Yellow Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]
         for outfit_pair in outfits_list:
             gc.outfit_manager.add_outfit(outfit_pair[0], outfit_pair[1])
             gc.outfit_manager.acquire_outfit(outfit_pair[0])

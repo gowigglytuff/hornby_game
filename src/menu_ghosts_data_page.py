@@ -968,6 +968,7 @@ class ChatMenuGhost(MenuGhost):
         self.face_image = details["face_image"]
         self.speaker_unique_name = details["speaker_unique_name"]
         self.menu_item_list = details["phrase"]
+        self.follow_up = details["follow_up"]
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
@@ -1005,7 +1006,7 @@ class ChatMenuGhost(MenuGhost):
 
         elif len(self.current_phrase) == 0:
             menu_selection = None
-            self.gc.menu_controller.chat_menu_selection(menu_selection)
+            self.gc.menu_controller.chat_menu_selection(menu_selection, self.follow_up)
 
     def reset_elements(self):
         speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
