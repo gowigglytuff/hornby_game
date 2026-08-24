@@ -372,8 +372,10 @@ class PropGhost(FeatureGhost):
             required_seed = self.function_items[0] + " Seed"
             current_inventory = self.gs_input.current_treasure_inventory_dictionary
             if required_seed in current_inventory:
-                self.gs_input.gv.get_feature_avatar(self.unique_name).current_image_x = 1
+                feature_avatar = self.gs_input.gv.get_feature_avatar(self.unique_name)
+                feature_avatar.update_avatar_image(1, 0)
                 self.filled_with_seed = True
+
             else:
                 self.gs_input.gc.menu_controller.post_notice("You've no seed for this feeder...")
         else:

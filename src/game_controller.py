@@ -28,6 +28,8 @@ class Game(object):
         self.gs.gd = self.game_data
         self.gs.ms.gd = self.game_data
         self.game_events = GameEvents(self.game_controller)
+        self.now = 0
+        self.delay = False
 
 
 class GameEvents(object):
@@ -686,6 +688,9 @@ class GameController(object):
 
     def update_view(self):
         current_room = self.gs.get_current_room().room_name
+        if self.game_view.drawables_refreshed:
+            self.game_view.set_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.game_view.get_independent_anim_locations())
+            self.game_view.drawables_refreshed = False
         drawables_list = self.game_view.get_drawables_list(self.gs.get_feature_locations()[0], self.gs.get_feature_locations()[1], self.game_view.get_independent_anim_locations())
         self.game_view.draw_all(drawables_list, current_room)
 
@@ -756,7 +761,7 @@ class GameController(object):
         feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus", 4: "Rock",
                                   5: "Small_Rock", 6: "Small_Craig", 7: "Fir", 8: "Fence_Vertical",
                                   9: "Fence_Horizontal", 10: "Fence_Bottom_Left", 11: "Fence_Bottom_Right", 12: "Fence_Top_Left",
-                                  13: "Fence_Top_Right", 14: "", 15: "", 16: "Scotch_Broom",
+                                  13: "Fence_Top_Right", 14: "Fence_Center", 15: "", 16: "Scotch_Broom",
                                   17: "Hawthorn", 18: "Cottonwood", 19: "Alder", 20: "Nootka_Rose",
                                   21: "Ocean_Spray", 22: "Willow", 23: "White_Poplar", 24: "Willow"}
 
@@ -836,6 +841,7 @@ class GameController(object):
         room_object = self.gs.get_room(room_name)
         self.position_manager.spawn_all_initial_room_elements(room_object)
         self.position_manager.add_player_to_grid(room_name)
+        self.game_view.refresh_drawables()
         self.gs.set_room(room_name)
 
     def change_room(self, room_going_to):

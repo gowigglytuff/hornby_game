@@ -222,7 +222,7 @@ def install_all_data(gc, gs):
         items_to_install = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed,
                             PinkSeed, YellowSeed, XKey, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
         items_to_acquire = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed,
-                            PinkSeed, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
+                            PinkSeed, XKey, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
         for item in items_to_install:
             gs.gd.add_treasure_item_data(item.NAME, item(gc))
         for item in items_to_acquire:

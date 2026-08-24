@@ -59,3 +59,6 @@ type,Prop,feature_subtype,Prop,species,Heart_Gate,base_size_x,1,base_size_y,1,fi
 type,Prop,feature_subtype,Prop,species,X_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Phi_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Gamma_Gate,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Tractor,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Akita,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Pointer,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

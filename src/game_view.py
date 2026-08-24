@@ -100,6 +100,11 @@ class GameView(object):
                                   "stat_menu": StatMenuAvatar,
                                   "number_selection_menu": NumberSelectionMenuAvatar,
                                   "game_action_dialogue_menu": GameActionDialogueMenuAvatar}
+        self.current_drawable = []
+        self.drawables_refreshed = True
+
+    def refresh_drawables(self):
+        self.drawables_refreshed = True
 
     def tick(self):
         self.clock.tick(self.FPS)
@@ -161,9 +166,7 @@ class GameView(object):
 
     def draw_all(self, drawables_list, current_room):
         self.draw_bg(current_room)
-        for drawable in drawables_list:
-            if not drawable[0].feature_type == "Player":
-                pass
+
         for drawable in drawables_list:
             if drawable[0].feature_type == "Player":
                 self.draw_player()
@@ -172,7 +175,7 @@ class GameView(object):
             else:
                 self.draw_feature(drawable[0].unique_name, drawable[0].feature_type)
 
-    def get_drawables_list(self, player_location, feature_locations, anim_locations):
+    def set_drawables_list(self, player_location, feature_locations, anim_locations):
         drawables_list = []
 
         for feature in feature_locations:
@@ -186,6 +189,11 @@ class GameView(object):
         drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
 
         drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
+
+        self.current_drawable = drawables_list
+
+    def get_drawables_list(self, player_location, feature_locations, anim_locations):
+        drawing_order = sorted(self.current_drawable, key=lambda x: (x[1], x[2]))
 
         return drawing_order
     # endregion
@@ -408,6 +416,7 @@ class GameView(object):
 
     def complete_independent_animation(self, animation_name):
         self.animation_manager.active_independent_animations.pop(animation_name)
+        self.refresh_drawables()
 
     # endregion
 

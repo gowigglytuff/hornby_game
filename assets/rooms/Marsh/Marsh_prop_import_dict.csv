@@ -1,4 +1,4 @@
-﻿species,Pink_Birdfeeder,display_name,Feeder,function,{'Feeder':'Pink-Flamingo'},spawn_room,Marsh,spawn_x,23,spawn_y,14,spawn_facing,Down,spawn_active,yes
+﻿species,Purple_Birdfeeder,display_name,Feeder,function,{'Feeder':'Purple-Agami_Heron'},spawn_room,Marsh,spawn_x,23,spawn_y,14,spawn_facing,Down,spawn_active,yes
 species,Garbagecan,display_name,Garbage Can,function,"{'Basket':""Milk-Cheese""}",spawn_room,Marsh,spawn_x,34,spawn_y,11,spawn_facing,Down,spawn_active,yes
 species,Garbagecan,display_name,Garbage Can,function,"{'Basket':""Milk-Cheese""}",spawn_room,Marsh,spawn_x,10,spawn_y,33,spawn_facing,Down,spawn_active,yes
 species,Yellow_Seed,display_name,Yellow Seed,function,{'Package':'Yellow Seed'},spawn_room,Marsh,spawn_x,10,spawn_y,35,spawn_facing,Down,spawn_active,yes

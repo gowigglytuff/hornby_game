@@ -558,10 +558,12 @@ class PositionManager(object):
     def add_feature_to_grid(self, feature_ghost, selected_room):
         coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
         selected_room.add_feature(feature_ghost.unique_name, feature_ghost.species, feature_ghost.feature_subtype, coordinates_list)
+        self.gc.game_view.refresh_drawables()
 
     def remove_feature_from_grid(self, feature_ghost, selected_room):
         coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
         selected_room.remove_feature(coordinates_list)
+        self.gc.game_view.refresh_drawables()
 
     def add_player_to_grid(self, room_name):
         selected_room = self.gc.game.game_view.game_data.room_data_list[room_name]
