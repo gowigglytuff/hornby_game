@@ -67,13 +67,15 @@ class MenuAvatar(object):
 
     def set_menu_display_coordinates(self):
         dictionary = {"start_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                      "words_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "acquire_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
                          "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "key_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "treasure_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
                          "gift_giving_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "number_selection_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}}
+                         "number_selection_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
+                         "text_input_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}}
 
         generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
 
@@ -630,6 +632,34 @@ class NumberSelectionMenuAvatar(MenuAvatar):
 
         centered_text = Mundane.center_text_x(self.overlay_body_x, 0, number_to_show)
         final_menu_text.append(TextDisplay(number_to_show, 10, 20))
+
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        final_menu_images = []
+        return final_menu_images
+
+
+class TextInputMenuAvatar(MenuAvatar):
+    NAME = "text_input_menu_avatar"
+
+    def __init__(self, gc, name,  items):
+        super().__init__(gc, name,  items)
+
+        self.set_menu_width = 50
+        self.set_menu_height = 7
+        self.offset_x = 0
+
+        self.fill_out_menu_info(items)
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        current_text_to_show = text_display_list[0]
+
+        final_menu_text = []
+
+        final_menu_text.append(TextDisplay(current_text_to_show, 10, 20))
 
         return final_menu_text
 

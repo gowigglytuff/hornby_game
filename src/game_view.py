@@ -7,7 +7,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar, SceneDialogueMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar, SceneDialogueMenuAvatar, TextInputMenuAvatar
 from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
@@ -99,9 +99,17 @@ class GameView(object):
                                   "gallery_menu": GalleryMenuAvatar,
                                   "stat_menu": StatMenuAvatar,
                                   "number_selection_menu": NumberSelectionMenuAvatar,
+                                  "text_input_menu": TextInputMenuAvatar,
                                   "game_action_dialogue_menu": GameActionDialogueMenuAvatar}
         self.current_drawable = []
         self.drawables_refreshed = True
+        self.text_bubble_image = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet_small.png", 96, 48).get_image(0, 0)
+        self.whisper_font_size = 6
+        self.whisper_font = pygame.font.Font(self.font_file, self.whisper_font_size)
+        self.shout_font_size = 12
+        self.shout_font = pygame.font.Font(self.font_file, self.shout_font_size)
+        self.speak_font_size = 8
+        self.speak_font = pygame.font.Font(self.font_file, self.speak_font_size)
 
     def refresh_drawables(self):
         self.drawables_refreshed = True
@@ -130,6 +138,32 @@ class GameView(object):
             list = self.feature_avatar_list
         return list
 
+    def set_text_bubble_spacing(self, avatar, avatar_loc_x, avatar_loc_y, bubble_text, box_image, volume):
+        box_width = box_image.get_width()
+        bubble_offset_x = (box_width - avatar.character_frame_x) / 2
+        bubble_x_loc = avatar_loc_x - bubble_offset_x
+        bubble_y_loc = avatar_loc_y - (avatar.character_frame_y/2)
+
+        font = getattr(self, volume.lower() +"_font")
+        font_size = getattr(self, volume.lower() + "_font_size")
+        text_colour = (0, 0, 0)
+        if volume == "Whisper":
+            text_colour = (211, 211, 211)
+
+        text_length = len(bubble_text)
+        pixels_of_text = text_length * font_size
+
+        item_text = font.render(bubble_text, True, text_colour)
+
+        text_offset_x = int((box_width/2) - (pixels_of_text/2))
+        text_offset_y = 9
+
+        text_x_loc = text_offset_x + bubble_x_loc
+        text_y_loc = text_offset_y + bubble_y_loc
+
+        return box_image, bubble_x_loc, bubble_y_loc, item_text, text_x_loc, text_y_loc
+
+
     # region DRAWING FEATURES
     def draw_feature(self, feature_name, feature_type):
         feature_list = self.translate_feature_type(feature_type)
@@ -140,11 +174,35 @@ class GameView(object):
         feature = camera_y + (feature_list[feature_name].image_y - 1) * self.square_size[1] - chosen_avatar.image_offset_y
         self.screen.blit(chosen_avatar.spritesheet.get_image(chosen_avatar.current_image_x, chosen_avatar.current_image_y), (feature_loc_x, feature))
 
+        if feature_type == Types.ACTOR:
+            if chosen_avatar.showing_bubble or chosen_avatar.unique_name == "Coot_386":
+                bubble_results = self.set_text_bubble_spacing(chosen_avatar, feature_loc_x, feature,
+                                                              chosen_avatar.bubble_text, self.text_bubble_image, "whisper")
+                self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
+                self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
+
     def draw_player(self):
         player = self.player_avatar
         play_loc_x = (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
         play_loc_y = player.image_y * self.square_size[1] - (self.square_size[1] + player.image_offset_y)
         self.screen.blit(player.spritesheet.get_image(player.current_image_x, player.current_image_y), [play_loc_x, play_loc_y])
+
+        if player.showing_bubble:
+            bubble_results = self.set_text_bubble_spacing(player, play_loc_x, play_loc_y,
+                                                          player.bubble_text, self.text_bubble_image,
+                                                          player.bubble_volume)
+            self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
+            self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
+
+
+            # text_bubble = self.text_bubble_image
+            # bubble_offset_x = (text_bubble.get_width() - player.character_frame_x)/2
+            # bubble_x_loc = play_loc_x - bubble_offset_x
+            # bubble_y_loc = play_loc_y - 20
+            # self.screen.blit(text_bubble, [bubble_x_loc, bubble_y_loc])
+            #
+            # item_text = self.whisper_font.render(player.bubble_text, True, (0, 0, 0))
+            # self.screen.blit(item_text, [bubble_x_loc + 18, bubble_y_loc + 9])
 
     def draw_bg(self, current_room):
         pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, self.resolution[0], self.resolution[1]))
@@ -185,15 +243,19 @@ class GameView(object):
         for ind_anim in anim_locations:
             drawables_list.append([ind_anim[0], ind_anim[1], ind_anim[2]])
 
-        player_avatar = self.get_player_avatar()
-        drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
+        # player_avatar = self.get_player_avatar()
+        # drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
 
         drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
 
         self.current_drawable = drawables_list
 
     def get_drawables_list(self, player_location, feature_locations, anim_locations):
-        drawing_order = sorted(self.current_drawable, key=lambda x: (x[1], x[2]))
+        drawables = copy.copy(self.current_drawable)
+        player_avatar = self.get_player_avatar()
+        drawables.append([player_avatar, player_location[0], player_avatar.drawing_priority])
+
+        drawing_order = sorted(drawables, key=lambda x: (x[1], x[2]))
 
         return drawing_order
     # endregion

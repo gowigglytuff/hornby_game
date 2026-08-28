@@ -9,7 +9,7 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -39,14 +39,16 @@ class GameEvents(object):
         self.delta_time = 0
         self.timer_list = []
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
-                            .1: [self.gc.pigeon_activation],
+                            .1: [self.gc.pigeon_activation, self.prock_timed_triggers],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .75: [self.gc.switch_flash],
                             1: [self.gc.gs.game_clock_pass_1_minute],
                            4: []}
 
+
         self.actor_events_dict = {}
         self.delayed_trigger_list = []
+        self.timed_trigger_list = []
         self.user_event_number = 200
         self.setup_initial_timers()
 
@@ -77,13 +79,26 @@ class GameEvents(object):
             if result:
                 item.activate()
                 remove_dict.append(item)
+
         for item in remove_dict:
             self.delayed_trigger_list.remove(item)
+
+    def prock_timed_triggers(self):
+        remove_dict = []
+        for trigger in self.timed_trigger_list:
+            complete = trigger.pass_second()
+            if complete:
+                remove_dict.append(trigger)
+        for item in remove_dict:
+            self.timed_trigger_list.remove(item)
 
     def add_delayed_trigger(self, condition, reaction):
         trigger_object = DelayedTrigger(self.gc, condition, reaction)
         self.delayed_trigger_list.append(trigger_object)
 
+    def add_timed_trigger(self, seconds, reaction):
+        trigger_object = TimedTrigger(self.gc, seconds, reaction)
+        self.timed_trigger_list.append(trigger_object)
 
     def parse_input_event(self, event):
         if event.type == pygame.QUIT:
@@ -112,7 +127,6 @@ class GameEvents(object):
                 #                         feature_ghost.behaviour_counter = 0
                 #                     else:
                 #                         feature_ghost.behaviour_counter += 1
-
 
 
 class GameController(object):
@@ -153,6 +167,20 @@ class GameController(object):
         self.gs.add_feature_ghost(unique_name, ghost_object)
         self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
+
+    def player_speak(self, volume, text):
+        player_avatar = self.gs.gv.get_player_avatar()
+        player_ghost = self.gs.get_player_ghost()
+        if not player_avatar.showing_bubble:
+            player_avatar.showing_bubble = True
+            player_avatar.bubble_volume = volume
+            player_avatar.bubble_text = text
+
+            def reaction(gc):
+                player_avatar = self.gs.gv.get_player_avatar()
+                player_avatar.showing_bubble = False
+
+            self.game.game_events.add_timed_trigger(3, reaction)
 
     def add_actor_activation_to_timer(self, actor_unique_name):
         frequency = .1
@@ -439,7 +467,6 @@ class GameController(object):
                 if not feature.check_if_busy():
                     if feature.feature_subtype == Types.BIRD:
                         self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
-                        print(feature.approach_outfit)
                         self.talk_to_bird(cube.filling_unique_name, player.facing)
                     else:
                         self.talk_to_character(cube.filling_unique_name, player.facing)
@@ -1042,6 +1069,7 @@ class InventoryManager(object):
     def end_key_item_use(self, item):
         self.gc.gs.gd.key_item_data_list[item.NAME].end_tool_use()
 
+
 class TriggerManager(object):
     def __init__(self, gc):
         self.gc = gc
@@ -1121,7 +1149,7 @@ class TriggerManager(object):
 class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
-        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, SubMenuGhost, NumberSelectionMenuGhost,
+        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
@@ -1144,6 +1172,14 @@ class MenuController(object):
     def menu_choose_option(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.choose_option()
+
+    def key_letter_pressed(self, letter):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.key_letter(letter)
+
+    def erase_letter_pressed(self):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.erase_letter()
 
     def activate_menu(self):
         pass
@@ -1242,8 +1278,10 @@ class MenuController(object):
             self.gc.menu_controller.exit_menu(StartMenuGhost.BASE)
             self.gc.menu_controller.set_menu(GuideMenuGhost.BASE, None)
 
-        elif menu_selection == "Profile":
-            pass
+        elif menu_selection == "Speak":
+            # self.gc.menu_controller.exit_menu(StartMenuGhost.BASE)
+            self.gc.menu_controller.set_menu(WordsMenuGhost.BASE, None)
+            # self.gc.menu_controller.set_menu(TextInputMenuGhost.BASE, {"master_menu": StartMenuGhost.BASE})
 
         elif menu_selection == "Map":
             self.gc.menu_controller.exit_menu(StartMenuGhost.BASE)
@@ -1270,6 +1308,7 @@ class MenuController(object):
             self.gc.menu_controller.exit_all_menus()
 
         else:
+            print(menu_selection)
             self.gc.menu_controller.exit_all_menus()
 
     def conversation_options_menu_selection(self, item_selected):
@@ -1308,7 +1347,6 @@ class MenuController(object):
 
                 phrase_1 = None
                 phrase_2 = None
-                print(item_type)
                 if item_type in ["Key Item", "Treasure Item"]:
                     phrase_1 = "You received the " + follow_up["item"] + "."
                     phrase_2 = "Put the " + follow_up["item"] + " in bag."
@@ -1592,3 +1630,22 @@ class DelayedTrigger(object):
             result = True
 
         return result
+
+
+class TimedTrigger(object):
+    def __init__(self, gc, seconds, reaction):
+        self.gc = gc
+        self.seconds = seconds
+        self.reaction = reaction
+        self.time_passed = 0
+
+    def activate(self):
+        self.reaction(self.gc)
+
+    def pass_second(self):
+        complete = False
+        self.time_passed += 1
+        if self.time_passed >= self.seconds*10:
+            self.activate()
+            complete = True
+        return complete

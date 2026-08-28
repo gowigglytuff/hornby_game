@@ -1,3 +1,4 @@
+from functools import partial
 from typing import TYPE_CHECKING
 
 import pygame
@@ -214,9 +215,10 @@ class InGameKeyboardManager(KeyboardManager):
         # scene_action = ("animation", CameraPanAnimation(direction_x, x_change))
         # self.gc.scene_manager.play_scene(Scene(self, [self.gc.held_step]))
 
-        print(self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu"))
-        print(self.gc.game_data.treasure_item_data_list)
-        print(self.gc.gs.current_treasure_inventory_dictionary)
+        # print(self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu"))
+        # print(self.gc.game_data.treasure_item_data_list)
+        # print(self.gc.gs.current_treasure_inventory_dictionary)
+        self.gc.player_speak("shout", "Balloon!")
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:
@@ -300,8 +302,33 @@ class InMenuKeyboardManager(KeyboardManager):
                                     "left": [self.gc.menu_controller.menu_cursor_left],
                                     "return": [self.gc.menu_controller.menu_choose_option],
                                     "space": [],
-                                    "a": [],
-                                    "s": [],
+                                    "backspace": [self.gc.menu_controller.erase_letter_pressed],
+                                    "a": [partial(self.gc.menu_controller.key_letter_pressed, "a")],
+                                    "b": [partial(self.gc.menu_controller.key_letter_pressed, "b")],
+                                    "c": [partial(self.gc.menu_controller.key_letter_pressed, "c")],
+                                    "d": [partial(self.gc.menu_controller.key_letter_pressed, "d")],
+                                    "e": [partial(self.gc.menu_controller.key_letter_pressed, "e")],
+                                    "f": [partial(self.gc.menu_controller.key_letter_pressed, "f")],
+                                    "g": [partial(self.gc.menu_controller.key_letter_pressed, "g")],
+                                    "h": [partial(self.gc.menu_controller.key_letter_pressed, "h")],
+                                    "i": [partial(self.gc.menu_controller.key_letter_pressed, "i")],
+                                    "j": [partial(self.gc.menu_controller.key_letter_pressed, "j")],
+                                    "k": [partial(self.gc.menu_controller.key_letter_pressed, "k")],
+                                    "l": [partial(self.gc.menu_controller.key_letter_pressed, "l")],
+                                    "m": [partial(self.gc.menu_controller.key_letter_pressed, "m")],
+                                    "n": [partial(self.gc.menu_controller.key_letter_pressed, "n")],
+                                    "o": [partial(self.gc.menu_controller.key_letter_pressed, "o")],
+                                    "p": [partial(self.gc.menu_controller.key_letter_pressed, "p")],
+                                    "q": [partial(self.gc.menu_controller.key_letter_pressed, "q")],
+                                    "r": [partial(self.gc.menu_controller.key_letter_pressed, "r")],
+                                    "s": [partial(self.gc.menu_controller.key_letter_pressed, "s")],
+                                    "t": [partial(self.gc.menu_controller.key_letter_pressed, "t")],
+                                    "u": [partial(self.gc.menu_controller.key_letter_pressed, "u")],
+                                    "v": [partial(self.gc.menu_controller.key_letter_pressed, "v")],
+                                    "w": [partial(self.gc.menu_controller.key_letter_pressed, "w")],
+                                    "x": [partial(self.gc.menu_controller.key_letter_pressed, "x")],
+                                    "y": [partial(self.gc.menu_controller.key_letter_pressed, "y")],
+                                    "z": [partial(self.gc.menu_controller.key_letter_pressed, "z")],
                                     "left ctrl": [self.gc.menu_controller.exit_all_menus],
                                     "left shift": [],
                                     "escape": [self.gc.menu_controller.exit_all_menus],

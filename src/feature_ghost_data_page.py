@@ -27,6 +27,8 @@ class PlayerGhost(object):
         self.state = "idle"
         self.facing = Direction.DOWN
         self.current_outfit = "Normal Outfit"
+        self.bubble_text = "Fuck"
+        self.bubble_volume = "shout"
 
     def return_base_coordinates_list(self, bottom_left_x, bottom_left_y):
         coordinates_list = []
@@ -352,7 +354,6 @@ class PropGhost(FeatureGhost):
         self.feature_subtype = Types.PROP
 
     def get_interacted_with(self):
-        print(self.function)
         if self.function == "Basket":
             basket_items = copy.copy(self.function_items)
             self.gs_input.gc.look_in_basket(self.unique_name, basket_items)

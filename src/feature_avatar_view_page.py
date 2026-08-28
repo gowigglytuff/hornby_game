@@ -13,6 +13,10 @@ class PlayerAvatar(object):
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_green_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        self.text_bubble = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet.png", 96, 48)
+        self.bubble_text = "Fuckers"
+        self.bubble_volume = "shout"
+        self.showing_bubble = False
         self.face_image = self.get_face_image()
         self.current_image_x = 0
         self.current_image_y = 0
@@ -145,6 +149,10 @@ class CharacterAvatar(FeatureAvatar):
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.run_setup(base_size_x, base_size_y, "character_spritesheets")
+        self.text_bubble = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet.png", 96, 48)
+        self.bubble_text = "Fuck"
+        self.showing_bubble = False
+        self.bubble_volume = "shout"
 
         self.animation_list = {"walk_front": WalkyAnimationy(Direction.DOWN),
                                "walk_left": WalkyAnimationy(Direction.LEFT),
@@ -174,6 +182,10 @@ class CharacterAvatar(FeatureAvatar):
         face = pygame.transform.scale(face, [24 * 4, 24 * 4])
         return face
 
+    def whisper(self, text):
+        self.bubble_text = text
+        self.showing_bubble = True
+
 
 class BirdAvatar(FeatureAvatar):
     def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):
@@ -181,6 +193,10 @@ class BirdAvatar(FeatureAvatar):
         self.feature_type = Types.ACTOR
         self.character_frame_x = 32
         self.character_frame_y = 64
+        self.text_bubble = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet.png", 96, 48)
+        self.bubble_text = "Fuck"
+        self.showing_bubble = False
+        self.bubble_volume = "shout"
         self.run_setup(base_size_x, base_size_y, "bird_spritesheets")
         self.option = 0
         self.animation_list = {"up_down": UpdownAnimation(Direction.UP),

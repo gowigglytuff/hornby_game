@@ -1,7 +1,3 @@
-import copy
-import time
-
-from position_manager_state_page import Room
 from game_controller import Game
 from load import init_game
 import pygame
@@ -9,22 +5,10 @@ import pygame
 pygame.init()
 g = Game()  # type: Game
 
+
 def main():
     init_game(g)
     run_game_loop()
-
-
-# def delta_time_check():
-#     check = time.perf_counter()
-#     difference = check - g.now
-#     print(g.now, check, difference)
-#     # g.now = copy.copy(check)
-#     if difference >= 0.017:
-#         print("ding")
-#         g.delay = False
-#         g.now = copy.copy(check)
-#     else:
-#         g.delay = True
 
 
 def run_game_loop():
@@ -45,8 +29,6 @@ def run_game_loop():
             pygame.display.flip()
             g.game_controller.update_view()
             g.game_view.tick()
-        # delta_time_check()
-
 
 
 if __name__ == "__main__":

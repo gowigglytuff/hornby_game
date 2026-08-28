@@ -375,7 +375,6 @@ class GameState(object):
                 self.good_gift_list = good_gift_list
                 self.bad_gift_list = bad_gift_list
                 self.friend_phrase = friend_phrase
-                print(friend_action)
                 friend_action_setup = self.break_out_combined_attr(friend_action)
                 self.friend_action = friend_action_setup[0]
                 self.friend_action_details = friend_action_setup[1][0]

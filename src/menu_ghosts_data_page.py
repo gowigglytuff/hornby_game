@@ -48,6 +48,12 @@ class MenuGhost(object):
     def do_option(self):
         menu_selection = self.get_current_menu_item()
 
+    def key_letter(self, letter):
+        pass
+
+    def erase_letter(self):
+        pass
+
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
@@ -136,15 +142,71 @@ class StartMenuGhost(MenuGhost):
     def __init__(self, gc):
         super().__init__(gc)
         self.menu_header = None
-        self.menu_item_list = ["Bag", "Outfits", "Map", "Gallery", "Guide", "Profile", "Save", "Options", "Vibes"]
+        self.menu_item_list = ["Bag", "Outfits", "Map", "Gallery", "Guide", "Speak", "Save", "Options", "Vibes"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
         self.prepare_menu_for_display(None)
 
-    def do_option(self):
+    def do_option(self, choice=None):
         menu_selection = self.get_current_menu_item()
+        if choice is not None:
+            menu_selection = choice
         self.gc.menu_controller.start_menu_selection(menu_selection)
+
+
+class WordsMenuGhost(MenuGhost):
+    BASE = "words_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.stored_words = ['"hello"', '"kazzam"', '"balloon"', '"poof"']
+        self.menu_item_list = []
+        self.currently_displayed_items = []
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.max_displayed_items = 6
+        self.shifts = 0
+        self.prepare_menu_for_display(None)
+
+    def prepare_menu_for_display(self, details):
+        self.menu_item_list = copy.copy(self.stored_words)
+        self.menu_item_list.sort()
+        self.menu_item_list.append("Exit")
+        self.menu_item_list.insert(0, "New Word")
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        elif chosen_item_name == "New Word":
+            self.gc.menu_controller.set_menu(TextInputMenuGhost.BASE, {"master_menu": WordsMenuGhost.BASE})
+        else:
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Speak", "Whisper", "Shout", "Delete", "Cancel"]})
+
+    def do_option(self, choice=None):
+        sub_menu_selection = choice
+        chosen_item_name = self.get_current_menu_item()
+
+        if sub_menu_selection == "Cancel":
+            self.gc.menu_controller.exit_all_menus()
+        elif sub_menu_selection == "New Word":
+            self.gc.menu_controller.set_menu(TextInputMenuGhost.BASE, {"master_menu": WordsMenuGhost.BASE})
+        else:
+            if sub_menu_selection in ["Speak", "Shout", "Whisper"]:
+                word_fixed = chosen_item_name[1:-1]
+                self.gc.player_speak(sub_menu_selection, word_fixed)
+                self.gc.menu_controller.exit_all_menus()
+            elif sub_menu_selection == "Delete":
+                self.stored_words.remove(chosen_item_name)
+                self.prepare_menu_for_display(None)
+            else:
+                self.stored_words.append('"' + sub_menu_selection + '"')
+                self.prepare_menu_for_display(None)
+
 
 
 class AcquireMenuGhost(MenuGhost): #TODO: Work on this
@@ -1144,6 +1206,79 @@ class NumberSelectionMenuGhost(MenuGhost):
         text_display_list = [final_text]
 
         menu_specific = {"number_to_display": text_display_list}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+
+class TextInputMenuGhost(MenuGhost):
+    BASE = "text_input_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_item_list = []
+        self.master_menu = None
+        self.menu_type = Types.SUB
+        self.menu_header = None
+        self.current_text = ""
+        self.max_text_length = 8
+
+    def reset_elements(self):
+        self.current_text = ""
+
+    def choose_option(self):
+        self.do_option()
+
+    def set_master_menu(self, master_menu):
+        self.master_menu = master_menu
+
+    def cursor_left(self):
+        pass
+
+    def key_letter(self, letter):
+        self.current_text = self.current_text + letter
+
+    def erase_letter(self):
+        self.current_text = self.current_text[:-1]
+
+    def cursor_right(self):
+        pass
+
+    def prepare_menu_for_display(self, details):
+        self.current_text = ""
+        self.menu_item_list = self.current_text
+
+    def get_current_menu_item(self):
+        menu_selection = self.current_text
+        return menu_selection
+
+    def do_option(self, choice=None):
+        chosen_word = self.get_current_menu_item()
+        if len(chosen_word) <= 2:
+            print("that's not long enough!")
+        else:
+            self.gc.menu_controller.exit_menu(self.BASE)
+            self.gc.gs.ms.get_menu_ghost(self.master_menu).do_option(chosen_word)
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+
+        final_text = self.current_text + "_"
+        #
+        # if self.current_number > self.min_number:
+        #     final_text = "< " + final_text
+        # else:
+        #     final_text = "  " + final_text
+        #
+        # if self.current_number < self.max_number:
+        #     final_text = final_text + " >"
+
+        text_display_list = [final_text]
+
+        menu_specific = {"text_to_display": text_display_list}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
