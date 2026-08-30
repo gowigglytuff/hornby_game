@@ -208,7 +208,6 @@ class WordsMenuGhost(MenuGhost):
                 self.prepare_menu_for_display(None)
 
 
-
 class AcquireMenuGhost(MenuGhost): #TODO: Work on this
     BASE = "acquire_menu"
     NAME = BASE + "_ghost"
@@ -589,6 +588,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
         self.talking_to = None
         self.friendship = None
         self.face_image = None
+        self.actor_type = None
         self.speaker_unique_name = None
         self.update_currently_displayed()
 
@@ -631,6 +631,7 @@ class ConversationOptionsMenuGhost(MenuGhost):
         self.friendship = self.get_friendship(int(details["friendship_level"]))
         self.face_image = details["face_image"]
         self.speaker_unique_name = details["speaker_unique_name"]
+        self.actor_type = details["actor_type"]
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
@@ -1010,6 +1011,7 @@ class ChatMenuGhost(MenuGhost):
         self.friendship = 0
         self.face_image = None
         self.phrase = None
+        self.actor_type = None
         self.update_currently_displayed()
         self.speaking_queue = []
         self.current_phrase = []
@@ -1028,6 +1030,7 @@ class ChatMenuGhost(MenuGhost):
         self.talking_to = details["speaker_name"]
         self.friendship = details["friendship_level"]
         self.face_image = details["face_image"]
+        self.actor_type = details["actor_type"]
         self.speaker_unique_name = details["speaker_unique_name"]
         self.menu_item_list = details["phrase"]
         self.follow_up = details["follow_up"]
@@ -1043,7 +1046,8 @@ class ChatMenuGhost(MenuGhost):
 
         menu_specific = {"friendship_level": self.friendship,
                          "face_image": self.face_image,
-                         "speaker_name": self.talking_to}
+                         "speaker_name": self.talking_to,
+                         "actor_type": self.actor_type}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
@@ -1237,7 +1241,10 @@ class TextInputMenuGhost(MenuGhost):
         pass
 
     def key_letter(self, letter):
-        self.current_text = self.current_text + letter
+        if len(self.current_text) < self.max_text_length:
+            self.current_text = self.current_text + letter
+        else:
+            pass
 
     def erase_letter(self):
         self.current_text = self.current_text[:-1]
@@ -1266,7 +1273,7 @@ class TextInputMenuGhost(MenuGhost):
         cursor_at = self.cursor_at
         cursor_image = self.cursor
 
-        final_text = self.current_text + "_"
+        final_text = self.current_text
         #
         # if self.current_number > self.min_number:
         #     final_text = "< " + final_text
@@ -1278,7 +1285,7 @@ class TextInputMenuGhost(MenuGhost):
 
         text_display_list = [final_text]
 
-        menu_specific = {"text_to_display": text_display_list}
+        menu_specific = {"text_to_display": text_display_list, "max_word_length": copy.copy(self.max_text_length)}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information

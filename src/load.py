@@ -54,7 +54,7 @@ def continue_game_procedures(gc, gs):
 def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
-        load = False
+        load = True
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
 
@@ -99,6 +99,7 @@ def install_all_data(gc, gs):
     def install_features(gc, gs):
         gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
         for room_name in gs.gd.room_data_list.keys():
+            print(room_name)
 
             map_objects_file_name = "assets/rooms/" + room_name + "/" + room_name + "_1_1_Objects.csv"
             if os.path.isfile(map_objects_file_name):

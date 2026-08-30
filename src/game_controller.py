@@ -41,7 +41,8 @@ class GameEvents(object):
         self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
                             .1: [self.gc.pigeon_activation, self.prock_timed_triggers],
                            .25: [self.gc.game_view.switch_tile_frame],
-                           .75: [self.gc.switch_flash],
+                           .5: [self.gc.switch_flash],
+                           .75: [],
                             1: [self.gc.gs.game_clock_pass_1_minute],
                            4: []}
 
@@ -468,6 +469,8 @@ class GameController(object):
                     if feature.feature_subtype == Types.BIRD:
                         self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
                         self.talk_to_bird(cube.filling_unique_name, player.facing)
+                    if feature.feature_subtype == Types.FRIEND:
+                        self.talk_to_friend(cube.filling_unique_name, player.facing)
                     else:
                         self.talk_to_character(cube.filling_unique_name, player.facing)
             elif feature.feature_type == Types.PROP:
@@ -492,8 +495,37 @@ class GameController(object):
 
         character_talking_to_ghost.currently_chatting = True
         self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
+
+        selected_phrase = self.gs.get_feature_ghost(character_talking_to_ghost.unique_name).base_phrase
         details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
                    "friendship_level": character_talking_to_ghost.friendship_level,
+                   "face_image": character_talking_to_avatar.face_image,
+                   "actor_type": character_talking_to_ghost.feature_subtype,
+                   "speaker_unique_name": character_talking_to_ghost.unique_name,
+                   "phrase": [selected_phrase],
+                   "follow_up": {"action": None}}
+        self.gs.gc.menu_controller.set_menu(ChatMenuGhost.BASE, details)
+
+    def talk_to_friend(self, character_talking_to, player_direction):
+        direction_to_turn = Direction.DOWN
+        if player_direction == Direction.DOWN:
+            direction_to_turn = Direction.UP
+        elif player_direction == Direction.UP:
+            direction_to_turn = Direction.DOWN
+        elif player_direction == Direction.LEFT:
+            direction_to_turn = Direction.RIGHT
+        elif player_direction == Direction.RIGHT:
+            direction_to_turn = Direction.LEFT
+
+        character_talking_to_ghost = self.gs.feature_ghost_list[character_talking_to]
+        character_talking_to_avatar = self.game_view.feature_avatar_list[character_talking_to]
+        self.gs.change_feature_facing(character_talking_to, direction_to_turn)
+
+        character_talking_to_ghost.currently_chatting = True
+        self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
+        details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
+                   "friendship_level": character_talking_to_ghost.friendship_level,
+                   "actor_type": character_talking_to_ghost.feature_subtype,
                    "face_image": character_talking_to_avatar.face_image,
                    "speaker_unique_name": character_talking_to_ghost.unique_name}
 
@@ -829,6 +861,7 @@ class GameController(object):
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             display_name = feature_dict["display_name"]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            print(unique_name)
             if feature_subtype == "Character":
                 feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"],
                                                     int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"],
@@ -1320,6 +1353,7 @@ class MenuController(object):
         details = {"speaker_name": copy.copy(current_menu.talking_to),
                    "friendship_level": copy.copy(current_menu.friendship),
                    "face_image": copy.copy(current_menu.face_image),
+                   "actor_type": copy.copy(current_menu.actor_type),
                    "speaker_unique_name": copy.copy(current_menu.speaker_unique_name),
                    "phrase": [selected_phrase],
                    "follow_up": {"action": None}}

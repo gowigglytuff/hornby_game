@@ -59,6 +59,7 @@ class Types(Enum):
     SUB = "Sub"
     OVERWORLD = "Overworld"
     BIRD = "Bird"
+    FRIEND = "Friend"
     TREE = "Tree"
     INDANIM = "independent_animation"
     FEEDER = "Feeder"

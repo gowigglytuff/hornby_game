@@ -184,6 +184,26 @@ class CharacterGhost(ActorGhost):
     def get_action(self):
         return Switch()
 
+
+class FriendGhost(ActorGhost):
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+        self.feature_subtype = Types.FRIEND
+        self.base_phrase = None
+        self.good_gift_phrase = None
+        self.bad_gift_phrase = None
+        self.neutral_gift_phrase = None
+        self.bird_hint_phrase = None
+        self.friend_phrase = None
+        self.friendship_level = 15
+        self.max_friendship = 16
+        self.good_gift_list = None
+        self.bad_gift_list = None
+        self.action_list = Switch()
+
+    def get_action(self):
+        return Switch()
+
     def receive_gift(self, gift_name):
         result_phrase = None
         follow_up = None

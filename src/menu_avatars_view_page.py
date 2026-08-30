@@ -330,6 +330,7 @@ class ChatMenuAvatar(MenuAvatar):
         cursor_at = menu_info.cursor_at
         speaker_name = menu_info.menu_specific_details_dict["speaker_name"]
         friendship_level = menu_info.menu_specific_details_dict["friendship_level"]
+        actor_type = menu_info.menu_specific_details_dict["actor_type"]
 
         final_menu_text = []
 
@@ -346,9 +347,14 @@ class ChatMenuAvatar(MenuAvatar):
             final_menu_text.append(text)
 
         # name and Friendship
+        text = speaker_name
+
+        if actor_type == Types.FRIEND:
+            text = speaker_name + " [" + str(friendship_level) + "]"
+
         loc_x = self.menu_spread_x + self.offset_x
         loc_y = self.offset_y
-        text = TextDisplay(speaker_name + " [" + str(friendship_level) + "]", loc_x, loc_y)
+        text = TextDisplay(text, loc_x, loc_y)
         final_menu_text.append(text)
 
         return final_menu_text
@@ -657,7 +663,18 @@ class TextInputMenuAvatar(MenuAvatar):
         text_display_list = menu_info.text_display_list
         current_text_to_show = text_display_list[0]
 
+        max_word_length = menu_info.menu_specific_details_dict["max_word_length"]
+
         final_menu_text = []
+
+        underscore_text = ""
+
+        if len(current_text_to_show) < max_word_length:
+            for space in range(len(current_text_to_show)):
+                underscore_text = underscore_text + " "
+            underscore_text = underscore_text + "_"
+            flashing_underscore = self.gc.make_flashing_text(underscore_text)
+            final_menu_text.append(TextDisplay(flashing_underscore, 10, 20))
 
         final_menu_text.append(TextDisplay(current_text_to_show, 10, 20))
 
