@@ -9,7 +9,7 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -469,8 +469,10 @@ class GameController(object):
                     if feature.feature_subtype == Types.BIRD:
                         self.gs.gc.menu_controller.post_notice("You shouldn't touch wild animals.")
                         self.talk_to_bird(cube.filling_unique_name, player.facing)
-                    if feature.feature_subtype == Types.FRIEND:
+                    elif feature.feature_subtype == Types.FRIEND:
                         self.talk_to_friend(cube.filling_unique_name, player.facing)
+                    elif feature.feature_subtype == Types.SELLER:
+                        self.talk_to_seller(cube.filling_unique_name, player.facing)
                     else:
                         self.talk_to_character(cube.filling_unique_name, player.facing)
             elif feature.feature_type == Types.PROP:
@@ -505,6 +507,29 @@ class GameController(object):
                    "phrase": [selected_phrase],
                    "follow_up": {"action": None}}
         self.gs.gc.menu_controller.set_menu(ChatMenuGhost.BASE, details)
+
+    def talk_to_seller(self, character_talking_to, player_direction):
+        direction_to_turn = Direction.DOWN
+        if player_direction == Direction.DOWN:
+            direction_to_turn = Direction.UP
+        elif player_direction == Direction.UP:
+            direction_to_turn = Direction.DOWN
+        elif player_direction == Direction.LEFT:
+            direction_to_turn = Direction.RIGHT
+        elif player_direction == Direction.RIGHT:
+            direction_to_turn = Direction.LEFT
+
+        character_talking_to_ghost = self.gs.feature_ghost_list[character_talking_to]
+        character_talking_to_avatar = self.game_view.feature_avatar_list[character_talking_to]
+        self.gs.change_feature_facing(character_talking_to, direction_to_turn)
+
+        character_talking_to_ghost.currently_chatting = True
+        self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
+
+        selected_phrase = self.gs.get_feature_ghost(character_talking_to_ghost.unique_name).base_phrase
+        details = {"seller_items": character_talking_to_ghost.get_items_list()[0],
+                   "seller_item_prices": character_talking_to_ghost.get_items_list()[1]}
+        self.gs.gc.menu_controller.set_menu(SellerMenuGhost.BASE, details)
 
     def talk_to_friend(self, character_talking_to, player_direction):
         direction_to_turn = Direction.DOWN
@@ -1182,7 +1207,7 @@ class TriggerManager(object):
 class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
-        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
+        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SellerMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 

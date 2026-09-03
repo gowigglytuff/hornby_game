@@ -50,6 +50,7 @@ class GameSettings(object):
 class Types(Enum):
     PROP = "Prop"
     CHARACTER = "Character"
+    SELLER = "Seller"
     ACTOR = "Actor"
     DECO = "Deco"
     DEFAULT = "Default"

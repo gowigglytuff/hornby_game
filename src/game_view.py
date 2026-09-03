@@ -70,7 +70,7 @@ class GameView(object):
         self.square_size = [GameSettings.TILESIZE, GameSettings.TILESIZE]
         self.base_locator_x = ((self.resolution[0] - self.square_size[0]) / self.square_size[0]) / 2 + 1
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
-        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.ACTOR: CharacterAvatar, Types.CHARACTER: CharacterAvatar, Types.PROP: PropAvatar, Types.DECO: DecoAvatar}
+        self.avatar_classes = {Types.BIRD: BirdAvatar, Types.ACTOR: CharacterAvatar, Types.CHARACTER: CharacterAvatar, Types.SELLER: CharacterAvatar, Types.FRIEND: CharacterAvatar, Types.PROP: PropAvatar, Types.DECO: DecoAvatar}
 
         self.camera = [0, 0]
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (100, 50)

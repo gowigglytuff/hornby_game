@@ -155,6 +155,55 @@ class StartMenuGhost(MenuGhost):
         self.gc.menu_controller.start_menu_selection(menu_selection)
 
 
+class SellerMenuGhost(MenuGhost):
+    BASE = "Seller_menu"
+    NAME = BASE + "_ghost"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_item_list = []
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.menu_prices = {}
+        # self.prepare_menu_for_display(None)
+
+    def prepare_menu_for_display(self, details):
+        self.menu_item_list = details["seller_items"]
+        self.menu_item_list.sort()
+        self.menu_prices = details["seller_item_prices"]
+        self.menu_item_list.append("Exit")
+
+    def do_option(self, choice=None):
+        menu_selection = self.get_current_menu_item()
+        if choice is not None:
+            menu_selection = choice
+        self.gc.menu_controller.start_menu_selection(menu_selection)
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+
+        final_text = []
+
+        item_with_cost = None
+        for item in self.menu_item_list:
+            if item != "Exit":
+                item_with_cost = item + "   " + str(self.menu_prices[item])
+                final_text.append(item_with_cost)
+        final_text.append("Exit")
+
+        text_display_list = final_text
+        print(text_display_list)
+
+        menu_specific = {}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+
 class WordsMenuGhost(MenuGhost):
     BASE = "words_menu"
     NAME = BASE + "_ghost"

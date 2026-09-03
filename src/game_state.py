@@ -25,8 +25,8 @@ class GameState(object):
         self.ms = MenuState(self)
         self.cc = ConditionChecker(self) # type:ConditionChecker
         self.ghost_classes = {}
-        self.type_translator = {"Character": Types.CHARACTER, "Actor": Types.ACTOR, "Prop": Types.PROP, "Deco": Types.DECO}
-        self.sub_type_translator = {"None": None, "Character": Types.CHARACTER,  "Friend": Types.FRIEND, "Bird": Types.BIRD, "Tree": Types.TREE, "Prop": Types.PROP, "Deco": Types.DECO}
+        self.type_translator = {"Character": Types.CHARACTER, "Seller": Types.SELLER, "Actor": Types.ACTOR, "Prop": Types.PROP, "Deco": Types.DECO}
+        self.sub_type_translator = {"None": None, "Character": Types.CHARACTER, "Seller": Types.SELLER,  "Friend": Types.FRIEND, "Bird": Types.BIRD, "Tree": Types.TREE, "Prop": Types.PROP, "Deco": Types.DECO}
         self.direction_translations = {"Up": Direction.UP, "Down": Direction.DOWN, "Left": Direction.LEFT, "Right": Direction.RIGHT}
 
         self.selected_tool = "Pickaxe"
@@ -395,7 +395,7 @@ class GameState(object):
 
             newclass = type(feature_dict["species"], (getattr(feature_ghost_data_page, feature_dict["feature_subtype"] + "Ghost"),), {"__init__": class_init})
             self.gd.add_feature_class(feature_dict["species"], newclass)
-        elif feature_dict["feature_subtype"] == "Character":
+        elif feature_dict["feature_subtype"] == "Character" or feature_dict["feature_subtype"] == "Seller":
             def class_init(self, gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active, base_phrase,
                            good_gift_phrase, bad_gift_phrase, neutral_gift_phrase, bird_hint_phrase, good_gift_list, bad_gift_list, friend_phrase, friend_action, is_friend):
                 super(newclass, self).__init__(gc_input, unique_name, diplay_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
