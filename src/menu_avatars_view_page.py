@@ -1,3 +1,4 @@
+import copy
 import textwrap
 
 from definitions import GameSettings, Types, Mundane
@@ -27,6 +28,332 @@ class ImageDisplay(object):
         self.x = x
         self.y = y
 
+
+class BaseMenuAvatar(object):
+    NAME = "Base_Menu_Avatar"
+
+    def __init__(self, gc, name):
+        self.menu_display_details = {}
+        self.gc = gc
+        self.x = 0
+        self.y = 0
+        self.offset_x = 15
+        self.offset_y = 15
+        self.cursor_offset_x = 5
+        self.cursor_at = 0
+        self.y_space_size = 15
+        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
+        self.menu_spread_x = 0
+        self.name = name
+        self.overlay_body_x = 0
+        self.overlay_body_Y = 0
+        self.has_header = False
+        self.overlay_header_x = 0
+        self.overlay_header_y = 0
+        self.header_spacing = 0
+        self.base_segment_size = 0
+        self.spritesheet_height = 0
+        self.spritesheet_width = 0
+        self.overlay_image = None
+        self.shifts = 0
+        self.menu_items_list = []
+        self.currently_displayed_items = []
+        self.final_menu_text = []
+        self.final_menu_images = []
+
+        self.max_display_items = 14
+        self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+    def fill_out_menu_info(self):
+        self.overlay_body_x = self.menu_display_details["default_width"]
+        self.overlay_body_Y = self.menu_display_details["default_height"]
+
+        if self.has_header:
+            header_calc = self.set_header_y()
+            self.overlay_header_x = header_calc[0]
+            self.overlay_header_y = header_calc[1]
+            self.header_spacing = header_calc[2]
+
+        self.base_segment_size = self.overlay_body_x * GameSettings.MENUSEGMENTSIZE
+        self.spritesheet_height = (self.overlay_body_Y * GameSettings.MENUSEGMENTSIZE) + (self.overlay_header_y * GameSettings.MENUSEGMENTSIZE)
+        self.spritesheet_width = self.overlay_body_x * GameSettings.MENUSEGMENTSIZE
+
+        if self.has_header:
+            self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", self.overlay_body_x, self.overlay_body_Y, header=self.has_header)
+        else:
+            self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", self.overlay_body_x, self.overlay_body_Y)
+
+        self.set_display_coordinates()
+
+    def set_header_y(self):
+        font_size = GameSettings.FONT_SIZE
+        segment_size = GameSettings.MENUSEGMENTSIZE
+        segment_proportion = font_size/segment_size
+
+        header_number_of_items = 1
+        header_items_height = header_number_of_items * segment_proportion
+        header_border_height = int(self.offset_y / segment_size) * 2
+        header_height = header_items_height + header_border_height
+        header_width = copy.copy(self.overlay_body_x)
+        header_spacing = header_height * segment_size - 5
+
+        return header_width, header_height, header_spacing
+
+    def add_header_spaces(self, header):
+        header_text_length = len(header) * 2
+        max_width = self.overlay_body_x
+        offset = (self.offset_x / GameSettings.MENUSEGMENTSIZE)
+        width_less_offsets = max_width / 2 - offset
+        header_spaces = int((width_less_offsets - header_text_length / 2) / 2)
+        for space in range(header_spaces):
+            header = " " + header
+        return header
+
+    def get_cursor_at(self, cursor_at):
+        cursor_y = 0
+        if cursor_at[1] + 1 < self.max_display_items:
+            cursor_y = cursor_at[1]
+        else:
+            cursor_y = self.max_display_items-1
+
+        cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
+        cursor_loc_y = (cursor_y * self.menu_spread_y) + self.header_spacing + self.offset_y
+
+        return cursor_loc_x, cursor_loc_y
+
+    def set_display_coordinates(self):
+        x_instruction = self.menu_display_details["align_x"]
+        y_instruction = self.menu_display_details["align_y"]
+        x = 0
+        y = 0
+
+        if x_instruction == "center":
+            x = GameSettings.RESOLUTION[0] / 2 - self.spritesheet_width / 2
+        elif x_instruction == "left":
+            x = 0 + GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
+        elif x_instruction == "right":
+            x = GameSettings.RESOLUTION[0] - self.spritesheet_width - GameSettings.RESOLUTION[0] / GameSettings.MENUEDGE
+        else:
+            x = x_instruction
+
+        if y_instruction == "center":
+            y = GameSettings.RESOLUTION[1] / 2 - self.spritesheet_height / 2
+        elif y_instruction == "1/4":
+            y = GameSettings.RESOLUTION[1] / 4 - self.spritesheet_height / 4
+        elif y_instruction == "top":
+            y = 0 + GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+        elif y_instruction == "3/4":
+            y = GameSettings.RESOLUTION[1] / 4 * 3 - self.spritesheet_height / 4 * 3
+        elif y_instruction == "bottom":
+            y = GameSettings.RESOLUTION[1] - self.spritesheet_height - GameSettings.RESOLUTION[1] / GameSettings.MENUEDGE
+        else:
+            y = y_instruction
+
+        self.menu_display_details["coordinates"][0] = x
+        self.menu_display_details["coordinates"][1] = y
+
+    def return_currently_displayed(self, full_items_list, cursor_at):
+        currently_displayed_items = []
+        size = len(full_items_list)
+        shifts = cursor_at[1] + 1 - self.max_display_items
+        if shifts < 0:
+            shifts = 0
+
+        if size <= self.max_display_items:
+            for item in range(size):
+                currently_displayed_items.append(full_items_list[item])
+        else:
+            for item in range(self.max_display_items):
+                currently_displayed_items.append(full_items_list[item + shifts])
+        return currently_displayed_items
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+
+        final_menu_text = []
+
+        if header:
+            self.add_header_spaces(header)
+            final_menu_text.append(TextDisplay(header, self.offset_x, self.offset_y))
+
+        if cursor_image:
+            cursor_loc = self.get_cursor_at(cursor_at)
+            final_menu_text.append(TextDisplay(cursor_image, cursor_loc[0], cursor_loc[1]))
+
+        currently_visible_items = self.return_currently_displayed(text_display_list, cursor_at)
+
+        for position_y in range(len(currently_visible_items)):
+            loc_x = self.menu_spread_x + self.offset_x
+            loc_y = (position_y * self.menu_spread_y) + self.offset_y + self.header_spacing
+            final_menu_text.append(TextDisplay(text_display_list[position_y], loc_x, loc_y))
+
+        self.final_menu_text = final_menu_text
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        final_menu_images = []
+        self.final_menu_images = final_menu_images
+        return None
+
+
+class ListMenuAvatar(BaseMenuAvatar):
+    NAME = "list_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.menu_display_details = {"default_width": 25, "default_height": 53, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+
+        final_menu_text = []
+
+        if header:
+            self.add_header_spaces(header)
+            final_menu_text.append(TextDisplay(header, self.offset_x, self.offset_y))
+
+        if cursor_image:
+            cursor_loc = self.get_cursor_at(cursor_at)
+            final_menu_text.append(TextDisplay(cursor_image, cursor_loc[0], cursor_loc[1]))
+
+        currently_visible_items = self.return_currently_displayed(text_display_list, cursor_at)
+
+        for position_y in range(len(currently_visible_items)):
+            loc_x = self.menu_spread_x + self.offset_x
+            loc_y = (position_y * self.menu_spread_y) + self.offset_y + self.header_spacing
+            item = currently_visible_items[position_y]
+            final_menu_text.append(TextDisplay(item, loc_x, loc_y))
+
+        self.final_menu_text = final_menu_text
+
+        return final_menu_text
+
+
+class CoupledListMenuAvatar(BaseMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.menu_display_details = {"default_width": 28, "default_height": 85, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.symbol = "x"
+        self.fill_out_menu_info()
+
+    def combine_item_with_detail(self, item, detail, spaces_available):
+        final_item = item
+        if detail == "0":
+            final_item = item
+        else:
+            available_spaces = spaces_available
+            item_word_length = len(item)
+            quantity_word_length = len(detail)
+            total_length = item_word_length + quantity_word_length
+
+            number_of_spaces = available_spaces - total_length
+            spaces_str = ""
+            for x in range(number_of_spaces):
+                spaces_str = spaces_str + " "
+            final_item = item + spaces_str + self.symbol + detail
+        return final_item
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+
+        final_menu_text = []
+
+        if header:
+            self.add_header_spaces(header)
+            final_menu_text.append(TextDisplay(header, self.offset_x, self.offset_y))
+
+        if cursor_image:
+            cursor_loc = self.get_cursor_at(cursor_at)
+            final_menu_text.append(TextDisplay(cursor_image, cursor_loc[0], cursor_loc[1]))
+
+        fixed_text_list = []
+        for item in text_display_list:
+            item_adjusted = self.combine_item_with_detail(item[0], item[1], 13)
+            fixed_text_list.append(item_adjusted)
+
+        currently_visible_items = self.return_currently_displayed(fixed_text_list, cursor_at)
+        print(currently_visible_items)
+
+        for position_y in range(len(currently_visible_items)):
+            loc_x = self.menu_spread_x + self.offset_x
+            loc_y = (position_y * self.menu_spread_y) + self.offset_y + self.header_spacing
+            item = currently_visible_items[position_y]
+            final_menu_text.append(TextDisplay(item, loc_x, loc_y))
+
+        self.final_menu_text = final_menu_text
+
+        return final_menu_text
+
+
+class SuppliesMenuAvatar(CoupledListMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.has_header = True
+        self.menu_display_details = {"default_width": 33, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
+class GiftGivingMenuAvatar(CoupledListMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.has_header = True
+        self.menu_display_details = {"default_width": 33, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
+class KeyInventoryMenuAvatar(ListMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.has_header = True
+        self.menu_display_details = {"default_width": 33, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
+class SellerMenuAvatar(CoupledListMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.has_header = True
+        self.symbol = "$"
+        self.menu_display_details = {"default_width": 33, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
+class AcquireMenuAvatar(ListMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.has_header = True
+        self.menu_display_details = {"default_width": 33, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
+class TreasuresInventoryMenuAvatar(ListMenuAvatar):
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.has_header = True
+        self.menu_display_details = {"default_width": 33, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
 
 class MenuAvatar(object):
     NAME = "Menu_Base_Avatar"
@@ -64,6 +391,8 @@ class MenuAvatar(object):
 
         self.overlay_image = None
         self.fill_out_menu_info(items)
+        self.final_menu_text = []
+        self.final_menu_images = []
 
     def set_menu_display_coordinates(self):
         dictionary = {"start_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
@@ -193,9 +522,12 @@ class MenuAvatar(object):
             loc_y = (position_y * self.menu_spread_y) + self.offset_y + self.header_spacing
             final_menu_text.append(TextDisplay(text_display_list[position_y], loc_x, loc_y))
 
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
+        final_menu_images = []
+        self.final_menu_images = final_menu_images
         return None
 
 
@@ -227,9 +559,12 @@ class StatMenuAvatar(MenuAvatar):
             final_menu_text.append(TextDisplay(item, loc_x, loc_y))
             last_item_x = last_item_x + length + 15
 
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
+        final_menu_images = []
+        self.final_menu_images = final_menu_images
         return None
 
 
@@ -245,6 +580,8 @@ class GameActionDialogueMenuAvatar(MenuAvatar):
         self.fill_out_menu_info(items)
 
     def get_menu_image_drawing_instructions(self, menu_info):
+        final_menu_images = []
+        self.final_menu_images = final_menu_images
         return None
 
 
@@ -290,6 +627,7 @@ class ConversationOptionsMenuAvatar(MenuAvatar):
         text = TextDisplay(speaker_name + " [" + str(friendship_level) + "]", loc_x, loc_y)
         final_menu_text.append(text)
 
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -301,6 +639,8 @@ class ConversationOptionsMenuAvatar(MenuAvatar):
         loc_y = self.image_offset_y
         image = ImageDisplay(face, loc_x, loc_y)
         final_menu_images.append(image)
+
+        self.final_menu_images = final_menu_images
 
         return final_menu_images
 
@@ -358,6 +698,7 @@ class ChatMenuAvatar(MenuAvatar):
         text = TextDisplay(text, loc_x, loc_y)
         final_menu_text.append(text)
 
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -370,6 +711,7 @@ class ChatMenuAvatar(MenuAvatar):
         image = ImageDisplay(face, loc_x, loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -412,6 +754,7 @@ class OutfitMenuAvatar(MenuAvatar):
             text = TextDisplay(">", 130, 45)
             final_menu_text.append(text)
 
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -422,6 +765,7 @@ class OutfitMenuAvatar(MenuAvatar):
         image = ImageDisplay(chosen_outfit, Mundane.center_image_x(self.overlay_body_x, 0, chosen_outfit), loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -441,6 +785,7 @@ class MapMenuAvatar(MenuAvatar):
 
     def get_menu_text_drawing_instructions(self, menu_info):
         final_menu_text = []
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -452,6 +797,7 @@ class MapMenuAvatar(MenuAvatar):
         image = ImageDisplay(image, loc_x, loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -515,6 +861,8 @@ class GuideMenuAvatar(MenuAvatar):
         on_last_page = self.gc.make_flashing_text(menu_info.text_display_list[11])
         final_menu_text.append(TextDisplay(on_last_page, self.offset_x - self.bg_offset_x + self.paper_width * 2 - 12, self.offset_y + 240))
 
+        self.final_menu_text = final_menu_text
+
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -533,6 +881,8 @@ class GuideMenuAvatar(MenuAvatar):
 
         image = ImageDisplay(image_list[3], self.bg_offset_x + self.paper_width, self.bg_offset_y)
         final_menu_images.append(image)
+
+        self.final_menu_images = final_menu_images
 
         return final_menu_images
 
@@ -555,6 +905,7 @@ class PictureMenuAvatar(MenuAvatar):
 
     def get_menu_text_drawing_instructions(self, menu_info):
         final_menu_text = []
+        self.final_menu_text = final_menu_text
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -566,6 +917,7 @@ class PictureMenuAvatar(MenuAvatar):
         image = ImageDisplay(image, loc_x, loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -605,6 +957,8 @@ class GalleryMenuAvatar(MenuAvatar):
             text = TextDisplay(">", 130, 45)
             final_menu_text.append(text)
 
+        self.final_menu_text = final_menu_text
+
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -615,6 +969,7 @@ class GalleryMenuAvatar(MenuAvatar):
         image = ImageDisplay(bird_image, Mundane.center_image_x(self.overlay_body_x, 0, bird_image), loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -640,10 +995,13 @@ class NumberSelectionMenuAvatar(MenuAvatar):
         centered_text = Mundane.center_text_x(self.overlay_body_x, 0, number_to_show)
         final_menu_text.append(TextDisplay(number_to_show, 10, 20))
 
+        self.final_menu_text = final_menu_text
+
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -679,10 +1037,13 @@ class TextInputMenuAvatar(MenuAvatar):
 
         final_menu_text.append(TextDisplay(current_text_to_show, 10, 20))
 
+        self.final_menu_text = final_menu_text
+
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -734,6 +1095,9 @@ class QuizMenuAvatar(MenuAvatar):
             loc_y = (position_y * self.menu_spread_y) + self.menu_spread_y + self.offset_y
             text = TextDisplay(text_display_list[position_y], 10, 10)
             final_menu_text.append(text)
+
+        self.final_menu_text = final_menu_text
+
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -745,6 +1109,7 @@ class QuizMenuAvatar(MenuAvatar):
         image = ImageDisplay(picture, loc_x, loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images
 
 
@@ -795,6 +1160,8 @@ class SceneDialogueMenuAvatar(MenuAvatar):
         text = TextDisplay(speaker_name + " [" + str(friendship_level) + "]", loc_x, loc_y)
         final_menu_text.append(text)
 
+        self.final_menu_text = final_menu_text
+
         return final_menu_text
 
     def get_menu_image_drawing_instructions(self, menu_info):
@@ -807,4 +1174,5 @@ class SceneDialogueMenuAvatar(MenuAvatar):
         image = ImageDisplay(face, loc_x, loc_y)
         final_menu_images.append(image)
 
+        self.final_menu_images = final_menu_images
         return final_menu_images

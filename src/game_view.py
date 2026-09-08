@@ -57,6 +57,7 @@ class OutfitManager(object):
         final_list = sorted(acquired_outfits, key = lambda x: x.display_name)
         return final_list
 
+
 class GameView(object):
     def __init__(self, game_data, game_state):
         self.game_data = game_data  # type: GameData
@@ -163,7 +164,6 @@ class GameView(object):
 
         return box_image, bubble_x_loc, bubble_y_loc, item_text, text_x_loc, text_y_loc
 
-
     # region DRAWING FEATURES
     def draw_feature(self, feature_name, feature_type):
         feature_list = self.translate_feature_type(feature_type)
@@ -177,7 +177,7 @@ class GameView(object):
         if feature_type == Types.ACTOR:
             if chosen_avatar.showing_bubble or chosen_avatar.unique_name == "Coot_386":
                 bubble_results = self.set_text_bubble_spacing(chosen_avatar, feature_loc_x, feature,
-                                                              chosen_avatar.bubble_text, self.text_bubble_image, "whisper")
+                                                              chosen_avatar.bubble_text, self.text_bubble_image, chosen_avatar.bubble_volume)
                 self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
                 self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
 
@@ -193,16 +193,6 @@ class GameView(object):
                                                           player.bubble_volume)
             self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
             self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
-
-
-            # text_bubble = self.text_bubble_image
-            # bubble_offset_x = (text_bubble.get_width() - player.character_frame_x)/2
-            # bubble_x_loc = play_loc_x - bubble_offset_x
-            # bubble_y_loc = play_loc_y - 20
-            # self.screen.blit(text_bubble, [bubble_x_loc, bubble_y_loc])
-            #
-            # item_text = self.whisper_font.render(player.bubble_text, True, (0, 0, 0))
-            # self.screen.blit(item_text, [bubble_x_loc + 18, bubble_y_loc + 9])
 
     def draw_bg(self, current_room):
         pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, self.resolution[0], self.resolution[1]))
@@ -275,8 +265,9 @@ class GameView(object):
 
     def draw_special_menu(self, menu_name, menu_info, x, y):
         menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
-        final_menu_text = menu_avatar.get_menu_text_drawing_instructions(menu_info)
-        final_menu_images = menu_avatar.get_menu_image_drawing_instructions(menu_info)
+
+        final_menu_text = menu_avatar.final_menu_text
+        final_menu_images = menu_avatar.final_menu_images
 
         # compile menu
         final_image = pygame.Surface((menu_avatar.overlay_image.get_width(), menu_avatar.overlay_image.get_height()))

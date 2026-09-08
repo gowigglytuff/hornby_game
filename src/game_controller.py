@@ -108,6 +108,9 @@ class GameEvents(object):
         elif event.type in [pygame.KEYDOWN, pygame.KEYUP]:
             self.gc.active_keyboard_manager.parse_key_input(event.type, event.key)
 
+        elif event.type in [pygame.MOUSEBUTTONDOWN]:
+            pass
+
         if self.gc.scene_manager.waiting_for_response == False:
             if event.type in self.timer_list:
                 for timer in self.event_dict.keys():
@@ -190,6 +193,20 @@ class GameController(object):
         else:
             self.game.game_events.actor_events_dict[frequency] = [partial(self.actor_activation, actor_unique_name)]
             self.game.game_events.setup_timer(frequency)
+
+    def actor_speak(self, actor_unique_name, volume, text):
+        actor_avatar = self.gs.gv.get_feature_avatar(actor_unique_name)
+        actor_ghost = self.gs.get_feature_ghost(actor_unique_name)
+        if not actor_avatar.showing_bubble:
+            actor_avatar.showing_bubble = True
+            actor_avatar.bubble_volume = volume
+            actor_avatar.bubble_text = text
+
+            def reaction(gc):
+                actor_avatar = self.gs.gv.get_feature_avatar(actor_unique_name)
+                actor_avatar.showing_bubble = False
+
+            self.game.game_events.add_timed_trigger(3, reaction)
 
     def clear_activation_timer(self):
         self.game.game_events.actor_events_dict = {}
@@ -878,7 +895,7 @@ class GameController(object):
 
         return feature_data
 
-    def import_characters_from_csv(self, filename, feature_subtype):
+    def import_characters_from_csv(self, filename, feature_subtype, room_name):
         feature_data = self.process_features_from_csv(filename)
 
         for feature_dict in feature_data:
@@ -888,7 +905,7 @@ class GameController(object):
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
             print(unique_name)
             if feature_subtype == "Character":
-                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"],
+                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], room_name,
                                                     int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"],
                                                     feature_dict["base_phrase"], feature_dict["good_gift_phrase"], feature_dict["bad_gift_phrase"],
                                                     feature_dict["neutral_gift_phrase"], feature_dict["bird_hint_phrase"], feature_dict["good_gift_list"],
@@ -1211,33 +1228,46 @@ class MenuController(object):
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
+    def update_menu_text_and_images(self, menu_ghost):
+        menu_avatar = self.gc.game_view.menu_avatar_data_list[menu_ghost.BASE + "_avatar"]
+        info_package = menu_ghost.generate_menu_information_package()
+        menu_avatar.get_menu_text_drawing_instructions(info_package)
+        menu_avatar.get_menu_image_drawing_instructions(info_package)
+
     def menu_cursor_down(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.cursor_down()
+        self.update_menu_text_and_images(active_menu)
 
     def menu_cursor_up(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.cursor_up()
+        self.update_menu_text_and_images(active_menu)
 
     def menu_cursor_left(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.cursor_left()
+        self.update_menu_text_and_images(active_menu)
 
     def menu_cursor_right(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.cursor_right()
+        self.update_menu_text_and_images(active_menu)
 
     def menu_choose_option(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.choose_option()
+        self.update_menu_text_and_images(active_menu)
 
     def key_letter_pressed(self, letter):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.key_letter(letter)
+        self.update_menu_text_and_images(active_menu)
 
     def erase_letter_pressed(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.erase_letter()
+        self.update_menu_text_and_images(active_menu)
 
     def activate_menu(self):
         pass
@@ -1261,8 +1291,9 @@ class MenuController(object):
 
     def update_stat_menus(self):
         for menu in self.gc.gs.ms.static_menus:
+            print(menu)
             ghost = self.gc.gs.ms.get_menu_ghost(menu)
-            ghost.prepare_menu_for_display()
+            self.update_menu_text_and_images(ghost)
 
     def get_stat_items(self):
         hour = self.gc.gs.hour_of_day
@@ -1366,7 +1397,6 @@ class MenuController(object):
             self.gc.menu_controller.exit_all_menus()
 
         else:
-            print(menu_selection)
             self.gc.menu_controller.exit_all_menus()
 
     def conversation_options_menu_selection(self, item_selected):
@@ -1452,6 +1482,8 @@ class MenuController(object):
         if menu_name == ChatMenuGhost.BASE:
             selected_menu.set_current_phrase(details["phrase"])
 
+        self.update_menu_text_and_images(selected_menu)
+
         self.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc.gs.ms.add_menu_to_stack(menu_name)
 
@@ -1536,6 +1568,7 @@ class SceneManager(object): #TODO: Work on this mess!!
         if self.active_scene.complete:
             self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
         else:
+            next_step, last_action = self.active_scene.return_current_action2()
             next_step, last_action = self.active_scene.return_current_action2()
             self.execute_scene_step(next_step, last_action)
 

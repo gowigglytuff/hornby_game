@@ -52,3 +52,4 @@ species,Agami_Heron,display_name,Agami Heron,function,None,spawn_room,Habitat_Ro
 species,Bearded_Vulture,display_name,Bearded Vulture,function,None,spawn_room,Habitat_Room,spawn_x,13,spawn_y,4,spawn_facing,Down,spawn_active,yes
 species,Kakapo,display_name,Kakapo,function,None,spawn_room,Habitat_Room,spawn_x,13,spawn_y,2,spawn_facing,Down,spawn_active,yes
 species,Puffin,display_name,Puffin,function,None,spawn_room,Habitat_Room,spawn_x,17,spawn_y,9,spawn_facing,Left,spawn_active,yes
+species,Pterodactyl,display_name,Pterodactyl,function,None,spawn_room,Habitat_Room,spawn_x,13,spawn_y,15,spawn_facing,Left,spawn_active,yes

@@ -22,6 +22,9 @@ def run_game_loop():
                 if event.type in [pygame.KEYDOWN, pygame.KEYUP, pygame.QUIT]:
                     g.game_events.parse_input_event(event)
 
+                if event.type in [pygame.MOUSEBUTTONDOWN]:
+                    g.game_events.parse_input_event(event)
+
                 if event.type in g.game_events.timer_list:
                     g.game_events.parse_input_event(event)
 

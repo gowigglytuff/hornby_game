@@ -12,6 +12,14 @@ if TYPE_CHECKING:
     from game_controller import GameController, DelayedTrigger, SceneStep
 
 
+class MouseManager(object):
+    def __init__(self, gc):
+        self.gc = gc  # type: GameController
+
+    def parse_key_input(self, event_type):
+        pass
+
+
 class KeyboardManager(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
@@ -218,7 +226,8 @@ class InGameKeyboardManager(KeyboardManager):
         # print(self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu"))
         # print(self.gc.game_data.treasure_item_data_list)
         # print(self.gc.gs.current_treasure_inventory_dictionary)
-        self.gc.player_speak("shout", "Balloon!")
+        # self.gc.player_speak("shout", "Balloon!")
+        self.gc.actor_speak("Towhee_1627", "Shout", "TWEET!")
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

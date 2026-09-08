@@ -148,11 +148,11 @@ class CharacterAvatar(FeatureAvatar):
         self.feature_type = Types.ACTOR
         self.character_frame_x = 32
         self.character_frame_y = 48
-        self.run_setup(base_size_x, base_size_y, "character_spritesheets")
         self.text_bubble = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet.png", 96, 48)
         self.bubble_text = "Fuck"
         self.showing_bubble = False
         self.bubble_volume = "shout"
+        self.run_setup(base_size_x, base_size_y, "character_spritesheets")
 
         self.animation_list = {"walk_front": WalkyAnimationy(Direction.DOWN),
                                "walk_left": WalkyAnimationy(Direction.LEFT),

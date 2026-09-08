@@ -9,7 +9,7 @@ from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager
-from menu_avatars_view_page import MenuAvatar
+from menu_avatars_view_page import MenuAvatar, ListMenuAvatar, CoupledListMenuAvatar, SuppliesMenuAvatar
 from position_manager_state_page import Door, Consolidated, SpecialRoom
 
 
@@ -29,6 +29,7 @@ def init_game(g):
 
 def new_game_procedures(gc, gs):
     pass
+
 
 def access_csv(x, y, csv):
     return csv[y][x]
@@ -107,29 +108,19 @@ def install_all_data(gc, gs):
 
             prop_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "prop_import_dict.csv"
             if os.path.isfile(prop_file_name):
-                gc.import_characters_from_csv(prop_file_name, "Prop")
+                gc.import_characters_from_csv(prop_file_name, "Prop", room_name)
 
             bird_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "bird_import_dict.csv"
             if os.path.isfile(bird_file_name):
-                gc.import_characters_from_csv(bird_file_name, "Bird")
+                gc.import_characters_from_csv(bird_file_name, "Bird", room_name)
 
             deco_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "deco_import_dict.csv"
             if os.path.isfile(deco_file_name):
-                gc.import_characters_from_csv(deco_file_name, "Deco")
+                gc.import_characters_from_csv(deco_file_name, "Deco", room_name)
 
             character_file_name = "assets/rooms/" + room_name + "/" + room_name + "_" + "character_import_dict.csv"
             if os.path.isfile(character_file_name):
-                gc.import_characters_from_csv(character_file_name, "Character")
-
-        feature_dict = {"species": "Jay", "display_name": "Jay", "function": "None", "spawn_room": "Staging_Area", "spawn_x": "7", "spawn_y": "7", "spawn_facing": "Right", "spawn_active": "yes"}
-        spawn_facing = gc.gs.direction_translations[feature_dict["spawn_facing"]]
-        unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-        feature_ghost_object = JayGhost(gc, unique_name, feature_dict["display_name"], feature_dict["function"], feature_dict["spawn_room"], int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]), spawn_facing, feature_dict["spawn_active"])
-
-        gs.add_feature_ghost(unique_name, feature_ghost_object)
-
-        gc.gs.gv.add_feature_avatar(feature_ghost_object.unique_name, JayAvatar(feature_ghost_object.species, feature_ghost_object.x, feature_ghost_object.y, feature_ghost_object.unique_name, feature_ghost_object.figure_size_x, feature_ghost_object.figure_size_y, feature_ghost_object.spawn_facing))
-
+                gc.import_characters_from_csv(character_file_name, "Character", room_name)
 
     def install_doors(gc, gs):
         # gc.position_manager.add_door("Ladder", "Staging_Area", "Test_Room", 2, 6, 13, 16)
@@ -192,7 +183,6 @@ def install_all_data(gc, gs):
             if related_ghost.species != "Jay":
                 gc.gs.gv.install_feature_avatar(related_ghost)
 
-
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
 
@@ -252,23 +242,27 @@ def install_all_data(gc, gs):
         # for page in gs.gd.bird_page_data_list.keys():
         #     gc.inventory_manager.acquire_page(gs.gd.bird_page_data_list[page].page_name)
 
-
     def install_menus(gc, gs):
         for ghost in gc.menu_controller.menu_load_list:
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
-            if menu.BASE in gc.game_view.menu_avatar_names.keys():
+            if menu.BASE in ["start_menu", "supplies_inventory_menu", "key_inventory_menu", "treasure_inventory_menu", "gift_giving_menu", "acquire_menu", "seller_menu"]:
                 avatar_name = menu.BASE + "_avatar"
-                items = menu.generate_menu_information_package()
-                gs.gv.add_menu_avatar(avatar_name, gc.game_view.menu_avatar_names[menu.BASE](gc, avatar_name, items))
-                gs.gv.set_menu_display_coordinates(menu.BASE)
+                gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
 
             else:
-                avatar_name = menu.BASE + "_avatar"
-                items = menu.generate_menu_information_package()
-                gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
-                gs.gv.set_menu_display_coordinates(menu.BASE)
+                if menu.BASE in gc.game_view.menu_avatar_names.keys():
+                    avatar_name = menu.BASE + "_avatar"
+                    items = menu.generate_menu_information_package()
+                    gs.gv.add_menu_avatar(avatar_name, gc.game_view.menu_avatar_names[menu.BASE](gc, avatar_name, items))
+                    gs.gv.set_menu_display_coordinates(menu.BASE)
+
+                else:
+                    avatar_name = menu.BASE + "_avatar"
+                    items = menu.generate_menu_information_package()
+                    gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
+                    gs.gv.set_menu_display_coordinates(menu.BASE)
 
     def install_outfits(gc, gs):
         outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ["red_shirt", "Red Shirt"], ["blue_shirt", "Blue Shirt"], ["yellow_shirt", "Yellow Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]

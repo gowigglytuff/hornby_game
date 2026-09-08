@@ -4,6 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -134,10 +135,29 @@ class StatMenuGhost(MenuGhost):
         menu_selection = self.menu_item_list[self.cursor_at[1]]
         return menu_selection
 
+    def generate_menu_information_package(self):
+        self.prepare_menu_for_display()
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": text_display_list,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
 
 class StartMenuGhost(MenuGhost):
     BASE = "start_menu"
     NAME = BASE + "_ghost"
+    AVATAR = ListMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -156,12 +176,13 @@ class StartMenuGhost(MenuGhost):
 
 
 class SellerMenuGhost(MenuGhost):
-    BASE = "Seller_menu"
+    BASE = "seller_menu"
     NAME = BASE + "_ghost"
+    AVATAR = SellerMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
-        self.menu_header = None
+        self.menu_header = "FOR SALE"
         self.menu_item_list = []
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
@@ -185,23 +206,32 @@ class SellerMenuGhost(MenuGhost):
         source = self.get_menu_items_to_display().copy()
         cursor_at = self.cursor_at
         cursor_image = self.cursor
+        text_display_list = source
 
-        final_text = []
-
-        item_with_cost = None
-        for item in self.menu_item_list:
-            if item != "Exit":
-                item_with_cost = item + "   " + str(self.menu_prices[item])
-                final_text.append(item_with_cost)
-        final_text.append("Exit")
-
-        text_display_list = final_text
-        print(text_display_list)
-
-        menu_specific = {}
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": source,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
+
+    def get_menu_items_to_display(self):
+        displayable_item_list = []
+
+        for item in self.menu_item_list:
+            if item == "Exit":
+                displayable_item_list.append((item, "0"))
+
+            else:
+                print(self.menu_prices)
+                print(item)
+                price = str(self.menu_prices[item])
+                print(price)
+
+                displayable_item_list.append((item, price))
+
+        return displayable_item_list
 
 
 class WordsMenuGhost(MenuGhost):
@@ -260,10 +290,11 @@ class WordsMenuGhost(MenuGhost):
 class AcquireMenuGhost(MenuGhost): #TODO: Work on this
     BASE = "acquire_menu"
     NAME = BASE + "_ghost"
+    AVATAR = AcquireMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
-        self.menu_header = None
+        self.menu_header = "CONTENTS"
         self.menu_item_list = ["Cheese", "Spoon", "Match"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
@@ -273,8 +304,7 @@ class AcquireMenuGhost(MenuGhost): #TODO: Work on this
         self.menu_item_list = details["item_list"]
         self.current_basket = details["basket_unique_name"]
         self.menu_item_list.append("Exit")
-        information_from_ghost = self.generate_menu_information_package()
-        self.gc.game_view.update_menu_display_details(self.BASE, information_from_ghost)
+        self.generate_menu_information_package()
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
@@ -321,46 +351,34 @@ class InventoryMenuGhost(MenuGhost):
         self.update_currently_displayed()
         self.action_doing = None
 
+    def reset_elements(self):
+        super().reset_elements()
+        self.action_doing = None
+        self.shifts = 0
+        print("pling")
+
+    def get_current_menu_item(self):
+        menu_selection = self.menu_item_list[self.cursor_at[1]+self.shifts]
+        return menu_selection
+
     def cursor_down(self):
         if self.size > 1:
-            if (self.cursor_at[1] + self.shifts) < self.size - 1:
-                if self.size > self.max_displayed_items:
-                    if self.cursor_at[1] == self.max_displayed_items - 1:
-                        self.shifts += 1
-                        self.update_currently_displayed()
-                    elif self.cursor_at[1] < self.max_displayed_items - 1:
-                        self.cursor_at[1] += 1
-                    else:
-                        pass
-                elif self.max_displayed_items >= self.size > self.cursor_at[1]:
-                    self.cursor_at[1] += 1
-                else:
-                    pass
-        else:
-            pass
+            if self.cursor_at[1] < len(self.menu_item_list) -1:
+                self.cursor_at[1] += 1
+            else:
+                self.cursor_at[1] = 0
 
     def cursor_up(self):
-        if (self.cursor_at[1] + self.shifts) > 0:
-            if self.cursor_at[1] == 0 and self.shifts > 0:
-                self.shifts -= 1
-                self.update_currently_displayed()
-            elif self.cursor_at[1] > 0:
-                self.cursor_at[1] -= 1
-            else:
-                pass
+        if self.cursor_at[1] > 0:
+            self.cursor_at[1] -= 1
         else:
-            pass
+            self.cursor_at[1] = len(self.menu_item_list) -1
 
     def cursor_left(self):
         self.gc.menu_controller.previous_menu(self.BASE)
 
     def cursor_right(self):
         self.gc.menu_controller.next_menu(self.BASE)
-
-    def reset_elements(self):
-        self.cursor_at[0] = 0
-        self.cursor_at[1] = 0
-        self.action_doing = None
 
     def prepare_menu_for_display(self, details):
         keys_list = []
@@ -371,33 +389,11 @@ class InventoryMenuGhost(MenuGhost):
         self.menu_item_list.append("Exit")
         self.update_currently_displayed()
 
-    def get_menu_items_to_display(self): #TODO: move most of this to menu avatar/display
-        menu_length_calc = 0
-        if self.size >= self.max_displayed_items:
-            menu_length_calc = self.max_displayed_items
-        elif self.size < self.max_displayed_items:
-            menu_length_calc = self.size
-
+    def get_menu_items_to_display(self):
         displayable_item_list = []
 
-        for option in range(menu_length_calc):
-            item = self.currently_displayed_items[option]
-            if item == "Exit":
-                displayable_item_list.append(self.currently_displayed_items[option])
-
-            else:
-                available_spaces = 13
-                item_word_length = len(item)
-                quantity = str(self.gc.gs.get_item_quantity(item))
-                quantity_word_length = len(quantity)
-                total_length = item_word_length + quantity_word_length
-
-                number_of_spaces = available_spaces - total_length
-                spaces_str = ""
-                for x in range(number_of_spaces):
-                    spaces_str = spaces_str + " "
-                final_item = item + spaces_str + "x" + quantity
-                displayable_item_list.append(final_item)
+        for item in self.menu_item_list:
+            displayable_item_list.append(item)
 
         return displayable_item_list
 
@@ -412,6 +408,7 @@ class InventoryMenuGhost(MenuGhost):
 
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
+        print(chosen_item_name)
         if chosen_item_name == "Exit":
             self.gc.menu_controller.exit_all_menus()
         else:
@@ -426,6 +423,7 @@ class InventoryMenuGhost(MenuGhost):
 class SuppliesInventoryMenuGhost(InventoryMenuGhost):
     BASE = "supplies_inventory_menu"
     NAME = BASE + "_ghost"
+    AVATAR = SuppliesMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -440,10 +438,38 @@ class SuppliesInventoryMenuGhost(InventoryMenuGhost):
         self.prepare_menu_for_display(None)
         self.update_currently_displayed()
 
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = source
+
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": source,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def get_menu_items_to_display(self):
+        displayable_item_list = []
+
+        for item in self.menu_item_list:
+            if item == "Exit":
+                displayable_item_list.append((item, "0"))
+
+            else:
+                quantity = str(self.gc.gs.get_item_quantity(item))
+                displayable_item_list.append((item, quantity))
+
+        return displayable_item_list
+
 
 class GiftGivingMenuGhost(InventoryMenuGhost):
     BASE = "gift_giving_menu"
     NAME = BASE + "_ghost"
+    AVATAR = GiftGivingMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -462,13 +488,29 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
 
     def prepare_menu_for_display(self, details):
         self.details = details
+        self.refresh_menu_items()
+
+    def refresh_menu_items(self):
         keys_list = []
         current_inventory = self.gc.gs.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
         for item in current_inventory:
             keys_list.append(item)
         self.menu_item_list = keys_list
         self.menu_item_list.append("Exit")
-        self.update_currently_displayed()
+
+    def get_menu_items_to_display(self):
+        self.refresh_menu_items()
+        displayable_item_list = []
+
+        for item in self.menu_item_list:
+            if item == "Exit":
+                displayable_item_list.append((item, "0"))
+
+            else:
+                quantity = str(self.gc.gs.get_item_quantity(item))
+                displayable_item_list.append((item, quantity))
+
+        return displayable_item_list
 
     def cursor_left(self):
         pass
@@ -497,6 +539,7 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
 class KeyInventoryMenuGhost(InventoryMenuGhost):
     BASE = "key_inventory_menu"
     NAME = BASE + "_ghost"
+    AVATAR = KeyInventoryMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -510,21 +553,6 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
         self.currently_displayed_items = []
         self.prepare_menu_for_display(None)
         self.update_currently_displayed()
-
-    def get_menu_items_to_display(self):
-        menu_length_calc = 0
-        if self.size >= self.max_displayed_items:
-            menu_length_calc = self.max_displayed_items
-        elif self.size < self.max_displayed_items:
-            menu_length_calc = self.size
-
-        displayable_item_list = []
-
-        for option in range(menu_length_calc):
-            item = self.currently_displayed_items[option]
-            displayable_item_list.append(self.currently_displayed_items[option])
-
-        return displayable_item_list
 
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
@@ -560,6 +588,7 @@ class KeyInventoryMenuGhost(InventoryMenuGhost):
 class TreasureInventoryMenuGhost(InventoryMenuGhost):
     BASE = "treasure_inventory_menu"
     NAME = BASE + "_ghost"
+    AVATAR = TreasuresInventoryMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -573,21 +602,6 @@ class TreasureInventoryMenuGhost(InventoryMenuGhost):
         self.currently_displayed_items = []
         self.prepare_menu_for_display(None)
         self.update_currently_displayed()
-
-    def get_menu_items_to_display(self):
-        menu_length_calc = 0
-        if self.size >= self.max_displayed_items:
-            menu_length_calc = self.max_displayed_items
-        elif self.size < self.max_displayed_items:
-            menu_length_calc = self.size
-
-        displayable_item_list = []
-
-        for option in range(menu_length_calc):
-            item = self.currently_displayed_items[option]
-            displayable_item_list.append(self.currently_displayed_items[option])
-
-        return displayable_item_list
 
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
