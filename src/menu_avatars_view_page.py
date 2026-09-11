@@ -40,6 +40,7 @@ class BaseMenuAvatar(object):
         self.offset_x = 15
         self.offset_y = 15
         self.cursor_offset_x = 5
+        self.cursor_offset_y = 0
         self.cursor_at = 0
         self.y_space_size = 15
         self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
@@ -118,7 +119,7 @@ class BaseMenuAvatar(object):
             cursor_y = self.max_display_items-1
 
         cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
-        cursor_loc_y = (cursor_y * self.menu_spread_y) + self.header_spacing + self.offset_y
+        cursor_loc_y = (cursor_y * self.menu_spread_y) + self.header_spacing + self.offset_y + self.cursor_offset_y
 
         return cursor_loc_x, cursor_loc_y
 
@@ -238,6 +239,78 @@ class ListMenuAvatar(BaseMenuAvatar):
         self.final_menu_text = final_menu_text
 
         return final_menu_text
+
+
+class ChattingMenuAvatar(BaseMenuAvatar):
+    NAME = "chatting_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+        self.offset_x = 130
+        self.offset_y = 20
+        self.title_offset_y = 20
+        self.image_offset_x = 10
+        self.image_offset_y = 10
+        self.cursor_offset_x = self.offset_x - 10
+        self.cursor_offset_y = self.offset_y + 7
+
+        self.menu_display_details = {"default_width": 70, "default_height": 25, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        header = menu_info.header
+        text_display_list = menu_info.text_display_list
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+        speaker_name = menu_info.menu_specific_details_dict["speaker_name"]
+        friendship_level = menu_info.menu_specific_details_dict["friendship_level"]
+        actor_type = menu_info.menu_specific_details_dict["actor_type"]
+
+        final_menu_text = []
+
+        if header:
+            self.add_header_spaces(header)
+            final_menu_text.append(TextDisplay(header, self.offset_x, self.offset_y))
+
+        if cursor_image:
+            cursor_loc = self.get_cursor_at(cursor_at)
+            final_menu_text.append(TextDisplay(cursor_image, cursor_loc[0], cursor_loc[1]))
+
+        currently_visible_items = self.return_currently_displayed(text_display_list, cursor_at)
+
+        for position_y in range(len(currently_visible_items)):
+            loc_x = self.menu_spread_x + self.offset_x
+            loc_y = ((position_y + 1) * self.menu_spread_y) + self.offset_y + self.header_spacing
+            item = currently_visible_items[position_y]
+            final_menu_text.append(TextDisplay(item, loc_x, loc_y))
+
+        # name and Friendship
+        text = speaker_name
+
+        if actor_type == Types.FRIEND:
+            text = speaker_name + " [" + str(friendship_level) + "]"
+
+        loc_x = self.menu_spread_x + self.offset_x
+        loc_y = self.offset_y
+        text = TextDisplay(text, loc_x, loc_y)
+        final_menu_text.append(text)
+
+        self.final_menu_text = final_menu_text
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        face = menu_info.menu_specific_details_dict["face_image"]
+
+        final_menu_images = []
+
+        loc_x = self.image_offset_x
+        loc_y = self.image_offset_y
+        image = ImageDisplay(face, loc_x, loc_y)
+        final_menu_images.append(image)
+
+        self.final_menu_images = final_menu_images
+        return final_menu_images
 
 
 class CoupledListMenuAvatar(BaseMenuAvatar):
@@ -860,6 +933,19 @@ class GuideMenuAvatar(MenuAvatar):
 
         on_last_page = self.gc.make_flashing_text(menu_info.text_display_list[11])
         final_menu_text.append(TextDisplay(on_last_page, self.offset_x - self.bg_offset_x + self.paper_width * 2 - 12, self.offset_y + 240))
+
+        left_page = menu_info.menu_specific_details_dict["page_left"]
+        if left_page < 10:
+            left_page = "0" + str(left_page)
+        else:
+            left_page = str(left_page)
+        final_menu_text.append(TextDisplay(left_page, 80, self.offset_y + 240))
+        right_page = menu_info.menu_specific_details_dict["page_right"]
+        if right_page < 10:
+            right_page = "0" + str(right_page)
+        else:
+            right_page = str(right_page)
+        final_menu_text.append(TextDisplay(right_page, 260, self.offset_y + 240))
 
         self.final_menu_text = final_menu_text
 

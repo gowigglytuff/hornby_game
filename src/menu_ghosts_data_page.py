@@ -4,7 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -184,16 +184,15 @@ class SellerMenuGhost(MenuGhost):
         super().__init__(gc)
         self.menu_header = "FOR SALE"
         self.menu_item_list = []
-        self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
         self.menu_prices = {}
         # self.prepare_menu_for_display(None)
 
     def prepare_menu_for_display(self, details):
-        self.menu_item_list = details["seller_items"]
+        self.menu_item_list = copy.copy(details["seller_items"])
         self.menu_item_list.sort()
-        self.menu_prices = details["seller_item_prices"]
+        self.menu_prices = copy.copy(details["seller_item_prices"])
         self.menu_item_list.append("Exit")
 
     def do_option(self, choice=None):
@@ -204,6 +203,7 @@ class SellerMenuGhost(MenuGhost):
 
     def generate_menu_information_package(self):
         source = self.get_menu_items_to_display().copy()
+        print(source)
         cursor_at = self.cursor_at
         cursor_image = self.cursor
         text_display_list = source
@@ -224,11 +224,7 @@ class SellerMenuGhost(MenuGhost):
                 displayable_item_list.append((item, "0"))
 
             else:
-                print(self.menu_prices)
-                print(item)
                 price = str(self.menu_prices[item])
-                print(price)
-
                 displayable_item_list.append((item, price))
 
         return displayable_item_list
@@ -637,6 +633,7 @@ class TreasureInventoryMenuGhost(InventoryMenuGhost):
 class ConversationOptionsMenuGhost(MenuGhost):
     BASE = "conversation_options_menu"
     NAME = BASE + "_ghost"
+    AVATAR = ChattingMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -707,7 +704,8 @@ class ConversationOptionsMenuGhost(MenuGhost):
 
         menu_specific = {"friendship_level": self.friendship,
                          "face_image": self.face_image,
-                         "speaker_name": self.talking_to}
+                         "speaker_name": self.talking_to,
+                         "actor_type": self.actor_type}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
@@ -737,6 +735,177 @@ class ConversationOptionsMenuGhost(MenuGhost):
         elif friendship >= 16:
             friendship_counter = " \u2665 \u2665 \u2665 \u2665 "
         return friendship_counter
+
+    def reset_elements(self):
+        speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
+        speaker_ghost.currently_chatting = False
+        self.cursor_at[0] = 0
+        self.cursor_at[1] = 0
+
+
+class SellerOptionsMenuGhost(MenuGhost):
+    BASE = "seller_options_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = ChattingMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = ["Buy", "Sell", "Exit"]
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.talking_to = None
+        self.friendship = None
+        self.face_image = None
+        self.actor_type = None
+        self.speaker_unique_name = None
+
+    def cursor_down(self):
+        if self.size > 1:
+            if (self.cursor_at[1] + self.shifts) < self.size - 1:
+                if self.size > self.max_displayed_items:
+                    if self.cursor_at[1] == self.max_displayed_items - 1:
+                        self.shifts += 1
+                        self.update_currently_displayed()
+                    elif self.cursor_at[1] < self.max_displayed_items - 1:
+                        self.cursor_at[1] += 1
+                    else:
+                        pass
+
+                elif self.max_displayed_items >= self.size > self.cursor_at[1]:
+                    self.cursor_at[1] += 1
+
+    def cursor_up(self):
+        if (self.cursor_at[1] + self.shifts) > 0:
+            if self.cursor_at[1] == 0 and self.shifts > 0:
+                self.shifts -= 1
+                self.update_currently_displayed()
+            elif self.cursor_at[1] > 0:
+                self.cursor_at[1] -= 1
+            else:
+                pass
+
+    def prepare_menu_for_display(self, details):
+        self.talking_to = details["speaker_name"]
+        self.friendship = None,
+        self.face_image = details["face_image"]
+        self.speaker_unique_name = details["speaker_unique_name"]
+        self.actor_type = details["actor_type"]
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"friendship_level": self.friendship,
+                         "face_image": self.face_image,
+                         "speaker_name": self.talking_to,
+                         "actor_type": self.actor_type}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        menu_selection = self.get_current_menu_item()
+        self.gc.menu_controller.seller_options_menu_selection(menu_selection)
+
+
+    def reset_elements(self):
+        speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
+        speaker_ghost.currently_chatting = False
+        self.cursor_at[0] = 0
+        self.cursor_at[1] = 0
+
+
+class ChatMenuGhost(MenuGhost):
+    BASE = "chat_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = ChattingMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = None
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.talking_to = None
+        self.friendship = 0
+        self.face_image = None
+        self.phrase = None
+        self.actor_type = None
+        self.update_currently_displayed()
+        self.speaking_queue = []
+        self.current_phrase = []
+
+
+    def update_currently_displayed(self):
+        self.currently_displayed_items = []
+        if self.size <= self.max_displayed_items:
+            for item in range(self.size):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+        else:
+            for item in range(self.max_displayed_items):
+                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
+
+    def prepare_menu_for_display(self, details):
+        self.talking_to = details["speaker_name"]
+        self.friendship = details["friendship_level"]
+        self.face_image = details["face_image"]
+        self.actor_type = details["actor_type"]
+        self.speaker_unique_name = details["speaker_unique_name"]
+        self.menu_item_list = details["phrase"]
+        self.follow_up = details["follow_up"]
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"friendship_level": self.friendship,
+                         "face_image": self.face_image,
+                         "speaker_name": self.talking_to,
+                         "actor_type": self.actor_type}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.set_speaking_queue()
+
+    def set_current_phrase(self, phrases):
+        self.current_phrase = textwrap.wrap(phrases[0], width=20)
+        self.set_speaking_queue()
+
+    def set_speaking_queue(self):
+        phrase_counter = 0
+        self.menu_item_list = []
+        if len(self.current_phrase) > 2:
+            for line in range(3):
+                self.menu_item_list.append(self.current_phrase.pop(0))
+
+        elif (len(self.current_phrase) <= 2) and (len(self.current_phrase) > 0):
+            for line in range(len(self.current_phrase)):
+                self.menu_item_list.append(self.current_phrase.pop(0))
+
+        elif len(self.current_phrase) == 0:
+            menu_selection = None
+            self.gc.menu_controller.chat_menu_selection(menu_selection, self.follow_up)
 
     def reset_elements(self):
         speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
@@ -1054,94 +1223,6 @@ class PictureMenuGhost(MenuGhost):
 
     def do_option(self):
         self.gc.menu_controller.exit_all_menus()
-
-
-class ChatMenuGhost(MenuGhost):
-    BASE = "chat_menu"
-    NAME = BASE + "_ghost"
-
-    def __init__(self, gc):
-        super().__init__(gc)
-        self.menu_header = None
-        self.menu_type = Types.BASE
-        self.menu_item_list = []
-        self.menu_images_list = []
-        self.cursor = " "
-        self.shifts = 0
-        self.max_displayed_items = 14
-        self.currently_displayed_items = []
-        self.talking_to = None
-        self.friendship = 0
-        self.face_image = None
-        self.phrase = None
-        self.actor_type = None
-        self.update_currently_displayed()
-        self.speaking_queue = []
-        self.current_phrase = []
-
-
-    def update_currently_displayed(self):
-        self.currently_displayed_items = []
-        if self.size <= self.max_displayed_items:
-            for item in range(self.size):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-        else:
-            for item in range(self.max_displayed_items):
-                self.currently_displayed_items.append(self.menu_item_list[item + self.shifts])
-
-    def prepare_menu_for_display(self, details):
-        self.talking_to = details["speaker_name"]
-        self.friendship = details["friendship_level"]
-        self.face_image = details["face_image"]
-        self.actor_type = details["actor_type"]
-        self.speaker_unique_name = details["speaker_unique_name"]
-        self.menu_item_list = details["phrase"]
-        self.follow_up = details["follow_up"]
-
-    def generate_menu_information_package(self):
-        source = self.get_menu_items_to_display().copy()
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
-        text_display_list = []
-
-        for item in range(len(source)):
-            text_display_list.append(source[item])
-
-        menu_specific = {"friendship_level": self.friendship,
-                         "face_image": self.face_image,
-                         "speaker_name": self.talking_to,
-                         "actor_type": self.actor_type}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
-        return menu_information
-
-    def do_option(self):
-        self.set_speaking_queue()
-
-    def set_current_phrase(self, phrases):
-        self.current_phrase = textwrap.wrap(phrases[0], width=20)
-        self.set_speaking_queue()
-
-    def set_speaking_queue(self):
-        phrase_counter = 0
-        self.menu_item_list = []
-        if len(self.current_phrase) > 2:
-            for line in range(3):
-                self.menu_item_list.append(self.current_phrase.pop(0))
-
-        elif (len(self.current_phrase) <= 2) and (len(self.current_phrase) > 0):
-            for line in range(len(self.current_phrase)):
-                self.menu_item_list.append(self.current_phrase.pop(0))
-
-        elif len(self.current_phrase) == 0:
-            menu_selection = None
-            self.gc.menu_controller.chat_menu_selection(menu_selection, self.follow_up)
-
-    def reset_elements(self):
-        speaker_ghost = self.gc.gs.get_feature_ghost(self.speaker_unique_name)
-        speaker_ghost.currently_chatting = False
-        self.cursor_at[0] = 0
-        self.cursor_at[1] = 0
 
 
 class GameActionDialogueMenuGhost(MenuGhost):
@@ -1559,7 +1640,12 @@ class GuideMenuGhost(MenuGhost):
 
         image_choice4 = image4.get_image(0, 0)
 
-        menu_specific = {"image": [image_choice1, image_choice2, image_choice3, image_choice4]}
+        page_left = self.current_page + 1
+        page_right = page_left + 1
+
+        menu_specific = {"image": [image_choice1, image_choice2, image_choice3, image_choice4], "page_left": page_left, "page_right": page_right}
+
+
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information

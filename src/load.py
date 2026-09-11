@@ -64,11 +64,15 @@ def install_all_data(gc, gs):
             gs.gd.add_room_data("Marsh2", (SpecialRoom("Marsh2", 50, 100, 1, 1)))
             gs.gd.add_room_data("Field", (SpecialRoom("Field", 30, 30, 1, 1)))
             gs.gd.add_room_data("Island", (SpecialRoom("Island", 25, 20, 1, 1)))
+            gs.gd.add_room_data("Laboratory", (SpecialRoom("Laboratory", 20, 20, 1, 1)))
+            gs.gd.add_room_data("Basement", (SpecialRoom("Basement", 20, 20, 1, 1)))
+            gs.gd.add_room_data("Loft", (SpecialRoom("Loft", 5, 6, 1, 1)))
+            gs.gd.add_room_data("Hold", (SpecialRoom("Hold", 7, 11, 1, 1)))
             # gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
             # gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
             # gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
 
-            # gs.gd.add_room_data("Trophy_Room", (Consolidated("Trophy_Room", 9, 30, 1, 1)))
+            gs.gd.add_room_data("Trophy_Room", (SpecialRoom("Trophy_Room", 9, 30, 1, 1)))
             # gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
             gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
             gs.gd.add_room_data("Beach", (SpecialRoom("Beach", 50, 50, 1, 1)))
@@ -131,6 +135,10 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Ladder", "Staging_Area", "Mountain", 6, 8, 12, 23)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Pasture", 2, 4, 3, 27)
         gc.position_manager.add_door("Ladder", "Staging_Area", "Island", 2, 5, 17, 11)
+        gc.position_manager.add_door("Ladder", "Staging_Area", "Laboratory", 1, 9, 10, 19)
+        gc.position_manager.add_door("Ladder", "Loft", "Laboratory", 1, 6, 12, 19)
+        gc.position_manager.add_door("Ladder", "Laboratory", "Basement", 1, 20, 18, 18)
+        gc.position_manager.add_door("Ladder", "Basement", "Hold", 3, 5, 4, 10)
         gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 6, 49, 25, 1)
         gc.position_manager.add_door("Walk_Down", "Marsh", "Forest", 5, 49, 26, 1)
         gc.position_manager.add_door("Walk_Down", "Field", "Marsh", 15, 31, 40, 0)
@@ -154,7 +162,7 @@ def install_all_data(gc, gs):
         # gc.position_manager.add_door("Double_back", "Bird_Room", "Cave", 4, 8, 8, 5)
         # gc.position_manager.add_door("Double_back", "Bird_Room", "Marsh", 16, 1, 2, 19)
         gc.position_manager.add_door("Double_back", "Beach", "Beach", 34, 19, 1, 16)
-        # gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
+        gc.position_manager.add_door("Passage", "Staging_Area", "Trophy_Room", 2, 2, 5, 30)
         # gc.position_manager.add_door("Passage", "Staging_Area", "Aviary_Room", 4, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 6, 2, 5, 30)
         gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 7, 2, 10, 20)
@@ -207,7 +215,7 @@ def install_all_data(gc, gs):
             q *= 3
 
     def install_key_items(gc, gs):
-        items_to_install = [Hammer, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
+        items_to_install = [Hammer, Pickaxe, Shovel, Whistle, Wrench, MermaidCrown, GhostEye, Axe]
         items_to_acquire = [Hammer, Pickaxe, Shovel, Wrench, MermaidCrown, GhostEye, Axe]
         for item in items_to_install:
             gs.gd.add_key_item_data(item.NAME, item(gc))
@@ -218,7 +226,7 @@ def install_all_data(gc, gs):
         items_to_install = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed,
                             PinkSeed, YellowSeed, XKey, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
         items_to_acquire = [ArbutusPermit, PinePermit, OakPermit, GreenSeed, BlueSeed, RedSeed, PurpleSeed, OrangeSeed,
-                            PinkSeed, XKey, PhiKey, GammaKey, XiKey, SigmaKey, OmegaKey, HeartKey]
+                            PinkSeed, PhiKey, HeartKey]
         for item in items_to_install:
             gs.gd.add_treasure_item_data(item.NAME, item(gc))
         for item in items_to_acquire:
@@ -247,7 +255,7 @@ def install_all_data(gc, gs):
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
-            if menu.BASE in ["start_menu", "supplies_inventory_menu", "key_inventory_menu", "treasure_inventory_menu", "gift_giving_menu", "acquire_menu", "seller_menu"]:
+            if menu.BASE in ["start_menu", "supplies_inventory_menu", "key_inventory_menu", "treasure_inventory_menu", "gift_giving_menu", "acquire_menu", "seller_menu", "seller_options_menu", "conversation_options_menu", "chat_menu"]:
                 avatar_name = menu.BASE + "_avatar"
                 gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
 

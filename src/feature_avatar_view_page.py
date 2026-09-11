@@ -1,6 +1,6 @@
 import pygame
 
-from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation
+from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, FourFrameAnimation
 from spritesheet import Spritesheet
 from definitions import Direction, GameSettings, Types, Mundane
 
@@ -140,7 +140,12 @@ class PropAvatar(FeatureAvatar):
         self.character_frame_x = 32 * base_size_x
         self.character_frame_y = 32 * base_size_y + 16
         self.run_setup(base_size_x, base_size_y, "prop_spritesheets")
+        self.animation_list = {"4_frame": FourFrameAnimation(Direction.DOWN)}
 
+    def initiate_animation(self, animation_object):
+        print("oooooooooooooooooooooooooooo", animation_object)
+        self.current_animation = animation_object
+        self.currently_animating = True
 
 class CharacterAvatar(FeatureAvatar):
     def __init__(self, species, image_x, image_y, unique_id, base_size_x, base_size_y, spawn_facing):

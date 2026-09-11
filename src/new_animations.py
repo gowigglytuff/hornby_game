@@ -273,3 +273,32 @@ class SnapPhotoAnimation(Animationy):
             self.reset()
 
         return x_change, y_change, sheet_x, sheet_y, complete
+
+
+class FourFrameAnimation(Animationy):
+    def __init__(self, direction):
+        super().__init__(direction)
+        self.step_distance = 1
+        self.set_up_step_distances_and_images()
+        self.total_acts = 160
+        self.hit_every_xth_frame = 0
+        self.number_of_intervals = 4
+        self.interval = self.total_acts / self.number_of_intervals
+        self.frame_action_dict = {0: {"current_image_x": 0},
+                                  1: {"current_image_x": 1},
+                                  2: {"current_image_x": 2},
+                                  3: {"current_image_x": 3}}
+
+    def result(self):
+        y_change = copy.copy(self.y_change)
+        x_change = copy.copy(self.x_change)
+        sheet_x = copy.copy(self.current_image_x)
+        sheet_y = copy.copy(self.current_image_y)
+        complete = False
+        if self.current_frame == self.total_acts:
+            complete = True
+            sheet_x = 3
+            sheet_y = 0
+            self.reset()
+
+        return x_change, y_change, sheet_x, sheet_y, complete

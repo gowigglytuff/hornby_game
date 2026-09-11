@@ -1,0 +1,7 @@
+﻿species,Super_Computer,display_name,Super Computer,function,None,spawn_room,Laboratory,spawn_x,5,spawn_y,7,spawn_facing,Down,spawn_active,yes
+species,Tubes,display_name,Test Tubes,function,None,spawn_room,Laboratory,spawn_x,13,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Bookcase,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,11,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Bookcase_2,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,9,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Bookcase_3,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,7,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Gun_Machine,display_name,Laser Machine,function,None,spawn_room,Laboratory,spawn_x,3,spawn_y,13,spawn_facing,Down,spawn_active,yes
+species,Life_Box,display_name,Life Box,function,None,spawn_room,Laboratory,spawn_x,1,spawn_y,7,spawn_facing,Down,spawn_active,yes

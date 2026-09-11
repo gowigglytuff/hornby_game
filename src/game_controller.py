@@ -9,7 +9,7 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -543,10 +543,13 @@ class GameController(object):
         character_talking_to_ghost.currently_chatting = True
         self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
 
-        selected_phrase = self.gs.get_feature_ghost(character_talking_to_ghost.unique_name).base_phrase
-        details = {"seller_items": character_talking_to_ghost.get_items_list()[0],
-                   "seller_item_prices": character_talking_to_ghost.get_items_list()[1]}
-        self.gs.gc.menu_controller.set_menu(SellerMenuGhost.BASE, details)
+        details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
+                   "friendship_level": character_talking_to_ghost.friendship_level,
+                   "face_image": character_talking_to_avatar.face_image,
+                   "actor_type": character_talking_to_ghost.feature_subtype,
+                   "speaker_unique_name": character_talking_to_ghost.unique_name}
+
+        self.gs.gc.menu_controller.set_menu(SellerOptionsMenuGhost.BASE, details)
 
     def talk_to_friend(self, character_talking_to, player_direction):
         direction_to_turn = Direction.DOWN
@@ -593,6 +596,15 @@ class GameController(object):
         prop_talking_to_avatar = self.game_view.feature_avatar_list[prop_talking_to]
         prop_talking_to_ghost.get_interacted_with()
         details = {}
+        if prop_talking_to_ghost.species == "Life_Box":
+            if  prop_talking_to_avatar.current_image_x == 0:
+                animation = self.game_view.animation_manager.get_animation("4_frame")
+                prop_talking_to_ghost.initiate_animation(animation)
+                prop_talking_to_avatar.initiate_animation(animation)
+                self.game_view.animation_manager.add_to_anim_in_progress(prop_talking_to_ghost.unique_name)
+            else:
+                prop_talking_to_avatar.current_image_x = 0
+
 
     def snap_photo(self):
         facing = self.gs.get_player_ghost().facing
@@ -780,6 +792,7 @@ class GameController(object):
     def check_if_feature_already_animating(self, unique_name):
         avatar = self.game_view.get_feature_avatar(unique_name)
         ghost_object = self.gs.get_feature_ghost(unique_name)
+        print(ghost_object.currently_animating)
         return ghost_object.currently_animating
 
     def reset_feature_to_spawn(self, feature):
@@ -864,7 +877,9 @@ class GameController(object):
                                   9: "Fence_Horizontal", 10: "Fence_Bottom_Left", 11: "Fence_Bottom_Right", 12: "Fence_Top_Left",
                                   13: "Fence_Top_Right", 14: "Fence_Center", 15: "", 16: "Scotch_Broom",
                                   17: "Hawthorn", 18: "Cottonwood", 19: "Alder", 20: "Nootka_Rose",
-                                  21: "Ocean_Spray", 22: "Willow", 23: "White_Poplar", 24: "Willow"}
+                                  21: "Ocean_Spray", 22: "Willow", 23: "White_Poplar", 24: "Rail_Vertical",
+                                  25: "Rail_Horizontal", 26: "Rail_Bottom_Left", 27: "Rail_Bottom_Right", 28: "Rail_Top_Left",
+                                  29: "Rail_Top_Right", 30: "Rail_Vertical", 31: "Rail_Vertical", 32: "Rail_Vertical"}
 
         feature_list = []
 
@@ -1225,7 +1240,7 @@ class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
         self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SellerMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
-                               SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
+                               SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost, SellerOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
     def update_menu_text_and_images(self, menu_ghost):
@@ -1291,7 +1306,6 @@ class MenuController(object):
 
     def update_stat_menus(self):
         for menu in self.gc.gs.ms.static_menus:
-            print(menu)
             ghost = self.gc.gs.ms.get_menu_ghost(menu)
             self.update_menu_text_and_images(ghost)
 
@@ -1428,6 +1442,26 @@ class MenuController(object):
 
         else:
             self.gc.menu_controller.exit_all_menus()
+
+    def seller_options_menu_selection(self, item_selected):
+        menu_selection = item_selected
+        current_menu = self.gc.gs.ms.get_menu_ghost(SellerOptionsMenuGhost.BASE)
+        character_talking_to_ghost = self.gc.gs.get_feature_ghost(current_menu.speaker_unique_name)
+
+        if menu_selection == "Buy":
+            details = {"seller_items": character_talking_to_ghost.get_items_list()[0],
+                       "seller_item_prices": character_talking_to_ghost.get_items_list()[1]}
+            self.gc.menu_controller.set_menu(SellerMenuGhost.BASE, details)
+
+        elif menu_selection == "Sell":
+            self.gc.menu_controller.exit_all_menus()
+
+        elif menu_selection == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+
+        else:
+            self.gc.menu_controller.exit_all_menus()
+
 
     def chat_menu_selection(self, item_selected, follow_up):
         if follow_up:

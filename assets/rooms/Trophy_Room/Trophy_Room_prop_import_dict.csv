@@ -6,6 +6,7 @@ species,Ghost_eye,display_name,Ghost Eye,function,{'Package':'Ghost Eye'},spawn_
 species,Page,display_name,Page,function,{'Page':'Robintop'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,21,spawn_facing,Down,spawn_active,yes
 species,Page,display_name,Page,function,{'Page':'Robinbottom'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,23,spawn_facing,Down,spawn_active,yes
 species,Axe,display_name,Axe,function,{'Package':'Axe'},spawn_room,Trophy_Room,spawn_x,2,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Whistle,display_name,Whistle,function,{'Package':'Whistle'},spawn_room,Trophy_Room,spawn_x,2,spawn_y,23,spawn_facing,Down,spawn_active,yes
 species,Permit,display_name,Pine Permit,function,{'Package':'Pine Permit'},spawn_room,Trophy_Room,spawn_x,4,spawn_y,25,spawn_facing,Down,spawn_active,yes
 species,Permit,display_name,Oak Permit,function,{'Package':'Oak Permit'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,25,spawn_facing,Down,spawn_active,yes
 species,Permit,display_name,Arbutus Permit,function,{'Package':'Arbutus Permit'},spawn_room,Trophy_Room,spawn_x,8,spawn_y,25,spawn_facing,Down,spawn_active,yes
@@ -16,3 +17,8 @@ species,Pink_Seed,display_name,Pink Seed,function,{'Package':'Pink_Seed'},spawn_
 species,Orange_Seed,display_name,Orange Seed,function,{'Package':'Orange_Seed'},spawn_room,Trophy_Room,spawn_x,2,spawn_y,19,spawn_facing,Down,spawn_active,yes
 species,Yellow_Seed,display_name,Yellow Seed,function,{'Package':'Yellow_Seed'},spawn_room,Trophy_Room,spawn_x,4,spawn_y,19,spawn_facing,Down,spawn_active,yes
 species,Blue_Seed,display_name,Blue Seed,function,{'Package':'Yellow_Seed'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,19,spawn_facing,Down,spawn_active,yes
+species,Xi_Key,display_name,Xi Key,function,{'Package':'XiKey'},spawn_room,Trophy_Room,spawn_x,2,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,X_Key,display_name,X Key,function,{'Package':'XKey'},spawn_room,Trophy_Room,spawn_x,4,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Gamma_Key,display_name,Gamma Key,function,{'Package':'GammaKey'},spawn_room,Trophy_Room,spawn_x,6,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Omega_Key,display_name,Omega Key,function,{'Package':'OmegaKey'},spawn_room,Trophy_Room,spawn_x,8,spawn_y,11,spawn_facing,Down,spawn_active,yes
+species,Sigma_Key,display_name,Sigma Key,function,{'Package':'SigmaKey'},spawn_room,Trophy_Room,spawn_x,2,spawn_y,13,spawn_facing,Down,spawn_active,yes

@@ -259,6 +259,13 @@ class Shovel(KeyItem):
         super().__init__(gc)
 
 
+class Whistle(KeyItem):
+    NAME = "Whistle"
+
+    def __init__(self, gc):
+        super().__init__(gc)
+
+
 class Pickaxe(KeyItem):
     NAME = "Pickaxe"
 
@@ -288,26 +295,6 @@ class Pickaxe(KeyItem):
 
         return message
 
-
-# class ArbutusPermit(KeyItem):
-#     NAME = "Arbutus Permit"
-#
-#     def __init__(self, gc):
-#         super().__init__(gc)
-#
-#
-# class OakPermit(KeyItem):
-#     NAME = "Oak Permit"
-#
-#     def __init__(self, gc):
-#         super().__init__(gc)
-#
-#
-# class PinePermit(KeyItem):
-#     NAME = "Pine Permit"
-#
-#     def __init__(self, gc):
-#         super().__init__(gc)
 
 class Wrench(KeyItem):
     NAME = "Wrench"
@@ -343,6 +330,7 @@ class Axe(KeyItem):
             message = "You can't use the Axe now"
 
         return message
+
 
 class TreasureItem(object):
     '''
@@ -380,6 +368,7 @@ class TreasureItem(object):
     def get_failure_message(self, details):
         message = "You can't use that now"
         return message
+
 
 class ArbutusPermit(TreasureItem):
     NAME = "Arbutus Permit"

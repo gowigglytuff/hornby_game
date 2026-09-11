@@ -1,0 +1,5 @@
+﻿species,Bed,display_name,Bed,function,None,spawn_room,Loft,spawn_x,1,spawn_y,5,spawn_facing,Down,spawn_active,yes
+species,Moon_Window,display_name,Window,function,None,spawn_room,Loft,spawn_x,2,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Work_Bench,display_name,Work Bench,function,None,spawn_room,Loft,spawn_x,5,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,ChairSide,display_name,Chair,function,None,spawn_room,Loft,spawn_x,4,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Dustbin,display_name,Dustbin,function,None,spawn_room,Loft,spawn_x,5,spawn_y,4,spawn_facing,Down,spawn_active,yes

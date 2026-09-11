@@ -8,7 +8,7 @@ from input_manager_controller_page import *
 from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
 from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar, SceneDialogueMenuAvatar, TextInputMenuAvatar
-from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation
+from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation, FourFrameAnimation
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
     from game_state import GameData, GameState
@@ -509,7 +509,8 @@ class AnimationManager(object):
                                "speedwalk_left": SpeedWalkyAnimationy(Direction.LEFT),
                                "speedwalk_right": SpeedWalkyAnimationy(Direction.RIGHT),
                                "speedwalk_up": SpeedWalkyAnimationy(Direction.UP),
-                               "hold": HoldAnimation(Direction.UP, 2)}
+                               "hold": HoldAnimation(Direction.UP, 2),
+                               "4_frame": FourFrameAnimation(Direction.DOWN)}
 
     def get_animation(self, name):
         return copy.copy(self.animation_dict[name])
@@ -523,6 +524,7 @@ class AnimationManager(object):
             self.gv.animation_manager.perform_player_animation(self.gv.player_avatar)
 
         for feature_name in self.gv.gs.gc.feature_animations_in_progress:
+            print(feature_name)
             feature_ghost = self.gv.gs.get_feature_ghost(feature_name)
             feature_avatar = self.gv.get_feature_avatar(feature_name)
 
@@ -571,7 +573,7 @@ class AnimationManager(object):
             animator.current_animation = None
 
     def perform_feature_animation(self, animator):
-
+        print("perform", animator.current_animation)
         wrap_up = False
         animation_result = animator.current_animation.animate()
         if animation_result[2] is not None:
