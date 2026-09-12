@@ -7,7 +7,7 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar, ConversationOptionsMenuAvatar, ChatMenuAvatar, OutfitMenuAvatar, MapMenuAvatar, GalleryMenuAvatar, PictureMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, NumberSelectionMenuAvatar, GuideMenuAvatar, SceneDialogueMenuAvatar, TextInputMenuAvatar
+from menu_avatars_view_page import QuizMenuAvatar
 from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation, FourFrameAnimation
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
@@ -89,19 +89,7 @@ class GameView(object):
         self.player_avatar = None
         self.menu_avatar_data_list = {}
         self.feature_avatar_list = {}
-        self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar,
-                                 "conversation_options_menu": ConversationOptionsMenuAvatar,
-                                 "chat_menu": ChatMenuAvatar,
-                                  "scene_dialogue_menu": SceneDialogueMenuAvatar,
-                                  "outfit_menu": OutfitMenuAvatar,
-                                  "map_menu": MapMenuAvatar,
-                                  "guide_menu": GuideMenuAvatar,
-                                  "picture_menu": PictureMenuAvatar,
-                                  "gallery_menu": GalleryMenuAvatar,
-                                  "stat_menu": StatMenuAvatar,
-                                  "number_selection_menu": NumberSelectionMenuAvatar,
-                                  "text_input_menu": TextInputMenuAvatar,
-                                  "game_action_dialogue_menu": GameActionDialogueMenuAvatar}
+        self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar}
         self.current_drawable = []
         self.drawables_refreshed = True
         self.text_bubble_image = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet_small.png", 96, 48).get_image(0, 0)
@@ -254,6 +242,9 @@ class GameView(object):
     def add_menu_avatar(self, menu_avatar_name, menu_avatar_object):
         self.menu_avatar_data_list[menu_avatar_name] = menu_avatar_object
 
+    def get_menu_avatar(self, menu_avatar_name):
+        return self.menu_avatar_data_list[menu_avatar_name]
+
     def build_overlay_image(self, name, x_size, y_size, header=None):
         image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
         return image
@@ -335,16 +326,27 @@ class GameView(object):
         menu_avatar.menu_display_details["coordinates"][0] = x
         menu_avatar.menu_display_details["coordinates"][1] = y
 
+    # def update_sub_menu_display_details(self, menu_name, master_menu, information_from_ghost):
+    #     selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
+    #     selected_menu_avatar.fill_out_menu_info(information_from_ghost)
+    #     selected_menu_display_details = selected_menu_avatar.menu_display_details
+    #
+    #     master_menu_avatar = self.menu_avatar_data_list[master_menu + "_avatar"]
+    #     master_menu_display_details = master_menu_avatar.menu_display_details
+    #
+    #     selected_menu_display_details["coordinates"][0] = master_menu_display_details["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
+    #     selected_menu_display_details["coordinates"][1] = master_menu_display_details["coordinates"][1]
+
     def update_sub_menu_display_details(self, menu_name, master_menu, information_from_ghost):
-        selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
-        selected_menu_avatar.fill_out_menu_info(information_from_ghost)
-        selected_menu_display_details = selected_menu_avatar.menu_display_details
+        print("Here's the info boss", information_from_ghost.text_display_list)
+        selected_sub_menu_avatar = self.get_menu_avatar(menu_name + "_avatar")
+        # selected_menu_avatar.fill_out_menu_info(information_from_ghost)
+        # selected_menu_display_details = selected_sub_menu_avatar.menu_display_details
 
         master_menu_avatar = self.menu_avatar_data_list[master_menu + "_avatar"]
         master_menu_display_details = master_menu_avatar.menu_display_details
 
-        selected_menu_display_details["coordinates"][0] = master_menu_display_details["coordinates"][0] - selected_menu_avatar.spritesheet_width - 5
-        selected_menu_display_details["coordinates"][1] = master_menu_display_details["coordinates"][1]
+        selected_sub_menu_avatar.update_for_display(information_from_ghost, master_menu_display_details)
 
     def update_menu_display_details(self, menu_name, information_from_ghost):
         selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]

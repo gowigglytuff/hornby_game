@@ -227,7 +227,18 @@ class InGameKeyboardManager(KeyboardManager):
         # print(self.gc.game_data.treasure_item_data_list)
         # print(self.gc.gs.current_treasure_inventory_dictionary)
         # self.gc.player_speak("shout", "Balloon!")
-        self.gc.actor_speak("Towhee_1627", "Shout", "TWEET!")
+        # self.gc.actor_speak("Towhee_1627", "Shout", "TWEET!")
+
+        avatar = self.gc.gs.gv.get_feature_avatar("Robot_746")
+        ghost = self.gc.gs.get_feature_ghost("Robot_746")
+        details = {"speaker_name": "Robot_746",
+                   "friendship_level": 3,
+                   "actor_type": ghost.feature_subtype,
+                   "face_image": avatar.face_image,
+                   "speaker_unique_name": "Robot",
+                   "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+
+        self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

@@ -4,7 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -114,6 +114,7 @@ class MenuGhost(object):
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
     NAME = BASE + "_ghost"
+    AVATAR = StatMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -127,8 +128,6 @@ class StatMenuGhost(MenuGhost):
 
     def prepare_menu_for_display(self):
         stat_dict = self.gc.menu_controller.get_stat_items()
-        # self.menu_item_list = [("Birds: ", stat_dict["Birds"]),  ("Pigeons:", stat_dict["Pigeons"]), ("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
-        # self.menu_item_list = [("Day: ", stat_dict["day"]), ("Time: ", stat_dict["time"]), ("Select: ", stat_dict["selected_tool"])]
         self.menu_item_list = ["Day:" + stat_dict["day"], "Time:" + stat_dict["time"], "Select: " + stat_dict["selected_tool"]]
 
     def get_current_menu_item(self):
@@ -917,6 +916,7 @@ class ChatMenuGhost(MenuGhost):
 class OutfitMenuGhost(MenuGhost):
     BASE = "outfit_menu"
     NAME = BASE + "_ghost"
+    AVATAR = GalleryMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -962,10 +962,11 @@ class OutfitMenuGhost(MenuGhost):
         image = self.selected_outfit.spritesheet
         image_choice = image.get_image(0, 0)
 
-        menu_specific = {"outfit_name": self.selected_outfit.display_name,
-                         "is_first_outfit": is_first_outfit,
-                         "is_last_outfit": is_last_outfit,
-                         "outfit_image": image_choice}
+        menu_specific = {"menu_title": "OUTFITS",
+                         "item_name": self.selected_outfit.display_name,
+                         "is_first_item": is_first_outfit,
+                         "is_last_item": is_last_outfit,
+                         "item_image": image_choice}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
@@ -1013,6 +1014,7 @@ class OutfitMenuGhost(MenuGhost):
 class GalleryMenuGhost(MenuGhost):
     BASE = "gallery_menu"
     NAME = BASE + "_ghost"
+    AVATAR = GalleryMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1099,7 +1101,8 @@ class GalleryMenuGhost(MenuGhost):
             image = Spritesheet("Player_base_spritesheet", "assets/spritesheets/feature_spritesheets/" + spritesheet_file_name + "/" + sprite_code + "_spritesheet.png", 32, 64)
             image_choice = image.get_image(0, 0)
 
-        menu_specific = {"item_name": getattr(self, self.current_gallery + "_item_list")[getattr(self, "selected_" + self.current_gallery)][1],
+        menu_specific = {"menu_title": "GALLERY",
+                         "item_name": getattr(self, self.current_gallery + "_item_list")[getattr(self, "selected_" + self.current_gallery)][1],
                          "is_first_item": is_first_item,
                          "is_last_item": is_last_item,
                          "item_image": image_choice}
@@ -1157,6 +1160,7 @@ class GalleryMenuGhost(MenuGhost):
 class MapMenuGhost(MenuGhost):
     BASE = "map_menu"
     NAME = BASE + "_ghost"
+    AVATAR = ImageMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1164,7 +1168,7 @@ class MapMenuGhost(MenuGhost):
         self.menu_type = Types.BASE
         self.menu_item_list = []
         self.menu_images_list = []
-        self.cursor = "-"
+        self.cursor = None
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
@@ -1192,6 +1196,7 @@ class MapMenuGhost(MenuGhost):
 class PictureMenuGhost(MenuGhost):
     BASE = "picture_menu"
     NAME = BASE + "_ghost"
+    AVATAR = ImageMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1228,6 +1233,7 @@ class PictureMenuGhost(MenuGhost):
 class GameActionDialogueMenuGhost(MenuGhost):
     BASE = "game_action_dialogue_menu"
     NAME = BASE + "_ghost"
+    AVATAR = GameActionDialogueMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1264,6 +1270,7 @@ class GameActionDialogueMenuGhost(MenuGhost):
 class SubMenuGhost(MenuGhost):
     BASE = "sub_menu"
     NAME = BASE + "_ghost"
+    AVATAR = SubMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1291,6 +1298,7 @@ class SubMenuGhost(MenuGhost):
 class NumberSelectionMenuGhost(MenuGhost):
     BASE = "number_selection_menu"
     NAME = BASE + "_ghost"
+    AVATAR = NumberSelectionMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1362,6 +1370,7 @@ class NumberSelectionMenuGhost(MenuGhost):
 class TextInputMenuGhost(MenuGhost):
     BASE = "text_input_menu"
     NAME = BASE + "_ghost"
+    AVATAR = TextInputMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1484,6 +1493,7 @@ class QuizMenuGhost(MenuGhost):
 class GuideMenuGhost(MenuGhost):
     BASE = "guide_menu"
     NAME = BASE + "_ghost"
+    AVATAR = GuideMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1570,49 +1580,46 @@ class GuideMenuGhost(MenuGhost):
                 bird2_page_bottom = self.gc.inventory_manager.fetch_page(bird2 + "bottom")
 
         if panel1:
-            image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
+            image1 = True
             # bird_ghost = self.gc.gs.gd.get_feature_ghost(self.master_birds_list[self.current_page])
             text_display_list.append(self.master_birds_list[self.current_page])
             text_display_list.append("Colour: " + bird1_page_top.colour)
             text_display_list.append("Size: " + bird1_page_top.size)
             text_display_list.append("Call: " + bird1_page_top.call)
         else:
-            image1 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Dark" + ".png", 168, 252)
+            image1 = False
             text_display_list.append(" ")
             text_display_list.append(" ")
             text_display_list.append(" ")
             text_display_list.append(" ")
-        image_choice1 = image1.get_image(0, 0)
 
         if panel2:
-            image2 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Light" + ".png",  168, 252)
+            image2 = True
             description = textwrap.wrap(bird1_page_bottom.approach, width=15)
             text_display_list.append(description)
         else:
-            image2 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Dark" + ".png", 168, 252)
+            image2 = False
             text_display_list.append([" "])
-        image_choice2 = image2.get_image(0, 0)
 
         if panel3:
-            image3 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Light" + ".png",  168, 252)
+            image3 = True
             text_display_list.append(self.master_birds_list[self.current_page + 1])
             text_display_list.append("Colour: " + bird2_page_top.colour)
             text_display_list.append("Size: " + bird2_page_top.size)
             text_display_list.append("Call: " + bird2_page_top.call)
         else:
-            image3 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Top_Dark" + ".png", 168, 252)
+            image3 = False
             text_display_list.append(" ")
             text_display_list.append(" ")
             text_display_list.append(" ")
             text_display_list.append(" ")
-        image_choice3 = image3.get_image(0, 0)
 
         if panel4:
-            image4 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Light" + ".png",  168, 252)
+            image4 = True
             description = textwrap.wrap(bird1_page_bottom.approach, width=15)
             text_display_list.append(description)
         else:
-            image4 = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Guide_Bottom_Dark" + ".png", 168, 252)
+            image4 = False
             text_display_list.append([" "])
 
         on_first_page = True
@@ -1638,12 +1645,10 @@ class GuideMenuGhost(MenuGhost):
         else:
             text_display_list.append("")
 
-        image_choice4 = image4.get_image(0, 0)
-
         page_left = self.current_page + 1
         page_right = page_left + 1
 
-        menu_specific = {"image": [image_choice1, image_choice2, image_choice3, image_choice4], "page_left": page_left, "page_right": page_right}
+        menu_specific = {"image": [image1, image2, image3, image4], "page_left": page_left, "page_right": page_right}
 
 
 
@@ -1660,6 +1665,7 @@ class GuideMenuGhost(MenuGhost):
 class SceneDialogueMenuGhost(MenuGhost):
     BASE = "scene_dialogue_menu"
     NAME = BASE + "_ghost"
+    AVATAR = ChattingMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1674,6 +1680,7 @@ class SceneDialogueMenuGhost(MenuGhost):
         self.talking_to = None
         self.friendship = 0
         self.face_image = None
+        self.actor_type = None
         self.phrase = None
         self.update_currently_displayed()
         self.speaking_queue = []
@@ -1693,6 +1700,7 @@ class SceneDialogueMenuGhost(MenuGhost):
         self.talking_to = details["speaker_name"]
         self.friendship = details["friendship_level"]
         self.face_image = details["face_image"]
+        self.actor_type = details["actor_type"]
         self.speaker_unique_name = details["speaker_unique_name"]
         self.menu_item_list = details["phrase"]
 
@@ -1707,7 +1715,8 @@ class SceneDialogueMenuGhost(MenuGhost):
 
         menu_specific = {"friendship_level": self.friendship,
                          "face_image": self.face_image,
-                         "speaker_name": self.talking_to}
+                         "speaker_name": self.talking_to,
+                         "actor_type": self.actor_type}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information

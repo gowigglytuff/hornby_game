@@ -1498,6 +1498,7 @@ class MenuController(object):
 
     def set_menu(self, menu_name, details):
         selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
+        selected_menu_avatar = self.gc.gs.gv.get_menu_avatar(menu_name + "_avatar")
         menu_type = selected_menu.menu_type
 
         if menu_type == Types.BASE:

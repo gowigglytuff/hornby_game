@@ -255,7 +255,7 @@ def install_all_data(gc, gs):
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
-            if menu.BASE in ["start_menu", "supplies_inventory_menu", "key_inventory_menu", "treasure_inventory_menu", "gift_giving_menu", "acquire_menu", "seller_menu", "seller_options_menu", "conversation_options_menu", "chat_menu"]:
+            if menu.BASE in ["start_menu", "supplies_inventory_menu", "scene_dialogue_menu", "sub_menu", "stat_menu", "picture_menu", "map_menu", "guide_menu", "text_input_menu", "gallery_menu", "outfit_menu", "number_selection_menu", "key_inventory_menu", "game_action_dialogue_menu", "treasure_inventory_menu", "gift_giving_menu", "acquire_menu", "seller_menu", "seller_options_menu", "conversation_options_menu", "chat_menu"]:
                 avatar_name = menu.BASE + "_avatar"
                 gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
 
@@ -273,7 +273,7 @@ def install_all_data(gc, gs):
                     gs.gv.set_menu_display_coordinates(menu.BASE)
 
     def install_outfits(gc, gs):
-        outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ["red_shirt", "Red Shirt"], ["blue_shirt", "Blue Shirt"], ["yellow_shirt", "Yellow Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]
+        outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ("robot", "Robot"), ["red_shirt", "Red Shirt"], ["blue_shirt", "Blue Shirt"], ["yellow_shirt", "Yellow Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]
         for outfit_pair in outfits_list:
             gc.outfit_manager.add_outfit(outfit_pair[0], outfit_pair[1])
             gc.outfit_manager.acquire_outfit(outfit_pair[0])
