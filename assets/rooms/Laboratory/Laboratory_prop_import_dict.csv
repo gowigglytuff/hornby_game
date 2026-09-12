@@ -5,3 +5,5 @@ species,Bookcase_2,display_name,Bookcase,function,None,spawn_room,Laboratory,spa
 species,Bookcase_3,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,7,spawn_y,8,spawn_facing,Down,spawn_active,yes
 species,Gun_Machine,display_name,Laser Machine,function,None,spawn_room,Laboratory,spawn_x,3,spawn_y,13,spawn_facing,Down,spawn_active,yes
 species,Life_Box,display_name,Life Box,function,None,spawn_room,Laboratory,spawn_x,1,spawn_y,7,spawn_facing,Down,spawn_active,yes
+species,Work_Bench_Plain,display_name,Work Bench,function,None,spawn_room,Laboratory,spawn_x,20,spawn_y,16,spawn_facing,Down,spawn_active,yes
+species,Work_Bench_Plain,display_name,Work Bench,function,None,spawn_room,Laboratory,spawn_x,20,spawn_y,19,spawn_facing,Down,spawn_active,yes

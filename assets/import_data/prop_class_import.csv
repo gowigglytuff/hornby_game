@@ -85,3 +85,4 @@ type,Prop,feature_subtype,Prop,species,Bookcase_3,base_size_x,2,base_size_y,1,fi
 type,Prop,feature_subtype,Prop,species,Gun_Machine,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Life_Box,base_size_x,4,base_size_y,4,figure_size_x,4,figure_size_y,7
 type,Prop,feature_subtype,Prop,species,Nuke,base_size_x,5,base_size_y,2,figure_size_x,5,figure_size_y,3
+type,Prop,feature_subtype,Prop,species,Work_Bench_Plain,base_size_x,1,base_size_y,2,figure_size_x,1,figure_size_y,2

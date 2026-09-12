@@ -55,7 +55,7 @@ def continue_game_procedures(gc, gs):
 def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
-        load = True
+        load = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
 
@@ -255,22 +255,8 @@ def install_all_data(gc, gs):
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
-            if menu.BASE in ["start_menu", "supplies_inventory_menu", "scene_dialogue_menu", "sub_menu", "stat_menu", "picture_menu", "map_menu", "guide_menu", "text_input_menu", "gallery_menu", "outfit_menu", "number_selection_menu", "key_inventory_menu", "game_action_dialogue_menu", "treasure_inventory_menu", "gift_giving_menu", "acquire_menu", "seller_menu", "seller_options_menu", "conversation_options_menu", "chat_menu"]:
-                avatar_name = menu.BASE + "_avatar"
-                gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
-
-            else:
-                if menu.BASE in gc.game_view.menu_avatar_names.keys():
-                    avatar_name = menu.BASE + "_avatar"
-                    items = menu.generate_menu_information_package()
-                    gs.gv.add_menu_avatar(avatar_name, gc.game_view.menu_avatar_names[menu.BASE](gc, avatar_name, items))
-                    gs.gv.set_menu_display_coordinates(menu.BASE)
-
-                else:
-                    avatar_name = menu.BASE + "_avatar"
-                    items = menu.generate_menu_information_package()
-                    gs.gv.add_menu_avatar(avatar_name, MenuAvatar(gc, avatar_name, items))
-                    gs.gv.set_menu_display_coordinates(menu.BASE)
+            avatar_name = menu.BASE + "_avatar"
+            gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
 
     def install_outfits(gc, gs):
         outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ("robot", "Robot"), ["red_shirt", "Red Shirt"], ["blue_shirt", "Blue Shirt"], ["yellow_shirt", "Yellow Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]

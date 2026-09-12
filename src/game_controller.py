@@ -543,13 +543,26 @@ class GameController(object):
         character_talking_to_ghost.currently_chatting = True
         self.gs.gc.menu_controller.post_notice("You talked to " + self.gs.get_feature_display_name(character_talking_to_ghost.unique_name))
 
-        details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
+        follow_up_details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
                    "friendship_level": character_talking_to_ghost.friendship_level,
                    "face_image": character_talking_to_avatar.face_image,
                    "actor_type": character_talking_to_ghost.feature_subtype,
                    "speaker_unique_name": character_talking_to_ghost.unique_name}
 
-        self.gs.gc.menu_controller.set_menu(SellerOptionsMenuGhost.BASE, details)
+        follow_up = {"action": "set_menu",
+                     "menu_name": SellerOptionsMenuGhost.BASE,
+                     "details_dict": follow_up_details}
+
+        details = {"speaker_name": self.gs.get_feature_display_name(character_talking_to_ghost.unique_name),
+                   "friendship_level": character_talking_to_ghost.friendship_level,
+                   "face_image": character_talking_to_avatar.face_image,
+                   "phrase": ["What can I do for you today?"],
+                   "actor_type": character_talking_to_ghost.feature_subtype,
+                   "speaker_unique_name": character_talking_to_ghost.unique_name,
+                   "follow_up": follow_up}
+
+        character_talking_to_ghost.currently_chatting = True
+        self.menu_controller.set_menu(ChatMenuGhost.BASE, details)
 
     def talk_to_friend(self, character_talking_to, player_direction):
         direction_to_turn = Direction.DOWN
@@ -1483,9 +1496,13 @@ class MenuController(object):
                     pass
                 self.gc.menu_controller.post_notice(phrase_1)
                 self.gc.menu_controller.post_notice(phrase_2)
+                self.gc.menu_controller.exit_all_menus()
+            elif follow_up["action"] == "set_menu":
+                self.gc.menu_controller.exit_all_menus()
+                self.gc.menu_controller.set_menu(follow_up["menu_name"], follow_up["details_dict"])
+
             else:
                 pass
-        self.gc.menu_controller.exit_all_menus()
 
     def scene_menu_selection(self, item_selected):
         self.gc.menu_controller.exit_scene_menu(SceneDialogueMenuGhost.BASE)

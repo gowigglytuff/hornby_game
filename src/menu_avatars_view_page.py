@@ -968,43 +968,21 @@ class ImageMenuAvatar(BaseMenuAvatar):
         return final_menu_images
 
 
-class QuizMenuAvatar(MenuAvatar):
+class QuizMenuAvatar(BaseMenuAvatar):
     NAME = "quiz_menu_avatar"
 
-    def __init__(self, gc, name,  items):
-        super().__init__(gc, name,  items)
-        self.gc = gc
-
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+        self.offset_x = 130
+        self.offset_y = 20
+        self.title_offset_y = 20
+        self.image_offset_x = 10
+        self.image_offset_y = 10
+        self.cursor_offset_x = self.offset_x - 10
+        self.cursor_offset_y = self.offset_y + 7
 
         self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
-
-        self.x = 0
-        self.y = 0
-        self.offset_x = 175
-        self.offset_y = 20
-        self.cursor_offset_x = self.offset_x - 10
-        self.header_spacing = 0
-        self.cursor_at = 0
-
-        self.y_space_size = 15
-
-        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
-        self.menu_spread_x = 0
-        self.name = name
-        self.menu_type = None
-
-        self.set_menu_width = 100
-        self.set_menu_height = 100
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
-        self.fill_out_menu_info(items)
+        self.fill_out_menu_info()
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info

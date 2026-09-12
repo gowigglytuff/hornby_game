@@ -7,7 +7,6 @@ from graphics import BuiltOverlay
 from input_manager_controller_page import *
 from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
 from definitions import GameSettings, Types
-from menu_avatars_view_page import QuizMenuAvatar
 from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation, FourFrameAnimation
 from spritesheet import Spritesheet
 if TYPE_CHECKING:
@@ -89,7 +88,6 @@ class GameView(object):
         self.player_avatar = None
         self.menu_avatar_data_list = {}
         self.feature_avatar_list = {}
-        self.menu_avatar_names = {"quiz_menu": QuizMenuAvatar}
         self.current_drawable = []
         self.drawables_refreshed = True
         self.text_bubble_image = Spritesheet("text_bubble_spritesheet", "assets/spritesheets/special_spritesheets/text_bubble_spritesheet_small.png", 96, 48).get_image(0, 0)

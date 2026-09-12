@@ -4,7 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -232,6 +232,7 @@ class SellerMenuGhost(MenuGhost):
 class WordsMenuGhost(MenuGhost):
     BASE = "words_menu"
     NAME = BASE + "_ghost"
+    AVATAR = ListMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1447,6 +1448,7 @@ class TextInputMenuGhost(MenuGhost):
 class QuizMenuGhost(MenuGhost):
     BASE = "quiz_menu"
     NAME = BASE + "_ghost"
+    AVATAR = QuizMenuAvatar
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -1455,14 +1457,15 @@ class QuizMenuGhost(MenuGhost):
         self.menu_item_list = ["Talk", "Give Gift", "Exit"]
         self.menu_images_list = []
         self.currently_displayed_items = []
-        self.prepare_menu_for_display()
+        details = []
+        self.prepare_menu_for_display(details)
         self.update_currently_displayed()
         spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
         face = spritesheet.get_image(0, 0)
         face = face.subsurface(0, 0, 224, 224)
         self.image = face
 
-    def prepare_menu_for_display(self):
+    def prepare_menu_for_display(self, details):
         spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
         face = spritesheet.get_image(0, 0)
         face = face.subsurface(0, 0, 224, 224)

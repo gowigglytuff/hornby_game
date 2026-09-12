@@ -229,16 +229,18 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.player_speak("shout", "Balloon!")
         # self.gc.actor_speak("Towhee_1627", "Shout", "TWEET!")
 
-        avatar = self.gc.gs.gv.get_feature_avatar("Robot_746")
-        ghost = self.gc.gs.get_feature_ghost("Robot_746")
-        details = {"speaker_name": "Robot_746",
+        avatar = self.gc.gs.gv.get_feature_avatar("Jim_5")
+        ghost = self.gc.gs.get_feature_ghost("Jim_5")
+        details = {"speaker_name": "Jim_5",
                    "friendship_level": 3,
                    "actor_type": ghost.feature_subtype,
                    "face_image": avatar.face_image,
                    "speaker_unique_name": "Robot",
                    "phrase": ["Hi there, I hope that you're having an amazing day!"]}
+        #
+        # self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
 
-        self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
+        self.gc.menu_controller.set_menu(QuizMenuGhost.BASE, details)
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:
