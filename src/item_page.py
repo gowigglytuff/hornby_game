@@ -34,6 +34,7 @@ class TempItem(object):
 
 class Cheese(TempItem):
     NAME = "Cheese"
+    SELL_PRICE = 5
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -75,6 +76,7 @@ class Meat(Cheese):
 
 class Pizza(Cheese):
     NAME = "Pizza"
+    SELL_PRICE = 10
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -89,6 +91,7 @@ class Card(Cheese):
 
 class Game(Cheese):
     NAME = "Game"
+    SELL_PRICE = 200
 
     def __init__(self, gc):
         super().__init__(gc)
@@ -161,7 +164,6 @@ class Milk(Cheese):
         super().__init__(gc)
 
 
-
 class KeyItem(object):
     '''
     :type gc: GameController
@@ -199,6 +201,7 @@ class KeyItem(object):
         message = "You can't use that now"
         return message
 
+
 class Hammer(KeyItem):
     NAME = "Hammer"
 
@@ -226,6 +229,7 @@ class Hammer(KeyItem):
 
         return message
 
+
 class MermaidCrown(KeyItem):
     NAME = "Mermaid Crown"
 
@@ -239,6 +243,7 @@ class MermaidCrown(KeyItem):
     def end_tool_use(self):
         self.gc.determine_mermaid_crown_end()
 
+
 class GhostEye(KeyItem):
     NAME = "Ghost Eye"
 
@@ -251,6 +256,7 @@ class GhostEye(KeyItem):
 
     def end_tool_use(self):
         self.gc.determine_ghost_eyes_end()
+
 
 class Shovel(KeyItem):
     NAME = "Shovel"

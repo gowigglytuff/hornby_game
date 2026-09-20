@@ -1,0 +1,11 @@
+﻿species,Counter_Left,display_name,Counter,function,None,spawn_room,Kitchen,spawn_x,2,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Counter_Middle,display_name,Counter,function,None,spawn_room,Kitchen,spawn_x,3,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Counter_Sink,display_name,Sink,function,None,spawn_room,Kitchen,spawn_x,4,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Counter_Right,display_name,Counter,function,None,spawn_room,Kitchen,spawn_x,5,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Counter_Left,display_name,Counter,function,None,spawn_room,Kitchen,spawn_x,7,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Counter_Right,display_name,Counter,function,None,spawn_room,Kitchen,spawn_x,8,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Fridge_White,display_name,Fridge,function,None,spawn_room,Kitchen,spawn_x,1,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Stove,display_name,Stove,function,None,spawn_room,Kitchen,spawn_x,6,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Chair_Right,display_name,Chair,function,None,spawn_room,Kitchen,spawn_x,2,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Table,display_name,Table,function,None,spawn_room,Kitchen,spawn_x,3,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Chair_Left,display_name,Chair,function,None,spawn_room,Kitchen,spawn_x,4,spawn_y,6,spawn_facing,Down,spawn_active,yes

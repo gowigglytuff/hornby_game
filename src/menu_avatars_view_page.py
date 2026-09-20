@@ -267,6 +267,16 @@ class ListMenuAvatar(BaseMenuAvatar):
         return final_menu_text
 
 
+class BasketMenuAvatar(BaseMenuAvatar):
+    NAME = "basket_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.menu_display_details = {"default_width": 40, "default_height": 18, "align_x": "center", "align_y": "3/4", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
 class ChattingMenuAvatar(BaseMenuAvatar):
     NAME = "chatting_menu_avatar"
 
@@ -444,7 +454,6 @@ class CoupledListMenuAvatar(BaseMenuAvatar):
             fixed_text_list.append(item_adjusted)
 
         currently_visible_items = self.return_currently_displayed(fixed_text_list, cursor_at)
-        print(currently_visible_items)
 
         for position_y in range(len(currently_visible_items)):
             loc_x = self.menu_spread_x + self.offset_x
@@ -495,6 +504,7 @@ class SellerMenuAvatar(CoupledListMenuAvatar):
 
 
 class AcquireMenuAvatar(ListMenuAvatar):
+    NAME = "acquire_menu_avatar"
     def __init__(self, gc, name):
         super().__init__(gc, name)
 

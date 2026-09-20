@@ -139,11 +139,19 @@ class PropAvatar(FeatureAvatar):
         self.feature_type = Types.PROP
         self.character_frame_x = 32 * base_size_x
         self.character_frame_y = 32 * base_size_y + 16
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         self.run_setup(base_size_x, base_size_y, "prop_spritesheets")
         self.animation_list = {"4_frame": FourFrameAnimation(Direction.DOWN)}
 
+    def run_setup(self, base_size_x, base_size_y, spritesheet_file_name):
+        self.spritesheet = Spritesheet(self.species + "_base_spritesheet", "assets/spritesheets/feature_spritesheets/" + spritesheet_file_name +"/" + self.species + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
+        basic_y_offset = GameSettings.TILESIZE - GameSettings.TILESIZE*2/4 + GameSettings.TILESIZE*1/4
+        self.image_offset_y = basic_y_offset + ((base_size_y - 1) * GameSettings.TILESIZE)
+        self.image_offset_x = (base_size_x*GameSettings.TILESIZE - self.character_frame_x)/2
+        self.face_image = self.get_face_image()
+        self.face_feature(self.spawn_facing)
+
     def initiate_animation(self, animation_object):
-        print("oooooooooooooooooooooooooooo", animation_object)
         self.current_animation = animation_object
         self.currently_animating = True
 

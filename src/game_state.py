@@ -42,6 +42,7 @@ class GameState(object):
         self.current_player_elevation = 3
 
         self.your_coins = 127
+        self.money_in_pocket = 1000
         self.bird_count = 1
         self.pigeon_count = 5
         self.total_seeds_found = 26
@@ -81,6 +82,18 @@ class GameState(object):
     def remove_from_action_queue(self, item_name):
         item = self.action_queue.pop(item_name)
         item.reset()
+
+    def spend_money(self, amount):
+        self.money_in_pocket -= amount
+
+    def gain_money(self, amount):
+        self.money_in_pocket += amount
+
+    def check_if_have_enough_money(self, cost):
+        success = False
+        if self.money_in_pocket >= cost:
+            success = True
+        return success
 
     # def act_on_action_queue(self):
     #     remove_list = []

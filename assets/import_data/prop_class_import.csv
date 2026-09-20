@@ -20,7 +20,7 @@ type,Prop,feature_subtype,Prop,species,Chair,base_size_x,1,base_size_y,1,figure_
 type,Prop,feature_subtype,Prop,species,Table,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,ElephantPicture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,ChickenPicture,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
-type,Prop,feature_subtype,Prop,species,ChairSide,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Chair_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Bed,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Sandcastle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,House,base_size_x,6,base_size_y,3,figure_size_x,6,figure_size_y,4
@@ -79,6 +79,7 @@ type,Prop,feature_subtype,Prop,species,Moon_Window,base_size_x,1,base_size_y,1,f
 type,Prop,feature_subtype,Prop,species,Work_Bench,base_size_x,1,base_size_y,2,figure_size_x,1,figure_size_y,2
 type,Prop,feature_subtype,Prop,species,Dustbin,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Tubes,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Sorting_Machine,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Bookcase,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,2
 type,Prop,feature_subtype,Prop,species,Bookcase_2,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,2
 type,Prop,feature_subtype,Prop,species,Bookcase_3,base_size_x,2,base_size_y,1,figure_size_x,2,figure_size_y,2
@@ -86,3 +87,19 @@ type,Prop,feature_subtype,Prop,species,Gun_Machine,base_size_x,2,base_size_y,1,f
 type,Prop,feature_subtype,Prop,species,Life_Box,base_size_x,4,base_size_y,4,figure_size_x,4,figure_size_y,7
 type,Prop,feature_subtype,Prop,species,Nuke,base_size_x,5,base_size_y,2,figure_size_x,5,figure_size_y,3
 type,Prop,feature_subtype,Prop,species,Work_Bench_Plain,base_size_x,1,base_size_y,2,figure_size_x,1,figure_size_y,2
+type,Prop,feature_subtype,Prop,species,Cardboard_Boxes_1,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Cardboard_Boxes_2,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Cardboard_Boxes_3,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Cardboard_Boxes_4,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fridge_Black,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fridge_Drawings,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Fridge_White,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Counter_Left,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Counter_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Counter_Middle,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Counter_Sink,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Counter_Solo,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Stove,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Chair_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Chair_Left,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Tire,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1

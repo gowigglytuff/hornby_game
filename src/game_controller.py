@@ -9,7 +9,7 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, BasketMenuGhost, DepositMenuGhost, SellItemMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -681,19 +681,24 @@ class GameController(object):
         self.position_manager.despawn_feature(lock_unique_name, room_object)
 
     def look_in_basket(self, basket_unique_name, basket_items):
-        if basket_items:
-            ghost = self.gs.get_feature_ghost(basket_unique_name)
-            self.menu_controller.post_notice("You looked in the " + ghost.species)
-            details = {"item_list": basket_items, "basket_unique_name": basket_unique_name}
-            self.menu_controller.set_menu(AcquireMenuGhost.BASE, details)
-        else:
-            self.menu_controller.post_notice("It appears to be empty.")
+        ghost = self.gs.get_feature_ghost(basket_unique_name)
+        self.menu_controller.post_notice("You looked in the " + ghost.species)
+        details = {"item_list": basket_items, "basket_unique_name": basket_unique_name}
+        self.menu_controller.set_menu(BasketMenuGhost.BASE, details)
 
     def take_from_basket(self, basket_unique_name, name_item_taken):
         self.inventory_manager.get_any_type_item(name_item_taken, 1)
         self.menu_controller.post_notice("You took the " + name_item_taken)
         ghost = self.gs.get_feature_ghost(basket_unique_name)
         ghost.function_items.remove(name_item_taken)
+
+    def deposit_in_basket(self, basket_unique_name, name_item_deposited):
+        chosen_item = self.gs.gd.item_data_list[name_item_deposited]
+        self.inventory_manager.remove_item(chosen_item, 1)
+        self.menu_controller.post_notice("You dropped the " + name_item_deposited + " in.")
+        ghost = self.gs.get_feature_ghost(basket_unique_name)
+        ghost.function_items.append(name_item_deposited)
+
     # endregion
 
     # region FEATURE MOVEMENT
@@ -805,7 +810,6 @@ class GameController(object):
     def check_if_feature_already_animating(self, unique_name):
         avatar = self.game_view.get_feature_avatar(unique_name)
         ghost_object = self.gs.get_feature_ghost(unique_name)
-        print(ghost_object.currently_animating)
         return ghost_object.currently_animating
 
     def reset_feature_to_spawn(self, feature):
@@ -931,7 +935,6 @@ class GameController(object):
             spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
             display_name = feature_dict["display_name"]
             unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            print(unique_name)
             if feature_subtype == "Character":
                 feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], room_name,
                                                     int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"],
@@ -1019,6 +1022,16 @@ class GameController(object):
 class InventoryManager(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
+        self.price_list = {}
+
+    def compile_list_sell_prices(self, item_list):
+        sell_price_list = {}
+        for item in item_list:
+            name = copy.copy(item.NAME)
+            price = copy.copy(item.SELL_PRICE)
+            sell_price_list[name] = price
+        self.price_list = sell_price_list
+
 
     def get_any_type_item(self, item_name, quantity):
         item_type = None
@@ -1252,9 +1265,10 @@ class TriggerManager(object):
 class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
-        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SellerMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
-                               SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost, SellerOptionsMenuGhost,
-                               GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
+        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
+                               SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, DepositMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost, SellerOptionsMenuGhost,
+                               GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
+                               BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
 
     def update_menu_text_and_images(self, menu_ghost):
         menu_avatar = self.gc.game_view.menu_avatar_data_list[menu_ghost.BASE + "_avatar"]
@@ -1467,7 +1481,9 @@ class MenuController(object):
             self.gc.menu_controller.set_menu(SellerMenuGhost.BASE, details)
 
         elif menu_selection == "Sell":
+            details = {}
             self.gc.menu_controller.exit_all_menus()
+            self.gc.menu_controller.set_menu(SellItemMenuGhost.BASE, details)
 
         elif menu_selection == "Exit":
             self.gc.menu_controller.exit_all_menus()
@@ -1502,7 +1518,9 @@ class MenuController(object):
                 self.gc.menu_controller.set_menu(follow_up["menu_name"], follow_up["details_dict"])
 
             else:
-                pass
+                self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.menu_controller.exit_all_menus()
 
     def scene_menu_selection(self, item_selected):
         self.gc.menu_controller.exit_scene_menu(SceneDialogueMenuGhost.BASE)
@@ -1514,6 +1532,7 @@ class MenuController(object):
         self.set_menu(StartMenuGhost.BASE, None)
 
     def set_menu(self, menu_name, details):
+        print(menu_name)
         selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
         selected_menu_avatar = self.gc.gs.gv.get_menu_avatar(menu_name + "_avatar")
         menu_type = selected_menu.menu_type

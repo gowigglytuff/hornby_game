@@ -55,9 +55,10 @@ def continue_game_procedures(gc, gs):
 def install_all_data(gc, gs):
 
     def install_rooms(gc, gs):
-        load = False
+        load = True
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (Consolidated("Staging_Area", 7, 9, 1, 1)))
+        gs.gd.add_room_data("Trophy_Room", (SpecialRoom("Trophy_Room", 9, 30, 1, 1)))
 
         if load:
             gs.gd.add_room_data("Marsh", (SpecialRoom("Marsh", 50, 50, 1, 1)))
@@ -68,11 +69,12 @@ def install_all_data(gc, gs):
             gs.gd.add_room_data("Basement", (SpecialRoom("Basement", 20, 20, 1, 1)))
             gs.gd.add_room_data("Loft", (SpecialRoom("Loft", 5, 6, 1, 1)))
             gs.gd.add_room_data("Hold", (SpecialRoom("Hold", 7, 11, 1, 1)))
+            gs.gd.add_room_data("Kitchen", (SpecialRoom("Kitchen", 8, 6, 1, 1)))
             # gs.gd.add_room_data("Cave", (Consolidated("Cave", 20, 20, 1, 1)))
             # gs.gd.add_room_data("My_House", (Consolidated("My_House", 6, 4, 1, 1)))
             # gs.gd.add_room_data("Bird_Room", (Consolidated("Bird_Room", 20, 20, 1, 1)))
 
-            gs.gd.add_room_data("Trophy_Room", (SpecialRoom("Trophy_Room", 9, 30, 1, 1)))
+
             # gs.gd.add_room_data("Aviary_Room", (Consolidated("Aviary_Room", 9, 30, 1, 1)))
             gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
             gs.gd.add_room_data("Beach", (SpecialRoom("Beach", 50, 50, 1, 1)))
@@ -144,6 +146,7 @@ def install_all_data(gc, gs):
         gc.position_manager.add_door("Walk_Down", "Field", "Marsh", 15, 31, 40, 0)
         gc.position_manager.add_door("Walk_Down", "Field", "Marsh", 16, 31, 41, 0)
         gc.position_manager.add_door("Walk_Right", "Marsh", "Marsh2", 51, 10, 0, 10)
+        gc.position_manager.add_door("Walk_Left", "Laboratory", "Kitchen", 0, 10, 9, 6)
         gc.position_manager.add_door("Walk_Right", "Marsh", "Marsh2", 51, 9, 0, 9)
         gc.position_manager.add_door("Passage", "Marsh", "Well_Room", 37, 42, 7, 29)
         gc.position_manager.add_door("Walk_Down", "Skywalk", "Mountain", 7, 31, 19, 0)
@@ -213,6 +216,8 @@ def install_all_data(gc, gs):
             gs.gd.add_item_data(item.NAME, item(gc))
             gs.acquire_item(item.NAME, q)
             q *= 3
+
+        gc.inventory_manager.compile_list_sell_prices(items_to_install)
 
     def install_key_items(gc, gs):
         items_to_install = [Hammer, Pickaxe, Shovel, Whistle, Wrench, MermaidCrown, GhostEye, Axe]

@@ -524,7 +524,6 @@ class AnimationManager(object):
             self.gv.animation_manager.perform_player_animation(self.gv.player_avatar)
 
         for feature_name in self.gv.gs.gc.feature_animations_in_progress:
-            print(feature_name)
             feature_ghost = self.gv.gs.get_feature_ghost(feature_name)
             feature_avatar = self.gv.get_feature_avatar(feature_name)
 
@@ -573,7 +572,6 @@ class AnimationManager(object):
             animator.current_animation = None
 
     def perform_feature_animation(self, animator):
-        print("perform", animator.current_animation)
         wrap_up = False
         animation_result = animator.current_animation.animate()
         if animation_result[2] is not None:

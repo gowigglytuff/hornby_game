@@ -1,5 +1,7 @@
 ﻿species,Super_Computer,display_name,Super Computer,function,None,spawn_room,Laboratory,spawn_x,5,spawn_y,7,spawn_facing,Down,spawn_active,yes
-species,Tubes,display_name,Test Tubes,function,None,spawn_room,Laboratory,spawn_x,13,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Sorting_Machine,display_name,Sorting Machine,function,None,spawn_room,Laboratory,spawn_x,13,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Tubes,display_name,Test Tubes,function,None,spawn_room,Laboratory,spawn_x,8,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Tubes,display_name,Test Tubes,function,None,spawn_room,Laboratory,spawn_x,10,spawn_y,3,spawn_facing,Down,spawn_active,yes
 species,Bookcase,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,11,spawn_y,8,spawn_facing,Down,spawn_active,yes
 species,Bookcase_2,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,9,spawn_y,8,spawn_facing,Down,spawn_active,yes
 species,Bookcase_3,display_name,Bookcase,function,None,spawn_room,Laboratory,spawn_x,7,spawn_y,8,spawn_facing,Down,spawn_active,yes
@@ -7,3 +9,9 @@ species,Gun_Machine,display_name,Laser Machine,function,None,spawn_room,Laborato
 species,Life_Box,display_name,Life Box,function,None,spawn_room,Laboratory,spawn_x,1,spawn_y,7,spawn_facing,Down,spawn_active,yes
 species,Work_Bench_Plain,display_name,Work Bench,function,None,spawn_room,Laboratory,spawn_x,20,spawn_y,16,spawn_facing,Down,spawn_active,yes
 species,Work_Bench_Plain,display_name,Work Bench,function,None,spawn_room,Laboratory,spawn_x,20,spawn_y,19,spawn_facing,Down,spawn_active,yes
+species,Cardboard_Boxes_2,display_name,Boxes,function,None,spawn_room,Laboratory,spawn_x,20,spawn_y,20,spawn_facing,Down,spawn_active,yes
+species,Cardboard_Boxes_1,display_name,Boxes,function,None,spawn_room,Laboratory,spawn_x,1,spawn_y,18,spawn_facing,Down,spawn_active,yes
+species,Cardboard_Boxes_3,display_name,Boxes,function,None,spawn_room,Laboratory,spawn_x,2,spawn_y,18,spawn_facing,Down,spawn_active,yes
+species,Fridge_White,display_name,Fridge,function,None,spawn_room,Laboratory,spawn_x,15,spawn_y,14,spawn_facing,Down,spawn_active,yes
+species,Fridge_Black,display_name,Fridge,function,None,spawn_room,Laboratory,spawn_x,16,spawn_y,14,spawn_facing,Down,spawn_active,yes
+species,Tire,display_name,Tire,function,None,spawn_room,Laboratory,spawn_x,14,spawn_y,15,spawn_facing,Down,spawn_active,yes

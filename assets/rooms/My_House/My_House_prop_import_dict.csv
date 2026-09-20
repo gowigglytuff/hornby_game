@@ -3,5 +3,5 @@ species,Chair,display_name,Chair,function,None,spawn_room,My_House,spawn_x,6,spa
 species,Table,display_name,Table,function,None,spawn_room,My_House,spawn_x,6,spawn_y,3,spawn_facing,Down,spawn_active,yes
 species,ElephantPicture,display_name,Elephant Picture,function,None,spawn_room,My_House,spawn_x,1,spawn_y,1,spawn_facing,Down,spawn_active,yes
 species,ChickenPicture,display_name,Chicken Picture,function,None,spawn_room,My_House,spawn_x,3,spawn_y,1,spawn_facing,Down,spawn_active,yes
-species,ChairSide,display_name,Chair Side,function,None,spawn_room,My_House,spawn_x,5,spawn_y,3,spawn_facing,Down,spawn_active,yes
+species,Chair_Right,display_name,Chair Side,function,None,spawn_room,My_House,spawn_x,5,spawn_y,3,spawn_facing,Down,spawn_active,yes
 species,Bed,display_name,Bed,function,None,spawn_room,My_House,spawn_x,1,spawn_y,4,spawn_facing,Down,spawn_active,yes

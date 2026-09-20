@@ -4,7 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -174,61 +174,6 @@ class StartMenuGhost(MenuGhost):
         self.gc.menu_controller.start_menu_selection(menu_selection)
 
 
-class SellerMenuGhost(MenuGhost):
-    BASE = "seller_menu"
-    NAME = BASE + "_ghost"
-    AVATAR = SellerMenuAvatar
-
-    def __init__(self, gc):
-        super().__init__(gc)
-        self.menu_header = "FOR SALE"
-        self.menu_item_list = []
-        self.menu_images_list = []
-        self.cursor = "-"
-        self.menu_prices = {}
-        # self.prepare_menu_for_display(None)
-
-    def prepare_menu_for_display(self, details):
-        self.menu_item_list = copy.copy(details["seller_items"])
-        self.menu_item_list.sort()
-        self.menu_prices = copy.copy(details["seller_item_prices"])
-        self.menu_item_list.append("Exit")
-
-    def do_option(self, choice=None):
-        menu_selection = self.get_current_menu_item()
-        if choice is not None:
-            menu_selection = choice
-        self.gc.menu_controller.start_menu_selection(menu_selection)
-
-    def generate_menu_information_package(self):
-        source = self.get_menu_items_to_display().copy()
-        print(source)
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
-        text_display_list = source
-
-        menu_specific = {"header": self.menu_header,
-                        "text_display_list": source,
-                        "cursor_image": cursor_image,
-                        "cursor_at": cursor_at}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
-        return menu_information
-
-    def get_menu_items_to_display(self):
-        displayable_item_list = []
-
-        for item in self.menu_item_list:
-            if item == "Exit":
-                displayable_item_list.append((item, "0"))
-
-            else:
-                price = str(self.menu_prices[item])
-                displayable_item_list.append((item, price))
-
-        return displayable_item_list
-
-
 class WordsMenuGhost(MenuGhost):
     BASE = "words_menu"
     NAME = BASE + "_ghost"
@@ -283,52 +228,6 @@ class WordsMenuGhost(MenuGhost):
                 self.prepare_menu_for_display(None)
 
 
-class AcquireMenuGhost(MenuGhost): #TODO: Work on this
-    BASE = "acquire_menu"
-    NAME = BASE + "_ghost"
-    AVATAR = AcquireMenuAvatar
-
-    def __init__(self, gc):
-        super().__init__(gc)
-        self.menu_header = "CONTENTS"
-        self.menu_item_list = ["Cheese", "Spoon", "Match"]
-        self.menu_item_list.append("Exit")
-        self.menu_images_list = []
-        self.cursor = "-"
-
-    def prepare_menu_for_display(self, details):
-        self.menu_item_list = details["item_list"]
-        self.current_basket = details["basket_unique_name"]
-        self.menu_item_list.append("Exit")
-        self.generate_menu_information_package()
-
-    def generate_menu_information_package(self):
-        source = self.get_menu_items_to_display().copy()
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
-        text_display_list = []
-
-        for item in range(len(source)):
-            text_display_list.append(source[item])
-
-        menu_specific = {"header": self.menu_header,
-                         "text_display_list": text_display_list,
-                         "cursor_image": cursor_image,
-                         "cursor_at": cursor_at}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
-        return menu_information
-
-
-    def do_option(self):
-        menu_selection = self.get_current_menu_item()
-        if menu_selection == "Exit":
-            self.gc.menu_controller.exit_all_menus()
-        else:
-            self.gc.take_from_basket(self.current_basket, menu_selection)
-            self.gc.menu_controller.exit_all_menus()
-
-
 class InventoryMenuGhost(MenuGhost):
     BASE = "inventory_menu"
     NAME = BASE + "_ghost"
@@ -351,7 +250,6 @@ class InventoryMenuGhost(MenuGhost):
         super().reset_elements()
         self.action_doing = None
         self.shifts = 0
-        print("pling")
 
     def get_current_menu_item(self):
         menu_selection = self.menu_item_list[self.cursor_at[1]+self.shifts]
@@ -379,11 +277,12 @@ class InventoryMenuGhost(MenuGhost):
     def prepare_menu_for_display(self, details):
         keys_list = []
         current_inventory = self.gc.gs.get_inventory_items(self.BASE)
-        for item in current_inventory:
-            keys_list.append(item)
-        self.menu_item_list = keys_list
-        self.menu_item_list.append("Exit")
-        self.update_currently_displayed()
+        if current_inventory:
+            for item in current_inventory:
+                keys_list.append(item)
+            self.menu_item_list = keys_list
+            self.menu_item_list.append("Exit")
+            self.update_currently_displayed()
 
     def get_menu_items_to_display(self):
         displayable_item_list = []
@@ -404,7 +303,6 @@ class InventoryMenuGhost(MenuGhost):
 
     def choose_option(self):
         chosen_item_name = self.get_current_menu_item()
-        print(chosen_item_name)
         if chosen_item_name == "Exit":
             self.gc.menu_controller.exit_all_menus()
         else:
@@ -530,6 +428,141 @@ class GiftGivingMenuGhost(InventoryMenuGhost):
         chosen_item_name = self.get_current_menu_item()
         details = self.details
         self.gc.menu_controller.gift_menu_selection(sub_menu_selection, chosen_item_name, details)
+
+
+class BasketMenuGhost(MenuGhost):
+    BASE = "basket_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = BasketMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_item_list = ["Take Something", "Leave Something"]
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.details = {}
+
+    def prepare_menu_for_display(self, details):
+        self.details = details
+
+    def do_option(self, choice=None):
+        menu_selection = self.get_current_menu_item()
+        if menu_selection == "Take Something":
+            if self.details["item_list"]:
+                self.gc.menu_controller.post_notice("What would you like to take?")
+                details = copy.copy(self.details)
+                self.gc.menu_controller.set_menu(AcquireMenuGhost.BASE, details)
+            else:
+                self.gc.menu_controller.post_notice("It appears to be empty.")
+                self.gc.menu_controller.exit_all_menus()
+        elif menu_selection == "Leave Something":
+            details = self.details
+            self.gc.menu_controller.set_menu(DepositMenuGhost.BASE, details)
+        elif menu_selection == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+
+
+class AcquireMenuGhost(MenuGhost): #TODO: Work on this
+    BASE = "acquire_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = AcquireMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = "CONTENTS"
+        self.menu_item_list = ["Cheese", "Spoon", "Match"]
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = "-"
+
+    def prepare_menu_for_display(self, details):
+        self.menu_item_list = details["item_list"]
+        self.current_basket = details["basket_unique_name"]
+        self.menu_item_list.append("Exit")
+        self.generate_menu_information_package()
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"header": self.menu_header,
+                         "text_display_list": text_display_list,
+                         "cursor_image": cursor_image,
+                         "cursor_at": cursor_at}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self, choice):
+        menu_selection = self.get_current_menu_item()
+        if choice == "Yes":
+            self.gc.menu_controller.exit_all_menus()
+            self.gc.take_from_basket(self.current_basket, menu_selection)
+        if choice == "No":
+            pass
+        else:
+            self.gc.menu_controller.exit_all_menus()
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.menu_controller.post_notice("Do you want to take the " + chosen_item_name + "?")
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
+
+
+class DepositMenuGhost(SuppliesInventoryMenuGhost):
+    BASE = "deposit_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = SuppliesMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_type = Types.BASE
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.menu_controller.post_notice("Leave this item?")
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
+
+    def do_option(self, choice): #TODO: Finish this
+        menu_selection = self.get_current_menu_item()
+        if choice == "Yes":
+            self.gc.menu_controller.exit_all_menus()
+            self.gc.deposit_in_basket(self.current_basket, menu_selection)
+        if choice == "No":
+            pass
+        else:
+            self.gc.menu_controller.exit_all_menus()
+
+    def prepare_menu_for_display(self, details):
+        if details:
+            self.current_basket = details["basket_unique_name"]
+        keys_list = []
+        current_inventory = self.gc.gs.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
+        if current_inventory:
+            for item in current_inventory:
+                keys_list.append(item)
+            self.menu_item_list = keys_list
+            self.menu_item_list.append("Exit")
+            self.update_currently_displayed()
+
+    def cursor_left(self):
+        pass
+
+    def cursor_right(self):
+        pass
 
 
 class KeyInventoryMenuGhost(InventoryMenuGhost):
@@ -824,6 +857,167 @@ class SellerOptionsMenuGhost(MenuGhost):
         self.cursor_at[0] = 0
         self.cursor_at[1] = 0
 
+
+class SellerMenuGhost(MenuGhost):
+    BASE = "seller_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = SellerMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = "FOR SALE"
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.menu_prices = {}
+        self.current_purchase_cost = 0
+        # self.prepare_menu_for_display(None)
+
+    def prepare_menu_for_display(self, details):
+        self.menu_item_list = copy.copy(details["seller_items"])
+        self.menu_item_list.sort()
+        self.menu_prices = copy.copy(details["seller_item_prices"])
+        self.menu_item_list.append("Exit")
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.menu_controller.post_notice("How many would you like to buy?")
+            self.gc.menu_controller.set_menu(NumberSelectionMenuGhost.BASE, {"master_menu": self.BASE, "max_number": 99, "min_number": 1})
+
+    def do_option(self, choice):
+        menu_selection = self.get_current_menu_item()
+        if choice == "Yes":
+            self.gc.menu_controller.post_notice("Added the " + menu_selection + "(s) to your bag")
+            self.gc.gs.spend_money(self.current_purchase_cost)
+            print("money remaining", self.gc.gs.money_in_pocket)
+        elif choice == "No":
+            pass
+        else:
+            menu_selection = self.get_current_menu_item()
+            price = self.menu_prices[menu_selection]
+            total_cost = price * choice
+            self.current_purchase_cost = total_cost
+            self.gc.menu_controller.post_notice("That will be $" + str(total_cost))
+            if self.gc.gs.check_if_have_enough_money(total_cost):
+                self.gc.menu_controller.post_notice("Proceed with purchase?")
+                self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
+            else:
+                self.gc.menu_controller.post_notice("You do not have enough money...")
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = source
+
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": source,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def get_menu_items_to_display(self):
+        displayable_item_list = []
+
+        for item in self.menu_item_list:
+            if item == "Exit":
+                displayable_item_list.append((item, "0"))
+
+            else:
+                price = str(self.menu_prices[item])
+                displayable_item_list.append((item, price))
+
+        return displayable_item_list
+
+
+class SellItemMenuGhost(SuppliesInventoryMenuGhost):
+    BASE = "sell_item_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = SellerMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_type = Types.BASE
+        self.menu_header = "SELL?"
+        self.current_sell_quantity = 0
+
+    def choose_option(self):
+        chosen_item_name = self.get_current_menu_item()
+        if chosen_item_name == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.menu_controller.post_notice("How many would you like to sell?")
+            self.gc.menu_controller.set_menu(NumberSelectionMenuGhost.BASE, {"master_menu": self.BASE, "max_number": 99, "min_number": 1})
+
+
+    def do_option(self, choice):
+        menu_selection = self.get_current_menu_item()
+        menu_prices = self.gc.inventory_manager.price_list
+        chosen_item = self.gc.gs.gd.item_data_list[menu_selection]
+        if choice == "Yes":
+            self.gc.menu_controller.post_notice("You sold the " + menu_selection +"(s).")
+            self.gc.inventory_manager.remove_item(chosen_item, self.current_sell_quantity)
+            self.prepare_menu_for_display(None)
+        elif choice == "No":
+            pass
+        else:
+            menu_selection = self.get_current_menu_item()
+            price = menu_prices[menu_selection]
+            total_cost = price * choice
+            self.current_sell_quantity = choice
+            self.current_purchase_cost = total_cost
+            self.gc.menu_controller.post_notice("Sell " + str(choice) + " " + menu_selection + " for $" + str(total_cost) + "?")
+            self.gc.menu_controller.set_menu(SubMenuGhost.BASE, {"master_menu": self.BASE, "menu_items_list": ["Yes", "No"]})
+
+    def prepare_menu_for_display(self, details):
+        keys_list = []
+        current_inventory = self.gc.gs.get_inventory_items(SuppliesInventoryMenuGhost.BASE)
+        if current_inventory:
+            for item in current_inventory:
+                keys_list.append(item)
+            self.menu_item_list = keys_list
+            self.menu_item_list.append("Exit")
+            self.update_currently_displayed()
+
+    def cursor_left(self):
+        pass
+
+    def cursor_right(self):
+        pass
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = source
+
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": source,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def get_menu_items_to_display(self):
+        displayable_item_list = []
+
+        menu_prices = self.gc.inventory_manager.price_list
+
+        for item in self.menu_item_list:
+            if item == "Exit":
+                displayable_item_list.append((item, "0"))
+
+            else:
+                price = str(menu_prices[item])
+                displayable_item_list.append((item, price))
+
+        return displayable_item_list
 
 class ChatMenuGhost(MenuGhost):
     BASE = "chat_menu"
