@@ -504,6 +504,7 @@ class GameState(object):
         self.gv.delete_feature_avatar_forever(feature_unique_name)
 
     def add_feature_ghost(self, feature_name, feature_object):
+        print(feature_name, feature_object.x, feature_object.y)
         self.feature_ghost_list[feature_name] = feature_object
 
     def delete_feature_ghost_forever(self, feature_unique_name):
@@ -679,7 +680,7 @@ class GameState(object):
             elif current_facing == Direction.RIGHT:
                 final_facing = Direction.LEFT
         self.change_player_ghost_facing(final_facing)
-        self.gv.player_avatar.face_character(final_facing)
+        self.gv.player_avatar.face_feature(final_facing)
     # endregion
 
 class MenuState(object):

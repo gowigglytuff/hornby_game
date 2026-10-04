@@ -172,6 +172,44 @@ class GameController(object):
         self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
 
+
+    def switch_characters(self, target_character_unique_name):
+        current_character_ghost = copy.copy(self.gs.get_player_ghost())
+        current_character_avatar = copy.copy(self.gs.gv.get_player_avatar())
+
+        target_character_ghost = copy.copy(self.gs.get_feature_ghost(target_character_unique_name))
+        target_character_avatar = copy.copy(self.gs.gv.get_feature_avatar(target_character_unique_name))
+
+        target_character_ghost.feature_type = "Player"
+        target_character_ghost.feature_subtype = "Player"
+        target_character_ghost.species = "Player"
+        target_character_avatar.feature_type = "Player"
+        target_character_avatar.feature_subtype = "Player"
+        target_character_avatar.species = "Player"
+
+        current_character_ghost.feature_type = Types.ACTOR
+        current_character_ghost.feature_subtype = Types.ACTOR
+        current_character_ghost.species = "Player"
+        current_character_avatar.feature_type = Types.ACTOR
+        current_character_avatar.feature_subtype = Types.ACTOR
+        current_character_avatar.species = "Player"
+
+        self.gs.player_ghost = target_character_ghost
+        self.gs.gv.player_avatar = target_character_avatar
+
+        self.gs.feature_ghost_list.pop(target_character_ghost.unique_name)
+        self.gs.feature_ghost_list[current_character_ghost.unique_name] = current_character_ghost
+
+        self.gs.gv.feature_avatar_list[current_character_ghost.unique_name] = current_character_avatar
+
+        camera_change_x = target_character_avatar.image_x - current_character_avatar.image_x
+        camera_change_y = target_character_avatar.image_y - current_character_avatar.image_y
+
+        self.gs.gv.manually_update_camera(camera_change_x, camera_change_y)
+
+        self.gs.gv.refresh_drawables()
+
+
     def player_speak(self, volume, text):
         player_avatar = self.gs.gv.get_player_avatar()
         player_ghost = self.gs.get_player_ghost()
@@ -986,15 +1024,18 @@ class GameController(object):
         return self.game_data.door_data_list[door_name]
 
     def go_through_door(self, door_name):
-        player_object = self.gs.get_player_ghost()
+        player_ghost = self.gs.get_player_ghost()
+        player_avatar = self.gs.gv.get_player_avatar()
         self.clear_key_down_cue()
         door = self.get_door(door_name)
-        x_change = door.x_to - player_object.x
-        y_change = door.y_to - player_object.y
+        player_avatar.image_x = door.x_to
+        player_avatar.image_y = door.y_to
+        x_change = door.x_to - player_ghost.x
+        y_change = door.y_to - player_ghost.y
         self.gs.change_player_facing(door.exit_direction)
         current_room_object = self.gs.get_room(door.room_from)
         new_room_object = self.gs.get_room(door.room_to)
-        self.position_manager.move_ghost(player_object, current_room_object, new_room_object, door.x_to, door.y_to)
+        self.position_manager.move_ghost(player_ghost, current_room_object, new_room_object, door.x_to, door.y_to)
         self.position_manager.match_player_elevation_to_target(new_room_object, door.x_to, door.y_to)
         self.game_view.manually_update_camera(x_change, y_change)
         self.change_room(door.room_to)
@@ -1532,7 +1573,6 @@ class MenuController(object):
         self.set_menu(StartMenuGhost.BASE, None)
 
     def set_menu(self, menu_name, details):
-        print(menu_name)
         selected_menu = self.gc.gs.ms.get_menu_ghost(menu_name)
         selected_menu_avatar = self.gc.gs.gv.get_menu_avatar(menu_name + "_avatar")
         menu_type = selected_menu.menu_type

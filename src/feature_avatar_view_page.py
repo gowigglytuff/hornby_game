@@ -9,6 +9,7 @@ class PlayerAvatar(object):
     def __init__(self, image_x, image_y):
         self.species = "Player"
         self.feature_type = "Player"
+        self.unique_name = "Player"
         self.drawing_priority = 1
         self.character_frame_x = 32
         self.character_frame_y = 48
@@ -24,7 +25,8 @@ class PlayerAvatar(object):
         self.image_y = image_y
         self.size_x = 1
         self.size_y = 1
-        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4
+        base_size_y = 1
+        self.image_offset_y = self.character_frame_y - GameSettings.TILESIZE*3/4 - (base_size_y * GameSettings.TILESIZE - GameSettings.TILESIZE)
         self.image_offset_x = (GameSettings.TILESIZE - self.character_frame_x)/2
         self.animation_list = {"walk_front": WalkyAnimationy(Direction.DOWN),
                                "walk_left": WalkyAnimationy(Direction.LEFT),
@@ -53,7 +55,7 @@ class PlayerAvatar(object):
         face = pygame.transform.scale(face, [24 * 4, 24 * 4])
         return face
 
-    def face_character(self, direction):
+    def face_feature(self, direction):
         y_img = Mundane.direction_feedback(direction, 3, 2, 1, 0)
         self.update_avatar_image(0, y_img)
 

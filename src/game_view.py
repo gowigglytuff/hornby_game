@@ -5,7 +5,7 @@ from animations_page_view_page import IndependentAnimation, BirdDisappearAnimati
 
 from graphics import BuiltOverlay
 from input_manager_controller_page import *
-from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar
+from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, BirdAvatar, FeatureAvatar
 from definitions import GameSettings, Types
 from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation, FourFrameAnimation
 from spritesheet import Spritesheet
@@ -153,9 +153,9 @@ class GameView(object):
     # region DRAWING FEATURES
     def draw_feature(self, feature_name, feature_type):
         feature_list = self.translate_feature_type(feature_type)
-        camera_x = -self.camera[0]
-        camera_y = -self.camera[1]
-        chosen_avatar = feature_list[feature_name]
+        camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
+        camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
+        chosen_avatar = feature_list[feature_name]  # type: FeatureAvatar
         feature_loc_x = camera_x + (feature_list[feature_name].image_x - 1) * self.square_size[0] + feature_list[feature_name].image_offset_x
         feature = camera_y + (feature_list[feature_name].image_y - 1) * self.square_size[1] - chosen_avatar.image_offset_y
         self.screen.blit(chosen_avatar.spritesheet.get_image(chosen_avatar.current_image_x, chosen_avatar.current_image_y), (feature_loc_x, feature))
@@ -169,8 +169,16 @@ class GameView(object):
 
     def draw_player(self):
         player = self.player_avatar
-        play_loc_x = (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
-        play_loc_y = player.image_y * self.square_size[1] - (self.square_size[1] + player.image_offset_y)
+        # camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
+        # camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
+        # play_loc_x = camera_x + (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
+        # play_loc_y = camera_y + player.image_y * self.square_size[1] - (self.square_size[1] + player.image_offset_y)
+
+        camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
+        camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
+        play_loc_x = (self.base_locator_x) * GameSettings.TILESIZE - player.image_offset_x
+        play_loc_y = (self.base_locator_y + 2) * GameSettings.TILESIZE - player.image_offset_y
+
         self.screen.blit(player.spritesheet.get_image(player.current_image_x, player.current_image_y), [play_loc_x, play_loc_y])
 
         if player.showing_bubble:
@@ -182,8 +190,8 @@ class GameView(object):
 
     def draw_bg(self, current_room):
         pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, self.resolution[0], self.resolution[1]))
-        camera_x = -self.camera[0]
-        camera_y = -self.camera[1]
+        camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
+        camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
         room = self.game_data.room_data_list[current_room]
         for plot in room.plot_list.keys():
             selected_plot = room.plot_list[plot]
@@ -192,8 +200,8 @@ class GameView(object):
             self.screen.blit(selected_plot.background_map[self.tile_frame], (camera_x + plot_location_x, camera_y + plot_location_y))
 
     def draw_independent_animation(self, animation_ob):
-        camera_x = -self.camera[0]
-        camera_y = -self.camera[1]
+        camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
+        camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
         anim_loc_x = camera_x + (animation_ob.image_x - 1) * self.square_size[0] + animation_ob.image_offset_x
         anim_loc_y = camera_y + (animation_ob.image_y - 1) * self.square_size[1] - animation_ob.image_offset_y
         self.screen.blit(animation_ob.spritesheet.get_image(animation_ob.current_image_x, animation_ob.current_image_y), (anim_loc_x, anim_loc_y))
@@ -566,6 +574,8 @@ class AnimationManager(object):
             animator.current_image_y = animation_result[3]
         self.gv.camera[0] += animation_result[0]
         self.gv.camera[1] += animation_result[1]
+        self.gv.player_avatar.image_x += (animation_result[0]/GameSettings.TILESIZE)
+        self.gv.player_avatar.image_y += (animation_result[1]/GameSettings.TILESIZE)
         complete = animation_result[4]
         if complete:
             animator.currently_animating = False

@@ -29,6 +29,8 @@ class PlayerGhost(object):
         self.current_outfit = "Normal Outfit"
         self.bubble_text = "Fuck"
         self.bubble_volume = "shout"
+        self.spawn_room = "Staging_Area"
+        self.active = True
 
     def return_base_coordinates_list(self, bottom_left_x, bottom_left_y):
         coordinates_list = []
@@ -450,3 +452,34 @@ class DecoGhost(FeatureGhost):
         super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.DECO
         self.feature_subtype = Types.DECO
+
+
+class PlayableGhost(ActorGhost):
+    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
+        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
+        self.feature_subtype = Types.CHARACTER
+        self.base_phrase = None
+        self.good_gift_phrase = None
+        self.bad_gift_phrase = None
+        self.neutral_gift_phrase = None
+        self.bird_hint_phrase = None
+        self.friend_phrase = None
+        self.friendship_level = 15
+        self.max_friendship = 16
+        self.good_gift_list = None
+        self.bad_gift_list = None
+        self.action_list = Switch()
+        self.feature_type = "Player"
+        self.feature_subtype = None
+        self.x = x
+        self.y = y
+        self.base_size_x = 1
+        self.base_size_y = 1
+        self.unique_name = "Player"
+        self.species = "Player"
+        self.cur_img = (0, 0)
+        self.state = "idle"
+        self.facing = Direction.DOWN
+        self.current_outfit = "Normal Outfit"
+        self.bubble_text = "Fuck"
+        self.bubble_volume = "shout"
