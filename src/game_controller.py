@@ -9,7 +9,7 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, BasketMenuGhost, DepositMenuGhost, SellItemMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, BasketMenuGhost, DepositMenuGhost, SellItemMenuGhost, DeveloperMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -142,6 +142,8 @@ class GameController(object):
         self.gs = game_state  # type: GameState
         self.game_data = game_data  # type: GameData
 
+        self.developer_mode_on = False
+
         self.active_keyboard_manager = None
         self.running_number = 1
         self.key_down_queue = []
@@ -153,6 +155,7 @@ class GameController(object):
         self.inventory_manager = InventoryManager(self)  # type:InventoryManager
         self.outfit_manager = OutfitManager(self)  # type: OutfitManager
         self.scene_manager = SceneManager(self)     # type: SceneManager
+        self.developer_tools = DeveloperTools(self)     # type: DeveloperTools
         self.feature_animations_in_progress = []
         self.scene_animations_in_progress = []
         self.move_counter = 0
@@ -172,40 +175,45 @@ class GameController(object):
         self.game_view.add_feature_avatar(unique_name, avatar_object)
     # endregion
 
-
     def switch_characters(self, target_character_unique_name):
-        current_character_ghost = copy.copy(self.gs.get_player_ghost())
-        current_character_avatar = copy.copy(self.gs.gv.get_player_avatar())
+        current_character_ghost = self.gs.get_player_ghost()
+        current_character_avatar = self.gs.gv.get_player_avatar()
 
-        target_character_ghost = copy.copy(self.gs.get_feature_ghost(target_character_unique_name))
-        target_character_avatar = copy.copy(self.gs.gv.get_feature_avatar(target_character_unique_name))
+        target_character_ghost = self.gs.get_feature_ghost(target_character_unique_name)
+        target_character_avatar = self.gs.gv.get_feature_avatar(target_character_unique_name)
 
-        target_character_ghost.feature_type = "Player"
-        target_character_ghost.feature_subtype = "Player"
-        target_character_ghost.species = "Player"
-        target_character_avatar.feature_type = "Player"
-        target_character_avatar.feature_subtype = "Player"
-        target_character_avatar.species = "Player"
+        print(current_character_avatar.image_x, current_character_avatar.image_y, target_character_avatar.image_x, target_character_avatar.image_y)
 
-        current_character_ghost.feature_type = Types.ACTOR
-        current_character_ghost.feature_subtype = Types.ACTOR
-        current_character_ghost.species = "Player"
-        current_character_avatar.feature_type = Types.ACTOR
-        current_character_avatar.feature_subtype = Types.ACTOR
-        current_character_avatar.species = "Player"
+        target_character_ghost.special_designation = "Player"
+        target_character_avatar.special_designation = "Player"
 
-        self.gs.player_ghost = target_character_ghost
-        self.gs.gv.player_avatar = target_character_avatar
+        current_character_ghost.special_designation = None
+        current_character_avatar.special_designation = None
+        current_character_ghost.update_spawn_to_current_location()
 
-        self.gs.feature_ghost_list.pop(target_character_ghost.unique_name)
-        self.gs.feature_ghost_list[current_character_ghost.unique_name] = current_character_ghost
-
-        self.gs.gv.feature_avatar_list[current_character_ghost.unique_name] = current_character_avatar
 
         camera_change_x = target_character_avatar.image_x - current_character_avatar.image_x
         camera_change_y = target_character_avatar.image_y - current_character_avatar.image_y
 
         self.gs.gv.manually_update_camera(camera_change_x, camera_change_y)
+
+        self.gs.current_player_unique_name = target_character_ghost.unique_name
+
+        target_room = target_character_ghost.current_room
+        if target_character_ghost.current_room is None:
+            target_room = target_character_ghost.spawn_room
+
+        if current_character_ghost.current_room != target_room:
+            self.change_room(target_room)
+
+
+
+        # self.gs.gv.player_avatar = target_character_avatar
+
+        # self.gs.feature_ghost_list.pop(target_character_ghost.unique_name)
+        # self.gs.feature_ghost_list[current_character_ghost.unique_name] = current_character_ghost
+
+        # self.gs.gv.feature_avatar_list[current_character_ghost.unique_name] = current_character_avatar
 
         self.gs.gv.refresh_drawables()
 
@@ -664,7 +672,8 @@ class GameController(object):
             vector_x = Mundane.direction_feedback(facing, -1, 1, 0, 0)
             vector_y = Mundane.direction_feedback(facing, 0, 0, -1, 1)
             animation = self.game_view.animation_manager.get_animation("snap_photo_" + direction)
-            self.game_view.player_avatar.initiate_animation(animation)
+            player_avatar = self.gs.gv.get_player_avatar()
+            player_avatar.initiate_animation(animation)
 
             camera_range = 2
             pl = self.gs.get_player_ghost_location()
@@ -741,7 +750,8 @@ class GameController(object):
 
     # region FEATURE MOVEMENT
     def check_if_player_already_animating(self):
-        return self.game_view.player_avatar.currently_animating
+        player_avatar = self.gs.gv.get_player_avatar()
+        return player_avatar.currently_animating
 
     def check_for_tile_transition(self, room_object, current_x, current_y, target_x, target_y):
         result = False
@@ -758,12 +768,13 @@ class GameController(object):
                     self.cancel_mermaid_crown()
 
     def initiate_player_movement(self, direction):
+        player_ghost = self.gs.get_player_ghost()
         room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
-        target_tile = self.position_manager.get_adjacent_tile(self.gs.player_ghost, direction, room_object)
-        target_x, target_y = self.position_manager.get_adjacent_coords(self.gs.player_ghost, direction)
+        target_tile = self.position_manager.get_adjacent_tile(player_ghost, direction, room_object)
+        target_x, target_y = self.position_manager.get_adjacent_coords(player_ghost, direction)
         self.gs.change_player_facing(direction)
-        move_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[0]
-        door_status = self.position_manager.check_if_player_can_move(direction, self.gs.player_ghost, room_object)[1]
+        move_status = self.position_manager.check_if_player_can_move(direction, player_ghost, room_object)[0]
+        door_status = self.position_manager.check_if_player_can_move(direction, player_ghost, room_object)[1]
         if door_status:
             self.go_through_door(room_object.room_name + "_" + str(target_x) + "_" + str(target_y))
         elif not door_status:
@@ -777,10 +788,11 @@ class GameController(object):
                 pass
 
     def initiate_spirit_movement(self, direction):
+        player_ghost = self.gs.get_player_ghost()
         room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
-        target_tile = self.position_manager.get_adjacent_tile(self.gs.player_ghost, direction, room_object)
+        target_tile = self.position_manager.get_adjacent_tile(player_ghost, direction, room_object)
         self.gs.change_player_facing(direction)
-        move_test = self.position_manager.check_if_spirit_can_move(direction, self.gs.player_ghost, room_object)
+        move_test = self.position_manager.check_if_spirit_can_move(direction, player_ghost, room_object)
         if move_test:
             player = self.gs.get_player_ghost()
             self.game_view.walk_player_avatar(direction)
@@ -894,19 +906,26 @@ class GameController(object):
     def act_on_key_down_cue(self):
         if not self.check_if_player_already_animating():
             direction = []
+            if self.key_down_queue == pygame.K_DOWN:
+                direction = Direction.DOWN
+            elif self.key_down_queue == pygame.K_UP:
+                direction = Direction.UP
+            elif self.key_down_queue == pygame.K_RIGHT:
+                direction = Direction.RIGHT
+            elif self.key_down_queue == pygame.K_LEFT:
+                direction = Direction.LEFT
+
             if self.key_down_queue:
-                if self.key_down_queue == pygame.K_DOWN:
-                    direction = Direction.DOWN
-                elif self.key_down_queue == pygame.K_UP:
-                    direction = Direction.UP
-                elif self.key_down_queue == pygame.K_RIGHT:
-                    direction = Direction.RIGHT
-                elif self.key_down_queue == pygame.K_LEFT:
-                    direction = Direction.LEFT
-                if self.active_keyboard_manager.ID == InGameKeyboardManager.ID:
-                    self.initiate_player_movement(direction)
-                elif self.active_keyboard_manager.ID == GhostEyeKeyboardManager.ID:
-                    self.initiate_spirit_movement(direction)
+                if pygame.K_LSHIFT in self.held_keys:
+                    direction_influence_x = Mundane.direction_feedback(direction, -1, 1, 0, 0)
+                    direction_influence_y = Mundane.direction_feedback(direction, 0, 0, -1, 1)
+                    speed = .25
+                    self.gs.gv.manually_update_camera(direction_influence_x*speed, direction_influence_y*speed)
+                else:
+                    if self.active_keyboard_manager.ID == InGameKeyboardManager.ID:
+                        self.initiate_player_movement(direction)
+                    elif self.active_keyboard_manager.ID == GhostEyeKeyboardManager.ID:
+                        self.initiate_spirit_movement(direction)
 
     # endregion
 
@@ -1011,7 +1030,6 @@ class GameController(object):
     def load_up_room(self, room_name):
         room_object = self.gs.get_room(room_name)
         self.position_manager.spawn_all_initial_room_elements(room_object)
-        self.position_manager.add_player_to_grid(room_name)
         self.game_view.refresh_drawables()
         self.gs.set_room(room_name)
 
@@ -1019,6 +1037,12 @@ class GameController(object):
         current_room = self.gs.get_current_room()
         self.reset_room(current_room.room_name)
         self.load_up_room(room_going_to)
+
+    def close_down_room(self, room_to_close_name):
+        self.reset_room(room_to_close_name)
+
+    def open_up_room(self, room_to_open_name):
+        self.load_up_room(room_to_open_name)
 
     def get_door(self, door_name):
         return self.game_data.door_data_list[door_name]
@@ -1035,10 +1059,13 @@ class GameController(object):
         self.gs.change_player_facing(door.exit_direction)
         current_room_object = self.gs.get_room(door.room_from)
         new_room_object = self.gs.get_room(door.room_to)
+        player_ghost.current_room = new_room_object.room_name
         self.position_manager.move_ghost(player_ghost, current_room_object, new_room_object, door.x_to, door.y_to)
         self.position_manager.match_player_elevation_to_target(new_room_object, door.x_to, door.y_to)
+        self.position_manager.add_player_to_grid(new_room_object.room_name)
         self.game_view.manually_update_camera(x_change, y_change)
         self.change_room(door.room_to)
+        self.game_view.refresh_drawables()
         self.play_sound("go_through_door")
     # endregion
 
@@ -1291,7 +1318,7 @@ class TriggerManager(object):
             features_in_room = self.gc.gs.get_all_features_in_room(self.gc.gs.get_current_room().room_name)
             seagull_count = 0
             for feature in features_in_room:
-                if feature.feature_type != "Player":
+                if feature.special_designation != "Player":
                     if feature.active and feature.species == "Seagull":
                         seagull_count += 1
 
@@ -1306,7 +1333,7 @@ class TriggerManager(object):
 class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
-        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
+        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, DeveloperMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, DepositMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost, SellerOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
                                BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
@@ -1386,6 +1413,19 @@ class MenuController(object):
                      "time": self.gc.menu_controller.get_game_time_string(),
                      "day": str(self.gc.gs.day_of_summer),
                      "selected_tool": str(self.gc.gs.selected_tool)}
+
+        return stat_dict
+
+    def get_developer_items(self):
+        player_ghost = self.gc.gs.get_player_ghost()
+        player_avatar = self.gc.gs.gv.get_player_avatar()
+        camera = self.gc.gs.gv.camera
+        room_name = self.gc.gs.get_current_room().room_name
+
+        stat_dict = {"Room": str(room_name),
+                     "Player": str(player_ghost.x) + ", " + str(player_ghost.y),
+                     "Image": str(player_avatar.image_x) + ", " + str(player_avatar.image_y),
+                     "Camera": str(camera[0]) + ", " + str(camera[1])}
 
         return stat_dict
 
@@ -1852,3 +1892,25 @@ class TimedTrigger(object):
             self.activate()
             complete = True
         return complete
+
+
+class DeveloperTools(object):
+    def __init__(self, gc):
+        self.gc = gc  # type: GameController
+        self.developer_mode_on = False
+        self.show_unique_names_on = False
+
+    def toggle_developer_mode_on(self):
+        if not self.developer_mode_on:
+            self.developer_mode_on = True
+            self.gc.gs.ms.add_static_menu(DeveloperMenuGhost.BASE)
+        else:
+            self.developer_mode_on = False
+            self.gc.gs.ms.remove_static_menu(DeveloperMenuGhost.BASE)
+
+    def toggle_name_display_on(self):
+        if not self.show_unique_names_on:
+            self.show_unique_names_on = True
+        else:
+            self.show_unique_names_on = False
+

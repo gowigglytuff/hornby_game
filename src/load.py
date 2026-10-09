@@ -104,7 +104,24 @@ def install_all_data(gc, gs):
         gc.import_classes_from_csv(deco_class_objects_file_name)
 
     def install_features(gc, gs):
-        gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
+        object_class = gs.gd.get_feature_class("Brandon")
+        spawn_facing = Direction.DOWN
+        display_name = "Brandon"
+        unique_name = "Brandon"
+        feature_ghost_object = object_class(gs, unique_name, display_name, "None", "Staging_Area",
+                                            1, 3, spawn_facing, "yes",
+                                            "Sup", "Sup", "Sup",
+                                            "Sup", "Sup", "0",
+                                            "0", "Sup", "{'Gift':'Milk-1'}", False)
+        feature_ghost_object.special_designation = "Player"
+        feature_ghost_object.active = True
+        feature_ghost_object.spawn_room = "Staging_Area"
+        feature_ghost_object.current_room = "Staging_Area"
+        gs.add_feature_ghost(unique_name, feature_ghost_object)
+        gs.current_player_unique_name = unique_name
+
+
+        # gs.add_player_ghost(PlayerGhost(gc.game.gs, 1, 3))
         for room_name in gs.gd.room_data_list.keys():
             print(room_name)
 
@@ -191,16 +208,16 @@ def install_all_data(gc, gs):
         pass
 
     def install_player_avatar(gc, gs):
-        player_ghost = gs.get_player_ghost()
-        gs.gv.add_player_avatar(PlayerAvatar(player_ghost.x, player_ghost.y))
-        # gs.gv.add_player_avatar(PlayerAvatar(gc.game_view.base_locator_x, gc.game_view.base_locator_y))
+        related_ghost = gs.get_player_ghost()
+        player_avatar = gc.get_avatar_class(related_ghost.feature_type)(related_ghost.species, related_ghost.x, related_ghost.y, related_ghost.unique_name, related_ghost.figure_size_x, related_ghost.figure_size_y, related_ghost.spawn_facing)
+        player_avatar.special_designation = "Player"
+        gs.gv.add_player_avatar(player_avatar)
         pass
 
     def install_avatar_all(gc, gs):
         feature_name_list = gs.get_all_feature_unique_names()
         for feature_item in feature_name_list:
             related_ghost = gc.gs.feature_ghost_list[feature_item]
-            print(feature_item)
             if related_ghost.species != "Jay":
                 gc.gs.gv.install_feature_avatar(related_ghost)
 
@@ -286,11 +303,8 @@ def install_all_data(gc, gs):
         pass
 
     def set_camera_position(gc, gs):
-        gs.gv.set_camera(gs.player_ghost.x, gs.player_ghost.y)
-
-    def fill_initial_room(gc, gs):
-        gc.position_manager.fill_room_grid(gc.game.gs.current_room)
-        gc.position_manager.add_player_to_grid(gc.game.gs.current_room)
+        player_ghost = gs.get_player_ghost()
+        gs.gv.set_camera(player_ghost.x, player_ghost.y)
 
     def initiate_mixer():
         pygame.mixer.init()
@@ -341,7 +355,6 @@ def install_all_data(gc, gs):
     initiate_mixer()
     add_sounds(gc, gs)
     add_sound_references(gc,gs)
-    fill_initial_room(gc, gs)
 
 
 

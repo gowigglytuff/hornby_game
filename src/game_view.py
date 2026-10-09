@@ -97,6 +97,8 @@ class GameView(object):
         self.shout_font = pygame.font.Font(self.font_file, self.shout_font_size)
         self.speak_font_size = 8
         self.speak_font = pygame.font.Font(self.font_file, self.speak_font_size)
+        self.small_font_size = 6
+        self.small_font = pygame.font.Font(self.font_file, self.small_font_size)
 
     def refresh_drawables(self):
         self.drawables_refreshed = True
@@ -167,8 +169,14 @@ class GameView(object):
                 self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
                 self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
 
+            if self.gs.gc.developer_tools.show_unique_names_on:
+                bubble_results = self.set_text_bubble_spacing(chosen_avatar, feature_loc_x, feature,
+                                                              chosen_avatar.unique_name, self.text_bubble_image, "small")
+                self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
+                self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
+
     def draw_player(self):
-        player = self.player_avatar
+        player_avatar = self.gs.gv.get_player_avatar()
         # camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
         # camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
         # play_loc_x = camera_x + (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
@@ -176,15 +184,15 @@ class GameView(object):
 
         camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
         camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
-        play_loc_x = (self.base_locator_x) * GameSettings.TILESIZE - player.image_offset_x
-        play_loc_y = (self.base_locator_y + 2) * GameSettings.TILESIZE - player.image_offset_y
+        play_loc_x = (self.base_locator_x) * GameSettings.TILESIZE - player_avatar.image_offset_x
+        play_loc_y = (self.base_locator_y + 2) * GameSettings.TILESIZE - player_avatar.image_offset_y
 
-        self.screen.blit(player.spritesheet.get_image(player.current_image_x, player.current_image_y), [play_loc_x, play_loc_y])
+        self.screen.blit(player_avatar.spritesheet.get_image(player_avatar.current_image_x, player_avatar.current_image_y), [play_loc_x, play_loc_y])
 
-        if player.showing_bubble:
-            bubble_results = self.set_text_bubble_spacing(player, play_loc_x, play_loc_y,
-                                                          player.bubble_text, self.text_bubble_image,
-                                                          player.bubble_volume)
+        if player_avatar.showing_bubble:
+            bubble_results = self.set_text_bubble_spacing(player_avatar, play_loc_x, play_loc_y,
+                                                          player_avatar.bubble_text, self.text_bubble_image,
+                                                          player_avatar.bubble_volume)
             self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
             self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
 
@@ -210,12 +218,13 @@ class GameView(object):
         self.draw_bg(current_room)
 
         for drawable in drawables_list:
-            if drawable[0].feature_type == "Player":
+            if drawable[0].special_designation == "Player":
                 self.draw_player()
-            elif drawable[0].feature_type == Types.INDANIM:
-                self.draw_independent_animation(drawable[0])
             else:
-                self.draw_feature(drawable[0].unique_name, drawable[0].feature_type)
+                if drawable[0].feature_type == Types.INDANIM:
+                    self.draw_independent_animation(drawable[0])
+                else:
+                    self.draw_feature(drawable[0].unique_name, drawable[0].feature_type)
 
     def set_drawables_list(self, player_location, feature_locations, anim_locations):
         drawables_list = []
@@ -344,7 +353,6 @@ class GameView(object):
     #     selected_menu_display_details["coordinates"][1] = master_menu_display_details["coordinates"][1]
 
     def update_sub_menu_display_details(self, menu_name, master_menu, information_from_ghost):
-        print("Here's the info boss", information_from_ghost.text_display_list)
         selected_sub_menu_avatar = self.get_menu_avatar(menu_name + "_avatar")
         # selected_menu_avatar.fill_out_menu_info(information_from_ghost)
         # selected_menu_display_details = selected_sub_menu_avatar.menu_display_details
@@ -363,8 +371,9 @@ class GameView(object):
 
     # region CAMERA
     def set_camera(self, player_ghost_x, player_ghost_y):
-        self.camera[0] = -(self.player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
-        self.camera[1] = -(self.player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
+        player_avatar = self.get_player_avatar()
+        self.camera[0] = -(player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
+        self.camera[1] = -(player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
 
     def manually_update_camera(self, x_change, y_change):
         self.camera[0] += (x_change * GameSettings.TILESIZE)
@@ -380,7 +389,8 @@ class GameView(object):
         self.player_avatar = player_object
 
     def get_player_avatar(self):
-        return self.player_avatar
+        # return self.player_avatar
+        return self.feature_avatar_list[self.gs.current_player_unique_name]
 
     def update_player_avatar_location(self, player_ghost_x, player_ghost_y):
         self.get_player_avatar().x_image = self.base_locator_x * player_ghost_x
@@ -402,7 +412,8 @@ class GameView(object):
             animation_name = name
 
         animation = self.animation_manager.get_animation(animation_name)
-        self.player_avatar.initiate_animation(animation)
+        player_avatar = self.get_player_avatar()
+        player_avatar.initiate_animation(animation)
 
     def walk_player_avatar(self, direction):
         animation_direction = "front"
@@ -422,7 +433,8 @@ class GameView(object):
             animation_speed = "run"
         animation_name = animation_speed + "_" + animation_direction
         animation = self.animation_manager.get_animation(animation_name)
-        self.player_avatar.initiate_animation(animation)
+        player_avatar = self.get_player_avatar()
+        player_avatar.initiate_animation(animation)
     # endregion
 
     #region FEATURE AVATARS
@@ -528,8 +540,9 @@ class AnimationManager(object):
         self.gv.gs.gc.feature_animations_in_progress.append(feature_unique_name)
 
     def ask_animator_to_animate(self):
+        player_avatar = self.gv.get_player_avatar()
         if self.gv.gs.gc.check_if_player_already_animating():
-            self.gv.animation_manager.perform_player_animation(self.gv.player_avatar)
+            self.gv.animation_manager.perform_player_animation(player_avatar)
 
         for feature_name in self.gv.gs.gc.feature_animations_in_progress:
             feature_ghost = self.gv.gs.get_feature_ghost(feature_name)
@@ -574,8 +587,9 @@ class AnimationManager(object):
             animator.current_image_y = animation_result[3]
         self.gv.camera[0] += animation_result[0]
         self.gv.camera[1] += animation_result[1]
-        self.gv.player_avatar.image_x += (animation_result[0]/GameSettings.TILESIZE)
-        self.gv.player_avatar.image_y += (animation_result[1]/GameSettings.TILESIZE)
+        player_avatar = self.gv.get_player_avatar()
+        player_avatar.image_x += (animation_result[0]/GameSettings.TILESIZE)
+        player_avatar.image_y += (animation_result[1]/GameSettings.TILESIZE)
         complete = animation_result[4]
         if complete:
             animator.currently_animating = False

@@ -7,9 +7,10 @@ from definitions import Direction, GameSettings, Types, Mundane
 
 class PlayerAvatar(object):
     def __init__(self, image_x, image_y):
-        self.species = "Player"
-        self.feature_type = "Player"
-        self.unique_name = "Player"
+        self.species = "Ghosty"
+        self.feature_type = Types.ACTOR
+        self.unique_name = "Ghosty"
+        self.special_designation = "Player"
         self.drawing_priority = 1
         self.character_frame_x = 32
         self.character_frame_y = 48
@@ -18,6 +19,7 @@ class PlayerAvatar(object):
         self.bubble_text = "Fuckers"
         self.bubble_volume = "shout"
         self.showing_bubble = False
+        self.spawn_facing = Direction.DOWN
         self.face_image = self.get_face_image()
         self.current_image_x = 0
         self.current_image_y = 0
@@ -68,12 +70,20 @@ class PlayerAvatar(object):
         self.current_image_x = image_x
         self.current_image_y = image_y
 
+    def reset_to_spawn(self, ghost):
+        self.image_x = ghost.spawn_x
+        self.image_y = ghost.spawn_y
+        self.face_feature(self.spawn_facing)
+        self.animation_frame = 0
+        self.currently_animating = False
+        self.current_animation = None
 
 class FeatureAvatar(object):
     def __init__(self, species, image_x, image_y, unique_name, base_size_x, base_size_y, spawn_facing):
         self.species = species
         self.spawn_facing = spawn_facing
         self.unique_name = unique_name
+        self.special_designation = None
         self.drawing_priority = 1
         self.feature_type = Types.DEFAULT
         self.character_frame_x = 24
@@ -303,6 +313,7 @@ class DecoAvatar(object):
         self.feature_type = Types.DECO
         self.species = species
         self.unique_name = unique_id
+        self.special_designation = None
         self.drawing_priority = 1
         self.character_frame_x = 32
         self.character_frame_y = 48

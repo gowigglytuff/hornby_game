@@ -570,6 +570,15 @@ class GameActionDialogueMenuAvatar(ListMenuAvatar):
         self.fill_out_menu_info()
 
 
+class DeveloperMenuAvatar(ListMenuAvatar):
+    NAME = "developer_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+        self.menu_display_details = {"default_width": 42, "default_height": 30, "align_x": "right", "align_y": "top", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+
 class GuideMenuAvatar(BaseMenuAvatar):
     NAME = "guide_menu_avatar"
 

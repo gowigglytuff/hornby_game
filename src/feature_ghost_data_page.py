@@ -15,22 +15,53 @@ if TYPE_CHECKING:
 class PlayerGhost(object):
     def __init__(self, gs_input, x, y):
         self.gs_input = gs_input
-        self.feature_type = "Player"
-        self.feature_subtype = None
+        self.feature_type = Types.ACTOR
+        self.feature_subtype = Types.ACTOR
         self.x = x
         self.y = y
+        self.spawn_x = self.x
+        self.spawn_y = self.y
+        self.spawn_facing = Direction.DOWN
         self.base_size_x = 1
         self.base_size_y = 1
-        self.unique_name = "Player"
-        self.species = "Player"
-        self.cur_img = (0, 0)
-        self.state = "idle"
+        self.figure_size_x = 1
+        self.figure_size_y = 1
+        self.unique_name = "Ghosty"
+        self.species = "Ghosty"
         self.facing = Direction.DOWN
         self.current_outfit = "Normal Outfit"
         self.bubble_text = "Fuck"
         self.bubble_volume = "shout"
         self.spawn_room = "Staging_Area"
+        self.spawn_active = True
         self.active = True
+        self.special_designation = "Player"
+
+        self.currently_animating = False
+        self.currently_chatting = False
+        self.marked_for_death = False
+        self.action_frequency = 1
+
+        self.base_phrase = "Cool"
+        self.good_gift_phrase = "Cool"
+        self.bad_gift_phrase = "Cool"
+        self.neutral_gift_phrase = "Cool"
+        self.bird_hint_phrase = "Cool"
+        self.friend_phrase = "Cool"
+        self.friendship_level = 15
+        self.max_friendship = 16
+        self.good_gift_list = None
+        self.bad_gift_list = None
+        self.action_list = Switch()
+        self.display_name = "Ghosty"
+
+    def check_if_busy(self):
+        busy = False
+        if self.currently_animating:
+            busy = True
+        if self.currently_chatting:
+            busy = True
+        return busy
 
     def return_base_coordinates_list(self, bottom_left_x, bottom_left_y):
         coordinates_list = []
@@ -40,6 +71,13 @@ class PlayerGhost(object):
                 y_coordinate = bottom_left_y - y
                 coordinates_list.append([x_coordinate, y_coordinate])
         return coordinates_list
+
+    def reset_to_spawn(self):
+        self.x = self.spawn_x
+        self.y = self.spawn_y
+        self.facing = self.spawn_facing
+        self.currently_animating = False
+        self.currently_chatting = False
 
 
 class FeatureGhost(ABC):
@@ -62,6 +100,7 @@ class FeatureGhost(ABC):
         self.spawn_active = spawn_active
         self.spawn_facing = spawn_facing
         self.spawn_room = spawn_room
+        self.current_room = spawn_room
 
         self.x = copy.copy(self.spawn_x)
         self.y = copy.copy(self.spawn_y)
@@ -71,6 +110,7 @@ class FeatureGhost(ABC):
         self.currently_chatting = False
         self.marked_for_death = False
         self.action_frequency = 1
+        self.special_designation = None
 
 
     def initiate_animation(self, animation_name):
@@ -118,6 +158,14 @@ class FeatureGhost(ABC):
         self.currently_animating = False
         self.currently_chatting = False
 
+    def update_spawn_to_current_location(self):
+        self.spawn_x = self.x
+        self.spawn_y = self.y
+        self.spawn_room = self.current_room
+        self.spawn_facing = self.facing
+        self.currently_animating = False
+        self.currently_chatting = False
+
     def get_removed(self):
         pass
 
@@ -154,6 +202,7 @@ class ActorGhost(FeatureGhost, ABC):
         self.action_list = None
         self.behaviour_trigger = self.assign_behaviour_trigger()
         self.behaviour_counter = copy.copy(self.behaviour_trigger)
+        self.current_outfit = "Default"
 
     def assign_behaviour_trigger(self):
         return random.randint(1, 100)
@@ -452,34 +501,3 @@ class DecoGhost(FeatureGhost):
         super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
         self.feature_type = Types.DECO
         self.feature_subtype = Types.DECO
-
-
-class PlayableGhost(ActorGhost):
-    def __init__(self, gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active):
-        super().__init__(gc_input, unique_name, display_name, function, spawn_room, spawn_x, spawn_y, spawn_facing, spawn_active)
-        self.feature_subtype = Types.CHARACTER
-        self.base_phrase = None
-        self.good_gift_phrase = None
-        self.bad_gift_phrase = None
-        self.neutral_gift_phrase = None
-        self.bird_hint_phrase = None
-        self.friend_phrase = None
-        self.friendship_level = 15
-        self.max_friendship = 16
-        self.good_gift_list = None
-        self.bad_gift_list = None
-        self.action_list = Switch()
-        self.feature_type = "Player"
-        self.feature_subtype = None
-        self.x = x
-        self.y = y
-        self.base_size_x = 1
-        self.base_size_y = 1
-        self.unique_name = "Player"
-        self.species = "Player"
-        self.cur_img = (0, 0)
-        self.state = "idle"
-        self.facing = Direction.DOWN
-        self.current_outfit = "Normal Outfit"
-        self.bubble_text = "Fuck"
-        self.bubble_volume = "shout"

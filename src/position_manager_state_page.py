@@ -13,6 +13,15 @@ class PositionManager(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
 
+    def print_map_of_room(self):
+        room_object = self.gc.gs.get_current_room()
+
+        for row in room_object.tiles_array:
+            row_model = []
+            for tile in row:
+                row_model.append(tile.filling_unique_name)
+            print(row_model)
+
     # region PLAYER MOVEMENT
     def check_if_player_can_move(self, direction, checker, room):
 
@@ -65,7 +74,7 @@ class PositionManager(object):
 
         # door test
         door_test = False
-        target_tile = self.get_adjacent_tile(self.gc.gs.player_ghost, direction, room)
+        target_tile = self.get_adjacent_tile(checker, direction, room)
         x = copy.copy(checker.x)
         y = copy.copy(checker.y)
 
@@ -156,7 +165,7 @@ class PositionManager(object):
         new_cube = target_room_object.access_cube(target_x, target_y)
         new_cube.fill_cube(feature_ghost.unique_name, feature_ghost.species, feature_ghost.feature_subtype)
 
-        if feature_ghost.feature_type == "Player":
+        if feature_ghost.special_designation == "Player":
             target_tile_elevation = self.get_tile_elevation(target_room_object.room_name, target_x, target_y)
             self.gc.gs.set_player_elevation(target_tile_elevation)
         else:
@@ -388,7 +397,7 @@ class PositionManager(object):
     def despawn_all_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
-            if ghost.species == "Player":
+            if ghost.special_designation == "Player":
                 pass
             else:
                 if ghost.active:
@@ -397,14 +406,16 @@ class PositionManager(object):
     def spawn_all_initial_room_elements(self, room_object):
         feature_ghosts = self.gc.gs.get_all_features_in_room(room_object.room_name)
         for ghost in feature_ghosts:
-            if ghost.species == "Player":
-                pass
-            else:
-                if ghost.spawn_active:
-                    self.spawn_room_feature(ghost.unique_name, room_object)
+            print(ghost.unique_name)
+            self.spawn_room_feature(ghost, room_object)
 
-    def spawn_room_feature(self, feature_name, room_object):
-        feature_ghost = self.gc.gs.get_feature_ghost(feature_name)
+    def spawn_room_feature(self, feature_object, room_object):
+        feature_ghost = []
+        if feature_object.special_designation == "Player":
+            feature_ghost = self.gc.gs.get_player_ghost()
+        else:
+            feature_ghost = self.gc.gs.get_feature_ghost(feature_object.unique_name)
+
         feature_ghost.active = True
 
         if feature_ghost.feature_type != Types.DECO:
@@ -542,19 +553,6 @@ class PositionManager(object):
         return result
     # endregion
 
-    def fill_room_grid(self, room_to_fill):
-        selected_room = self.gc.game.game_view.game_data.room_data_list[room_to_fill]
-        fill_list = []
-        feature_ghost_list = self.gc.game.gs.feature_ghost_list #ToDO: add a componenet that has lists of what is in what room
-        for feature in feature_ghost_list.keys():
-            feature_ghost = self.gc.gs.get_feature_ghost(feature)
-            if feature_ghost.feature_type != Types.DECO:
-                if feature_ghost.spawn_room == room_to_fill and feature_ghost.active:
-                    fill_list.append(feature_ghost)
-
-        for item in fill_list:
-            self.add_feature_to_grid(item, selected_room)
-
     def add_feature_to_grid(self, feature_ghost, selected_room):
         coordinates_list = feature_ghost.return_base_coordinates_list(feature_ghost.x, feature_ghost.y)
         selected_room.add_feature(feature_ghost.unique_name, feature_ghost.species, feature_ghost.feature_subtype, coordinates_list)
@@ -567,9 +565,9 @@ class PositionManager(object):
 
     def add_player_to_grid(self, room_name):
         selected_room = self.gc.game.game_view.game_data.room_data_list[room_name]
-        player = self.gc.gs.get_player_ghost()
-        player_coordinates = [[player.x, player.y]]
-        selected_room.add_feature("Player", "Player", player.feature_subtype, player_coordinates)
+        player_ghost = self.gc.gs.get_player_ghost()
+        player_coordinates = [[player_ghost.x, player_ghost.y]]
+        selected_room.add_feature(player_ghost.unique_name, player_ghost.unique_name, player_ghost.feature_subtype, player_coordinates)
 
     def clear_room_grid(self, room_to_clear):
         selected_room = self.gc.game.game_view.game_data.room_data_list[room_to_clear]

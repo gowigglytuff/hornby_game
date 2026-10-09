@@ -4,7 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -172,6 +172,48 @@ class StartMenuGhost(MenuGhost):
         if choice is not None:
             menu_selection = choice
         self.gc.menu_controller.start_menu_selection(menu_selection)
+
+
+class DeveloperMenuGhost(MenuGhost):
+    BASE = "developer_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = DeveloperMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_item_list = []
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = None
+        # self.prepare_menu_for_display()
+
+    def prepare_menu_for_display(self):
+        stat_dict = self.gc.menu_controller.get_developer_items()
+        self.menu_item_list = ["Room: " + stat_dict["Room"], "Player:" + stat_dict["Player"], "Image: " + stat_dict["Image"],
+                               "Camera: " + stat_dict["Camera"]]
+
+    def get_current_menu_item(self):
+        menu_selection = self.menu_item_list[self.cursor_at[1]]
+        return menu_selection
+
+    def generate_menu_information_package(self):
+        self.prepare_menu_for_display()
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"header": self.menu_header,
+                        "text_display_list": text_display_list,
+                        "cursor_image": cursor_image,
+                        "cursor_at": cursor_at}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
 
 
 class WordsMenuGhost(MenuGhost):
@@ -1018,6 +1060,7 @@ class SellItemMenuGhost(SuppliesInventoryMenuGhost):
                 displayable_item_list.append((item, price))
 
         return displayable_item_list
+
 
 class ChatMenuGhost(MenuGhost):
     BASE = "chat_menu"

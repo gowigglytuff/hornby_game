@@ -134,6 +134,8 @@ class InGameKeyboardManager(KeyboardManager):
                                     "return": [self.gc.clear_key_down_cue, self.gc.player_interact, self.gc.gs.produce_player_coords],
                                     "space": [self.gc.snap_photo],
                                     "a": [self.gc.activate_mermaid_crown],
+                                    "x": [self.gc.developer_tools.toggle_developer_mode_on],
+                                    "c": [self.gc.developer_tools.toggle_name_display_on],
                                     "s": [self.gc.activate_ghost_eye],
                                     "left ctrl": [self.gc.clear_key_down_cue, self.gc.menu_controller.set_start_menu],
                                     "left shift": [self.key_lshift_pressed],
@@ -211,7 +213,6 @@ class InGameKeyboardManager(KeyboardManager):
         #     return result
         #
         # def reaction(gc):
-        #     print("it happened!")
         #
         # self.gc.game.game_events.add_delayed_trigger(condition, reaction)
         # scene = Scene(self, [("animation", PlayerSlideAnimation(Direction.LEFT, 2, Direction.UP, 3))])
@@ -223,9 +224,6 @@ class InGameKeyboardManager(KeyboardManager):
         # scene_action = ("animation", CameraPanAnimation(direction_x, x_change))
         # self.gc.scene_manager.play_scene(Scene(self, [self.gc.held_step]))
 
-        # print(self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu"))
-        # print(self.gc.game_data.treasure_item_data_list)
-        # print(self.gc.gs.current_treasure_inventory_dictionary)
         # self.gc.player_speak("shout", "Balloon!")
         # self.gc.actor_speak("Towhee_1627", "Shout", "TWEET!")
 
@@ -241,6 +239,9 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.menu_controller.set_menu(QuizMenuGhost.BASE, details)
 
         self.gc.switch_characters("Jim_5")
+
+        self.gc.position_manager.print_map_of_room()
+
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:

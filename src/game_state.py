@@ -31,6 +31,7 @@ class GameState(object):
 
         self.selected_tool = "Pickaxe"
         self.player_ghost = PlayerGhost(self, 1, 3)  # type: PlayerGhost
+        self.current_player_unique_name = None
         self.feature_ghost_list = {}
         # self.deco_ghost_list = {}
         self.current_outfit = "green_shirt"
@@ -132,9 +133,10 @@ class GameState(object):
     #             self.action_queue.pop(actor_ghost_name)
 
     def act_on_action_queue(self):
+        player_name = self.get_player_ghost().unique_name
         remove_list = []
         for actor_ghost_name in self.action_queue.keys():
-            if actor_ghost_name == "Player":
+            if actor_ghost_name == player_name:
                 player_ghost = self.get_player_ghost()
                 # is_busy = actor_ghost.check_if_busy()
                 action_object = self.action_queue[actor_ghost_name]
@@ -200,7 +202,8 @@ class GameState(object):
                 self.recently_completed_actions.append(self.action_queue.pop(actor_ghost_name))
 
     def execute_action_step(self, actor_ghost_name, action_object):
-        if actor_ghost_name == "Player":
+        player_name = self.get_player_ghost().unique_name
+        if actor_ghost_name == player_name:
             player_avatar = self.gv.get_player_avatar()
             player_ghost = self.get_player_ghost()
 
@@ -504,7 +507,7 @@ class GameState(object):
         self.gv.delete_feature_avatar_forever(feature_unique_name)
 
     def add_feature_ghost(self, feature_name, feature_object):
-        print(feature_name, feature_object.x, feature_object.y)
+        # print(feature_name)
         self.feature_ghost_list[feature_name] = feature_object
 
     def delete_feature_ghost_forever(self, feature_unique_name):
@@ -545,13 +548,13 @@ class GameState(object):
 
     def get_feature_locations(self):
         location_list = []
-
         ghost_list = self.feature_ghost_list
 
         for item in ghost_list.keys():
             item_ghost = self.get_feature_ghost(item)
-            if ghost_list[item].spawn_room == self.current_room and item_ghost.active:
-                location_list.append([item, item_ghost.y, item_ghost.x])
+            if item_ghost.special_designation != "Player":
+                if ghost_list[item].current_room == self.current_room and item_ghost.active:
+                    location_list.append([item, item_ghost.y, item_ghost.x])
 
         player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
 
@@ -570,9 +573,8 @@ class GameState(object):
 
     def get_all_features_in_room(self, room_name):
         feature_list = []
-        feature_list.append(self.get_player_ghost())
         for item in self.feature_ghost_list.values():
-            if item.spawn_room == room_name:
+            if item.current_room == room_name:
                 feature_list.append(item)
         return feature_list
     # endregion
@@ -647,10 +649,12 @@ class GameState(object):
         self.player_ghost = player_object
 
     def change_player_ghost_facing(self, direction):
-        self.player_ghost.facing = direction
+        player_ghost = self.get_player_ghost()
+        player_ghost.facing = direction
 
     def get_player_ghost_location(self):
-        player_location = [self.get_player_ghost().x, self.get_player_ghost().y]
+        player_ghost = self.get_player_ghost()
+        player_location = [player_ghost.x, player_ghost.y]
         return player_location
 
     def get_current_player_elevation(self):
@@ -660,14 +664,16 @@ class GameState(object):
         self.current_player_elevation = new_elevation
 
     def get_player_ghost(self):
-        return self.player_ghost
+        return self.feature_ghost_list[self.current_player_unique_name]
 
     def produce_player_coords(self):
-        print(self.player_ghost.x, self.player_ghost.y)
+        player_ghost = self.get_player_ghost()
+        print(player_ghost.x, player_ghost.y)
 
     def change_player_facing(self, direction):
         final_facing = direction
-        current_facing = self.player_ghost.facing
+        player_ghost = self.get_player_ghost()
+        current_facing = player_ghost.facing
         if direction == Direction.MATCH:
             final_facing = current_facing
         elif direction == Direction.SWITCH:
@@ -680,7 +686,8 @@ class GameState(object):
             elif current_facing == Direction.RIGHT:
                 final_facing = Direction.LEFT
         self.change_player_ghost_facing(final_facing)
-        self.gv.player_avatar.face_feature(final_facing)
+        player_avatar = self.gv.get_player_avatar()
+        player_avatar.face_feature(final_facing)
     # endregion
 
 class MenuState(object):
@@ -723,6 +730,12 @@ class MenuState(object):
         self.menu_stack.insert(0, menu_to_add)
         self.add_menu_to_visible(menu_to_add)
 
+    def add_static_menu(self, menu_to_add_base):
+        self.static_menus.append(menu_to_add_base)
+
+    def remove_static_menu(self, menu_to_remove_base):
+        self.static_menus.remove(menu_to_remove_base)
+
     def add_menu_to_visible(self, menu_to_add):
         chosen_menu = self.get_menu_ghost(menu_to_add)
         self.visible_menus.insert(0, menu_to_add)
@@ -752,7 +765,7 @@ class ConditionChecker(object):
 
     def check_player_on_tile(self, room_name, coords_list):
         result = False
-        pl = self.gs.player_ghost
+        pl = self.gs.get_player_ghost()
         if room_name == self.gs.current_room:
             for tile in coords_list:
                 if pl.x == tile[0] and pl.y == tile[1]:

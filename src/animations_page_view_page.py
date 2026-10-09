@@ -35,6 +35,7 @@ from spritesheet import Spritesheet
 
 class IndependentAnimation(object):
     def __init__(self, animation_name):
+        self.special_designation = None
         self.unique_name = animation_name
         self.direction = None
         self.current_frame = 0
