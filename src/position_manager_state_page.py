@@ -787,6 +787,7 @@ class PositionManager(object):
 
 class Room(object):
     def __init__(self, room_name, x_size, y_size):
+        self.loaded_up = False
         self.room_name = room_name
         self.x_size = x_size
         self.y_size = y_size
@@ -914,6 +915,12 @@ class Room(object):
             feature_cube.fill_cube(feature_name, feature_type, feature_subtype)
 
     # endregion
+
+    def load(self):
+        self.loaded_up = True
+
+    def unload(self):
+        self.loaded_up = False
 
     def get_plot_information(self):
         plots_x = self.total_plots_x

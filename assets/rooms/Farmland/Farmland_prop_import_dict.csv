@@ -1,0 +1,9 @@
+﻿species,House,display_name,Farmhouse,function,None,spawn_room,Farmland,spawn_x,36,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Coop,display_name,Chicken Coop,function,None,spawn_room,Farmland,spawn_x,44,spawn_y,6,spawn_facing,Down,spawn_active,yes
+species,Stable,display_name,Stable,function,None,spawn_room,Farmland,spawn_x,40,spawn_y,35,spawn_facing,Down,spawn_active,yes
+species,Heart_Gate,display_name,Heart Gate,function,{'Lock':'Heart'},spawn_room,Farmland,spawn_x,15,spawn_y,19,spawn_facing,Down,spawn_active,yes
+species,X_Gate,display_name,X Gate,function,{'Lock':'X'},spawn_room,Farmland,spawn_x,34,spawn_y,38,spawn_facing,Down,spawn_active,yes
+species,Tractor,display_name,Tractor,function,None,spawn_room,Farmland,spawn_x,33,spawn_y,28,spawn_facing,Down,spawn_active,yes
+species,Akita,display_name,Akita,function,None,spawn_room,Farmland,spawn_x,34,spawn_y,8,spawn_facing,Down,spawn_active,yes
+species,Pointer,display_name,Pointer,function,None,spawn_room,Farmland,spawn_x,39,spawn_y,10,spawn_facing,Down,spawn_active,yes
+species,Pink_Birdfeeder,display_name,Feeder,function,{'Feeder':'Pink-Flamingo'},spawn_room,Farmland,spawn_x,2,spawn_y,16,spawn_facing,Down,spawn_active,yes

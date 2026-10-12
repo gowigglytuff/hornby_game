@@ -40,7 +40,7 @@ class IndependentAnimation(object):
         self.direction = None
         self.current_frame = 0
         self.frequency = 0
-        self.drawing_priority = 1
+        self.drawing_priority = 2
         self.feature_type = Types.INDANIM
         self.unique_name = None
 

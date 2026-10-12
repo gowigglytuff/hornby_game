@@ -1,0 +1,3 @@
+﻿species,Chicken,display_name,Chicken,function,None,spawn_room,Farmland,spawn_x,44,spawn_y,9,spawn_facing,Left,spawn_active,yes
+species,Chicken,display_name,Chicken,function,None,spawn_room,Farmland,spawn_x,47,spawn_y,8,spawn_facing,Right,spawn_active,yes
+species,Chicken,display_name,Chicken,function,None,spawn_room,Farmland,spawn_x,45,spawn_y,7,spawn_facing,Down,spawn_active,yes

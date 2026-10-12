@@ -40,6 +40,7 @@ class GameState(object):
 
         self.new_game = True
         self.current_room = "Staging_Area"
+        self.current_view_room = None
         self.current_player_elevation = 3
 
         self.your_coins = 127
@@ -546,19 +547,17 @@ class GameState(object):
         for item in remove_list:
             self.accessible_terrains.remove(item)
 
-    def get_feature_locations(self):
-        location_list = []
+    def get_active_features_in_room_ghost_data(self, room_name):
+        ghost_location_list = []
         ghost_list = self.feature_ghost_list
 
         for item in ghost_list.keys():
             item_ghost = self.get_feature_ghost(item)
-            if item_ghost.special_designation != "Player":
-                if ghost_list[item].current_room == self.current_room and item_ghost.active:
-                    location_list.append([item, item_ghost.y, item_ghost.x])
 
-        player_location = [self.get_player_ghost().y, self.get_player_ghost().x]
+            if ghost_list[item].current_room == room_name and item_ghost.active:
+                ghost_location_list.append(item_ghost)
 
-        return player_location, location_list
+        return ghost_location_list
     # endregion
 
     # region ROOM STUFF
@@ -568,7 +567,7 @@ class GameState(object):
     def get_room(self, room_name):
         return self.gv.game_data.room_data_list[room_name]
 
-    def set_room(self, room_name):
+    def set_current_room(self, room_name):
         self.current_room = room_name
 
     def get_all_features_in_room(self, room_name):

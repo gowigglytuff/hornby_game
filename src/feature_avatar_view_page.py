@@ -11,7 +11,7 @@ class PlayerAvatar(object):
         self.feature_type = Types.ACTOR
         self.unique_name = "Ghosty"
         self.special_designation = "Player"
-        self.drawing_priority = 1
+        self.drawing_priority = 2
         self.character_frame_x = 32
         self.character_frame_y = 48
         self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/player_green_shirt_spritesheet.png", self.character_frame_x, self.character_frame_y)
@@ -84,7 +84,7 @@ class FeatureAvatar(object):
         self.spawn_facing = spawn_facing
         self.unique_name = unique_name
         self.special_designation = None
-        self.drawing_priority = 1
+        self.drawing_priority = 2
         self.feature_type = Types.DEFAULT
         self.character_frame_x = 24
         self.character_frame_y = 36

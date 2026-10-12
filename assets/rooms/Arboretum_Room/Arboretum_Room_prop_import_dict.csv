@@ -1,8 +1,16 @@
 ﻿species,Alder,display_name,Alder,function,None,spawn_room,Arboretum_Room,spawn_x,2,spawn_y,25,spawn_facing,Down,spawn_active,yes
 species,Arbutus,display_name,Arbutus,function,None,spawn_room,Arboretum_Room,spawn_x,4,spawn_y,25,spawn_facing,Down,spawn_active,yes
 species,Pine,display_name,Pine,function,None,spawn_room,Arboretum_Room,spawn_x,6,spawn_y,25,spawn_facing,Down,spawn_active,yes
-species,Oak,display_name,Oak,function,None,spawn_room,Arboretum_Room,spawn_x,8,spawn_y,25,spawn_facing,Down,spawn_active,yes
+species,Fir,display_name,Fir,function,None,spawn_room,Arboretum_Room,spawn_x,8,spawn_y,25,spawn_facing,Down,spawn_active,yes
 species,Apple_Tree,display_name,Apple Tree,function,None,spawn_room,Arboretum_Room,spawn_x,2,spawn_y,23,spawn_facing,Down,spawn_active,yes
-species,Scotch_Broom,display_name,Scotch Broom,function,None,spawn_room,Arboretum_Room,spawn_x,4,spawn_y,23,spawn_facing,Down,spawn_active,yes
-species,Hawthorn,display_name,Hawthorn,function,None,spawn_room,Arboretum_Room,spawn_x,6,spawn_y,23,spawn_facing,Down,spawn_active,yes
+species,Oak,display_name,Oak,function,None,spawn_room,Arboretum_Room,spawn_x,4,spawn_y,23,spawn_facing,Down,spawn_active,yes
+species,White_Poplar,display_name,White Poplar,function,None,spawn_room,Arboretum_Room,spawn_x,6,spawn_y,23,spawn_facing,Down,spawn_active,yes
 species,Cottonwood,display_name,Cottonwood,function,None,spawn_room,Arboretum_Room,spawn_x,8,spawn_y,23,spawn_facing,Down,spawn_active,yes
+species,Willow,display_name,Willow,function,None,spawn_room,Arboretum_Room,spawn_x,2,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Cottonwood,display_name,Cottonwood,function,None,spawn_room,Arboretum_Room,spawn_x,4,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Cottonwood,display_name,Cottonwood,function,None,spawn_room,Arboretum_Room,spawn_x,6,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Cottonwood,display_name,Cottonwood,function,None,spawn_room,Arboretum_Room,spawn_x,8,spawn_y,21,spawn_facing,Down,spawn_active,yes
+species,Nootka_Rose,display_name,Nootka Rose,function,None,spawn_room,Arboretum_Room,spawn_x,2,spawn_y,17,spawn_facing,Down,spawn_active,yes
+species,Hawthorn,display_name,Hawthorn,function,None,spawn_room,Arboretum_Room,spawn_x,4,spawn_y,17,spawn_facing,Down,spawn_active,yes
+species,Scotch_Broom,display_name,Scotch Broom,function,None,spawn_room,Arboretum_Room,spawn_x,6,spawn_y,17,spawn_facing,Down,spawn_active,yes
+species,Ocean_Spray,display_name,Ocean Spray,function,None,spawn_room,Arboretum_Room,spawn_x,8,spawn_y,17,spawn_facing,Down,spawn_active,yes

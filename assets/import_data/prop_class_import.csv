@@ -103,3 +103,5 @@ type,Prop,feature_subtype,Prop,species,Stove,base_size_x,1,base_size_y,1,figure_
 type,Prop,feature_subtype,Prop,species,Chair_Right,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Chair_Left,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
 type,Prop,feature_subtype,Prop,species,Tire,base_size_x,1,base_size_y,1,figure_size_x,1,figure_size_y,1
+type,Prop,feature_subtype,Prop,species,Coop,base_size_x,4,base_size_y,2,figure_size_x,4,figure_size_y,3
+type,Prop,feature_subtype,Prop,species,Stable,base_size_x,3,base_size_y,2,figure_size_x,3,figure_size_y,4

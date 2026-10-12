@@ -9,6 +9,7 @@ from feature_avatar_view_page import CharacterAvatar, PropAvatar, DecoAvatar, Bi
 from definitions import GameSettings, Types
 from new_animations import UpdownAnimation, LookAroundAnimation, WalkyAnimationy, RunAnimationy, SpeedWalkyAnimationy, SnapPhotoAnimation, HoldAnimation, FourFrameAnimation
 from spritesheet import Spritesheet
+
 if TYPE_CHECKING:
     from game_state import GameData, GameState
 
@@ -53,7 +54,7 @@ class OutfitManager(object):
         for outfit in outfits_list.keys():
             if outfits_list[outfit].acquired:
                 acquired_outfits.append(outfits_list[outfit])
-        final_list = sorted(acquired_outfits, key = lambda x: x.display_name)
+        final_list = sorted(acquired_outfits, key=lambda x: x.display_name)
         return final_list
 
 
@@ -72,8 +73,10 @@ class GameView(object):
         self.base_locator_y = (((self.resolution[1] - self.square_size[1]) / self.square_size[1]) / 2 + 1) - GameSettings.SCREEN_OFFSET_Y
         self.avatar_classes = {Types.BIRD: BirdAvatar, Types.ACTOR: CharacterAvatar, Types.CHARACTER: CharacterAvatar, Types.SELLER: CharacterAvatar, Types.FRIEND: CharacterAvatar, Types.PROP: PropAvatar, Types.DECO: DecoAvatar}
 
-        self.camera = [0, 0]
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (100, 50)
+        self.in_game_camera = [0, 0]
+        self.view_camera = [0, 0]
+        self.camera = self.in_game_camera
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (400, 60)
         self.screen = pygame.display.set_mode(self.resolution)
         self.font_file = "assets/fonts/PressStart.ttf"
 
@@ -100,6 +103,12 @@ class GameView(object):
         self.small_font_size = 6
         self.small_font = pygame.font.Font(self.font_file, self.small_font_size)
 
+    def switch_active_camera(self, new_camera):
+        if new_camera == "in_game":
+            self.camera = self.in_game_camera
+        elif new_camera == "view":
+            self.camera = self.view_camera
+
     def refresh_drawables(self):
         self.drawables_refreshed = True
 
@@ -117,23 +126,13 @@ class GameView(object):
         elif ref == 3:
             self.tile_frame = 0
 
-    def translate_feature_type(self, type):
-        list = None
-        if type == Types.ACTOR:
-            list = self.feature_avatar_list
-        elif type == Types.DECO:
-            list = self.feature_avatar_list
-        elif type == Types.PROP:
-            list = self.feature_avatar_list
-        return list
-
     def set_text_bubble_spacing(self, avatar, avatar_loc_x, avatar_loc_y, bubble_text, box_image, volume):
         box_width = box_image.get_width()
         bubble_offset_x = (box_width - avatar.character_frame_x) / 2
         bubble_x_loc = avatar_loc_x - bubble_offset_x
-        bubble_y_loc = avatar_loc_y - (avatar.character_frame_y/2)
+        bubble_y_loc = avatar_loc_y - (avatar.character_frame_y / 2)
 
-        font = getattr(self, volume.lower() +"_font")
+        font = getattr(self, volume.lower() + "_font")
         font_size = getattr(self, volume.lower() + "_font_size")
         text_colour = (0, 0, 0)
         if volume == "Whisper":
@@ -144,7 +143,7 @@ class GameView(object):
 
         item_text = font.render(bubble_text, True, text_colour)
 
-        text_offset_x = int((box_width/2) - (pixels_of_text/2))
+        text_offset_x = int((box_width / 2) - (pixels_of_text / 2))
         text_offset_y = 9
 
         text_x_loc = text_offset_x + bubble_x_loc
@@ -153,48 +152,25 @@ class GameView(object):
         return box_image, bubble_x_loc, bubble_y_loc, item_text, text_x_loc, text_y_loc
 
     # region DRAWING FEATURES
-    def draw_feature(self, feature_name, feature_type):
-        feature_list = self.translate_feature_type(feature_type)
+    def draw_feature(self, feature_avatar):
         camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
         camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
-        chosen_avatar = feature_list[feature_name]  # type: FeatureAvatar
-        feature_loc_x = camera_x + (feature_list[feature_name].image_x - 1) * self.square_size[0] + feature_list[feature_name].image_offset_x
-        feature = camera_y + (feature_list[feature_name].image_y - 1) * self.square_size[1] - chosen_avatar.image_offset_y
-        self.screen.blit(chosen_avatar.spritesheet.get_image(chosen_avatar.current_image_x, chosen_avatar.current_image_y), (feature_loc_x, feature))
+        feature_loc_x = camera_x + (feature_avatar.image_x - 1) * self.square_size[0] + feature_avatar.image_offset_x
+        feature_loc_y = camera_y + (feature_avatar.image_y - 1) * self.square_size[1] - feature_avatar.image_offset_y
+        self.screen.blit(feature_avatar.spritesheet.get_image(feature_avatar.current_image_x, feature_avatar.current_image_y), (feature_loc_x, feature_loc_y))
 
-        if feature_type == Types.ACTOR:
-            if chosen_avatar.showing_bubble or chosen_avatar.unique_name == "Coot_386":
-                bubble_results = self.set_text_bubble_spacing(chosen_avatar, feature_loc_x, feature,
-                                                              chosen_avatar.bubble_text, self.text_bubble_image, chosen_avatar.bubble_volume)
+        if feature_avatar.feature_type == Types.ACTOR:
+            if feature_avatar.showing_bubble:
+                bubble_results = self.set_text_bubble_spacing(feature_avatar, feature_loc_x, feature_loc_y,
+                                                              feature_avatar.bubble_text, self.text_bubble_image, feature_avatar.bubble_volume)
                 self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
                 self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
 
             if self.gs.gc.developer_tools.show_unique_names_on:
-                bubble_results = self.set_text_bubble_spacing(chosen_avatar, feature_loc_x, feature,
-                                                              chosen_avatar.unique_name, self.text_bubble_image, "small")
+                bubble_results = self.set_text_bubble_spacing(feature_avatar, feature_loc_x, feature_loc_y,
+                                                              feature_avatar.unique_name, self.text_bubble_image, "small")
                 self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
                 self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
-
-    def draw_player(self):
-        player_avatar = self.gs.gv.get_player_avatar()
-        # camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
-        # camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
-        # play_loc_x = camera_x + (player.image_x * self.square_size[0]) - (self.square_size[0] - player.image_offset_x)
-        # play_loc_y = camera_y + player.image_y * self.square_size[1] - (self.square_size[1] + player.image_offset_y)
-
-        camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
-        camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
-        play_loc_x = (self.base_locator_x) * GameSettings.TILESIZE - player_avatar.image_offset_x
-        play_loc_y = (self.base_locator_y + 2) * GameSettings.TILESIZE - player_avatar.image_offset_y
-
-        self.screen.blit(player_avatar.spritesheet.get_image(player_avatar.current_image_x, player_avatar.current_image_y), [play_loc_x, play_loc_y])
-
-        if player_avatar.showing_bubble:
-            bubble_results = self.set_text_bubble_spacing(player_avatar, play_loc_x, play_loc_y,
-                                                          player_avatar.bubble_text, self.text_bubble_image,
-                                                          player_avatar.bubble_volume)
-            self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
-            self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
 
     def draw_bg(self, current_room):
         pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, self.resolution[0], self.resolution[1]))
@@ -218,39 +194,30 @@ class GameView(object):
         self.draw_bg(current_room)
 
         for drawable in drawables_list:
-            if drawable[0].special_designation == "Player":
-                self.draw_player()
+            if drawable.feature_type == Types.INDANIM:
+                self.draw_independent_animation(drawable)
             else:
-                if drawable[0].feature_type == Types.INDANIM:
-                    self.draw_independent_animation(drawable[0])
-                else:
-                    self.draw_feature(drawable[0].unique_name, drawable[0].feature_type)
+                self.draw_feature(drawable)
 
-    def set_drawables_list(self, player_location, feature_locations, anim_locations):
+    def set_drawables_list(self, active_ghosts_in_room, active_ind_anims_in_room):
         drawables_list = []
 
-        for feature in feature_locations:
-            feature_avatar = self.get_feature_avatar(feature[0])
-            drawables_list.append([feature_avatar, feature[1], feature_avatar.drawing_priority])
+        for feature_ghost in active_ghosts_in_room:
+            feature_avatar = self.get_feature_avatar(feature_ghost.unique_name)
+            drawables_list.append(feature_avatar)
 
-        for ind_anim in anim_locations:
-            drawables_list.append([ind_anim[0], ind_anim[1], ind_anim[2]])
-
-        # player_avatar = self.get_player_avatar()
-        # drawables_list.append([player_avatar, player_location[0], player_avatar.drawing_priority])
-
-        drawing_order = sorted(drawables_list, key=lambda x: (x[1], x[2]))
+        for ind_anim in active_ind_anims_in_room:
+            drawables_list.append(ind_anim)
 
         self.current_drawable = drawables_list
 
-    def get_drawables_list(self, player_location, feature_locations, anim_locations):
+    def get_drawables_list(self):
         drawables = copy.copy(self.current_drawable)
-        player_avatar = self.get_player_avatar()
-        drawables.append([player_avatar, player_location[0], player_avatar.drawing_priority])
 
-        drawing_order = sorted(drawables, key=lambda x: (x[1], x[2]))
+        drawing_order = sorted(drawables, key=lambda x: (x.image_y, x.drawing_priority))
 
         return drawing_order
+
     # endregion
 
     # region MENU AVATARS and DRAWING
@@ -366,7 +333,6 @@ class GameView(object):
         selected_menu_avatar = self.menu_avatar_data_list[menu_name + "_avatar"]
         selected_menu_avatar.fill_out_menu_info(information_from_ghost)
 
-
     # endregion
 
     # region CAMERA
@@ -374,6 +340,11 @@ class GameView(object):
         player_avatar = self.get_player_avatar()
         self.camera[0] = -(player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
         self.camera[1] = -(player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
+        print(self.camera)
+
+    def set_camera_to_zero(self):
+        self.camera[0] = 0
+        self.camera[1] = 0
 
     def manually_update_camera(self, x_change, y_change):
         self.camera[0] += (x_change * GameSettings.TILESIZE)
@@ -382,6 +353,7 @@ class GameView(object):
     def slide_camera(self, x_change, y_change):
         self.camera[0] += x_change
         self.camera[1] += y_change
+
     # endregion
 
     # region PLAYER AVATAR
@@ -435,9 +407,10 @@ class GameView(object):
         animation = self.animation_manager.get_animation(animation_name)
         player_avatar = self.get_player_avatar()
         player_avatar.initiate_animation(animation)
+
     # endregion
 
-    #region FEATURE AVATARS
+    # region FEATURE AVATARS
 
     def get_avatar_class(self, avatar_type):
         return self.avatar_classes[avatar_type]
@@ -475,13 +448,16 @@ class GameView(object):
         animation_name = animation_name
         animation = self.animation_manager.get_animation(animation_name)
         feature_avatar.initiate_animation(animation)
-    #endregion
+
+    # endregion
 
     # region INDEPENDENT ANIMATION
     def get_independent_anim_locations(self):
         anim_location_list = []
+        # for anim in self.animation_manager.active_independent_animations.values():
+        #     anim_location_list.append([anim, anim.image_y, anim.image_x])
         for anim in self.animation_manager.active_independent_animations.values():
-            anim_location_list.append([anim, anim.image_y, anim.image_x])
+            anim_location_list.append(anim)
         return anim_location_list
 
     def trigger_independent_animation(self, animation_type, animation_name, bird_unique_name, room, drawing_priority, image_x, image_y, image_offset_x, image_offset_y):
@@ -493,21 +469,10 @@ class GameView(object):
 
     # endregion
 
-    # def perform_animation(self, animator):
-    #     animation_result = (animator.animation_list[animator.current_animation].animate())
-    #     animator.current_image_x = animation_result[2]
-    #     animator.current_image_y = animation_result[3]
-    #     self.camera[0] += animation_result[0]
-    #     self.camera[1] += animation_result[1]
-    #     complete = animation_result[4]
-    #     if complete:
-    #         animator.currently_animating = False
-    #         animator.current_animation = None
-
 
 class AnimationManager(object):
     def __init__(self, gv_input):
-        self.gv = gv_input # type:GameView
+        self.gv = gv_input  # type:GameView
         self.independent_animation_name_translator = {"bird_disappear_animation": IndependentAnimation, "disappear_animation": BirdDisappearAnimation}
         self.independent_animation_trigger_queue = []
         self.active_independent_animations = {}
@@ -534,7 +499,6 @@ class AnimationManager(object):
 
     def get_animation(self, name):
         return copy.copy(self.animation_dict[name])
-
 
     def add_to_anim_in_progress(self, feature_unique_name):
         self.gv.gs.gc.feature_animations_in_progress.append(feature_unique_name)
@@ -578,7 +542,6 @@ class AnimationManager(object):
                     self.gv.gs.gc.scene_manager.waiting_for_animation_to_finish = False
                     self.gv.gs.gc.scene_manager.continue_scene(follow_up_package)
 
-
     def perform_player_animation(self, animator):
         animation_result = animator.current_animation.animate()
         if animation_result[2] is not None:
@@ -588,8 +551,8 @@ class AnimationManager(object):
         self.gv.camera[0] += animation_result[0]
         self.gv.camera[1] += animation_result[1]
         player_avatar = self.gv.get_player_avatar()
-        player_avatar.image_x += (animation_result[0]/GameSettings.TILESIZE)
-        player_avatar.image_y += (animation_result[1]/GameSettings.TILESIZE)
+        player_avatar.image_x += (animation_result[0] / GameSettings.TILESIZE)
+        player_avatar.image_y += (animation_result[1] / GameSettings.TILESIZE)
         complete = animation_result[4]
         if complete:
             animator.currently_animating = False
@@ -620,9 +583,9 @@ class AnimationManager(object):
 
 class ViewWindow(object):
     def __init__(self, gv_input, big_x, big_y, little_x, little_y):
-        self.gv = gv_input # type:GameView
-        loc_x = (big_x - little_x)/2
-        loc_y = (big_y - little_y)/2
+        self.gv = gv_input  # type:GameView
+        loc_x = (big_x - little_x) / 2
+        loc_y = (big_y - little_y) / 2
 
         COLOR_KEY = (50, 100, 150)  # Magenta (transparent)
         SQUARE_COLOR = (50, 50, 50)  # Blue shape
@@ -634,8 +597,8 @@ class ViewWindow(object):
         punched_square.fill(COLOR_KEY)
 
         pygame.draw.rect(punched_square, SQUARE_COLOR, (0, 0, big_x, big_y))
-        pygame.draw.rect(punched_square, FRAME_COLOR, (loc_x-frame_size, loc_y-frame_size, little_x + (frame_size*2), little_y + (frame_size*2)))
-        pygame.draw.rect(punched_square, SQUARE_COLOR, (loc_x-inner_frame_size, loc_y-inner_frame_size, little_x + (inner_frame_size*2), little_y + (inner_frame_size*2)))
+        pygame.draw.rect(punched_square, FRAME_COLOR, (loc_x - frame_size, loc_y - frame_size, little_x + (frame_size * 2), little_y + (frame_size * 2)))
+        pygame.draw.rect(punched_square, SQUARE_COLOR, (loc_x - inner_frame_size, loc_y - inner_frame_size, little_x + (inner_frame_size * 2), little_y + (inner_frame_size * 2)))
         pygame.draw.rect(punched_square, COLOR_KEY, (loc_x, loc_y, little_x, little_y))
         punched_square.set_colorkey(COLOR_KEY)
         self.image = punched_square
@@ -650,4 +613,3 @@ class Outfit(object):
         self.display_name = display_name
         self.spritesheet = Spritesheet("player_base_spritesheet", "assets/spritesheets/player_spritesheets/Player_" + self.file_name + "_spritesheet.png", self.character_frame_x, self.character_frame_y)
         self.acquired = False
-
