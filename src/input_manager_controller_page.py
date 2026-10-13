@@ -241,17 +241,18 @@ class InGameKeyboardManager(KeyboardManager):
         #
         # self.gc.position_manager.print_map_of_room()
 
-        rooms = ["Staging_Area", "Farmland", "Marsh", "Mountain"]
-        current_room = self.gc.gs.get_current_room().room_name
-        print(current_room)
-        ind = rooms.index(current_room)
-        ind += 1
-        if ind == 4:
-            ind = 0
-        self.gc.view_room(rooms[ind])
+        # rooms = ["Staging_Area", "Farmland", "Marsh", "Mountain"]
+        # current_room = self.gc.gs.get_current_room().room_name
+        # print(current_room)
+        # ind = rooms.index(current_room)
+        # ind += 1
+        # if ind == 4:
+        #     ind = 0
+        # self.gc.view_room(rooms[ind])
         #
         # self.gc.gs.gv.set_camera_to_zero()
 
+        self.gc.menu_controller.set_menu("character_assembly_menu", None)
 
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:
@@ -263,32 +264,36 @@ class WorldViewKeyboardManager(KeyboardManager):
 
     def __init__(self, gc):
         super().__init__(gc)
-        self.press_function_dict = {"up arrow": [],
-                                    "down arrow": [],
-                                    "right arrow": [],
-                                    "left arrow": [],
-                                    "return": [self.gc.clear_key_down_cue, self.gc.player_interact, self.gc.gs.produce_player_coords],
-                                    "space": [self.gc.snap_photo],
-                                    "a": [self.gc.activate_mermaid_crown],
+        self.press_function_dict = {"up": [partial(self.key_direction_pressed, pygame.K_UP)],
+                                    "down": [partial(self.key_direction_pressed, pygame.K_DOWN)],
+                                    "right": [partial(self.key_direction_pressed, pygame.K_RIGHT)],
+                                    "left": [partial(self.key_direction_pressed, pygame.K_LEFT)],
+                                    "return": [],
+                                    "space": [],
+                                    "a": [],
                                     "x": [self.gc.developer_tools.toggle_developer_mode_on],
                                     "c": [self.gc.developer_tools.toggle_name_display_on],
                                     "v": [self.gc.developer_tools.toggle_on_view_window],
-                                    "s": [self.gc.activate_ghost_eye],
-                                    "left ctrl": [self.gc.clear_key_down_cue, self.gc.menu_controller.set_start_menu],
-                                    "right ctrl": [self.gc.enter_world_view_mode],
-                                    "left shift": [self.key_lshift_pressed],
+                                    "s": [],
+                                    "left ctrl": [],
+                                    "right ctrl": [self.gc.enter_game_mode],
+                                    "left shift": [partial(self.gc.menu_controller.set_menu, "room_select_menu", None)],
                                     "right shift": [self.key_rshift_pressed],
                                     "escape": [],
-                                    "tab": [self.gc.use_selected_tool],
+                                    "tab": [],
                                     "caps lock": [self.gc.close_game]}
-        self.release_function_dict = {"a": [self.gc.determine_mermaid_crown_end],
-                                      "s": [self.gc.determine_ghost_eyes_end],
+        self.release_function_dict = {"up": [partial(self.key_direction_released, pygame.K_UP)],
+                                      "down": [partial(self.key_direction_released, pygame.K_DOWN)],
+                                      "right": [partial(self.key_direction_released, pygame.K_RIGHT)],
+                                      "left": [partial(self.key_direction_released, pygame.K_LEFT)],
+                                      "a": [],
+                                      "s": [],
                                       "return": [],
                                       "space": [],
                                       "left ctrl": [],
                                       "left shift": [],
                                       "escape": [],
-                                      "tab": [self.gc.end_selected_tool_use],
+                                      "tab": [],
                                       "caps lock": []}
 
 
@@ -325,60 +330,6 @@ class WorldViewKeyboardManager(KeyboardManager):
             item()
 
     def key_rshift_pressed(self):
-        # self.gc.game_view.trigger_independent_animation("bird_disappear_animation")
-        # player = self.gc.game_view.get_player_avatar()
-        # player.spritesheet = self.gc.game_view.outfit_manager.lab
-        # self.gc.menu_controller.set_menu(GuideMenuGhost.BASE, None)
-        # self.gc.scene_manager.pan_camera(Direction.DOWN, 5)
-        # self.gc.activate_mermaid_crown()
-        # self.gc.scene_manager.play_scene(Scene(self.gc, [CameraPanAnimation(Direction.LEFT, 5), CameraPanAnimation(Direction.UP, 5)]))
-        # self.gc.gs.gv.player_perform_animation("up_down", None)
-
-        # character_talking_to_avatar = self.gc.gs.gv.get_feature_avatar("Cowboy_2")
-        #
-        # details = {"speaker_name": "Jane",
-        #            "friendship_level": 3,
-        #            "face_image": character_talking_to_avatar.face_image,
-        #            "speaker_unique_name": "Jane",
-        #            "phrase": ["Hi there, I hope that you're having an amazing day!"]}
-        #
-        # self.gc.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
-
-        # def condition(gc):
-        #     result = False
-        #     if gc.gs.cc.check_clock_time(1, 10, 1, 10):
-        #         result = True
-        #     return result
-        #
-        # def reaction(gc):
-        #
-        # self.gc.game.game_events.add_delayed_trigger(condition, reaction)
-        # scene = Scene(self, [("animation", PlayerSlideAnimation(Direction.LEFT, 2, Direction.UP, 3))])
-        # self.gc.scene_manager.play_scene(scene)
-
-
-        # self.gc.scene_manager.initiate_scene("scene_2")
-        # custom = CustomAction([("walk_left", Action.move(Direction.LEFT)), ("hold", ("release", None))])
-        # scene_action = ("animation", CameraPanAnimation(direction_x, x_change))
-        # self.gc.scene_manager.play_scene(Scene(self, [self.gc.held_step]))
-
-        # self.gc.player_speak("shout", "Balloon!")
-        # self.gc.actor_speak("Towhee_1627", "Shout", "TWEET!")
-
-        # avatar = self.gc.gs.gv.get_feature_avatar("Jim_5")
-        # ghost = self.gc.gs.get_feature_ghost("Jim_5")
-        # details = {"speaker_name": "Jim_5",
-        #            "friendship_level": 3,
-        #            "actor_type": ghost.feature_subtype,
-        #            "face_image": avatar.face_image,
-        #            "speaker_unique_name": "Robot",
-        #            "phrase": ["Hi there, I hope that you're having an amazing day!"]}
-        #
-        # self.gc.menu_controller.set_menu(QuizMenuGhost.BASE, details)
-        #
-        # self.gc.switch_characters("Jim_5")
-        #
-        # self.gc.position_manager.print_map_of_room()
 
         rooms = ["Staging_Area", "Farmland", "Marsh", "Mountain"]
         current_room = self.gc.gs.get_current_room().room_name

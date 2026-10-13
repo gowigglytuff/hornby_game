@@ -20,15 +20,15 @@ def run_game_loop():
         else:
             for event in pygame.event.get():
                 if event.type in [pygame.KEYDOWN, pygame.KEYUP, pygame.QUIT]:
-                    g.game_events.parse_input_event(event)
+                    g.events_manager.parse_input_event(event)
 
                 if event.type in [pygame.MOUSEBUTTONDOWN]:
-                    g.game_events.parse_input_event(event)
+                    g.events_manager.parse_input_event(event)
 
-                if event.type in g.game_events.timer_list:
-                    g.game_events.parse_input_event(event)
+                if event.type in g.events_manager.timer_list:
+                    g.events_manager.parse_input_event(event)
 
-            g.game_events.parse_delayed_triggers()
+            g.events_manager.parse_delayed_triggers()
             pygame.display.flip()
             g.game_controller.update_view()
             g.game_view.tick()

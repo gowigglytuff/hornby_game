@@ -1029,3 +1029,65 @@ class QuizMenuAvatar(BaseMenuAvatar):
 
         self.final_menu_images = final_menu_images
         return final_menu_images
+
+
+class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
+    NAME = "character_assembly_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+        self.offset_x = 130
+        self.offset_y = 20
+        self.title_offset_y = 20
+        self.image_offset_x = 10
+        self.image_offset_y = 10
+        self.cursor_offset_x = self.offset_x - 10
+        self.cursor_offset_y = self.offset_y + 7
+
+        self.head_list = {1: Spritesheet("head_1", "assets/character_assembly/assembly_head_1.png", 32, 48).get_image(0, 0),
+                          2: Spritesheet("head_1", "assets/character_assembly/assembly_head_2.png", 32, 48).get_image(0, 0)}
+        self.torso_list = {1: Spritesheet("torso_1", "assets/character_assembly/assembly_torso_1.png", 32, 48).get_image(0, 0)}
+        self.legs_list = {1: Spritesheet("legs_1", "assets/character_assembly/assembly_legs_1.png", 32, 48).get_image(0, 0)}
+
+        self.menu_display_details = {"default_width": 30, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        text = menu_info.menu_specific_details_dict["selected_part"]
+
+        final_menu_text = []
+
+        # item_names
+        name_text = Mundane.center_text_x(self.overlay_body_x, 0, text)
+        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 75))
+
+        # Header
+        header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
+        final_menu_text.append(TextDisplay(header_text[0], header_text[1], 10))
+
+        self.final_menu_text = final_menu_text
+
+        return final_menu_text
+
+    def get_menu_image_drawing_instructions(self, menu_info):
+        final_menu_images = []
+        hair_image = menu_info.menu_specific_details_dict["hair_image"]
+        head_image = menu_info.menu_specific_details_dict["head_image"]
+        torso_image = menu_info.menu_specific_details_dict["torso_image"]
+        legs_image = menu_info.menu_specific_details_dict["legs_image"]
+
+        loc_y = 20
+        hair_image = ImageDisplay(hair_image, Mundane.center_image_x(self.overlay_body_x, 0, hair_image), loc_y)
+        head_image = ImageDisplay(head_image, Mundane.center_image_x(self.overlay_body_x, 0, head_image), loc_y)
+        torso_image = ImageDisplay(torso_image, Mundane.center_image_x(self.overlay_body_x, 0, torso_image), loc_y)
+        leg_image = ImageDisplay(legs_image, Mundane.center_image_x(self.overlay_body_x, 0, legs_image), loc_y)
+
+        final_menu_images.append(leg_image)
+        final_menu_images.append(torso_image)
+        final_menu_images.append(head_image)
+        final_menu_images.append(hair_image)
+
+        self.final_menu_images = final_menu_images
+        return final_menu_images

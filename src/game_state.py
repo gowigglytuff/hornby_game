@@ -40,7 +40,7 @@ class GameState(object):
 
         self.new_game = True
         self.current_room = "Staging_Area"
-        self.current_view_room = None
+        self.current_view_room = "Staging_Area"
         self.current_player_elevation = 3
 
         self.your_coins = 127
@@ -73,6 +73,7 @@ class GameState(object):
 
         self.action_queue = {}
         self.recently_completed_actions = []
+        self.trigger_list = {}
 
     def check_if_actor_busy(self):
         result = False
@@ -564,11 +565,17 @@ class GameState(object):
     def get_current_room(self):
         return self.gv.game_data.room_data_list[self.current_room]
 
+    def get_current_view_room(self):
+        return self.gv.game_data.room_data_list[self.current_view_room]
+
     def get_room(self, room_name):
         return self.gv.game_data.room_data_list[room_name]
 
     def set_current_room(self, room_name):
         self.current_room = room_name
+
+    def set_current_view_room(self, room_name):
+        self.current_view_room = room_name
 
     def get_all_features_in_room(self, room_name):
         feature_list = []
@@ -752,9 +759,12 @@ class MenuState(object):
 
         if len(self.menu_stack) == 0:
             if menu_to_deactivate == SceneDialogueMenuGhost.BASE:
-                self.gs.gc.set_active_keyboard_manager(InSceneKeyboardManager.ID)
+                self.gs.gc.game.set_active_keyboard_manager(InSceneKeyboardManager.ID)
             else:
-                self.gs.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+                if self.gs.gc.game.mode == "in_game":
+                    self.gs.gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
+                elif self.gs.gc.game.mode == "builder":
+                    self.gs.gc.game.set_active_keyboard_manager(WorldViewKeyboardManager.ID)
     # endregion
 
 class ConditionChecker(object):

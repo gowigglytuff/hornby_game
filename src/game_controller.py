@@ -1,5 +1,6 @@
 import copy
 import csv
+import math
 import os
 import random
 import time
@@ -9,7 +10,8 @@ from random import choice
 from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, Action
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
-from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, BasketMenuGhost, DepositMenuGhost, SellItemMenuGhost, DeveloperMenuGhost
+from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, BasketMenuGhost, DepositMenuGhost, SellItemMenuGhost, DeveloperMenuGhost, \
+    RoomSelectMenuGhost, CharacterAssemblyMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -23,18 +25,33 @@ class Game(object):
         self.game_data = GameData()  # type: GameData
         self.game_view = GameView(self.game_data, self.gs)  # type: GameView
         self.game_controller = GameController(self, self.game_view, self.gs, self.game_data)  # type: GameController
+        self.builder_controller = BuilderController(self, self.game_view, self.gs, self.game_data)  # type: BuilderController
         self.gs.gc = self.game_controller
         self.gs.gv = self.game_view
         self.gs.gd = self.game_data
         self.gs.ms.gd = self.game_data
         self.game_events = GameEvents(self.game_controller)
+        self.builder_events = BuilderEvents(self.builder_controller)
+        self.events_manager = self.game_events
+        self.mode = "in_game"
+        self.active_keyboard_manager = None
         self.now = 0
         self.delay = False
 
+    def switch_game_mode(self, new_mode):
+        self.mode = new_mode
+        if new_mode == "in_game":
+            self.events_manager = self.game_events
+        elif new_mode == "builder":
+            self.events_manager = self.builder_events
+
+    def set_active_keyboard_manager(self, active_manager_id):
+        self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
+
 
 class GameEvents(object):
-    def __init__(self, game_controller):
-        self.gc = game_controller  # type: GameController
+    def __init__(self, controller):
+        self.gc = controller  # type: GameController
         self.previous_time = time.time()
         self.delta_time = 0
         self.timer_list = []
@@ -106,10 +123,10 @@ class GameEvents(object):
             self.gc.close_game()
 
         elif event.type in [pygame.KEYDOWN, pygame.KEYUP]:
-            self.gc.active_keyboard_manager.parse_key_input(event.type, event.key)
+            self.gc.game.active_keyboard_manager.parse_key_input(event.type, event.key)
 
         elif event.type in [pygame.MOUSEBUTTONDOWN]:
-            pass
+            print(pygame.mouse.get_pos())
 
         if self.gc.scene_manager.waiting_for_response == False:
             if event.type in self.timer_list:
@@ -133,8 +150,82 @@ class GameEvents(object):
                 #                         feature_ghost.behaviour_counter += 1
 
 
+class BuilderEvents(object):
+    def __init__(self, controller):
+        self.gc = controller  # type: BuilderController
+        self.timer_list = []
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.report_mouse_location]}
+        self.delayed_trigger_list = []
+        self.timed_trigger_list = []
+        self.user_event_number = 4000
+        self.setup_initial_timers()
+
+    def setup_initial_timers(self):
+        for timer in self.event_dict.keys():
+            self.setup_timer(timer)
+
+    def setup_timer(self, timer):
+        event_name = str(timer) + "_second_timer_id"
+        setattr(self, event_name, pygame.USEREVENT + self.user_event_number)
+
+        new_timer = getattr(self, event_name)
+
+        self.timer_list.append(new_timer)
+        self.user_event_number += 1
+
+        one_second_equiv = 1000
+        timer_equiv = timer * one_second_equiv
+        pygame.time.set_timer(new_timer, int(timer_equiv))
+
+    def parse_delayed_triggers(self):
+
+        remove_dict = []
+        for item in self.delayed_trigger_list:
+            result = item.check_condition()
+            if result:
+                item.activate()
+                remove_dict.append(item)
+
+        for item in remove_dict:
+            self.delayed_trigger_list.remove(item)
+
+    def prock_timed_triggers(self):
+        remove_dict = []
+        for trigger in self.timed_trigger_list:
+            complete = trigger.pass_second()
+            if complete:
+                remove_dict.append(trigger)
+        for item in remove_dict:
+            self.timed_trigger_list.remove(item)
+
+    def add_delayed_trigger(self, condition, reaction):
+        trigger_object = DelayedTrigger(self.gc, condition, reaction)
+        self.delayed_trigger_list.append(trigger_object)
+
+    def add_timed_trigger(self, seconds, reaction):
+        trigger_object = TimedTrigger(self.gc, seconds, reaction)
+        self.timed_trigger_list.append(trigger_object)
+
+    def parse_input_event(self, event):
+        if event.type == pygame.QUIT:
+            self.gc.close_game()
+
+        elif event.type in [pygame.KEYDOWN, pygame.KEYUP]:
+            self.gc.game.active_keyboard_manager.parse_key_input(event.type, event.key)
+
+        elif event.type in [pygame.MOUSEBUTTONDOWN]:
+            self.gc.act_on_mouse_click(pygame.mouse.get_pos())
+
+        if self.gc.scene_manager.waiting_for_response == False:
+            if event.type in self.timer_list:
+                for timer in self.event_dict.keys():
+                    if event.type == getattr(self, str(timer) + "_second_timer_id"):
+                        for popoff in self.event_dict[timer]:
+
+                            popoff()
+
+
 class Controller(object):
-
     def __init__(self, game, game_view, game_state, game_data):
         self.game = game  # type: Game
         self.game = game  # type: Game
@@ -142,13 +233,9 @@ class Controller(object):
         self.gs = game_state  # type: GameState
         self.game_data = game_data  # type: GameData
 
-        self.developer_mode_on = False
-
         self.active_keyboard_manager = None
-        self.running_number = 1
         self.key_down_queue = []
-        self.held_keys = [pygame.K_x]
-        # self.held_keys = []
+        self.held_keys = []
         self.position_manager = PositionManager(self)  # type:PositionManager
         self.menu_controller = MenuController(self)  # type:MenuController
         self.trigger_manager = TriggerManager(self)  # type: TriggerManager
@@ -156,73 +243,198 @@ class Controller(object):
         self.outfit_manager = OutfitManager(self)  # type: OutfitManager
         self.scene_manager = SceneManager(self)     # type: SceneManager
         self.developer_tools = DeveloperTools(self)     # type: DeveloperTools
-        self.feature_animations_in_progress = []
-        self.scene_animations_in_progress = []
-        self.move_counter = 0
-        self.flashing_currently = False
-        self.rotation_number = 0
-        self.held_step = SceneStep(self, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT))
 
+    def enter_world_view_mode(self):
+        self.game.set_active_keyboard_manager(WorldViewKeyboardManager.ID)
+        current_camera_coords = copy.copy(self.gs.gv.get_camera_loc())
+        self.gs.gv.switch_active_camera("view")
+        self.gs.gv.set_camera_to_coords(current_camera_coords[0], current_camera_coords[1])
+        self.game.switch_game_mode("builder")
+        self.gs.set_current_view_room(self.gs.get_current_room().room_name)
 
-class GameController(object):
-
-    def __init__(self, game, game_view, game_state, game_data):
-        self.game = game  # type: Game
-        self.game = game  # type: Game
-        self.game_view = game_view  # type: GameView
-        self.gs = game_state  # type: GameState
-        self.game_data = game_data  # type: GameData
-
-        self.developer_mode_on = False
-
-        self.active_keyboard_manager = None
-        self.running_number = 1
-        self.key_down_queue = []
-        self.held_keys = [pygame.K_x]
-        # self.held_keys = []
-        self.position_manager = PositionManager(self)  # type:PositionManager
-        self.menu_controller = MenuController(self)  # type:MenuController
-        self.trigger_manager = TriggerManager(self)  # type: TriggerManager
-        self.inventory_manager = InventoryManager(self)  # type:InventoryManager
-        self.outfit_manager = OutfitManager(self)  # type: OutfitManager
-        self.scene_manager = SceneManager(self)     # type: SceneManager
-        self.developer_tools = DeveloperTools(self)     # type: DeveloperTools
-        self.feature_animations_in_progress = []
-        self.scene_animations_in_progress = []
-        self.move_counter = 0
-        self.flashing_currently = False
-        self.rotation_number = 0
-        self.held_step = SceneStep(self, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT))
-
-    # region GAME CONTROLS
-    def set_active_keyboard_manager(self, active_manager_id):
-        self.active_keyboard_manager = self.game_view.game_data.keyboard_manager_data_list[active_manager_id]
+    def enter_game_mode(self):
+        self.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
+        self.gs.gv.switch_active_camera("in_game")
+        self.game.switch_game_mode("in_game")
 
     def close_game(self):
         self.game.game_running = False
 
-    def load_feature(self, unique_name, ghost_object, avatar_object):
-        self.gs.add_feature_ghost(unique_name, ghost_object)
-        self.game_view.add_feature_avatar(unique_name, avatar_object)
-    # endregion
+    def play_sound(self, queue_name):
+        sound_name = self.gs.gd.sound_reference_dict[queue_name]
+        self.gs.gd.get_sound(sound_name).play()
 
-    def enter_world_view_mode(self):
-        self.set_active_keyboard_manager(WorldViewKeyboardManager.ID)
-        self.gs.gv.switch_active_camera("view")
+    def get_avatar_class(self, avatar_type):
+        return self.game_view.avatar_classes[avatar_type]
 
-    def view_room(self, room_name):
+    def update_view(self):
+        current_room = self.gs.get_current_room().room_name
+        if self.game_view.drawables_refreshed:
+            ghost_data = self.gs.get_active_features_in_room_ghost_data(current_room)
+            self.game_view.set_drawables_list(ghost_data, self.game_view.get_independent_anim_locations())
+            self.game_view.drawables_refreshed = False
+        drawables_list = self.game_view.get_drawables_list()
+        self.game_view.draw_all(drawables_list, current_room)
+
+        self.game_view.draw_view_window()
+
+        self.menu_controller.update_stat_menus()
+        for menu in (self.gs.ms.static_menus + self.gs.ms.visible_menus):
+            ghost = self.gs.ms.menu_ghost_data_list[menu + "_ghost"]
+            avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
+            self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
+
+    def clear_key_down_cue(self):
+        self.key_down_queue = []
+
+    def add_to_held_key(self, key):
+        self.held_keys.append(key)
+
+    def get_held_keys(self):
+        return self.held_keys
+
+    def remove_from_held_key(self, key):
+        if key in self.held_keys:
+            self.held_keys.remove(key)
+
+    def import_classes_from_csv(self, filename):
+        feature_data = self.process_features_from_csv(filename)
+        for feature_dict in feature_data:
+            self.gs.create_feature_ghost_class(feature_dict)
+
+    def import_map_objects_from_csv(self, filename, room_name):
+        map = []
+        int_map = []
+        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                map.append(list(row))
+        for row in map:
+            int_list = [int(i) for i in row]
+            int_map.append(int_list)
+
+        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus", 4: "Rock",
+                                  5: "Small_Rock", 6: "Small_Craig", 7: "Fir", 8: "Fence_Vertical",
+                                  9: "Fence_Horizontal", 10: "Fence_Bottom_Left", 11: "Fence_Bottom_Right", 12: "Fence_Top_Left",
+                                  13: "Fence_Top_Right", 14: "Fence_Center", 15: "", 16: "Scotch_Broom",
+                                  17: "Hawthorn", 18: "Cottonwood", 19: "Alder", 20: "Nootka_Rose",
+                                  21: "Ocean_Spray", 22: "Willow", 23: "White_Poplar", 24: "Rail_Vertical",
+                                  25: "Rail_Horizontal", 26: "Rail_Bottom_Left", 27: "Rail_Bottom_Right", 28: "Rail_Top_Left",
+                                  29: "Rail_Top_Right", 30: "Rail_Vertical", 31: "Rail_Vertical", 32: "Rail_Vertical"}
+
+        feature_list = []
+
+        row_counter = 0
+        for row in int_map:
+            row_counter += 1
+            item_counter = 0
+            for item in row:
+                item_counter += 1
+                if item in feature_reference_dict.keys():
+                    x = item_counter
+                    y = row_counter
+                    feature_list.append((x, y, feature_reference_dict[item]))
+
+        feature_dict = {"species": 1, "display_name": 1, "function": "None", "spawn_room": 1, "spawn_x": 1, "spawn_y": 1, "spawn_facing": "Down", "spawn_active": "yes"}
+
+        for item in feature_list:
+            object_class = self.gs.gd.get_feature_class(item[2])
+            spawn_facing = Direction.DOWN
+            unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
+            feature_ghost_object = object_class(self.gs, unique_name, item[2], "None", room_name, item[0], item[1],  spawn_facing, "yes")
+
+            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            test = self.gs.get_feature_ghost(unique_name)
+
+    def import_pages_from_csv(self, filename):
+        feature_data = self.process_features_from_csv(filename)
+
+        return feature_data
+
+    def import_characters_from_csv(self, filename, feature_subtype, room_name):
+        feature_data = self.process_features_from_csv(filename)
+
+        for feature_dict in feature_data:
+            object_class = self.gs.gd.get_feature_class(feature_dict["species"])
+            spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
+            display_name = feature_dict["display_name"]
+            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
+            if feature_subtype == "Character":
+                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], room_name,
+                                                    int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"],
+                                                    feature_dict["base_phrase"], feature_dict["good_gift_phrase"], feature_dict["bad_gift_phrase"],
+                                                    feature_dict["neutral_gift_phrase"], feature_dict["bird_hint_phrase"], feature_dict["good_gift_list"],
+                                                    feature_dict["bad_gift_list"], feature_dict["friend_phrase"], feature_dict["friend_action"], False)
+            else:
+                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"],
+                                                    int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
+            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
+            test = self.gs.get_feature_ghost(unique_name)
+
+    def process_features_from_csv(self, filename):
+        feature_data = []
+        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
+            data = csv.reader(data, delimiter=',')
+            for row in data:
+                dict = {}
+                for item in row:
+                    index = row.index(item)
+                    if Mundane.is_even(index):
+                        dict[item] = row[index + 1]
+                feature_data.append(dict)
+        return feature_data
+
+    def reset_room(self, room_name):
         room_object = self.gs.get_room(room_name)
-        if room_object.loaded_up:
-            self.gs.set_current_room(room_name)
-            self.gs.gv.set_camera_to_zero()
-            self.game_view.refresh_drawables()
-        else:
-            self.load_up_room(room_name)
-            self.gs.gv.set_camera_to_zero()
+        room_object.unload()
+        self.position_manager.despawn_all_room_elements(room_object)
+        self.position_manager.clear_room_grid(room_name)
+        self.trigger_manager.remove_all_triggers(room_object)
+        self.game.game_events.actor_events_dict = {}
 
-    def enter_game_mode(self):
-        self.set_active_keyboard_manager(InGameKeyboardManager.ID)
-        self.gs.gv.switch_active_camera("in_game")
+    def load_up_room(self, room_name):
+        room_object = self.gs.get_room(room_name)
+        room_object.load()
+        self.position_manager.spawn_all_initial_room_elements(room_object)
+        self.game_view.refresh_drawables()
+        self.gs.set_current_room(room_name)
+
+    def change_room(self, room_going_to):
+        current_room = self.gs.get_current_room()
+        self.reset_room(current_room.room_name)
+        self.load_up_room(room_going_to)
+
+    def close_down_room(self, room_to_close_name):
+        self.reset_room(room_to_close_name)
+
+    def open_up_room(self, room_to_open_name):
+        self.load_up_room(room_to_open_name)
+
+    def act_on_key_down_cue(self):
+        pass
+
+    def add_actor_activation_to_timer(self, actor_unique_name):
+        frequency = .1
+        if frequency in self.game.game_events.actor_events_dict.keys():
+            self.game.game_events.actor_events_dict[frequency].append(partial(self.actor_activation, actor_unique_name))
+        else:
+            self.game.game_events.actor_events_dict[frequency] = [partial(self.actor_activation, actor_unique_name)]
+            self.game.game_events.setup_timer(frequency)
+
+
+class GameController(Controller):
+    def __init__(self, game, game_view, game_state, game_data):
+        super().__init__(game, game_view, game_state, game_data)
+
+        self.developer_mode_on = False
+        self.running_number = 1
+        self.held_keys = [pygame.K_x]
+        self.feature_animations_in_progress = []
+        self.scene_animations_in_progress = []
+        self.move_counter = 0
+        self.flashing_currently = False
+        self.rotation_number = 0
+        self.held_step = SceneStep(self, "character_action", "Cowboy_5", "walk_left", Action.move(Direction.LEFT))
 
     def switch_characters(self, target_character_unique_name):
         current_character_ghost = self.gs.get_player_ghost()
@@ -254,17 +466,7 @@ class GameController(object):
         if current_character_ghost.current_room != target_room:
             self.change_room(target_room)
 
-
-
-        # self.gs.gv.player_avatar = target_character_avatar
-
-        # self.gs.feature_ghost_list.pop(target_character_ghost.unique_name)
-        # self.gs.feature_ghost_list[current_character_ghost.unique_name] = current_character_ghost
-
-        # self.gs.gv.feature_avatar_list[current_character_ghost.unique_name] = current_character_avatar
-
         self.gs.gv.refresh_drawables()
-
 
     def player_speak(self, volume, text):
         player_avatar = self.gs.gv.get_player_avatar()
@@ -280,13 +482,7 @@ class GameController(object):
 
             self.game.game_events.add_timed_trigger(3, reaction)
 
-    def add_actor_activation_to_timer(self, actor_unique_name):
-        frequency = .1
-        if frequency in self.game.game_events.actor_events_dict.keys():
-            self.game.game_events.actor_events_dict[frequency].append(partial(self.actor_activation, actor_unique_name))
-        else:
-            self.game.game_events.actor_events_dict[frequency] = [partial(self.actor_activation, actor_unique_name)]
-            self.game.game_events.setup_timer(frequency)
+
 
     def actor_speak(self, actor_unique_name, volume, text):
         actor_avatar = self.gs.gv.get_feature_avatar(actor_unique_name)
@@ -369,8 +565,6 @@ class GameController(object):
             if not ghost_object.check_if_busy():
                 self.initiate_action(ghost_object.unique_name, Switch())
 
-
-
     # region ITEM USE METHODS (mermaid crown, ghost eye)
     def activate_mermaid_crown(self):
         self.clear_key_down_cue()
@@ -389,7 +583,7 @@ class GameController(object):
         husk_ghost = self.create_husk(self.gs.get_current_room(), player_ghost.x, player_ghost.y, player_ghost.facing, "green_shirt")
         self.gs.ghost_eye_husk_name = husk_ghost.unique_name
         self.outfit_manager.put_on_temporary_outfit("ghost_eye")
-        self.set_active_keyboard_manager(GhostEyeKeyboardManager.ID)
+        self.game.set_active_keyboard_manager(GhostEyeKeyboardManager.ID)
 
     def create_husk(self, room_object, x, y, facing, outfit):
         feature_dict = {"species": "Husk", "display_name": "Husk", "function": "None", "spawn_room": room_object.room_name, "spawn_x": str(x), "spawn_y": str(y), "spawn_facing": Mundane.get_word_from_direction(facing), "spawn_active": "no"}
@@ -435,7 +629,6 @@ class GameController(object):
                                                    ("animation", CameraPanAnimation(direction_y, y_change)),
                                                    ("action", "delete_husk"), ("action", "ghost_eye_followup")]))
 
-
     def execute_action_from_animator(self, action_name):
         if action_name == "delete_husk":
             husk = self.gs.get_feature_ghost(self.gs.ghost_eye_husk_name)
@@ -446,7 +639,7 @@ class GameController(object):
             self.gs.using_ghost_eye = False
             self.gs.ghost_eye_initiation = [0, 0]
             self.gs.ghost_eye_counter = 0
-            self.set_active_keyboard_manager(InGameKeyboardManager.ID)
+            self.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
         elif action_name == "dialogue":
             character_talking_to_avatar = self.gs.gv.get_feature_avatar("Cowboy_2")
 
@@ -458,7 +651,6 @@ class GameController(object):
 
             self.menu_controller.set_menu(SceneDialogueMenuGhost.BASE, details)
             self.scene_manager.waiting_for_response = True
-
 
     def determine_mermaid_crown_end(self):
         if self.gs.using_mermaid_crown:
@@ -495,12 +687,6 @@ class GameController(object):
         self.gs.mermaid_crown_counter = 0
         self.gs.update_accessible_terrains([], [1])
     # endregion ( (
-
-    # region SOUNDS
-    def play_sound(self, queue_name):
-        sound_name = self.gs.gd.sound_reference_dict[queue_name]
-        self.gs.gd.get_sound(sound_name).play()
-    # endregion
 
     # region text controls
     def switch_flash(self):
@@ -902,9 +1088,6 @@ class GameController(object):
         can_move = self.position_manager.check_if_feature_can_move(feature_ghost, direction, room_object)
         return can_move, direction
 
-    def get_avatar_class(self, avatar_type):
-        return self.game_view.avatar_classes[avatar_type]
-
     def check_if_feature_already_animating(self, unique_name):
         avatar = self.game_view.get_feature_avatar(unique_name)
         ghost_object = self.gs.get_feature_ghost(unique_name)
@@ -915,42 +1098,12 @@ class GameController(object):
         chosen_feature.reset_to_spawn()
     # endregion
 
-    def update_view(self):
-        current_room = self.gs.get_current_room().room_name
-        if self.game_view.drawables_refreshed:
-            ghost_data = self.gs.get_active_features_in_room_ghost_data(current_room)
-            self.game_view.set_drawables_list(ghost_data, self.game_view.get_independent_anim_locations())
-            self.game_view.drawables_refreshed = False
-        drawables_list = self.game_view.get_drawables_list()
-        self.game_view.draw_all(drawables_list, current_room)
-
-        self.game_view.draw_view_window()
-
-        self.menu_controller.update_stat_menus()
-        for menu in (self.gs.ms.static_menus + self.gs.ms.visible_menus):
-            ghost = self.gs.ms.menu_ghost_data_list[menu + "_ghost"]
-            avatar_display_details = self.game_view.menu_avatar_data_list[menu + "_avatar"].menu_display_details
-            self.game_view.draw_special_menu(menu, ghost.generate_menu_information_package(), avatar_display_details["coordinates"][0], avatar_display_details["coordinates"][1])
-
-            # region INPUT EVENTS
-    def clear_key_down_cue(self):
-        self.key_down_queue = []
-
-    def add_to_held_key(self, key):
-        self.held_keys.append(key)
-
-    def get_held_keys(self):
-        return self.held_keys
-
     def check_if_run_held(self):
         held = self.get_held_keys()
         if pygame.K_x in held:
             self.running_number = 0
         else:
             self.running_number = 1
-
-    def remove_from_held_key(self, key):
-        self.held_keys.remove(key)
 
     def act_on_key_down_cue(self):
         if not self.check_if_player_already_animating():
@@ -971,129 +1124,12 @@ class GameController(object):
                     speed = .25
                     self.gs.gv.manually_update_camera(direction_influence_x*speed, direction_influence_y*speed)
                 else:
-                    if self.active_keyboard_manager.ID == InGameKeyboardManager.ID:
+                    if self.game.active_keyboard_manager.ID == InGameKeyboardManager.ID:
                         self.initiate_player_movement(direction)
-                    elif self.active_keyboard_manager.ID == GhostEyeKeyboardManager.ID:
+                    elif self.game.active_keyboard_manager.ID == GhostEyeKeyboardManager.ID:
                         self.initiate_spirit_movement(direction)
 
-    # endregion
-
-    # region IMPORT FUNCTIONS
-    def import_classes_from_csv(self, filename):
-        feature_data = self.process_features_from_csv(filename)
-        for feature_dict in feature_data:
-            self.gs.create_feature_ghost_class(feature_dict)
-
-    def import_map_objects_from_csv(self, filename, room_name):
-        map = []
-        int_map = []
-        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
-            data = csv.reader(data, delimiter=',')
-            for row in data:
-                map.append(list(row))
-        for row in map:
-            int_list = [int(i) for i in row]
-            int_map.append(int_list)
-
-        feature_reference_dict = {0: "Pine", 1: "Apple_Tree", 2: "Oak", 3: "Arbutus", 4: "Rock",
-                                  5: "Small_Rock", 6: "Small_Craig", 7: "Fir", 8: "Fence_Vertical",
-                                  9: "Fence_Horizontal", 10: "Fence_Bottom_Left", 11: "Fence_Bottom_Right", 12: "Fence_Top_Left",
-                                  13: "Fence_Top_Right", 14: "Fence_Center", 15: "", 16: "Scotch_Broom",
-                                  17: "Hawthorn", 18: "Cottonwood", 19: "Alder", 20: "Nootka_Rose",
-                                  21: "Ocean_Spray", 22: "Willow", 23: "White_Poplar", 24: "Rail_Vertical",
-                                  25: "Rail_Horizontal", 26: "Rail_Bottom_Left", 27: "Rail_Bottom_Right", 28: "Rail_Top_Left",
-                                  29: "Rail_Top_Right", 30: "Rail_Vertical", 31: "Rail_Vertical", 32: "Rail_Vertical"}
-
-        feature_list = []
-
-        row_counter = 0
-        for row in int_map:
-            row_counter += 1
-            item_counter = 0
-            for item in row:
-                item_counter += 1
-                if item in feature_reference_dict.keys():
-                    x = item_counter
-                    y = row_counter
-                    feature_list.append((x, y, feature_reference_dict[item]))
-
-        feature_dict = {"species": 1, "display_name": 1, "function": "None", "spawn_room": 1, "spawn_x": 1, "spawn_y": 1, "spawn_facing": "Down", "spawn_active": "yes"}
-
-        for item in feature_list:
-            object_class = self.gs.gd.get_feature_class(item[2])
-            spawn_facing = Direction.DOWN
-            unique_name = item[2] + "_" + str(GameSettings.get_unique_ID())
-            feature_ghost_object = object_class(self.gs, unique_name, item[2], "None", room_name, item[0], item[1],  spawn_facing, "yes")
-
-            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
-            test = self.gs.get_feature_ghost(unique_name)
-
-    def import_pages_from_csv(self, filename):
-        feature_data = self.process_features_from_csv(filename)
-
-        return feature_data
-
-    def import_characters_from_csv(self, filename, feature_subtype, room_name):
-        feature_data = self.process_features_from_csv(filename)
-
-        for feature_dict in feature_data:
-            object_class = self.gs.gd.get_feature_class(feature_dict["species"])
-            spawn_facing = self.gs.direction_translations[feature_dict["spawn_facing"]]
-            display_name = feature_dict["display_name"]
-            unique_name = feature_dict["species"] + "_" + str(GameSettings.get_unique_ID())
-            if feature_subtype == "Character":
-                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], room_name,
-                                                    int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"],
-                                                    feature_dict["base_phrase"], feature_dict["good_gift_phrase"], feature_dict["bad_gift_phrase"],
-                                                    feature_dict["neutral_gift_phrase"], feature_dict["bird_hint_phrase"], feature_dict["good_gift_list"],
-                                                    feature_dict["bad_gift_list"], feature_dict["friend_phrase"], feature_dict["friend_action"], False)
-            else:
-                feature_ghost_object = object_class(self.gs, unique_name, display_name, feature_dict["function"], feature_dict["spawn_room"],
-                                                    int(feature_dict["spawn_x"]), int(feature_dict["spawn_y"]),  spawn_facing, feature_dict["spawn_active"])
-            self.gs.add_feature_ghost(unique_name, feature_ghost_object)
-            test = self.gs.get_feature_ghost(unique_name)
-
-    def process_features_from_csv(self, filename):
-        feature_data = []
-        with open(os.path.join(filename), mode='r', encoding='utf-8-sig') as data:
-            data = csv.reader(data, delimiter=',')
-            for row in data:
-                dict = {}
-                for item in row:
-                    index = row.index(item)
-                    if Mundane.is_even(index):
-                        dict[item] = row[index + 1]
-                feature_data.append(dict)
-        return feature_data
-
-    # endregion
-
     # region ROOM MANAGEMENT
-    def reset_room(self, room_name):
-        room_object = self.gs.get_room(room_name)
-        room_object.unload()
-        self.position_manager.despawn_all_room_elements(room_object)
-        self.position_manager.clear_room_grid(room_name)
-        self.trigger_manager.remove_all_triggers(room_object)
-        self.game.game_events.actor_events_dict = {}
-
-    def load_up_room(self, room_name):
-        room_object = self.gs.get_room(room_name)
-        room_object.load()
-        self.position_manager.spawn_all_initial_room_elements(room_object)
-        self.game_view.refresh_drawables()
-        self.gs.set_current_room(room_name)
-
-    def change_room(self, room_going_to):
-        current_room = self.gs.get_current_room()
-        self.reset_room(current_room.room_name)
-        self.load_up_room(room_going_to)
-
-    def close_down_room(self, room_to_close_name):
-        self.reset_room(room_to_close_name)
-
-    def open_up_room(self, room_to_open_name):
-        self.load_up_room(room_to_open_name)
 
     def get_door(self, door_name):
         return self.game_data.door_data_list[door_name]
@@ -1118,11 +1154,9 @@ class GameController(object):
         self.game_view.refresh_drawables()
         self.play_sound("go_through_door")
 
-
     # endregion
 
     # region TRIGGER MANAGEMENT
-
 
     def trigger_a_bird(self, unique_name, room, trigger):
         if room.room_name != "Aviary_Room" and room.room_name != "Habitat_Room":
@@ -1313,9 +1347,9 @@ class TriggerManager(object):
 
     def setup_trigger_list(self):
         for room in self.gc.game_data.room_data_list.values():
-            self.trigger_list[room.room_name] = {}
+            self.gc.gs.trigger_list[room.room_name] = {}
             for tile in room.return_list_all_cubes():
-                self.trigger_list[room.room_name][(tile.x, tile.y)] = []
+                self.gc.gs.trigger_list[room.room_name][(tile.x, tile.y)] = []
 
     def add_triggers(self, room_object, trigger_dict):
         for key in trigger_dict.keys():
@@ -1323,7 +1357,7 @@ class TriggerManager(object):
                 pass
             else:
                 coords = (key[0], key[1])
-                self.trigger_list[room_object.room_name][coords].append(trigger_dict[key])
+                self.gc.gs.trigger_list[room_object.room_name][coords].append(trigger_dict[key])
 
     def check_if_coord_outside_room(self, coords, room_object):
         outside = False
@@ -1340,15 +1374,15 @@ class TriggerManager(object):
         self.add_triggers(room_object, add_trigger_list)
 
     def print_all_triggers(self, room_object):
-        print(self.trigger_list[room_object.room_name])
+        print(self.gc.gs.trigger_list[room_object.room_name])
 
     def remove_all_triggers(self, room_object):
-        for tile in self.trigger_list[room_object.room_name]:
-            self.trigger_list[room_object.room_name][tile].clear()
+        for tile in self.gc.gs.trigger_list[room_object.room_name]:
+            self.gc.gs.trigger_list[room_object.room_name][tile].clear()
 
     def remove_triggers(self, room_object, feature_ghost):
         tracker = 0
-        for existing_trigger in self.trigger_list[room_object.room_name].values():
+        for existing_trigger in self.gc.gs.trigger_list[room_object.room_name].values():
             for trigger in existing_trigger:
                 if trigger[0] == feature_ghost.unique_name:
                     existing_trigger.pop(existing_trigger.index(trigger))
@@ -1361,7 +1395,7 @@ class TriggerManager(object):
             self.gc.trigger_a_bird(trigger[0], room, trigger[1])
 
     def check_for_triggers(self, room_object, x, y):
-        return self.trigger_list[room_object.room_name][x, y]
+        return self.gc.gs.trigger_list[room_object.room_name][x, y]
 
     def advanced_trigger_test(self, bird_species_name):
         advanced_test = False
@@ -1388,7 +1422,8 @@ class MenuController(object):
         self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, DeveloperMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, DepositMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost, SellerOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
-                               BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost]
+                               BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, CharacterAssemblyMenuGhost]
+        self.builder_menu_load_list = [RoomSelectMenuGhost]
 
     def update_menu_text_and_images(self, menu_ghost):
         menu_avatar = self.gc.game_view.menu_avatar_data_list[menu_ghost.BASE + "_avatar"]
@@ -1687,7 +1722,7 @@ class MenuController(object):
 
         self.update_menu_text_and_images(selected_menu)
 
-        self.gc.set_active_keyboard_manager(InMenuKeyboardManager.ID)
+        self.gc.game.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc.gs.ms.add_menu_to_stack(menu_name)
 
     def next_menu(self, current_menu):
@@ -1764,12 +1799,12 @@ class SceneManager(object): #TODO: Work on this mess!!
 
     def initiate_scene(self, scene_name):
         self.active_scene = copy.copy(self.scene_dict[scene_name])
-        self.gc.set_active_keyboard_manager(InSceneKeyboardManager.ID)
+        self.gc.game.set_active_keyboard_manager(InSceneKeyboardManager.ID)
         self.process_scene_queue()
 
     def process_scene_queue(self):
         if self.active_scene.complete:
-            self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+            self.gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
         else:
             next_step, last_action = self.active_scene.return_current_action2()
             next_step, last_action = self.active_scene.return_current_action2()
@@ -1830,7 +1865,7 @@ class SceneManager(object): #TODO: Work on this mess!!
 
     def play_scene(self, scene_object):
         self.scene_list["play"] = scene_object
-        self.gc.set_active_keyboard_manager(InSceneKeyboardManager.ID)
+        self.gc.game.set_active_keyboard_manager(InSceneKeyboardManager.ID)
         self.current_scene = "play"
         self.continue_scene({"x_move": 0, "y_move": 0})
 
@@ -1872,7 +1907,7 @@ class SceneManager(object): #TODO: Work on this mess!!
         pass
 
     def end_scene(self):
-        self.gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+        self.gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
         self.current_scene = None
 
 
@@ -1975,9 +2010,87 @@ class DeveloperTools(object):
 
 class BuilderController(GameController):
     def __init__(self, game, game_view, game_state, game_data):
-        super().__init__(game, game_view, game_state, game_data):
-        self.gc = gc
+        super().__init__(game, game_view, game_state, game_data)
 
-class GameController(object):
+    def report_mouse_location(self):
+        mouse_location = pygame.mouse.get_pos()
+        mouse_click_tiles = self.determine_mouse_tile(mouse_location)
+        mouse_x = mouse_click_tiles[0]
+        mouse_y = mouse_click_tiles[1]
+        current_room = self.gs.get_current_view_room()
+        mouse_x_in_range = current_room.x_size + 1 > mouse_x > 0
+        mouse_y_in_range = current_room.y_size + 1 > mouse_y > 0
 
-    def __init__(self, game, game_view, game_state, game_data):
+        base_locator_x = copy.copy(self.gs.gv.base_locator_x)
+        base_locator_y = copy.copy(self.gs.gv.base_locator_y)
+
+        x_loc = mouse_x * GameSettings.TILESIZE + base_locator_x + 100
+        y_loc = mouse_y * GameSettings.TILESIZE + base_locator_y + 100
+
+        if mouse_x_in_range and mouse_y_in_range:
+            self.gs.gv.update_mouse_hover(True, mouse_x, mouse_y)
+        else:
+            self.gs.gv.update_mouse_hover(False, mouse_x, mouse_y)
+
+    def view_room(self, room_name):
+        room_object = self.gs.get_room(room_name)
+        if room_object.loaded_up:
+            self.gs.set_current_room(room_name)
+            self.gs.gv.set_camera_to_zero()
+            self.game_view.refresh_drawables()
+            self.gs.set_current_view_room(room_name)
+        else:
+            self.load_up_room(room_name)
+            self.gs.gv.set_camera_to_zero()
+            self.gs.set_current_view_room(room_name)
+
+    def act_on_key_down_cue(self):
+        if not self.check_if_player_already_animating():
+            direction = []
+            if self.key_down_queue == pygame.K_DOWN:
+                direction = Direction.DOWN
+            elif self.key_down_queue == pygame.K_UP:
+                direction = Direction.UP
+            elif self.key_down_queue == pygame.K_RIGHT:
+                direction = Direction.RIGHT
+            elif self.key_down_queue == pygame.K_LEFT:
+                direction = Direction.LEFT
+
+            if self.key_down_queue:
+                direction_influence_x = Mundane.direction_feedback(direction, -1, 1, 0, 0)
+                direction_influence_y = Mundane.direction_feedback(direction, 0, 0, -1, 1)
+                speed = .25
+                self.gs.gv.manually_update_camera(direction_influence_x*speed, direction_influence_y*speed)
+
+    def act_on_mouse_click(self, mouse_click):
+        self.fetch_feature_from_mouse_click(mouse_click)
+
+    def determine_mouse_tile(self, mouse_click):
+        mouse_x = mouse_click[0]
+        mouse_y = mouse_click[1]
+
+        base_locator_x = copy.copy(self.gs.gv.base_locator_x)
+        base_locator_y = copy.copy(self.gs.gv.base_locator_y)
+        camera = self.gs.gv.get_camera_loc()
+
+        tile_x = math.ceil((mouse_x + camera[0])/GameSettings.TILESIZE - base_locator_x)
+        tile_y = math.ceil((mouse_y + camera[1])/GameSettings.TILESIZE - base_locator_y)
+
+        # print(mouse_x, mouse_y, base_locator_x, base_locator_y, camera, tile_x, tile_y)
+        return(tile_x, tile_y)
+
+    def fetch_feature_from_mouse_click(self, mouse_click):
+        mouse_click_tiles = self.determine_mouse_tile(mouse_click)
+        mouse_x = mouse_click_tiles[0]
+        mouse_y = mouse_click_tiles[1]
+        current_room = self.gs.get_current_view_room()
+        mouse_x_in_range = current_room.x_size > mouse_x > 0
+        mouse_y_in_range = current_room.y_size > mouse_y > 0
+        if mouse_x_in_range and mouse_y_in_range:
+            cube = current_room.access_cube(mouse_x, mouse_y)
+            if cube.filling_unique_name:
+                print("Cube " + str(mouse_x) + ", " + str(mouse_y) + " contains: " + cube.filling_unique_name)
+            else:
+                print("Cube " + str(mouse_x) + ", " + str(mouse_y) + "is empty...")
+        else:
+            print("out of range")

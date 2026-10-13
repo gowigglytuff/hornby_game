@@ -102,6 +102,19 @@ class GameView(object):
         self.speak_font = pygame.font.Font(self.font_file, self.speak_font_size)
         self.small_font_size = 6
         self.small_font = pygame.font.Font(self.font_file, self.small_font_size)
+        self.show_mouse_hover = False
+        self.mouse_hover_location = (640, 546)
+        self.mouse_hover_image = pygame.Surface((32, 32))
+        WHITE = (255, 255, 255)
+        self.mouse_hover_image.fill(WHITE)
+        self.mouse_hover_image.set_alpha(128)
+
+    def update_mouse_hover(self, active, x, y):
+        if active:
+            self.show_mouse_hover = True
+            self.mouse_hover_location = (x, y)
+        else:
+            self.show_mouse_hover = False
 
     def switch_active_camera(self, new_camera):
         if new_camera == "in_game":
@@ -183,6 +196,17 @@ class GameView(object):
             plot_location_y = room.plot_size_y * (selected_plot.plot_y - 1) * self.square_size[1]
             self.screen.blit(selected_plot.background_map[self.tile_frame], (camera_x + plot_location_x, camera_y + plot_location_y))
 
+    def draw_mouse_hover(self):
+        if self.show_mouse_hover:
+            final_image = self.mouse_hover_image
+            # self.screen.blit(final_image, [self.mouse_hover_location[0], self.mouse_hover_location[1]])
+
+            camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
+            camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
+            feature_loc_x = camera_x + (self.mouse_hover_location[0] - 1) * self.square_size[0]
+            feature_loc_y = camera_y + (self.mouse_hover_location[1] - 1) * self.square_size[1]
+            self.screen.blit(final_image, (feature_loc_x, feature_loc_y))
+
     def draw_independent_animation(self, animation_ob):
         camera_x = -self.camera[0] + self.base_locator_x * GameSettings.TILESIZE
         camera_y = -self.camera[1] + self.base_locator_y * GameSettings.TILESIZE
@@ -192,6 +216,7 @@ class GameView(object):
 
     def draw_all(self, drawables_list, current_room):
         self.draw_bg(current_room)
+        self.draw_mouse_hover()
 
         for drawable in drawables_list:
             if drawable.feature_type == Types.INDANIM:
@@ -346,9 +371,17 @@ class GameView(object):
         self.camera[0] = 0
         self.camera[1] = 0
 
+    def set_camera_to_coords(self, x, y):
+        self.camera[0] = x
+        self.camera[1] = y
+
+
     def manually_update_camera(self, x_change, y_change):
         self.camera[0] += (x_change * GameSettings.TILESIZE)
         self.camera[1] += (y_change * GameSettings.TILESIZE)
+
+    def get_camera_loc(self):
+        return copy.copy(self.camera)
 
     def slide_camera(self, x_change, y_change):
         self.camera[0] += x_change

@@ -4,7 +4,7 @@ import textwrap
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -1985,3 +1985,156 @@ class SceneDialogueMenuGhost(MenuGhost):
 
     def reset_elements(self):
         pass
+
+
+class CharacterAssemblyMenuGhost(MenuGhost):
+    BASE = "character_assembly_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = CharacterAssemblyMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.parts_list = ["hair", "head", "torso", "legs"]
+        self.current_part = "head"
+        self.selected_head = 1
+        self.selected_hair = 1
+        self.selected_torso = 1
+        self.selected_legs = 1
+        self.hair_list = {1: Spritesheet("hair_1", "assets/character_assembly/assembly_hair_1.png", 32, 48).get_image(0, 0),
+                          2: Spritesheet("hair_2", "assets/character_assembly/assembly_hair_2.png", 32, 48).get_image(0, 0),
+                          3: Spritesheet("hair_3", "assets/character_assembly/assembly_hair_3.png", 32, 48).get_image(0, 0)}
+        self.head_list = {1: Spritesheet("head_1", "assets/character_assembly/assembly_head_1.png", 32, 48).get_image(0, 0),
+                          2: Spritesheet("head_2", "assets/character_assembly/assembly_head_2.png", 32, 48).get_image(0, 0),
+                          3: Spritesheet("head_3", "assets/character_assembly/assembly_head_3.png", 32, 48).get_image(0, 0)}
+        self.torso_list = {1: Spritesheet("torso_1", "assets/character_assembly/assembly_torso_1.png", 32, 48).get_image(0, 0),
+                           2: Spritesheet("torso_2", "assets/character_assembly/assembly_torso_2.png", 32, 48).get_image(0, 0),
+                           3: Spritesheet("torso_3", "assets/character_assembly/assembly_torso_3.png", 32, 48).get_image(0, 0),
+                           4: Spritesheet("torso_4", "assets/character_assembly/assembly_torso_4.png", 32, 48).get_image(0, 0)}
+        self.legs_list = {1: Spritesheet("legs_1", "assets/character_assembly/assembly_legs_1.png", 32, 48).get_image(0, 0),
+                          2: Spritesheet("legs_2", "assets/character_assembly/assembly_legs_2.png", 32, 48).get_image(0, 0),
+                          3: Spritesheet("legs_3", "assets/character_assembly/assembly_legs_3.png", 32, 48).get_image(0, 0),
+                          4: Spritesheet("legs_4", "assets/character_assembly/assembly_legs_4.png", 32, 48).get_image(0, 0)}
+
+        self.prepare_menu_for_display(None)
+
+
+    def check_if_item_in_list(self, list_type, item_name):
+        result = False
+        for item in getattr(self, list_type + "_item_list").keys():
+            if item_name == item:
+                result = True
+        return result
+
+    def add_to_item_list(self, list_type, species, display_name):
+        getattr(self, list_type + "_item_list")[species] = [species, display_name]
+
+    def prepare_menu_for_display(self, details):
+        pass
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        menu_specific = {"selected_part": self.current_part,
+                         "hair_image": self.hair_list[self.selected_hair],
+                         "head_image": self.head_list[self.selected_head],
+                         "torso_image": self.torso_list[self.selected_torso],
+                         "legs_image": self.legs_list[self.selected_legs]}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        details = {"image": "Crow"}
+        self.gc.menu_controller.set_menu(PictureMenuGhost.BASE, details)
+
+    def cursor_left(self):
+        relevant_number = getattr(self, "selected_" + self.current_part)
+        current_list = getattr(self, self.current_part + "_list")
+
+        if relevant_number > 1:
+            relevant_number -= 1
+            setattr(self, "selected_" + self.current_part, relevant_number)
+        elif relevant_number == 1:
+            relevant_number = len(current_list)
+            setattr(self, "selected_" + self.current_part, relevant_number)
+
+    def cursor_right(self):
+        relevant_number = getattr(self, "selected_" + self.current_part)
+        current_list = getattr(self, self.current_part + "_list")
+
+        if relevant_number >= len(current_list):
+            relevant_number = 1
+            setattr(self, "selected_" + self.current_part, relevant_number)
+        elif relevant_number < len(current_list):
+            relevant_number += 1
+            setattr(self, "selected_" + self.current_part, relevant_number)
+
+    def cursor_up(self):
+        current_number = self.parts_list.index(self.current_part)
+        if current_number > 0:
+            self.current_part = self.parts_list[current_number-1]
+        else:
+            self.current_part = self.parts_list[len(self.parts_list) - 1]
+
+    def cursor_down(self):
+        current_number = self.parts_list.index(self.current_part)
+        if current_number < len(self.parts_list) - 1:
+            self.current_part = self.parts_list[current_number+1]
+        else:
+            self.current_part = self.parts_list[0]
+
+    def make_main_item(self, list_type, number):
+        setattr(self, list_type + "_number", number)
+        list_keys = getattr(self, list_type + "_item_list").keys()
+        sorted_keys = sorted(list_keys)
+        setattr(self, "selected_" + list_type, sorted_keys[number])
+
+        length = len(sorted_keys)
+        if number == (length - 1):
+            setattr(self, "is_last_" + list_type, True)
+        else:
+            setattr(self, "is_last_" + list_type, False)
+        if number == 0:
+            setattr(self, "is_first_" + list_type, True)
+        else:
+            setattr(self, "is_first_" + list_type, False)
+
+
+# Builder menus
+
+class RoomSelectMenuGhost(MenuGhost):
+    BASE = "room_select_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = ListMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_item_list = ["Staging_Area", "Farmland", "Marsh", "Mountain"]
+        self.menu_item_list.append("Exit")
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.prepare_menu_for_display(None)
+
+    def do_option(self, choice=None):
+        menu_selection = self.get_current_menu_item()
+
+        if menu_selection == "Exit":
+            self.gc.menu_controller.exit_all_menus()
+        else:
+            self.gc.view_room(menu_selection)
+

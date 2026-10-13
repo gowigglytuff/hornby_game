@@ -24,7 +24,7 @@ def init_game(g):
     else:
         continue_game_procedures(g.game_controller, g.gs)
 
-    install_all_data(g.game_controller, g.gs)
+    install_all_data(g.game_controller, g.builder_controller, g.gs)
 
 
 def new_game_procedures(gc, gs):
@@ -52,13 +52,13 @@ def continue_game_procedures(gc, gs):
     pass
 
 
-def install_all_data(gc, gs):
+def install_all_data(gc, bc, gs):
 
     def install_rooms(gc, gs):
         load1 = True
-        load2 = True
-        load3 = True
-        load4 = True
+        load2 = False
+        load3 = False
+        load4 = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (SpecialRoom("Staging_Area", 7, 9, 1, 1)))
 
@@ -242,15 +242,15 @@ def install_all_data(gc, gs):
     def spawn_first_room(gc, gs):
         gc.position_manager.spawn_all_initial_room_elements(gs.get_room(gs.current_room))
 
-    def install_keyboard_managers(gc, gs):
+    def install_keyboard_managers(gc, bc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
-        gc.game_view.game_data.add_keyboard_manager_data(WorldViewKeyboardManager.ID, WorldViewKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(WorldViewKeyboardManager.ID, WorldViewKeyboardManager(bc))
         gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(InSceneKeyboardManager.ID, InSceneKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(GhostEyeKeyboardManager.ID, GhostEyeKeyboardManager(gc))
 
     def set_initial_keyboard_manager(gc, gs):
-        gc.set_active_keyboard_manager(InGameKeyboardManager.ID)
+        gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
 
     def install_temp_items(gc, gs):
         items_to_install = [Cheese, Milk, Cream, Banana, Apple, Orange, Mike, Spoon, Mouse, Match, Game, Card, Pizza, Meat, Egg]
@@ -298,9 +298,12 @@ def install_all_data(gc, gs):
         # for page in gs.gd.bird_page_data_list.keys():
         #     gc.inventory_manager.acquire_page(gs.gd.bird_page_data_list[page].page_name)
 
-    def install_menus(gc, gs):
+    def install_menus(gc, bc, gs):
         for ghost in gc.menu_controller.menu_load_list:
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
+
+        for ghost in gc.menu_controller.builder_menu_load_list:
+            gs.ms.add_menu_ghost(ghost.NAME, ghost(bc))
 
         for menu in gs.ms.menu_ghost_data_list.values():
             avatar_name = menu.BASE + "_avatar"
@@ -346,7 +349,7 @@ def install_all_data(gc, gs):
         for item in reference_dict.keys():
             gs.gd.add_sound_reference(item, reference_dict[item])
 
-    install_keyboard_managers(gc, gs)
+    install_keyboard_managers(gc, bc, gs)
     set_initial_keyboard_manager(gc, gs)
 
     install_temp_items(gc, gs)
@@ -354,7 +357,7 @@ def install_all_data(gc, gs):
     install_key_items(gc, gs)
     install_treasure_items(gc, gs)
     install_bird_pages(gc, gs)
-    install_menus(gc, gs)
+    install_menus(gc, bc, gs)
     install_goals(gc, gs)
     install_tileset(gc, gs)
     install_spritesheets(gc, gs)
