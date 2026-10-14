@@ -1044,13 +1044,10 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.cursor_offset_x = self.offset_x - 10
         self.cursor_offset_y = self.offset_y + 7
 
-        self.head_list = {1: Spritesheet("head_1", "assets/character_assembly/assembly_head_1.png", 32, 48).get_image(0, 0),
-                          2: Spritesheet("head_1", "assets/character_assembly/assembly_head_2.png", 32, 48).get_image(0, 0)}
-        self.torso_list = {1: Spritesheet("torso_1", "assets/character_assembly/assembly_torso_1.png", 32, 48).get_image(0, 0)}
-        self.legs_list = {1: Spritesheet("legs_1", "assets/character_assembly/assembly_legs_1.png", 32, 48).get_image(0, 0)}
-
-        self.menu_display_details = {"default_width": 30, "default_height": 20, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.menu_display_details = {"default_width": 40, "default_height": 60, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
+        self.x_counter = 0
+        self.y_counter = 0
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -1061,7 +1058,7 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         # item_names
         name_text = Mundane.center_text_x(self.overlay_body_x, 0, text)
-        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 75))
+        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 275))
 
         # Header
         header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
@@ -1073,21 +1070,59 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
-        hair_image = menu_info.menu_specific_details_dict["hair_image"]
-        head_image = menu_info.menu_specific_details_dict["head_image"]
-        torso_image = menu_info.menu_specific_details_dict["torso_image"]
-        legs_image = menu_info.menu_specific_details_dict["legs_image"]
+        # hair_image = menu_info.menu_specific_details_dict["hair_image"]
+        # head_image = menu_info.menu_specific_details_dict["head_image"]
+        # torso_image = menu_info.menu_specific_details_dict["torso_image"]
+        # legs_image = menu_info.menu_specific_details_dict["legs_image"]
+        #
+        # segment_1_x = Mundane.center_image_x(self.overlay_body_x, 0, hair_image)/2
+        # loc_y = 20
+        # hair_image_1 = ImageDisplay(hair_image, segment_1_x, loc_y)
+        # head_image_1 = ImageDisplay(head_image, segment_1_x, loc_y)
+        # torso_image_1 = ImageDisplay(torso_image, segment_1_x, loc_y)
+        # legs_image_1 = ImageDisplay(legs_image, segment_1_x, loc_y)
+        #
+        # segment_2_x = segment_1_x + 32
+        #
+        # hair_image_2 = ImageDisplay(hair_image, segment_2_x, loc_y)
+        # head_image_2 = ImageDisplay(head_image, segment_2_x, loc_y)
+        # torso_image_2 = ImageDisplay(torso_image, segment_2_x, loc_y)
+        # legs_image_2 = ImageDisplay(legs_image, segment_2_x, loc_y)
+        #
+        # # final_images = [legs_image_1, torso_image_1, head_image_1, hair_image_1,
+        # #                 legs_image_2, torso_image_2, head_image_2, hair_image_2]
+
+        front_fram_1_image = menu_info.menu_specific_details_dict["front_frame_1"]
+        segment_1_x = Mundane.center_image_x(32, 0, front_fram_1_image)/2
+
+        self.x_counter = 0
+        self.y_counter = 0
+        def get_x_addition():
+            if self.x_counter == 4:
+                self.x_counter = 0
+                self.y_counter += 1
+            result = 0 + copy.copy(self.x_counter)
+            self.x_counter += 1
+
+
+            return result*32
+
 
         loc_y = 20
-        hair_image = ImageDisplay(hair_image, Mundane.center_image_x(self.overlay_body_x, 0, hair_image), loc_y)
-        head_image = ImageDisplay(head_image, Mundane.center_image_x(self.overlay_body_x, 0, head_image), loc_y)
-        torso_image = ImageDisplay(torso_image, Mundane.center_image_x(self.overlay_body_x, 0, torso_image), loc_y)
-        leg_image = ImageDisplay(legs_image, Mundane.center_image_x(self.overlay_body_x, 0, legs_image), loc_y)
 
-        final_menu_images.append(leg_image)
-        final_menu_images.append(torso_image)
-        final_menu_images.append(head_image)
-        final_menu_images.append(hair_image)
+        front_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        front_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        front_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        front_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        back_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        back_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        back_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        back_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
+                        back_frame_1, back_frame_2, back_frame_3, back_frame_4]
+
+        for image in final_images:
+            final_menu_images.append(image)
 
         self.final_menu_images = final_menu_images
         return final_menu_images
