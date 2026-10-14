@@ -2,6 +2,8 @@ import copy
 import math
 import textwrap
 
+import pygame
+
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
 from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar
@@ -2008,23 +2010,50 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.selected_hair = 1
         self.selected_torso = 1
         self.selected_legs = 1
-        self.hair_list = {1: Spritesheet("hair_1", "assets/character_assembly/assembly_hair_1.png", 32, 48).get_image(0, 0),
-                          2: Spritesheet("hair_2", "assets/character_assembly/assembly_hair_2.png", 32, 48).get_image(0, 0),
-                          3: Spritesheet("hair_3", "assets/character_assembly/assembly_hair_3.png", 32, 48).get_image(0, 0)}
-        self.head_list = {1: Spritesheet("head_1", "assets/character_assembly/assembly_head_1.png", 32, 48).get_image(0, 0),
-                          2: Spritesheet("head_2", "assets/character_assembly/assembly_head_2.png", 32, 48).get_image(0, 0),
-                          3: Spritesheet("head_3", "assets/character_assembly/assembly_head_3.png", 32, 48).get_image(0, 0)}
-        self.torso_list = {1: Spritesheet("torso_1", "assets/character_assembly/assembly_torso_1.png", 32, 48).get_image(0, 0),
-                           2: Spritesheet("torso_2", "assets/character_assembly/assembly_torso_2.png", 32, 48).get_image(0, 0),
-                           3: Spritesheet("torso_3", "assets/character_assembly/assembly_torso_3.png", 32, 48).get_image(0, 0),
-                           4: Spritesheet("torso_4", "assets/character_assembly/assembly_torso_4.png", 32, 48).get_image(0, 0)}
-        self.legs_list = {1: Spritesheet("legs_1", "assets/character_assembly/assembly_legs_1.png", 32, 48).get_image(0, 0),
-                          2: Spritesheet("legs_2", "assets/character_assembly/assembly_legs_2.png", 32, 48).get_image(0, 0),
-                          3: Spritesheet("legs_3", "assets/character_assembly/assembly_legs_3.png", 32, 48).get_image(0, 0),
-                          4: Spritesheet("legs_4", "assets/character_assembly/assembly_legs_4.png", 32, 48).get_image(0, 0)}
-
+        self.torso_base = pygame.image.load('assets/character_assembly/assembly_torso_1.png').convert_alpha()
+        self.hair_list = {1: pygame.image.load("assets/character_assembly/assembly_hair_1.png").convert_alpha(),
+                          2: pygame.image.load("assets/character_assembly/assembly_hair_2.png").convert_alpha(),
+                          3: pygame.image.load("assets/character_assembly/assembly_hair_3.png").convert_alpha(),
+                          4: pygame.image.load("assets/character_assembly/assembly_hair_4.png").convert_alpha(),
+                          5: pygame.image.load("assets/character_assembly/assembly_hair_5.png").convert_alpha()}
+        self.head_list = {1: pygame.image.load("assets/character_assembly/assembly_head_1.png").convert_alpha(),
+                          2: pygame.image.load("assets/character_assembly/assembly_head_2.png").convert_alpha(),
+                          3: pygame.image.load("assets/character_assembly/assembly_head_3.png").convert_alpha(),
+                          4: pygame.image.load("assets/character_assembly/assembly_head_4.png").convert_alpha(),
+                          5: pygame.image.load("assets/character_assembly/assembly_head_5.png").convert_alpha(),
+                          6: pygame.image.load("assets/character_assembly/assembly_head_6.png").convert_alpha(),
+                          7: pygame.image.load("assets/character_assembly/assembly_head_7.png").convert_alpha()}
+        self.torso_list = {1: pygame.image.load("assets/character_assembly/assembly_torso_1.png").convert_alpha(),
+                           2: pygame.image.load("assets/character_assembly/assembly_torso_2.png").convert_alpha(),
+                           3: pygame.image.load("assets/character_assembly/assembly_torso_3.png").convert_alpha()}
+        self.legs_list = {1: pygame.image.load("assets/character_assembly/assembly_legs_1.png").convert_alpha(),
+                          2: pygame.image.load("assets/character_assembly/assembly_legs_2.png").convert_alpha(),
+                          3: pygame.image.load("assets/character_assembly/assembly_legs_3.png").convert_alpha(),
+                          4: pygame.image.load("assets/character_assembly/assembly_legs_4.png").convert_alpha()}
+        self.bg_pink = (255, 145, 211)
+        self.primary_colour = (204, 204, 204)
+        self.final_torso = pygame.image.load("assets/character_assembly/assembly_torso_1.png").convert_alpha()
+        self.final_torso.set_colorkey(self.bg_pink)
+        self.final_hair = pygame.image.load("assets/character_assembly/assembly_hair_1.png").convert_alpha()
+        self.final_hair.set_colorkey(self.bg_pink)
+        self.final_legs = pygame.image.load("assets/character_assembly/assembly_legs_1.png").convert_alpha()
+        self.final_legs.set_colorkey(self.bg_pink)
+        self.final_head = pygame.image.load("assets/character_assembly/assembly_head_1.png").convert_alpha()
+        self.final_head.set_colorkey(self.bg_pink)
         self.prepare_menu_for_display(None)
+        blue = (128, 197, 213)
+        light_green = (0, 255, 0)
+        red = (255, 0, 0)
+        cherry_red = (255, 142, 108)
+        white = (255, 255, 255)
+        black = (46, 46, 46)
+        lavender = (191, 140, 181)
+        dark_green = (15, 144, 24)
 
+        self.selected_torso_colour = copy.copy(self.primary_colour)
+        self.selected_legs_colour = copy.copy(self.primary_colour)
+        self.selected_hair_colour = copy.copy(self.primary_colour)
+        self.colour_options = [self.primary_colour, light_green, dark_green, blue, red, cherry_red, lavender, white, black]
 
     def check_if_item_in_list(self, list_type, item_name):
         result = False
@@ -2049,17 +2078,56 @@ class CharacterAssemblyMenuGhost(MenuGhost):
             text_display_list.append(source[item])
 
         menu_specific = {"selected_part": self.current_part,
-                         "hair_image": self.hair_list[self.selected_hair],
-                         "head_image": self.head_list[self.selected_head],
-                         "torso_image": self.torso_list[self.selected_torso],
-                         "legs_image": self.legs_list[self.selected_legs]}
+                         "hair_image": self.final_hair,
+                         "head_image": self.final_head,
+                         "torso_image": self.final_torso,
+                         "legs_image": self.final_legs}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
-        details = {"image": "Crow"}
-        self.gc.menu_controller.set_menu(PictureMenuGhost.BASE, details)
+        pass
+
+    def key_letter(self, letter):
+        if letter == "a":
+            if self.current_part != "head":
+                relevant_number = getattr(self, "selected_" + self.current_part)
+                current_list = getattr(self, self.current_part + "_list")
+                selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
+
+                current_index = self.colour_options.index(selected_colour)
+                print(current_index, selected_colour, self.current_part)
+                new_colour = []
+                if current_index == len(self.colour_options) - 1:
+                    new_colour = self.colour_options[0]
+                else:
+                    new_colour = self.colour_options[current_index + 1]
+                setattr(self, "selected_" + self.current_part + "_colour", new_colour)
+
+                print(current_index, selected_colour)
+
+                part = current_list[relevant_number].copy()
+                new_image = self.change_colour(part, new_colour)
+
+                setattr(self, "final_" + self.current_part, new_image)
+
+        else:
+            pass
+
+    def change_colour(self, part, new_colour):
+        relevant_number = getattr(self, "selected_" + self.current_part)
+        current_list = getattr(self, self.current_part + "_list")
+
+        img_copy = part.copy()
+        img_copy.set_colorkey((204, 204, 204))
+
+        new_surface = pygame.Surface(current_list[relevant_number].get_size(), pygame.SRCALPHA)
+        new_surface.fill(new_colour)
+
+        new_surface.blit(img_copy, (0, 0))
+        new_surface.set_colorkey(self.bg_pink)
+        return new_surface
 
     def cursor_left(self):
         relevant_number = getattr(self, "selected_" + self.current_part)
@@ -2071,6 +2139,12 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         elif relevant_number == 1:
             relevant_number = len(current_list)
             setattr(self, "selected_" + self.current_part, relevant_number)
+        part = current_list[relevant_number].copy()
+        if self.current_part != "head":
+            part = self.change_colour(part, getattr(self, "selected_" + self.current_part + "_colour"))
+        else:
+            part.set_colorkey(self.bg_pink)
+        setattr(self, "final_" + self.current_part, part)
 
     def cursor_right(self):
         relevant_number = getattr(self, "selected_" + self.current_part)
@@ -2082,6 +2156,12 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         elif relevant_number < len(current_list):
             relevant_number += 1
             setattr(self, "selected_" + self.current_part, relevant_number)
+        part = current_list[relevant_number].copy()
+        if self.current_part != "head":
+            part = self.change_colour(part, getattr(self, "selected_" + self.current_part + "_colour"))
+        else:
+            part.set_colorkey(self.bg_pink)
+        setattr(self, "final_" + self.current_part, part)
 
     def cursor_up(self):
         current_number = self.parts_list.index(self.current_part)
