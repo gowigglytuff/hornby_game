@@ -1070,27 +1070,6 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
-        # hair_image = menu_info.menu_specific_details_dict["hair_image"]
-        # head_image = menu_info.menu_specific_details_dict["head_image"]
-        # torso_image = menu_info.menu_specific_details_dict["torso_image"]
-        # legs_image = menu_info.menu_specific_details_dict["legs_image"]
-        #
-        # segment_1_x = Mundane.center_image_x(self.overlay_body_x, 0, hair_image)/2
-        # loc_y = 20
-        # hair_image_1 = ImageDisplay(hair_image, segment_1_x, loc_y)
-        # head_image_1 = ImageDisplay(head_image, segment_1_x, loc_y)
-        # torso_image_1 = ImageDisplay(torso_image, segment_1_x, loc_y)
-        # legs_image_1 = ImageDisplay(legs_image, segment_1_x, loc_y)
-        #
-        # segment_2_x = segment_1_x + 32
-        #
-        # hair_image_2 = ImageDisplay(hair_image, segment_2_x, loc_y)
-        # head_image_2 = ImageDisplay(head_image, segment_2_x, loc_y)
-        # torso_image_2 = ImageDisplay(torso_image, segment_2_x, loc_y)
-        # legs_image_2 = ImageDisplay(legs_image, segment_2_x, loc_y)
-        #
-        # # final_images = [legs_image_1, torso_image_1, head_image_1, hair_image_1,
-        # #                 legs_image_2, torso_image_2, head_image_2, hair_image_2]
 
         front_fram_1_image = menu_info.menu_specific_details_dict["front_frame_1"]
         segment_1_x = Mundane.center_image_x(32, 0, front_fram_1_image)/2
