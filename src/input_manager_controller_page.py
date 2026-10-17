@@ -237,7 +237,7 @@ class InGameKeyboardManager(KeyboardManager):
         #
         # self.gc.menu_controller.set_menu(QuizMenuGhost.BASE, details)
         #
-        # self.gc.switch_characters("Jim_5")
+
         #
         # self.gc.position_manager.print_map_of_room()
 
@@ -251,6 +251,8 @@ class InGameKeyboardManager(KeyboardManager):
         # self.gc.view_room(rooms[ind])
         #
         # self.gc.gs.gv.set_camera_to_zero()
+
+        # self.gc.switch_characters("Jim_5")
 
         self.gc.menu_controller.set_menu("character_assembly_menu", None)
 

@@ -1097,8 +1097,20 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         back_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
         back_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
         back_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        right_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        right_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        right_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        right_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        left_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        left_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        left_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        left_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+
         final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
-                        back_frame_1, back_frame_2, back_frame_3, back_frame_4]
+                        back_frame_1, back_frame_2, back_frame_3, back_frame_4,
+                        right_frame_1, right_frame_2, right_frame_3, right_frame_4,
+                        left_frame_1, left_frame_2, left_frame_3, left_frame_4
+                        ]
 
         for image in final_images:
             final_menu_images.append(image)

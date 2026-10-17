@@ -2004,68 +2004,47 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
-        self.parts_list = ["hair", "head", "torso", "legs"]
+        self.legs_counter = 0
+        self.torso_counter = 0
+        self.hair_counter = 0
+        self.eyes_counter = 0
+        self.head_counter = 0
+        self.mouth_counter = 0
+        self.parts_list = ["hair", "head", "eyes", "mouth", "torso", "legs"]
         self.current_part = "head"
         self.selected_head = 1
+        self.selected_eyes = 1
         self.selected_hair = 1
         self.selected_torso = 1
         self.selected_legs = 1
-        self.torso_base = pygame.image.load('assets/character_assembly/torso/front/frame_1/assembly_torso_1.png').convert_alpha()
-        self.hair_list = {"front": {1: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_1.png").convert_alpha(),
-                                    2: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_2.png").convert_alpha(),
-                                    3: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_3.png").convert_alpha(),
-                                    4: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_4.png").convert_alpha(),
-                                    5: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_5.png").convert_alpha()},
-                          "back": {1: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_1.png").convert_alpha(),
-                                   2: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_2.png").convert_alpha(),
-                                   3: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_3.png").convert_alpha(),
-                                   4: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_4.png").convert_alpha(),
-                                   5: pygame.image.load("assets/character_assembly/hair/front/frame_1/assembly_hair_5.png").convert_alpha()}}
-        self.head_list = {"front": {1: pygame.image.load("assets/character_assembly/head/front/assembly_head_1.png").convert_alpha(),
-                                    2: pygame.image.load("assets/character_assembly/head/front/assembly_head_2.png").convert_alpha(),
-                                    3: pygame.image.load("assets/character_assembly/head/front/assembly_head_3.png").convert_alpha(),
-                                    4: pygame.image.load("assets/character_assembly/head/front/assembly_head_4.png").convert_alpha(),
-                                    5: pygame.image.load("assets/character_assembly/head/front/assembly_head_5.png").convert_alpha(),
-                                    6: pygame.image.load("assets/character_assembly/head/front/assembly_head_6.png").convert_alpha(),
-                                    7: pygame.image.load("assets/character_assembly/head/front/assembly_head_7.png").convert_alpha()},
-                          "back": {1: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha(),
-                                   2: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha(),
-                                   3: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha(),
-                                   4: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha(),
-                                   5: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha(),
-                                   6: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha(),
-                                   7: pygame.image.load("assets/character_assembly/head/back/assembly_back_frame_1_head_1.png").convert_alpha()}}
-        # self.torso_list = {1: pygame.image.load("assets/character_assembly/torso/front/frame_1/assembly_torso_1.png").convert_alpha(),
-        #                    2: pygame.image.load("assets/character_assembly/torso/front/frame_1/assembly_torso_2.png").convert_alpha(),
-        #                    3: pygame.image.load("assets/character_assembly/torso/front/frame_1/assembly_torso_3.png").convert_alpha()}
-        self.torso_list = {"front": {"frame_1": {1: pygame.image.load("assets/character_assembly/torso/front/frame_1/assembly_torso_1.png").convert_alpha(),
-                                                 2: pygame.image.load("assets/character_assembly/torso/front/frame_1/assembly_torso_2.png").convert_alpha(),
-                                                 3: pygame.image.load("assets/character_assembly/torso/front/frame_1/assembly_torso_3.png").convert_alpha()},
-                                     "frame_2": {1: pygame.image.load("assets/character_assembly/torso/front/frame_2/assembly_front_frame_2_torso_1.png").convert_alpha(),
-                                                 2: pygame.image.load("assets/character_assembly/torso/front/frame_2/assembly_front_frame_2_torso_1.png").convert_alpha(),
-                                                 3: pygame.image.load("assets/character_assembly/torso/front/frame_2/assembly_front_frame_2_torso_1.png").convert_alpha()}},
-                           "back": {"frame_1": {1: pygame.image.load("assets/character_assembly/torso/back/frame_1/assembly_back_frame_1_torso_1.png").convert_alpha(),
-                                                 2: pygame.image.load("assets/character_assembly/torso/back/frame_1/assembly_back_frame_1_torso_1.png").convert_alpha(),
-                                                 3: pygame.image.load("assets/character_assembly/torso/back/frame_1/assembly_back_frame_1_torso_1.png").convert_alpha()},
-                                     "frame_2": {1: pygame.image.load("assets/character_assembly/torso/back/frame_2/assembly_back_frame_2_torso_1.png").convert_alpha(),
-                                                 2: pygame.image.load("assets/character_assembly/torso/back/frame_2/assembly_back_frame_2_torso_1.png").convert_alpha(),
-                                                 3: pygame.image.load("assets/character_assembly/torso/back/frame_2/assembly_back_frame_2_torso_1.png").convert_alpha()}}}
-        self.legs_list = {"front": {"frame_1": {1: pygame.image.load("assets/character_assembly/legs/front/frame_1/assembly_legs_1.png").convert_alpha(),
-                                                2: pygame.image.load("assets/character_assembly/legs/front/frame_1/assembly_legs_2.png").convert_alpha(),
-                                                3: pygame.image.load("assets/character_assembly/legs/front/frame_1/assembly_legs_3.png").convert_alpha(),
-                                                4: pygame.image.load("assets/character_assembly/legs/front/frame_1/assembly_legs_4.png").convert_alpha()},
-                                    "frame_2": {1: pygame.image.load("assets/character_assembly/legs/front/frame_2/assembly_front_frame_2_legs_1.png").convert_alpha(),
-                                                2: pygame.image.load("assets/character_assembly/legs/front/frame_2/assembly_front_frame_2_legs_1.png").convert_alpha(),
-                                                3: pygame.image.load("assets/character_assembly/legs/front/frame_2/assembly_front_frame_2_legs_1.png").convert_alpha(),
-                                                4: pygame.image.load("assets/character_assembly/legs/front/frame_2/assembly_front_frame_2_legs_1.png").convert_alpha()}},
-                          "back": {"frame_1": {1: pygame.image.load("assets/character_assembly/legs/back/frame_1/assembly_back_frame_1_legs_1.png").convert_alpha(),
-                                                2: pygame.image.load("assets/character_assembly/legs/back/frame_1/assembly_back_frame_1_legs_1.png").convert_alpha(),
-                                                3: pygame.image.load("assets/character_assembly/legs/back/frame_1/assembly_back_frame_1_legs_1.png").convert_alpha(),
-                                                4: pygame.image.load("assets/character_assembly/legs/back/frame_1/assembly_back_frame_1_legs_1.png").convert_alpha()},
-                                    "frame_2": {1: pygame.image.load("assets/character_assembly/legs/back/frame_2/assembly_back_frame_2_legs_1.png").convert_alpha(),
-                                                2: pygame.image.load("assets/character_assembly/legs/back/frame_2/assembly_back_frame_2_legs_1.png").convert_alpha(),
-                                                3: pygame.image.load("assets/character_assembly/legs/back/frame_2/assembly_back_frame_2_legs_1.png").convert_alpha(),
-                                                4: pygame.image.load("assets/character_assembly/legs/back/frame_2/assembly_back_frame_2_legs_1.png").convert_alpha()}}}
+        self.selected_mouth = 1
+        self.mouth_list = {"front": {},
+                          "back": {},
+                          "right": {}}
+        self.hair_list = {"front": {},
+                          "back": {},
+                          "right": {}}
+        self.head_list = {"front": {},
+                          "back": {},
+                          "right": {}}
+        self.eyes_list = {"front": {},
+                          "back": {},
+                          "right": {}}
+        self.torso_list = {"front": {"frame_1": {},
+                                     "frame_2": {}},
+                           "back": {"frame_1": {},
+                                     "frame_2": {}},
+                           "right": {"frame_1": {},
+                                     "frame_2": {},
+                                     "frame_4": {}}}
+        self.legs_list = {"front": {"frame_1": {},
+                                    "frame_2": {}},
+                          "back": {"frame_1": {},
+                                    "frame_2": {}},
+                          "right": {"frame_1": {},
+                                    "frame_2": {},
+                                    "frame_4": {}}}
+        self.process_all_parts()
         self.bg_pink = (255, 145, 211)
         self.primary_colour = (204, 204, 204)
         blue = (128, 197, 213)
@@ -2089,9 +2068,91 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.final_back_frame_2 = self.assemble_back_2()
         self.final_back_frame_3 = self.assemble_back_1()
         self.final_back_frame_4 = self.assemble_back_4()
+        self.final_right_frame_1 = self.assemble_right_1()
+        self.final_right_frame_2 = self.assemble_right_2()
+        self.final_right_frame_3 = self.assemble_right_1()
+        self.final_right_frame_4 = self.assemble_right_4()
+        self.final_left_frame_1 = self.assemble_left_1()
+        self.final_left_frame_2 = self.assemble_left_2()
+        self.final_left_frame_3 = self.assemble_left_1()
+        self.final_left_frame_4 = self.assemble_left_4()
 
         self.prepare_menu_for_display(None)
 
+    def process_all_parts(self):
+        legs_files = Mundane.get_file_names_from_directory("assets/character_assembly/legs")
+        for file in legs_files:
+            self.process_legs_sheet(file)
+
+        torso_files = Mundane.get_file_names_from_directory("assets/character_assembly/torso")
+        for file in torso_files:
+            self.process_torso_sheet(file)
+
+        hair_files = Mundane.get_file_names_from_directory("assets/character_assembly/hair")
+        for file in hair_files:
+            self.process_hair_sheet(file)
+
+        head_files = Mundane.get_file_names_from_directory("assets/character_assembly/head")
+        for file in head_files:
+            self.process_head_sheet(file)
+
+        eyes_files = Mundane.get_file_names_from_directory("assets/character_assembly/eyes")
+        for file in eyes_files:
+            self.process_eyes_sheet(file)
+
+        mouth_files = Mundane.get_file_names_from_directory("assets/character_assembly/mouth")
+        for file in mouth_files:
+            self.process_mouth_sheet(file)
+
+    def process_legs_sheet(self, file_name):
+        self.legs_counter += 1
+        load_file = pygame.image.load("assets/character_assembly/legs/" + file_name).convert_alpha()
+        self.legs_list["front"]["frame_1"][self.legs_counter] = load_file.subsurface((0, 0, 32, 48)).copy()
+        self.legs_list["front"]["frame_2"][self.legs_counter] = load_file.subsurface((32, 0, 32, 48)).copy()
+        self.legs_list["back"]["frame_1"][self.legs_counter] = load_file.subsurface((64, 0, 32, 48)).copy()
+        self.legs_list["back"]["frame_2"][self.legs_counter] = load_file.subsurface((96, 0, 32, 48)).copy()
+        self.legs_list["right"]["frame_1"][self.legs_counter] = load_file.subsurface((0, 48, 32, 48)).copy()
+        self.legs_list["right"]["frame_2"][self.legs_counter] = load_file.subsurface((32, 48, 32, 48)).copy()
+        self.legs_list["right"]["frame_4"][self.legs_counter] = load_file.subsurface((64, 48, 32, 48)).copy()
+
+    def process_torso_sheet(self, file_name):
+        self.torso_counter += 1
+        load_file = pygame.image.load("assets/character_assembly/torso/" + file_name).convert_alpha()
+        self.torso_list["front"]["frame_1"][self.torso_counter] = load_file.subsurface((0, 0, 32, 48)).copy()
+        self.torso_list["front"]["frame_2"][self.torso_counter] = load_file.subsurface((32, 0, 32, 48)).copy()
+        self.torso_list["back"]["frame_1"][self.torso_counter] = load_file.subsurface((64, 0, 32, 48)).copy()
+        self.torso_list["back"]["frame_2"][self.torso_counter] = load_file.subsurface((96, 0, 32, 48)).copy()
+        self.torso_list["right"]["frame_1"][self.torso_counter] = load_file.subsurface((0, 48, 32, 48)).copy()
+        self.torso_list["right"]["frame_2"][self.torso_counter] = load_file.subsurface((32, 48, 32, 48)).copy()
+        self.torso_list["right"]["frame_4"][self.torso_counter] = load_file.subsurface((64, 48, 32, 48)).copy()
+
+    def process_hair_sheet(self, file_name):
+        self.hair_counter += 1
+        load_file = pygame.image.load("assets/character_assembly/hair/" + file_name).convert_alpha()
+        self.hair_list["front"][self.hair_counter] = load_file.subsurface((0, 0, 32, 48)).copy()
+        self.hair_list["back"][self.hair_counter] = load_file.subsurface((32, 0, 32, 48)).copy()
+        self.hair_list["right"][self.hair_counter] = load_file.subsurface((64, 0, 32, 48)).copy()
+
+    def process_head_sheet(self, file_name):
+        self.head_counter += 1
+        load_file = pygame.image.load("assets/character_assembly/head/" + file_name).convert_alpha()
+        self.head_list["front"][self.head_counter] = load_file.subsurface((0, 0, 32, 48)).copy()
+        self.head_list["back"][self.head_counter] = load_file.subsurface((32, 0, 32, 48)).copy()
+        self.head_list["right"][self.head_counter] = load_file.subsurface((64, 0, 32, 48)).copy()
+
+    def process_eyes_sheet(self, file_name):
+        self.eyes_counter += 1
+        load_file = pygame.image.load("assets/character_assembly/eyes/" + file_name).convert_alpha()
+        self.eyes_list["front"][self.eyes_counter] = load_file.subsurface((0, 0, 32, 48)).copy()
+        self.eyes_list["back"][self.eyes_counter] = load_file.subsurface((32, 0, 32, 48)).copy()
+        self.eyes_list["right"][self.eyes_counter] = load_file.subsurface((64, 0, 32, 48)).copy()
+
+    def process_mouth_sheet(self, file_name):
+        self.mouth_counter += 1
+        load_file = pygame.image.load("assets/character_assembly/mouth/" + file_name).convert_alpha()
+        self.mouth_list["front"][self.mouth_counter] = load_file.subsurface((0, 0, 32, 48)).copy()
+        self.mouth_list["back"][self.mouth_counter] = load_file.subsurface((32, 0, 32, 48)).copy()
+        self.mouth_list["right"][self.mouth_counter] = load_file.subsurface((64, 0, 32, 48)).copy()
 
     def check_if_item_in_list(self, list_type, item_name):
         result = False
@@ -2123,7 +2184,16 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                          "back_frame_1": self.final_back_frame_1,
                          "back_frame_2": self.final_back_frame_2,
                          "back_frame_3": self.final_back_frame_3,
-                         "back_frame_4": self.final_back_frame_4}
+                         "back_frame_4": self.final_back_frame_4,
+                         "left_frame_1": self.final_left_frame_1,
+                         "left_frame_2": self.final_left_frame_2,
+                         "left_frame_3": self.final_left_frame_3,
+                         "left_frame_4": self.final_left_frame_4,
+                         "right_frame_1": self.final_right_frame_1,
+                         "right_frame_2": self.final_right_frame_2,
+                         "right_frame_3": self.final_right_frame_3,
+                         "right_frame_4": self.final_right_frame_4,
+                         }
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
@@ -2141,6 +2211,22 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                 current_index = self.colour_options.index(selected_colour)
 
                 new_colour = []
+                if current_index == self.colour_options[0]:
+                    new_colour = len(self.colour_options) - 1
+                else:
+                    new_colour = self.colour_options[current_index - 1]
+                setattr(self, "selected_" + self.current_part + "_colour", new_colour)
+
+                self.perform_assemblies()
+        elif letter == "s":
+            if self.current_part != "right":
+                relevant_number = getattr(self, "selected_" + self.current_part)
+                current_list = getattr(self, self.current_part + "_list")
+                selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
+
+                current_index = self.colour_options.index(selected_colour)
+
+                new_colour = []
                 if current_index == len(self.colour_options) - 1:
                     new_colour = self.colour_options[0]
                 else:
@@ -2148,7 +2234,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                 setattr(self, "selected_" + self.current_part + "_colour", new_colour)
 
                 self.perform_assemblies()
-        elif letter == "s":
+        elif letter == "z":
             self.print_spritesheet_to_png()
         else:
             pass
@@ -2177,10 +2263,18 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         back_frame_2 = self.final_back_frame_2
         back_frame_3 = self.final_back_frame_3
         back_frame_4 = self.final_back_frame_4
+        right_frame_1 = self.final_right_frame_1
+        right_frame_2 = self.final_right_frame_2
+        right_frame_3 = self.final_right_frame_3
+        right_frame_4 = self.final_right_frame_4
+        left_frame_1 = self.final_left_frame_1
+        left_frame_2 = self.final_left_frame_2
+        left_frame_3 = self.final_left_frame_3
+        left_frame_4 = self.final_left_frame_4
         final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
                         back_frame_1, back_frame_2, back_frame_3, back_frame_4,
-                        front_frame_1, front_frame_2, front_frame_3, front_frame_4,
-                        front_frame_1, front_frame_2, front_frame_3, front_frame_4]
+                        right_frame_1, right_frame_2, right_frame_3, right_frame_4,
+                        left_frame_1, left_frame_2, left_frame_3, left_frame_4]
 
         for image in final_images:
             final_surface.blit(image, (get_x_addition(), self.y_counter * 48))
@@ -2196,18 +2290,33 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         setattr(self, "final_back_frame_2", self.assemble_back_2())
         setattr(self, "final_back_frame_3", self.assemble_back_1())
         setattr(self, "final_back_frame_4", self.assemble_back_4())
+        setattr(self, "final_right_frame_1", self.assemble_right_1())
+        setattr(self, "final_right_frame_2", self.assemble_right_2())
+        setattr(self, "final_right_frame_3", self.assemble_right_1())
+        setattr(self, "final_right_frame_4", self.assemble_right_4())
+        setattr(self, "final_left_frame_1", self.assemble_left_1())
+        setattr(self, "final_left_frame_2", self.assemble_left_2())
+        setattr(self, "final_left_frame_3", self.assemble_left_1())
+        setattr(self, "final_left_frame_4", self.assemble_left_4())
+
 
 
     def assemble_front_1(self):
-        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_1",self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_1", self.selected_hair_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["front"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
+        mouth_image = self.mouth_list["front"][self.selected_mouth]
+        mouth_image.set_colorkey(self.bg_pink)
+        eyes_image = self.eyes_list["front"][self.selected_eyes]
+        eyes_image.set_colorkey(self.bg_pink)
         torso_image = self.change_colour(self.torso_list["front"]["frame_1"][self.selected_torso], "front", "frame_1", self.selected_torso_colour)
         torso_image.set_colorkey(self.bg_pink)
         legs_image = self.change_colour(self.legs_list["front"]["frame_1"][self.selected_legs], "front", "frame_1", self.selected_legs_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 0))
+        legs_image.blit(mouth_image, (0, 0))
+        legs_image.blit(eyes_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
         return legs_image
 
@@ -2216,11 +2325,17 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["front"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
+        mouth_image = self.mouth_list["front"][self.selected_mouth]
+        mouth_image.set_colorkey(self.bg_pink)
+        eyes_image = self.eyes_list["front"][self.selected_eyes]
+        eyes_image.set_colorkey(self.bg_pink)
         torso_image = self.change_colour(self.torso_list["front"]["frame_2"][self.selected_torso], "front", "frame_2", self.selected_torso_colour)
         torso_image.set_colorkey(self.bg_pink)
         legs_image = self.change_colour(self.legs_list["front"]["frame_2"][self.selected_legs], "front", "frame_2", self.selected_legs_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 1))
+        legs_image.blit(mouth_image, (0, 1))
+        legs_image.blit(eyes_image, (0, 1))
         legs_image.blit(hair_image, (0, 1))
         return legs_image
 
@@ -2229,6 +2344,10 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["front"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
+        mouth_image = self.mouth_list["front"][self.selected_mouth]
+        mouth_image.set_colorkey(self.bg_pink)
+        eyes_image = self.eyes_list["front"][self.selected_eyes]
+        eyes_image.set_colorkey(self.bg_pink)
         torso_image = self.change_colour(self.torso_list["front"]["frame_2"][self.selected_torso], "front", "frame_2", self.selected_torso_colour)
         torso_image = pygame.transform.flip(torso_image, True, False)
         torso_image.set_colorkey(self.bg_pink)
@@ -2237,6 +2356,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.set_colorkey(self.bg_pink)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 0))
+        legs_image.blit(mouth_image, (0, 0))
+        legs_image.blit(eyes_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
         return legs_image
 
@@ -2281,6 +2402,81 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
         return legs_image
+
+    def assemble_right_1(self):
+        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_1", self.selected_hair_colour)
+        hair_image.set_colorkey(self.bg_pink)
+        head_image = self.head_list["right"][self.selected_head]
+        head_image.set_colorkey(self.bg_pink)
+        mouth_image = self.mouth_list["right"][self.selected_mouth]
+        mouth_image.set_colorkey(self.bg_pink)
+        eyes_image = self.eyes_list["right"][self.selected_eyes]
+        eyes_image.set_colorkey(self.bg_pink)
+        torso_image = self.change_colour(self.torso_list["right"]["frame_1"][self.selected_torso], "right", "frame_1", self.selected_torso_colour)
+        torso_image.set_colorkey(self.bg_pink)
+        legs_image = self.change_colour(self.legs_list["right"]["frame_1"][self.selected_legs], "right", "frame_1", self.selected_legs_colour)
+        legs_image.blit(torso_image, (0, 0))
+        legs_image.blit(head_image, (0, 0))
+        legs_image.blit(mouth_image, (0, 0))
+        legs_image.blit(eyes_image, (0, 0))
+        legs_image.blit(hair_image, (0, 0))
+        return legs_image
+
+    def assemble_right_2(self):
+        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_2", self.selected_hair_colour)
+        hair_image.set_colorkey(self.bg_pink)
+        head_image = self.head_list["right"][self.selected_head]
+        head_image.set_colorkey(self.bg_pink)
+        mouth_image = self.mouth_list["right"][self.selected_mouth]
+        mouth_image.set_colorkey(self.bg_pink)
+        eyes_image = self.eyes_list["right"][self.selected_eyes]
+        eyes_image.set_colorkey(self.bg_pink)
+        torso_image = self.change_colour(self.torso_list["right"]["frame_2"][self.selected_torso], "right", "frame_2", self.selected_torso_colour)
+        torso_image.set_colorkey(self.bg_pink)
+        legs_image = self.change_colour(self.legs_list["right"]["frame_2"][self.selected_legs], "right", "frame_2", self.selected_legs_colour)
+        legs_image.blit(torso_image, (0, 0))
+        legs_image.blit(head_image, (1, 1))
+        legs_image.blit(mouth_image, (1, 1))
+        legs_image.blit(eyes_image, (1, 1))
+        legs_image.blit(hair_image, (1, 1))
+        return legs_image
+
+    def assemble_right_4(self):
+        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_4", self.selected_hair_colour)
+        hair_image.set_colorkey(self.bg_pink)
+        head_image = self.head_list["right"][self.selected_head]
+        head_image.set_colorkey(self.bg_pink)
+        mouth_image = self.mouth_list["right"][self.selected_mouth]
+        mouth_image.set_colorkey(self.bg_pink)
+        eyes_image = self.eyes_list["right"][self.selected_eyes]
+        eyes_image.set_colorkey(self.bg_pink)
+        torso_image = self.change_colour(self.torso_list["right"]["frame_4"][self.selected_torso], "right", "frame_4", self.selected_torso_colour)
+        torso_image.set_colorkey(self.bg_pink)
+        legs_image = self.change_colour(self.legs_list["right"]["frame_4"][self.selected_legs], "right", "frame_4", self.selected_legs_colour)
+        legs_image.blit(torso_image, (0, 0))
+        legs_image.blit(head_image, (1, 0))
+        legs_image.blit(mouth_image, (1, 0))
+        legs_image.blit(eyes_image, (1, 0))
+        legs_image.blit(hair_image, (1, 0))
+        return legs_image
+
+    def assemble_left_1(self):
+        right_image = self.assemble_right_1()
+        flipped_image = pygame.transform.flip(right_image, True, False)
+        flipped_image.set_colorkey(self.bg_pink)
+        return flipped_image
+
+    def assemble_left_2(self):
+        right_image = self.assemble_right_2()
+        flipped_image = pygame.transform.flip(right_image, True, False)
+        flipped_image.set_colorkey(self.bg_pink)
+        return flipped_image
+
+    def assemble_left_4(self):
+        right_image = self.assemble_right_4()
+        flipped_image = pygame.transform.flip(right_image, True, False)
+        flipped_image.set_colorkey(self.bg_pink)
+        return flipped_image
 
     def change_colour(self, part, view, frame, new_colour):
         relevant_number = getattr(self, "selected_" + self.current_part)
