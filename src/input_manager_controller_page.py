@@ -256,6 +256,8 @@ class InGameKeyboardManager(KeyboardManager):
 
         self.gc.menu_controller.set_menu("character_assembly_menu", None)
 
+        # self.gc.add_character_to_rooms_excel_sheet()
+
     def key_direction_released(self, key):
         if self.gc.key_down_queue == key:
             self.gc.key_down_queue = []

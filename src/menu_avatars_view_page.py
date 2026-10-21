@@ -1,7 +1,10 @@
 import copy
 import textwrap
 
+import pygame
+
 from definitions import GameSettings, Types, Mundane
+from game_view import GameView
 from spritesheet import Spritesheet
 
 
@@ -1048,17 +1051,23 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.fill_out_menu_info()
         self.x_counter = 0
         self.y_counter = 0
+        self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 15, 220)}
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
         text_display_list = menu_info.text_display_list
         text = menu_info.menu_specific_details_dict["selected_part"]
+        text_box_dict = menu_info.menu_specific_details_dict["text_box_dict"]
 
         final_menu_text = []
 
         # item_names
         name_text = Mundane.center_text_x(self.overlay_body_x, 0, text)
         final_menu_text.append(TextDisplay(name_text[0], name_text[1], 275))
+
+        # text box
+        box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
+        final_menu_text.append(box_1_text)
 
         # Header
         header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
@@ -1073,6 +1082,13 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         front_fram_1_image = menu_info.menu_specific_details_dict["front_frame_1"]
         segment_1_x = Mundane.center_image_x(32, 0, front_fram_1_image)/2
+
+        colour_squares = menu_info.menu_specific_details_dict["colour_square_list"]
+        colour_squares_y = 100
+
+
+
+
 
         self.x_counter = 0
         self.y_counter = 0
@@ -1106,6 +1122,34 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         left_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
         left_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
 
+        square_number = 0
+        square_xy = 12
+        spacing = 2
+        square_offset = 15
+        base_border_colour = (0, 0, 0)
+        border_thickness = 2
+        highlight_colour = (212, 212, 83)
+        current_colour_index = menu_info.menu_specific_details_dict["current_colour_index"]
+
+        for square_colour in colour_squares:
+            if square_number == current_colour_index:
+                border_colour = highlight_colour
+            else:
+                border_colour = base_border_colour
+            boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
+            boarder_square.fill(border_colour)
+
+            square_surface = pygame.Surface((square_xy - border_thickness, square_xy - border_thickness), pygame.SRCALPHA)
+            square_surface.fill(square_colour)
+            boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
+
+            final_image = ImageDisplay(boarder_square, square_offset + square_number * (square_xy + spacing), 250)
+            final_menu_images.append(final_image)
+            square_number += 1
+
+        box_1_image = self.text_entry_boxes["assembly_box_1"].make_image()
+        final_menu_images.append(box_1_image)
+
         final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
                         back_frame_1, back_frame_2, back_frame_3, back_frame_4,
                         right_frame_1, right_frame_2, right_frame_3, right_frame_4,
@@ -1117,3 +1161,25 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         self.final_menu_images = final_menu_images
         return final_menu_images
+
+
+class TextEntryBoxAvatar(object):
+    def __init__(self, gv, name, x_image, y_image):
+        self.gv = gv   # type: GameView
+        self.name = name
+        self.selected = False
+        self.x_image = x_image
+        self.y_image = y_image
+        self.box_image = self.build_box_image(34, 4)
+
+    def make_image(self):
+        image = ImageDisplay(self.box_image, self.x_image, self.y_image)
+        return image
+
+    def make_text(self, current_text):
+        text = TextDisplay(current_text, self.x_image + 5, self.y_image + 5)
+        return text
+
+    def build_box_image(self, size_x, size_y):
+        box = self.gv.build_overlay_image(self.name, size_x, size_y)
+        return box

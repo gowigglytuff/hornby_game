@@ -33,6 +33,7 @@ class MenuGhost(object):
         self.menu_images_list = []
         self.additional_information = []
         self.menu_type = Types.BASE
+        self.currently_selected_text_entry_box = None
 
         self.cursor = "-"
         self.cursor_at = [0, 0]
@@ -112,6 +113,8 @@ class MenuGhost(object):
     def size(self):
         return len(self.menu_item_list)
 
+    def set_current_text_entry_box(self, box_name):
+        self.currently_selected_text_entry_box = box_name
 
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
@@ -2004,6 +2007,10 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.shifts = 0
         self.max_displayed_items = 14
         self.currently_displayed_items = []
+
+        self.text_entry_boxes = {"assembly_box_1": TextEntryBoxGhost(self.gc, "assembly_box_1")}
+        self.currently_selected_text_entry_box = None
+
         self.legs_counter = 0
         self.torso_counter = 0
         self.hair_counter = 0
@@ -2047,6 +2054,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.process_all_parts()
         self.bg_pink = (255, 145, 211)
         self.primary_colour = (204, 204, 204)
+        self.secondary_colour = (106, 106, 106)
         blue = (128, 197, 213)
         light_green = (0, 255, 0)
         red = (255, 0, 0)
@@ -2055,11 +2063,25 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         black = (46, 46, 46)
         lavender = (191, 140, 181)
         dark_green = (15, 144, 24)
+        light_brown = (137, 102, 75)
+        dark_brown = (70, 56, 45)
+        purple = (153, 39, 155)
 
         self.selected_torso_colour = copy.copy(self.primary_colour)
         self.selected_legs_colour = copy.copy(self.primary_colour)
         self.selected_hair_colour = copy.copy(self.primary_colour)
-        self.colour_options = [self.primary_colour, light_green, dark_green, blue, red, cherry_red, lavender, white, black]
+        self.selected_head_colour = copy.copy(self.primary_colour)
+        self.selected_mouth_colour = copy.copy(self.primary_colour)
+        self.selected_eyes_colour = copy.copy(self.primary_colour)
+
+        self.selected_torso_secondary_colour = copy.copy(self.secondary_colour)
+        self.selected_legs_secondary_colour = copy.copy(self.secondary_colour)
+        self.selected_hair_secondary_colour = copy.copy(self.secondary_colour)
+        self.selected_head_secondary_colour = copy.copy(self.secondary_colour)
+        self.selected_mouth_secondary_colour = copy.copy(self.secondary_colour)
+        self.selected_eyes_secondary_colour = copy.copy(self.secondary_colour)
+
+        self.colour_options = [self.primary_colour, self.secondary_colour, light_green, dark_green, blue, red, cherry_red, lavender, white, black, light_brown, dark_brown, purple]
         self.final_front_frame_1 = self.assemble_front_1()
         self.final_front_frame_2 = self.assemble_front_2()
         self.final_front_frame_3 = self.assemble_front_1()
@@ -2176,6 +2198,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         for item in range(len(source)):
             text_display_list.append(source[item])
 
+        current_attributes_colour = getattr(self, "selected_" + self.current_part + "_colour")
+        colour_index = self.colour_options.index(current_attributes_colour)
+
         menu_specific = {"selected_part": self.current_part,
                          "front_frame_1": self.final_front_frame_1,
                          "front_frame_2": self.final_front_frame_2,
@@ -2193,51 +2218,101 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                          "right_frame_2": self.final_right_frame_2,
                          "right_frame_3": self.final_right_frame_3,
                          "right_frame_4": self.final_right_frame_4,
-                         }
+                         "colour_square_list": self.colour_options,
+                         "current_colour_index": colour_index,
+                         "text_box_dict": self.text_entry_boxes}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
-        pass
-
-    def key_letter(self, letter):
-        if letter == "a":
-            if self.current_part != "head":
-                relevant_number = getattr(self, "selected_" + self.current_part)
-                current_list = getattr(self, self.current_part + "_list")
-                selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
-
-                current_index = self.colour_options.index(selected_colour)
-
-                new_colour = []
-                if current_index == self.colour_options[0]:
-                    new_colour = len(self.colour_options) - 1
-                else:
-                    new_colour = self.colour_options[current_index - 1]
-                setattr(self, "selected_" + self.current_part + "_colour", new_colour)
-
-                self.perform_assemblies()
-        elif letter == "s":
-            if self.current_part != "right":
-                relevant_number = getattr(self, "selected_" + self.current_part)
-                current_list = getattr(self, self.current_part + "_list")
-                selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
-
-                current_index = self.colour_options.index(selected_colour)
-
-                new_colour = []
-                if current_index == len(self.colour_options) - 1:
-                    new_colour = self.colour_options[0]
-                else:
-                    new_colour = self.colour_options[current_index + 1]
-                setattr(self, "selected_" + self.current_part + "_colour", new_colour)
-
-                self.perform_assemblies()
-        elif letter == "z":
-            self.print_spritesheet_to_png()
+        if self.currently_selected_text_entry_box is not None:
+            self.currently_selected_text_entry_box = None
         else:
             pass
+
+    def erase_letter(self):
+        if self.currently_selected_text_entry_box is not None:
+            self.text_entry_boxes[self.currently_selected_text_entry_box].erase_letter()
+        else:
+            pass
+
+    def key_letter(self, letter):
+        if self.currently_selected_text_entry_box is None:
+            if letter == "a":
+                if self.current_part != "head":
+                    relevant_number = getattr(self, "selected_" + self.current_part)
+                    current_list = getattr(self, self.current_part + "_list")
+                    selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
+
+                    current_index = self.colour_options.index(selected_colour)
+                    print(self.current_part, selected_colour)
+                    print(self.selected_torso_colour, self.selected_legs_colour, self.selected_hair_colour)
+
+                    new_colour = []
+                    if current_index == self.colour_options[0]:
+                        new_colour = len(self.colour_options) - 1
+                    else:
+                        new_colour = self.colour_options[current_index - 1]
+                    setattr(self, "selected_" + self.current_part + "_colour", new_colour)
+
+                    self.perform_assemblies()
+            elif letter == "s":
+                if self.current_part != "head":
+                    relevant_number = getattr(self, "selected_" + self.current_part)
+                    current_list = getattr(self, self.current_part + "_list")
+                    selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
+
+                    current_index = self.colour_options.index(selected_colour)
+
+                    new_colour = []
+                    if current_index == len(self.colour_options) - 1:
+                        new_colour = self.colour_options[0]
+                    else:
+                        new_colour = self.colour_options[current_index + 1]
+                    setattr(self, "selected_" + self.current_part + "_colour", new_colour)
+
+                    self.perform_assemblies()
+            elif letter == "q":
+                if self.current_part != "head":
+                    relevant_number = getattr(self, "selected_" + self.current_part)
+                    current_list = getattr(self, self.current_part + "_list")
+                    selected_colour = getattr(self, "selected_" + self.current_part + "_secondary_colour")
+
+                    current_index = self.colour_options.index(selected_colour)
+
+                    new_colour = []
+                    if current_index == self.colour_options[0]:
+                        new_colour = len(self.colour_options) - 1
+                    else:
+                        new_colour = self.colour_options[current_index - 1]
+                    setattr(self, "selected_" + self.current_part + "_secondary_colour", new_colour)
+
+                    self.perform_assemblies()
+            elif letter == "w":
+                if self.current_part != "right":
+                    relevant_number = getattr(self, "selected_" + self.current_part)
+                    current_list = getattr(self, self.current_part + "_list")
+                    selected_colour = getattr(self, "selected_" + self.current_part + "_secondary_colour")
+
+                    current_index = self.colour_options.index(selected_colour)
+
+                    new_colour = []
+                    if current_index == len(self.colour_options) - 1:
+                        new_colour = self.colour_options[0]
+                    else:
+                        new_colour = self.colour_options[current_index + 1]
+                    setattr(self, "selected_" + self.current_part + "_secondary_colour", new_colour)
+
+                    self.perform_assemblies()
+            elif letter == "z":
+                self.print_spritesheet_to_png()
+            elif letter == "x":
+                self.set_current_text_entry_box(self.text_entry_boxes["assembly_box_1"].name)
+            else:
+                pass
+        else:
+            self.text_entry_boxes[self.currently_selected_text_entry_box].add_letter(letter)
 
     def print_spritesheet_to_png(self):
         final_surface = pygame.Surface((128, 192))
@@ -2299,10 +2374,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         setattr(self, "final_left_frame_3", self.assemble_left_1())
         setattr(self, "final_left_frame_4", self.assemble_left_4())
 
-
-
     def assemble_front_1(self):
-        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_1", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_1", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["front"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
@@ -2310,9 +2383,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         mouth_image.set_colorkey(self.bg_pink)
         eyes_image = self.eyes_list["front"][self.selected_eyes]
         eyes_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["front"]["frame_1"][self.selected_torso], "front", "frame_1", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["front"]["frame_1"][self.selected_torso], "front", "frame_1", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["front"]["frame_1"][self.selected_legs], "front", "frame_1", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["front"]["frame_1"][self.selected_legs], "front", "frame_1", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 0))
         legs_image.blit(mouth_image, (0, 0))
@@ -2321,7 +2394,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         return legs_image
 
     def assemble_front_2(self):
-        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_2", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["front"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
@@ -2329,9 +2402,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         mouth_image.set_colorkey(self.bg_pink)
         eyes_image = self.eyes_list["front"][self.selected_eyes]
         eyes_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["front"]["frame_2"][self.selected_torso], "front", "frame_2", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["front"]["frame_2"][self.selected_torso], "front", "frame_2", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["front"]["frame_2"][self.selected_legs], "front", "frame_2", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["front"]["frame_2"][self.selected_legs], "front", "frame_2", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 1))
         legs_image.blit(mouth_image, (0, 1))
@@ -2340,7 +2413,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         return legs_image
 
     def assemble_front_4(self):
-        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_2", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["front"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
@@ -2348,10 +2421,10 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         mouth_image.set_colorkey(self.bg_pink)
         eyes_image = self.eyes_list["front"][self.selected_eyes]
         eyes_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["front"]["frame_2"][self.selected_torso], "front", "frame_2", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["front"]["frame_2"][self.selected_torso], "front", "frame_2", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image = pygame.transform.flip(torso_image, True, False)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["front"]["frame_2"][self.selected_legs], "front", "frame_2", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["front"]["frame_2"][self.selected_legs], "front", "frame_2", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image = pygame.transform.flip(legs_image, True, False)
         legs_image.set_colorkey(self.bg_pink)
         legs_image.blit(torso_image, (0, 0))
@@ -2362,40 +2435,40 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         return legs_image
 
     def assemble_back_1(self):
-        hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_1",self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_1",self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["back"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["back"]["frame_1"][self.selected_torso], "back", "frame_1", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["back"]["frame_1"][self.selected_torso], "back", "frame_1", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["back"]["frame_1"][self.selected_legs], "back", "frame_1", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["back"]["frame_1"][self.selected_legs], "back", "frame_1", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
         return legs_image
 
     def assemble_back_2(self):
-        hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_2", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["back"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["back"]["frame_2"][self.selected_torso], "back", "frame_2", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["back"]["frame_2"][self.selected_torso], "back", "frame_2", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["back"]["frame_2"][self.selected_legs], "back", "frame_2", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["back"]["frame_2"][self.selected_legs], "back", "frame_2", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(head_image, (0, 1))
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(hair_image, (0, 1))
         return legs_image
 
     def assemble_back_4(self):
-        hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_2", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["back"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["back"]["frame_2"][self.selected_torso], "back", "frame_2", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["back"]["frame_2"][self.selected_torso], "back", "frame_2", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image = pygame.transform.flip(torso_image, True, False)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["back"]["frame_2"][self.selected_legs], "back", "frame_2", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["back"]["frame_2"][self.selected_legs], "back", "frame_2", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image = pygame.transform.flip(legs_image, True, False)
         legs_image.set_colorkey(self.bg_pink)
         legs_image.blit(head_image, (0, 0))
@@ -2404,7 +2477,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         return legs_image
 
     def assemble_right_1(self):
-        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_1", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_1", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["right"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
@@ -2412,9 +2485,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         mouth_image.set_colorkey(self.bg_pink)
         eyes_image = self.eyes_list["right"][self.selected_eyes]
         eyes_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["right"]["frame_1"][self.selected_torso], "right", "frame_1", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["right"]["frame_1"][self.selected_torso], "right", "frame_1", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["right"]["frame_1"][self.selected_legs], "right", "frame_1", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["right"]["frame_1"][self.selected_legs], "right", "frame_1", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 0))
         legs_image.blit(mouth_image, (0, 0))
@@ -2423,7 +2496,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         return legs_image
 
     def assemble_right_2(self):
-        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_2", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["right"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
@@ -2431,9 +2504,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         mouth_image.set_colorkey(self.bg_pink)
         eyes_image = self.eyes_list["right"][self.selected_eyes]
         eyes_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["right"]["frame_2"][self.selected_torso], "right", "frame_2", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["right"]["frame_2"][self.selected_torso], "right", "frame_2", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["right"]["frame_2"][self.selected_legs], "right", "frame_2", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["right"]["frame_2"][self.selected_legs], "right", "frame_2", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (1, 1))
         legs_image.blit(mouth_image, (1, 1))
@@ -2442,7 +2515,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         return legs_image
 
     def assemble_right_4(self):
-        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_4", self.selected_hair_colour)
+        hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_4", self.selected_hair_colour, self.selected_hair_secondary_colour)
         hair_image.set_colorkey(self.bg_pink)
         head_image = self.head_list["right"][self.selected_head]
         head_image.set_colorkey(self.bg_pink)
@@ -2450,9 +2523,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         mouth_image.set_colorkey(self.bg_pink)
         eyes_image = self.eyes_list["right"][self.selected_eyes]
         eyes_image.set_colorkey(self.bg_pink)
-        torso_image = self.change_colour(self.torso_list["right"]["frame_4"][self.selected_torso], "right", "frame_4", self.selected_torso_colour)
+        torso_image = self.change_colour(self.torso_list["right"]["frame_4"][self.selected_torso], "right", "frame_4", self.selected_torso_colour, self.selected_torso_secondary_colour)
         torso_image.set_colorkey(self.bg_pink)
-        legs_image = self.change_colour(self.legs_list["right"]["frame_4"][self.selected_legs], "right", "frame_4", self.selected_legs_colour)
+        legs_image = self.change_colour(self.legs_list["right"]["frame_4"][self.selected_legs], "right", "frame_4", self.selected_legs_colour, self.selected_legs_secondary_colour)
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (1, 0))
         legs_image.blit(mouth_image, (1, 0))
@@ -2478,24 +2551,42 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         flipped_image.set_colorkey(self.bg_pink)
         return flipped_image
 
-    def change_colour(self, part, view, frame, new_colour):
-        relevant_number = getattr(self, "selected_" + self.current_part)
-        current_list = getattr(self, self.current_part + "_list")
-        print(part, self.current_part, relevant_number)
-
-
+    def change_colour(self, part, view, frame, new_primary_colour, new_secondary_colour):
         img_copy = part.copy()
-        img_copy.set_colorkey((204, 204, 204))
 
-        if self.current_part == "torso" or self.current_part == "legs":
-            new_surface = pygame.Surface(current_list[view][frame][relevant_number].get_size(), pygame.SRCALPHA)
-        else:
-            new_surface = pygame.Surface(current_list[view][relevant_number].get_size(), pygame.SRCALPHA)
-        new_surface.fill(new_colour)
+        primary_part = self.isolate_part(img_copy, self.primary_colour)
+        secondary_part = self.isolate_part(img_copy, self.secondary_colour)
 
-        new_surface.blit(img_copy, (0, 0))
-        new_surface.set_colorkey(self.bg_pink)
-        return new_surface
+        with pygame.PixelArray(primary_part) as pixel_array:
+            pixel_array.replace(self.primary_colour, new_primary_colour)
+
+        img_copy.blit(primary_part, (0, 0))
+
+        with pygame.PixelArray(secondary_part) as pixel_array2:
+            pixel_array2.replace(self.secondary_colour, new_secondary_colour)
+
+        img_copy.blit(secondary_part, (0, 0))
+        img_copy.set_colorkey(self.bg_pink)
+
+        return img_copy
+
+    def isolate_part(self, image, colour):
+        temp_surface = image.copy()
+        mapped_colour = colour
+        dummy_colour = (105, 105, 105)
+
+        mapped_integer = temp_surface.map_rgb(mapped_colour)
+        dummy_integer = temp_surface.map_rgb(dummy_colour)
+
+        with pygame.PixelArray(temp_surface) as pixel_array:
+            for x in range(temp_surface.get_width()):
+                for y in range(temp_surface.get_height()):
+                    if pixel_array[x, y] != mapped_integer:
+                        pixel_array[x, y] = dummy_integer
+
+        temp_surface.set_colorkey(dummy_colour)
+
+        return temp_surface
 
     def cursor_left(self):
         relevant_number = getattr(self, "selected_" + self.current_part)
@@ -2589,3 +2680,19 @@ class RoomSelectMenuGhost(MenuGhost):
         else:
             self.gc.view_room(menu_selection)
 
+
+class TextEntryBoxGhost(object):
+    def __init__(self, gc, name):
+        self.name = name
+        self.length_limit = 10
+        self.current_text = ""
+        self.selected = False
+
+    def add_letter(self, letter):
+        self.current_text += letter
+
+    def erase_letter(self):
+        self.current_text = self.current_text[:-1]
+
+    def return_current_text(self):
+        return copy.copy(self.current_text)
