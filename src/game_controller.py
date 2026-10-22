@@ -11,7 +11,7 @@ from animations_page_view_page import CameraPanAnimation, Switch, CustomAction, 
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from menu_ghosts_data_page import ConversationOptionsMenuGhost, StatMenuGhost, AcquireMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, KeyInventoryMenuGhost, SuppliesInventoryMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, MapMenuGhost, GalleryMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, GuideMenuGhost, TreasureInventoryMenuGhost, WordsMenuGhost, TextInputMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, BasketMenuGhost, DepositMenuGhost, SellItemMenuGhost, DeveloperMenuGhost, \
-    RoomSelectMenuGhost, CharacterAssemblyMenuGhost
+    RoomSelectMenuGhost, CharacterAssemblyMenuGhost, GameModeStatMenuGhost
 from position_manager_state_page import Room, PositionManager
 from game_state import GameState, GameData
 from game_view import GameView, OutfitManager
@@ -480,6 +480,15 @@ class GameController(Controller):
             self.change_room(target_room)
 
         self.gs.gv.refresh_drawables()
+
+    def switch_with_character_in_front_of_you(self):
+        player = self.gs.get_player_ghost()
+        room = self.gs.get_current_room()
+        full = self.position_manager.check_if_adjacent_tiles_full(player, player.facing, room)
+        if full:
+            cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
+            feature_name = cube.filling_unique_name
+            self.switch_characters(feature_name)
 
     def player_speak(self, volume, text):
         player_avatar = self.gs.gv.get_player_avatar()
@@ -1432,7 +1441,7 @@ class TriggerManager(object):
 class MenuController(object):
     def __init__(self, gc):
         self.gc = gc  # type: GameController
-        self.menu_load_list = [StatMenuGhost, AcquireMenuGhost, StartMenuGhost, DeveloperMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
+        self.menu_load_list = [StatMenuGhost, GameModeStatMenuGhost, AcquireMenuGhost, StartMenuGhost, DeveloperMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost, SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost,
                                SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, DepositMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost, SellerOptionsMenuGhost,
                                GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost, QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
                                BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, CharacterAssemblyMenuGhost]
@@ -1513,6 +1522,13 @@ class MenuController(object):
                      "time": self.gc.menu_controller.get_game_time_string(),
                      "day": str(self.gc.gs.day_of_summer),
                      "selected_tool": str(self.gc.gs.selected_tool)}
+
+        return stat_dict
+
+    def get_stat_mode_items(self):
+        mode = copy.copy(self.gc.game.mode)
+
+        stat_dict = {"mode": mode}
 
         return stat_dict
 

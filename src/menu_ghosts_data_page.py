@@ -6,7 +6,7 @@ import pygame
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -116,6 +116,7 @@ class MenuGhost(object):
     def set_current_text_entry_box(self, box_name):
         self.currently_selected_text_entry_box = box_name
 
+
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
     NAME = BASE + "_ghost"
@@ -156,6 +157,45 @@ class StatMenuGhost(MenuGhost):
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
+
+
+class GameModeStatMenuGhost(StatMenuGhost):
+    BASE = "game_mode_stat_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = GameModeStatMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = None
+        self.prepare_menu_for_display()
+        self.menu_type = Types.STATIC
+
+    def prepare_menu_for_display(self):
+        stat_dict = self.gc.menu_controller.get_stat_mode_items()
+        if stat_dict['mode'] == "builder":
+            instructions = ["Mode: [LCtrl",
+                            "MapMenu: [LShift]",
+                            "MoveCam: [Dir]",
+                            "ExitGame: [Caps]"]
+        else:
+            instructions = ["Mode: [RCtrl]",
+                            "Move: [Dir]",
+                            "Interact: [Enter]",
+                            "Photo: [Space]",
+                            "Start: [LCtrl]",
+                            "Swim: Hold [A]",
+                            "Tool: [Tab]",
+                            "MoveCam: H[LShift] + [Dir]",
+                            "Test: [RShift]",
+                            "Assembly: [1]",
+                            "SwapPlayer: [2]",
+                            "ExitGame: [Caps]"]
+
+        self.menu_item_list = [f"Game Mode: {stat_dict['mode']}"] + instructions
 
 
 class StartMenuGhost(MenuGhost):
@@ -2018,7 +2058,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.head_counter = 0
         self.mouth_counter = 0
         self.parts_list = ["hair", "head", "eyes", "mouth", "torso", "legs"]
-        self.current_part = "head"
+        self.current_part = "torso"
         self.selected_head = 1
         self.selected_eyes = 1
         self.selected_hair = 1

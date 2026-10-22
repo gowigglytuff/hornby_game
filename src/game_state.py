@@ -3,7 +3,7 @@ from random import choice
 
 import feature_ghost_data_page
 from feature_ghost_data_page import PlayerGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost, GameModeStatMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from position_manager_state_page import Room, Door
@@ -702,7 +702,7 @@ class MenuState(object):
         self.gs = gs_input
         self.gc = self.gs.gc  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE]
+        self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE, GameModeStatMenuGhost.BASE]
         # self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
         self.active_menu = []
         self.menu_stack = []

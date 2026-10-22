@@ -138,6 +138,8 @@ class InGameKeyboardManager(KeyboardManager):
                                     "c": [self.gc.developer_tools.toggle_name_display_on],
                                     "v": [self.gc.developer_tools.toggle_on_view_window],
                                     "s": [self.gc.activate_ghost_eye],
+                                    "1": [partial(self.gc.menu_controller.set_menu, "character_assembly_menu", None)],
+                                    "2": [self.gc.switch_with_character_in_front_of_you],
                                     "left ctrl": [self.gc.clear_key_down_cue, self.gc.menu_controller.set_start_menu],
                                     "right ctrl": [self.gc.enter_world_view_mode],
                                     "left shift": [self.key_lshift_pressed],

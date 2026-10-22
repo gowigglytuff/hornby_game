@@ -564,6 +564,47 @@ class StatMenuAvatar(ListMenuAvatar):
         return final_menu_text
 
 
+class GameModeStatMenuAvatar(ListMenuAvatar):
+    NAME = "game_mode_stat_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+        self.menu_display_details = {"default_width": 60, "default_height": 60, "align_x": "left", "align_y": "top", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+
+        final_menu_text = []
+
+        if header:
+            self.add_header_spaces(header)
+            final_menu_text.append(TextDisplay(header, self.offset_x, self.offset_y))
+
+        if cursor_image:
+            cursor_loc = self.get_cursor_at(cursor_at)
+            final_menu_text.append(TextDisplay(cursor_image, cursor_loc[0], cursor_loc[1]))
+
+        currently_visible_items = self.return_currently_displayed(text_display_list, cursor_at)
+
+        y_shift = 15
+        initial = 15
+        for position_y in range(len(currently_visible_items)):
+            length = len(currently_visible_items[position_y]) * GameSettings.FONT_SIZE
+            loc_x = 15
+            loc_y = self.offset_y + self.header_spacing
+            final_menu_text.append(TextDisplay(text_display_list[position_y], loc_x, loc_y + y_shift - copy.copy(initial)))
+            y_shift += 20
+            initial = 0
+
+        self.final_menu_text = final_menu_text
+        return final_menu_text
+
+
 class GameActionDialogueMenuAvatar(ListMenuAvatar):
     NAME = "game_action_dialogue_menu_avatar"
 
