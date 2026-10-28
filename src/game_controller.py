@@ -24,6 +24,7 @@ class Game(object):
         self.gs = GameState(None, None, None)  # type: GameState
         self.game_data = GameData()  # type: GameData
         self.game_view = GameView(self.game_data, self.gs)  # type: GameView
+        self.central_controller = Controller(self, self.game_view, self.gs, self.game_data)  # type: Controller
         self.game_controller = GameController(self, self.game_view, self.gs, self.game_data)  # type: GameController
         self.builder_controller = BuilderController(self, self.game_view, self.gs, self.game_data)  # type: BuilderController
         self.gs.gc = self.game_controller
@@ -55,7 +56,7 @@ class GameEvents(object):
         self.previous_time = time.time()
         self.delta_time = 0
         self.timer_list = []
-        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.gs.act_on_action_queue, self.gc.game.central_controller.screen_layout.add_current_menus_to_layout, self.gc.game_view.animation_manager.ask_animator_to_animate, self.gc.game_view.animation_manager.ask_scene_to_animate, self.gc.check_if_run_held],
                            .1: [self.gc.pigeon_activation, self.prock_timed_triggers],
                            .25: [self.gc.game_view.switch_tile_frame],
                            .5: [self.gc.switch_flash],
@@ -126,7 +127,7 @@ class GameEvents(object):
             self.gc.game.active_keyboard_manager.parse_key_input(event.type, event.key)
 
         elif event.type in [pygame.MOUSEBUTTONDOWN]:
-            print(pygame.mouse.get_pos())
+            self.gc.act_on_mouse_click(pygame.mouse.get_pos())
 
         if self.gc.scene_manager.waiting_for_response == False:
             if event.type in self.timer_list:
@@ -154,7 +155,7 @@ class BuilderEvents(object):
     def __init__(self, controller):
         self.gc = controller  # type: BuilderController
         self.timer_list = []
-        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.report_mouse_location]}
+        self.event_dict = {.004: [self.gc.act_on_key_down_cue, self.gc.game.central_controller.screen_layout.add_current_menus_to_layout, self.gc.report_mouse_location]}
         self.delayed_trigger_list = []
         self.timed_trigger_list = []
         self.user_event_number = 4000
@@ -243,6 +244,20 @@ class Controller(object):
         self.outfit_manager = OutfitManager(self)  # type: OutfitManager
         self.scene_manager = SceneManager(self)     # type: SceneManager
         self.developer_tools = DeveloperTools(self)     # type: DeveloperTools
+        self.screen_layout = ScreenLayout(self)
+
+    def get_current_room_layout(self):
+        room_object = self.gs.get_current_view_room()
+        room_layout = {"room_name": room_object.room_name,
+                       "room_size_x": room_object.total_plots_x * room_object.plot_size_x * GameSettings.TILESIZE,
+                       "room_size_y": room_object.total_plots_y * room_object.plot_size_y * GameSettings.TILESIZE}
+        return room_layout
+
+    def act_on_mouse_click(self, mouse_click):
+        # self.fetch_feature_from_mouse_click(mouse_click)
+        mouse_x = mouse_click[0]
+        mouse_y = mouse_click[1]
+        self.screen_layout.check_mouse_selection(mouse_x, mouse_y)
 
     def enter_world_view_mode(self):
         self.game.set_active_keyboard_manager(WorldViewKeyboardManager.ID)
@@ -1468,6 +1483,11 @@ class MenuController(object):
         active_menu.cursor_left()
         self.update_menu_text_and_images(active_menu)
 
+    def push_menu_button(self, button_name):
+        active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
+        active_menu.push_menu_button(button_name)
+        self.update_menu_text_and_images(active_menu)
+
     def menu_cursor_right(self):
         active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         active_menu.cursor_right()
@@ -2091,8 +2111,11 @@ class BuilderController(GameController):
                 speed = .25
                 self.gs.gv.manually_update_camera(direction_influence_x*speed, direction_influence_y*speed)
 
-    def act_on_mouse_click(self, mouse_click):
-        self.fetch_feature_from_mouse_click(mouse_click)
+    # def act_on_mouse_click(self, mouse_click):
+    #     self.fetch_feature_from_mouse_click(mouse_click)
+    #     mouse_x = mouse_click[0]
+    #     mouse_y = mouse_click[1]
+    #     self.screen_layout.check_mouse_selection(mouse_x, mouse_y)
 
     def determine_mouse_tile(self, mouse_click):
         mouse_x = mouse_click[0]
@@ -2123,3 +2146,10 @@ class BuilderController(GameController):
                 print("Cube " + str(mouse_x) + ", " + str(mouse_y) + "is empty...")
         else:
             print("out of range")
+
+    def get_current_room_layout(self):
+        room_object = self.gs.get_current_view_room()
+        room_layout = {"room_name": room_object.room_name,
+                       "room_size_x": room_object.total_plots_x * room_object.plot_size_x * GameSettings.TILESIZE,
+                       "room_size_y": room_object.total_plots_y * room_object.plot_size_y * GameSettings.TILESIZE}
+        return room_layout

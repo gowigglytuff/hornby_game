@@ -1,10 +1,11 @@
+import copy
 from functools import partial
 from typing import TYPE_CHECKING
 
 import pygame
 
 from animations_page_view_page import CameraPanAnimation, Action, PlayerSlideAnimation
-from definitions import Direction
+from definitions import Direction, GameSettings
 from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost, MenuGhost, SceneDialogueMenuGhost
 from scenes import Scene
 
@@ -545,3 +546,88 @@ class InSceneKeyboardManager(KeyboardManager):
     def key_released(self, key):
         for item in self.release_function_dict[pygame.key.name(key)]:
             item()
+
+
+class ScreenLayout(object):
+    def __init__(self, gc):
+        self.gc = gc
+        self.menu_layouts = []
+        self.room_layout = None
+
+    def add_current_menus_to_layout(self):
+        self.menu_layouts = self.gc.game.gs.ms.get_current_menu_layouts()
+        self.room_layout = copy.copy(self.gc.get_current_room_layout())
+
+    def check_mouse_selection(self, mouse_x, mouse_y):
+        selected_menu = None
+        selected_room = None
+        for menu in self.menu_layouts:
+            menu_start_x = menu["location_x"]
+            menu_end_x = menu_start_x + menu["size_x"]
+            menu_start_y = menu["location_y"]
+            menu_end_y = menu_start_y + menu["size_y"]
+
+            if menu_start_x <= mouse_x <= menu_end_x:
+                if menu_start_y <= mouse_y <= menu_end_y:
+                    selected_menu = menu["base"]
+                else:
+                    pass
+            else:
+                pass
+
+        base_locator_x = copy.copy(self.gc.game.gs.gv.base_locator_x) * GameSettings.TILESIZE
+        base_locator_y = copy.copy(self.gc.game.gs.gv.base_locator_y) * GameSettings.TILESIZE
+
+        camera = self.gc.game.gs.gv.get_camera_loc()
+
+        room_start_x = base_locator_x - camera[0]
+
+        self.room_layout = copy.copy(self.gc.get_current_room_layout())
+        self.menu_layouts = self.gc.game.gs.ms.get_current_menu_layouts()
+
+        print("special", self.room_layout)
+        room_end_x = room_start_x + self.room_layout["room_size_x"]
+        room_start_y = base_locator_y - camera[1]
+        room_end_y = room_start_y + self.room_layout["room_size_y"]
+        if room_start_x <= mouse_x <= room_end_x:
+            if room_start_y <= mouse_y <= room_end_y:
+                selected_room = self.room_layout["room_name"]
+            else:
+                pass
+        else:
+            pass
+        for menu in self.menu_layouts:
+            print(menu)
+        print("mouse", mouse_x, mouse_y)
+        print(room_start_x, room_end_x, room_start_y, room_end_y)
+        print(self.room_layout["room_name"], self.room_layout["room_size_x"], self.room_layout["room_size_y"], base_locator_x, base_locator_y, camera, mouse_x - base_locator_x)
+
+        print(selected_menu, selected_room)
+
+        if selected_menu:
+            print("ding!")
+
+            selected_menu_ghost = self.gc.game.gs.ms.get_menu_ghost(selected_menu)
+            selected_menu_avatar = self.gc.gs.gv.get_menu_avatar(selected_menu + "_avatar")
+            button_name = self.check_menu_for_button(selected_menu_avatar, mouse_x - menu_start_x, mouse_y - menu_start_y)
+            if button_name:
+                self.gc.menu_controller.push_menu_button(button_name)
+
+            # selected_menu_ghost.cursor_left()
+
+
+    def check_menu_for_button(self, menu_avatar, mouse_x, mouse_y):
+        button_avatar_list = menu_avatar.button_list
+
+        selected_button = None
+
+        for button in button_avatar_list:
+            button_start_x = button.x
+            button_end_x = button_start_x + button.x_size
+            button_start_y = button.y
+            button_end_y = button_start_y + button.y_size
+            if button_start_x <= mouse_x <= button_end_x:
+                if button_start_y <= mouse_y <= button_end_y:
+                    selected_button = button.name
+
+        return selected_button

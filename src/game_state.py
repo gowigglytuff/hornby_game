@@ -1,4 +1,5 @@
 import copy
+from itertools import chain
 from random import choice
 
 import feature_ghost_data_page
@@ -74,6 +75,9 @@ class GameState(object):
         self.action_queue = {}
         self.recently_completed_actions = []
         self.trigger_list = {}
+
+
+
 
     def check_if_actor_busy(self):
         result = False
@@ -708,6 +712,19 @@ class MenuState(object):
         self.menu_stack = []
         self.visible_menus = []
         self.start_menu_stack = [SuppliesInventoryMenuGhost.BASE, KeyInventoryMenuGhost.BASE, TreasureInventoryMenuGhost.BASE]
+
+    def get_current_menu_layouts(self):
+        menu_states = []
+        for menu in chain(self.static_menus, self.visible_menus):
+            menu_ghost = self.get_menu_ghost(menu)
+            menu_avatar = self.gs.gv.get_menu_avatar(menu + "_avatar")
+            menu_item = {"base": menu_ghost.BASE,
+                         "location_x": menu_avatar.menu_display_details["coordinates"][0],
+                         "location_y": menu_avatar.menu_display_details["coordinates"][1],
+                         "size_x": menu_avatar.spritesheet_width,
+                         "size_y": menu_avatar.spritesheet_height}
+            menu_states.append(menu_item)
+        return menu_states
 
     def add_menu_ghost(self, menu_ghost_name, menu_ghost_object):
         self.menu_ghost_data_list[menu_ghost_name] = menu_ghost_object

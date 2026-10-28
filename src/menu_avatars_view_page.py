@@ -68,6 +68,7 @@ class BaseMenuAvatar(object):
         self.max_display_items = 14
         self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
+        self.button_list = []
 
     def fill_out_menu_info(self):
         self.overlay_body_x = self.menu_display_details["default_width"]
@@ -1088,11 +1089,15 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.cursor_offset_x = self.offset_x - 10
         self.cursor_offset_y = self.offset_y + 7
 
-        self.menu_display_details = {"default_width": 40, "default_height": 60, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.menu_display_details = {"default_width": 50, "default_height": 70, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
         self.x_counter = 0
         self.y_counter = 0
-        self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 15, 220)}
+        self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 35, 220)}
+        self.button_list = []
+
+    def add_button_to_list(self, button_avatar):
+        self.button_list.append(button_avatar)
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -1104,7 +1109,7 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         # item_names
         name_text = Mundane.center_text_x(self.overlay_body_x, 0, text)
-        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 275))
+        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 290))
 
         # text box
         box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
@@ -1122,17 +1127,11 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         final_menu_images = []
 
         front_fram_1_image = menu_info.menu_specific_details_dict["front_frame_1"]
-        segment_1_x = Mundane.center_image_x(32, 0, front_fram_1_image)/2
-
-        colour_squares = menu_info.menu_specific_details_dict["colour_square_list"]
-        colour_squares_y = 100
-
-
-
-
+        segment_1_x = Mundane.center_image_x(self.overlay_body_x, 0, front_fram_1_image)/2
 
         self.x_counter = 0
         self.y_counter = 0
+
         def get_x_addition():
             if self.x_counter == 4:
                 self.x_counter = 0
@@ -1170,23 +1169,58 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         base_border_colour = (0, 0, 0)
         border_thickness = 2
         highlight_colour = (212, 212, 83)
-        current_colour_index = menu_info.menu_specific_details_dict["current_colour_index"]
+        current_primary_colour_index = menu_info.menu_specific_details_dict["current_primary_colour_index"]
 
-        for square_colour in colour_squares:
-            if square_number == current_colour_index:
+        primary_colour_squares = menu_info.menu_specific_details_dict["primary_colour_square_list"]
+
+        for square_colour in primary_colour_squares:
+            if square_number == current_primary_colour_index:
                 border_colour = highlight_colour
             else:
                 border_colour = base_border_colour
             boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
             boarder_square.fill(border_colour)
 
-            square_surface = pygame.Surface((square_xy - border_thickness, square_xy - border_thickness), pygame.SRCALPHA)
-            square_surface.fill(square_colour)
+            colour_square_xy = (square_xy - border_thickness, square_xy - border_thickness)
+            square_surface = pygame.Surface(colour_square_xy, pygame.SRCALPHA)
+            square_surface.fill(square_colour.details["colour"])
             boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
 
-            final_image = ImageDisplay(boarder_square, square_offset + square_number * (square_xy + spacing), 250)
+            square_x_loc = square_offset + square_number * (square_xy + spacing)
+            square_y_loc = 250
+
+            final_image = ImageDisplay(boarder_square, square_x_loc, square_y_loc)
             final_menu_images.append(final_image)
             square_number += 1
+            button_avatar = ButtonAvatar(self.gc, square_colour.name, square_x_loc, square_y_loc, colour_square_xy[0], colour_square_xy[1])
+            self.add_button_to_list(button_avatar)
+
+        current_secondary_colour_index = menu_info.menu_specific_details_dict["current_secondary_colour_index"]
+        secondary_colour_squares = menu_info.menu_specific_details_dict["secondary_colour_square_list"]
+        print(secondary_colour_squares)
+        square_number = 0
+
+        for square_colour in secondary_colour_squares:
+            if square_number == current_secondary_colour_index:
+                border_colour = highlight_colour
+            else:
+                border_colour = base_border_colour
+            boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
+            boarder_square.fill(border_colour)
+
+            colour_square_xy = (square_xy - border_thickness, square_xy - border_thickness)
+            square_surface = pygame.Surface(colour_square_xy, pygame.SRCALPHA)
+            square_surface.fill(square_colour.details["colour"])
+            boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
+
+            square_x_loc = square_offset + square_number * (square_xy + spacing)
+            square_y_loc = 275
+
+            final_image = ImageDisplay(boarder_square, square_x_loc, square_y_loc)
+            final_menu_images.append(final_image)
+            square_number += 1
+            button_avatar = ButtonAvatar(self.gc, square_colour.name, square_x_loc, square_y_loc, colour_square_xy[0], colour_square_xy[1])
+            self.add_button_to_list(button_avatar)
 
         box_1_image = self.text_entry_boxes["assembly_box_1"].make_image()
         final_menu_images.append(box_1_image)
@@ -1224,3 +1258,14 @@ class TextEntryBoxAvatar(object):
     def build_box_image(self, size_x, size_y):
         box = self.gv.build_overlay_image(self.name, size_x, size_y)
         return box
+
+
+class ButtonAvatar(object):
+    def __init__(self, gc, name, x, y, x_size, y_size):
+        self.x = x
+        self.y = y
+        self.x_size = x_size
+        self.y_size = y_size
+        self.gc = gc
+        self.name = name
+

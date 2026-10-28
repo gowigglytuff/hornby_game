@@ -57,7 +57,7 @@ def install_all_data(gc, bc, gs):
     def install_rooms(gc, gs):
         load1 = True
         load2 = False
-        load3 = True
+        load3 = False
         load4 = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (SpecialRoom("Staging_Area", 7, 9, 1, 1)))
@@ -70,6 +70,7 @@ def install_all_data(gc, bc, gs):
                 gs.gd.add_room_data("Arboretum_Room", (Consolidated("Arboretum_Room", 9, 30, 1, 1)))
                 gs.gd.add_room_data("Habitat_Room", (Consolidated("Habitat_Room", 20, 20, 1, 1)))
                 gs.gd.add_room_data("Garage", (SpecialRoom("Garage", 50, 50, 1, 1)))
+                gs.gd.add_room_data("Stadium", (SpecialRoom("Stadium", 50, 50, 1, 1)))
 
             if load3:
                 gs.gd.add_room_data("Field", (SpecialRoom("Field", 30, 30, 1, 1)))
@@ -175,6 +176,7 @@ def install_all_data(gc, bc, gs):
             gc.position_manager.add_door("Passage", "Staging_Area", "Arboretum_Room", 3, 2, 5, 30)
             gc.position_manager.add_door("Passage", "Staging_Area", "Habitat_Room", 1, 2, 10, 20)
             gc.position_manager.add_door("Passage", "Staging_Area", "Garage", 7, 2, 25, 51)
+            gc.position_manager.add_door("Passage", "Staging_Area", "Stadium", 6, 2, 25, 51)
 
             gc.position_manager.add_door("Ladder", "Loft", "Laboratory", 1, 6, 12, 19)
             gc.position_manager.add_door("Ladder", "Laboratory", "Basement", 1, 20, 18, 18)
