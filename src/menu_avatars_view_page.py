@@ -69,6 +69,10 @@ class BaseMenuAvatar(object):
         self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
         self.button_list = []
+        self.main_font = pygame.font.Font("assets/fonts/PressStart.ttf", GameSettings.FONT_SIZE)
+
+    def add_button_to_list(self, button_avatar):
+        self.button_list.append(button_avatar)
 
     def fill_out_menu_info(self):
         self.overlay_body_x = self.menu_display_details["default_width"]
@@ -1089,7 +1093,7 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.cursor_offset_x = self.offset_x - 10
         self.cursor_offset_y = self.offset_y + 7
 
-        self.menu_display_details = {"default_width": 50, "default_height": 70, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.menu_display_details = {"default_width": 48, "default_height": 70, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
         self.x_counter = 0
         self.y_counter = 0
@@ -1102,14 +1106,40 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
         text_display_list = menu_info.text_display_list
-        text = menu_info.menu_specific_details_dict["selected_part"]
+        selected_part = menu_info.menu_specific_details_dict["selected_part"]
         text_box_dict = menu_info.menu_specific_details_dict["text_box_dict"]
 
         final_menu_text = []
 
-        # item_names
-        name_text = Mundane.center_text_x(self.overlay_body_x, 0, text)
-        final_menu_text.append(TextDisplay(name_text[0], name_text[1], 290))
+        # part selection grid
+        parts_list = menu_info.menu_specific_details_dict["parts_list"]
+        items_list = self.layout_text_in_a_grid(3, 60, 2, 15, 30, 300, parts_list)
+
+        for index, item in enumerate(items_list):
+            if parts_list[index] == selected_part:
+                item.text = self.main_font.render(parts_list[index], True, (99, 99, 99))
+
+            part_change_button_avatar = ButtonAvatar(self.gc, parts_list[index] + "_change_button", item.x, item.y, item.text.get_width(), item.text.get_height())
+            self.add_button_to_list(part_change_button_avatar)
+
+        final_menu_text = final_menu_text + items_list
+
+
+        # left and right arrows
+        l_arrow_x = 10
+        r_arrow_x = 210
+        arrow_y = 310
+
+        left_arrow = self.main_font.render("<", True, (0, 0, 0))
+        right_arrow = self.main_font.render(">", True, (0, 0, 0))
+        final_menu_text.append(TextDisplay(left_arrow, l_arrow_x, arrow_y))
+        final_menu_text.append(TextDisplay(right_arrow, r_arrow_x, arrow_y))
+
+        left_arrow_button = ButtonAvatar(self.gc, "left_arrow_button", l_arrow_x, arrow_y, left_arrow.get_width(), left_arrow.get_height())
+        self.add_button_to_list(left_arrow_button)
+
+        right_arrow_button = ButtonAvatar(self.gc, "right_arrow_button", r_arrow_x, arrow_y, right_arrow.get_width(), right_arrow.get_height())
+        self.add_button_to_list(right_arrow_button)
 
         # text box
         box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
@@ -1122,6 +1152,37 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.final_menu_text = final_menu_text
 
         return final_menu_text
+
+    def layout_text_in_a_grid(self, column_count, column_size, row_count, row_size, starting_x, starting_y, text_list):
+        final_list = []
+
+        column_locations = []
+        row_locations = []
+
+        column_spacing = 5
+        row_spacing = 5
+
+        for index in range(column_count):
+            column_loc = starting_x + (index * column_spacing) + (index * column_size)
+            column_locations.append(column_loc)
+
+        for index in range(row_count):
+            row_loc = starting_y + (index * row_spacing) + (index * row_size)
+            row_locations.append(row_loc)
+
+        counter_c = 0
+        counter_r = 0
+        for index, item in enumerate(text_list):
+            text_surface = self.main_font.render(item, True, (0, 0, 0))
+            text_item = TextDisplay(text_surface, column_locations[counter_c], row_locations[counter_r])
+            final_list.append(text_item)
+            counter_c += 1
+            if counter_c == column_count:
+                counter_r += 1
+                counter_c = 0
+
+        return final_list
+
 
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []

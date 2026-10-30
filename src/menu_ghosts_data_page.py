@@ -38,6 +38,7 @@ class MenuGhost(object):
         self.cursor = "-"
         self.cursor_at = [0, 0]
         self.name = self.NAME
+        self.button_list = []
 
     def get_menu_items_to_display(self):
         return self.menu_item_list
@@ -116,6 +117,10 @@ class MenuGhost(object):
     def set_current_text_entry_box(self, box_name):
         self.currently_selected_text_entry_box = box_name
 
+
+    def push_menu_button(self, button_name):
+        button = self.button_list[button_name]
+        button.get_pressed()
 
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
@@ -2058,7 +2063,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.eyes_counter = 0
         self.head_counter = 0
         self.mouth_counter = 0
-        self.parts_list = ["hair", "head", "eyes", "mouth", "torso", "legs"]
+        self.parts_list = ["head", "torso", "eyes", "hair", "mouth", "legs"]
         self.current_part = "torso"
         self.selected_head = 1
         self.selected_eyes = 1
@@ -2249,9 +2254,16 @@ class CharacterAssemblyMenuGhost(MenuGhost):
             self.colour_buttons_list_secondary[button_name] = button
             self.button_list[button_name] = button
 
-    def push_menu_button(self, button_name):
-        button = self.button_list[button_name]
-        button.get_pressed()
+        # setup other buttons
+        for item in self.parts_list:
+            part_change_button = ButtonGhost(self.gc, item + "_change_button", self.BASE, "select_current_part", {"selected_part": item})
+            self.button_list[item + "_change_button"] = part_change_button
+
+        left_arrow_button = ButtonGhost(self.gc, "left_arrow_button", self.BASE, "cursor_left", {})
+        self.button_list["left_arrow_button"] = left_arrow_button
+
+        right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
+        self.button_list["right_arrow_button"] = right_arrow_button
 
     def select_primary_colour(self, details):
         new_colour = details["colour"]
@@ -2264,6 +2276,10 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         setattr(self, "selected_" + self.current_part + "_secondary_colour", new_colour)
 
         self.perform_assemblies()
+
+    def select_current_part(self, details):
+        self.current_part = details["selected_part"]
+        current_number = self.parts_list.index(self.current_part)
 
     def prepare_menu_for_display(self, details):
         pass
@@ -2284,6 +2300,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         secondary_colour_index = self.colour_options.index(current_attributes_colour_secondary)
 
         menu_specific = {"selected_part": self.current_part,
+                         "parts_list": self.parts_list,
                          "front_frame_1": self.final_front_frame_1,
                          "front_frame_2": self.final_front_frame_2,
                          "front_frame_3": self.final_front_frame_3,
@@ -2668,7 +2685,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
         return temp_surface
 
-    def cursor_left(self):
+    def cursor_left(self, details=None):
         relevant_number = getattr(self, "selected_" + self.current_part)
         current_list = getattr(self, self.current_part + "_list")
 
@@ -2686,7 +2703,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
         self.perform_assemblies()
 
-    def cursor_right(self):
+    def cursor_right(self, details=None):
         relevant_number = getattr(self, "selected_" + self.current_part)
         current_list = getattr(self, self.current_part + "_list")
 
@@ -2704,15 +2721,14 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
         self.perform_assemblies()
 
-
-    def cursor_up(self):
+    def cursor_up(self, details=None):
         current_number = self.parts_list.index(self.current_part)
         if current_number > 0:
             self.current_part = self.parts_list[current_number-1]
         else:
             self.current_part = self.parts_list[len(self.parts_list) - 1]
 
-    def cursor_down(self):
+    def cursor_down(self, details=None):
         current_number = self.parts_list.index(self.current_part)
         if current_number < len(self.parts_list) - 1:
             self.current_part = self.parts_list[current_number+1]

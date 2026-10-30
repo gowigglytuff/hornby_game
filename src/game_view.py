@@ -278,9 +278,12 @@ class GameView(object):
                 final_image.blit(image, [item.x, item.y])
 
         for item in final_menu_text:
-            my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
-            item_text = my_font.render(item.text, True, (0, 0, 0))
-            final_image.blit(item_text, [item.x, item.y])
+            if type(item.text) is str:
+                my_font = pygame.font.Font(self.font_file, GameSettings.FONT_SIZE)
+                item_text = my_font.render(item.text, True, (0, 0, 0))
+                final_image.blit(item_text, [item.x, item.y])
+            else:
+                final_image.blit(item.text, [item.x, item.y])
 
         full_menu = final_image
 

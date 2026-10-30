@@ -56,7 +56,7 @@ def install_all_data(gc, bc, gs):
 
     def install_rooms(gc, gs):
         load1 = True
-        load2 = False
+        load2 = True
         load3 = False
         load4 = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
