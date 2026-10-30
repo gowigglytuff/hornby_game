@@ -2301,6 +2301,10 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
         menu_specific = {"selected_part": self.current_part,
                          "parts_list": self.parts_list,
+                         "frame_list": [self.final_front_frame_1, self.final_front_frame_2, self.final_front_frame_3, self.final_front_frame_4,
+                                        self.final_back_frame_1, self.final_back_frame_2, self.final_back_frame_3, self.final_back_frame_4,
+                                        self.final_left_frame_1, self.final_left_frame_2, self.final_left_frame_3, self.final_left_frame_4,
+                                        self.final_right_frame_1, self.final_right_frame_2, self.final_right_frame_3, self.final_right_frame_4],
                          "front_frame_1": self.final_front_frame_1,
                          "front_frame_2": self.final_front_frame_2,
                          "front_frame_3": self.final_front_frame_3,

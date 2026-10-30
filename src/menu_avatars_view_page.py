@@ -1099,51 +1099,67 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.y_counter = 0
         self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 35, 220)}
         self.button_list = []
+        self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 300, []),
+                                "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, []),
+                                "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 310, [])}
 
     def add_button_to_list(self, button_avatar):
         self.button_list.append(button_avatar)
+
+    def add_image_to_cage_group_cage(self, group_name, image, image_x, image_y):
+        self.cage_group_dict[group_name].assign_image_to_cage(image, image_x, image_y)
+
+    def assign_list_of_images_to_group_cage(self, group_name, image_list):
+        group = self.cage_group_dict[group_name]
+        group.assign_list_of_images_to_cage(image_list)
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
         text_display_list = menu_info.text_display_list
         selected_part = menu_info.menu_specific_details_dict["selected_part"]
         text_box_dict = menu_info.menu_specific_details_dict["text_box_dict"]
-
-        final_menu_text = []
-
-        # part selection grid
         parts_list = menu_info.menu_specific_details_dict["parts_list"]
-        items_list = self.layout_text_in_a_grid(3, 60, 2, 15, 30, 300, parts_list)
 
-        for index, item in enumerate(items_list):
-            if parts_list[index] == selected_part:
-                item.text = self.main_font.render(parts_list[index], True, (99, 99, 99))
+        self.assign_list_of_images_to_group_cage("spritesheet_group", menu_info.menu_specific_details_dict["frame_list"])
+        # self.add_image_to_cage_group_cage("spritesheet_group", menu_info.menu_specific_details_dict["right_frame_3"], image_loc[0], image_loc[1])
 
-            part_change_button_avatar = ButtonAvatar(self.gc, parts_list[index] + "_change_button", item.x, item.y, item.text.get_width(), item.text.get_height())
-            self.add_button_to_list(part_change_button_avatar)
+        text_surface_list = []
 
-        final_menu_text = final_menu_text + items_list
+        for item in menu_info.menu_specific_details_dict["parts_list"]:
+            if item == selected_part:
+                surface_text = self.main_font.render(item, True, (99, 99, 99))
+            else:
+                surface_text = self.main_font.render(item, True, (0, 0, 0))
+            text_surface_list.append(surface_text)
 
-
-        # left and right arrows
-        l_arrow_x = 10
-        r_arrow_x = 210
-        arrow_y = 310
+        self.assign_list_of_images_to_group_cage("part_group", text_surface_list)
 
         left_arrow = self.main_font.render("<", True, (0, 0, 0))
         right_arrow = self.main_font.render(">", True, (0, 0, 0))
-        final_menu_text.append(TextDisplay(left_arrow, l_arrow_x, arrow_y))
-        final_menu_text.append(TextDisplay(right_arrow, r_arrow_x, arrow_y))
+        self.assign_list_of_images_to_group_cage("arrow_group", [left_arrow, right_arrow])
 
-        left_arrow_button = ButtonAvatar(self.gc, "left_arrow_button", l_arrow_x, arrow_y, left_arrow.get_width(), left_arrow.get_height())
-        self.add_button_to_list(left_arrow_button)
-
-        right_arrow_button = ButtonAvatar(self.gc, "right_arrow_button", r_arrow_x, arrow_y, right_arrow.get_width(), right_arrow.get_height())
-        self.add_button_to_list(right_arrow_button)
+        final_menu_text = []
 
         # text box
         box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
         final_menu_text.append(box_1_text)
+
+        # cage group
+        part_group = self.return_cage_group_images("part_group")
+        spritesheet_group = self.return_cage_group_images("spritesheet_group")
+        arrow_group = self.return_cage_group_images("arrow_group")
+
+        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group
+
+        for index, item in enumerate(part_group):
+            part_change_button_avatar = ButtonAvatar(self.gc, parts_list[index] + "_change_button", item.x, item.y, item.text.get_width(), item.text.get_height())
+            self.add_button_to_list(part_change_button_avatar)
+
+        left_arrow_button = ButtonAvatar(self.gc, "left_arrow_button", arrow_group[0].x, arrow_group[0].y, arrow_group[0].text.get_width(), arrow_group[0].text.get_height())
+        self.add_button_to_list(left_arrow_button)
+
+        right_arrow_button = ButtonAvatar(self.gc, "right_arrow_button", arrow_group[1].x, arrow_group[1].y, arrow_group[1].text.get_width(), arrow_group[1].text.get_height())
+        self.add_button_to_list(right_arrow_button)
 
         # Header
         header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
@@ -1152,6 +1168,14 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.final_menu_text = final_menu_text
 
         return final_menu_text
+
+    def return_cage_group_images(self, group_name):
+        return self.cage_group_dict[group_name].return_image_list()
+
+    def get_offset_to_center_x(self, component_width):
+        print("body", self.spritesheet_width, component_width)
+        offset_x = (self.spritesheet_width - component_width)/2
+        return offset_x
 
     def layout_text_in_a_grid(self, column_count, column_size, row_count, row_size, starting_x, starting_y, text_list):
         final_list = []
@@ -1206,22 +1230,22 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         loc_y = 20
 
-        front_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        front_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        front_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        front_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        back_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        back_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        back_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        back_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        right_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        right_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        right_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        right_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        left_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        left_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        left_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        left_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # front_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        # front_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        # front_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        # front_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
+        # back_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        # back_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        # back_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        # back_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
+        # right_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # right_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # right_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # right_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # left_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # left_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # left_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
+        # left_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
 
         square_number = 0
         square_xy = 12
@@ -1258,7 +1282,6 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         current_secondary_colour_index = menu_info.menu_specific_details_dict["current_secondary_colour_index"]
         secondary_colour_squares = menu_info.menu_specific_details_dict["secondary_colour_square_list"]
-        print(secondary_colour_squares)
         square_number = 0
 
         for square_colour in secondary_colour_squares:
@@ -1286,14 +1309,14 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         box_1_image = self.text_entry_boxes["assembly_box_1"].make_image()
         final_menu_images.append(box_1_image)
 
-        final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
-                        back_frame_1, back_frame_2, back_frame_3, back_frame_4,
-                        right_frame_1, right_frame_2, right_frame_3, right_frame_4,
-                        left_frame_1, left_frame_2, left_frame_3, left_frame_4
-                        ]
-
-        for image in final_images:
-            final_menu_images.append(image)
+        # final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
+        #                 back_frame_1, back_frame_2, back_frame_3, back_frame_4,
+        #                 right_frame_1, right_frame_2, right_frame_3, right_frame_4,
+        #                 left_frame_1, left_frame_2, left_frame_3, left_frame_4
+        #                 ]
+        #
+        # for image in final_images:
+        #     final_menu_images.append(image)
 
         self.final_menu_images = final_menu_images
         return final_menu_images
@@ -1330,3 +1353,123 @@ class ButtonAvatar(object):
         self.gc = gc
         self.name = name
 
+
+class ComponentCage(object):
+    def __init__(self, menu, name, x_size, y_size):
+        self.menu = menu
+        self.name = name
+        self.selected = False
+        self.x_size = x_size
+        self.y_size = y_size
+        self.cage_image = self.make_image()
+
+    def assign_image_to_cage(self, image):
+        self.cage_image = image
+
+    def make_image(self):
+        square_surface = pygame.Surface((self.x_size, self.y_size), pygame.SRCALPHA)
+        square_surface.fill((99, 99, 99))
+        return square_surface
+
+
+class ComponentCageGroup(object):
+    def __init__(self, gc, menu, group_name, column_count, column_size, column_spacing, row_count, row_size, row_spacing, starting_x, starting_y, text_list):
+        self.gc = gc
+        self.total_height = None
+        self.total_width = None
+        self.column_spacing = column_spacing
+        self.row_spacing = row_spacing
+        self.menu = menu
+        self.group_name = group_name
+        self.text_list = text_list
+        self.row_size = row_size
+        self.row_count = row_count
+        self.column_size = column_size
+        self.column_count = column_count
+        self.cage_list = self.create_cage_grid()
+        self.set_total_group_height_width()
+        self.starting_y = starting_y
+        self.starting_x = self.set_starting_x(starting_x)
+
+    def set_starting_x(self, starting_x):
+        if starting_x == "center":
+            starting_x_loc = self.menu.get_offset_to_center_x(self.total_width)
+        elif starting_x == "left":
+            starting_x_loc = 0
+        elif starting_x == "right":
+            starting_x_loc = self.menu.overaly_x - self.total_width
+        else:
+            starting_x_loc = starting_x
+        return starting_x_loc
+
+    def set_total_group_height_width(self):
+        self.total_width = (self.column_count * self.column_size) + ((self.column_count - 1) * self.column_spacing)
+        self.total_height = (self.row_count * self.row_size) + ((self.row_count - 1) * self.row_spacing)
+
+    def return_image_list(self):
+        final_image_list = []
+        for cage in self.cage_list.keys():
+            x_loc = self.starting_x + self.cage_list[cage]["assigned_x"]
+            y_loc = self.starting_y + self.cage_list[cage]["assigned_y"]
+            item = TextDisplay(self.cage_list[cage]["cage_object"].cage_image, x_loc, y_loc)
+            final_image_list.append(item)
+
+        return final_image_list
+
+    def assign_image_to_cage(self, image, image_x, image_y):
+        cage_object = self.cage_list[(image_x - 1, image_y - 1)]["cage_object"]
+        cage_object.assign_image_to_cage(image)
+        rel_x = self.cage_list[(image_x - 1, image_y - 1)]["relative_x"]
+        new_assigned_x = rel_x + self.get_assigned_x_offset(cage_object.cage_image.get_width())
+        self.cage_list[(image_x - 1, image_y - 1)]["assigned_x"] = new_assigned_x
+
+    def get_assigned_x_offset(self, surface_size_x):
+        if surface_size_x < self.column_size:
+            offset_x = (self.column_size - surface_size_x)/2
+        else:
+            offset_x = 0
+
+        return offset_x
+
+    def assign_list_of_images_to_cage(self, image_list):
+        counter_c = 0
+        counter_r = 0
+        for index, item in enumerate(image_list):
+            self.assign_image_to_cage(image_list[index], counter_c + 1, counter_r + 1)
+            # self.cage_list[(counter_c, counter_r)]["cage_object"].cage_image = image_list[index]
+
+            counter_c += 1
+            if counter_c == self.column_count:
+                counter_r += 1
+                counter_c = 0
+
+    def create_cage_grid(self):
+        final_list = {}
+
+        column_locations = []
+        row_locations = []
+
+        for index in range(self.column_count):
+            column_loc = (index * self.column_spacing) + (index * self.column_size)
+            column_locations.append(column_loc)
+
+        for index in range(self.row_count):
+            row_loc = (index * self.row_spacing) + (index * self.row_size)
+            row_locations.append(row_loc)
+
+        counter_c = 0
+        counter_r = 0
+        for item in range(self.row_count * self.column_count):
+            cage_name = "cage_" + str(counter_c) + "_" + str(counter_r)
+            text_item = {"cage_object": ComponentCage(self.gc, cage_name, self.column_size, self.row_size),
+                         "relative_x": column_locations[counter_c],
+                         "relative_y": row_locations[counter_r],
+                         "assigned_x": column_locations[counter_c],
+                         "assigned_y": row_locations[counter_r]}
+            final_list[(counter_c, counter_r)] = text_item
+            counter_c += 1
+            if counter_c == self.column_count:
+                counter_r += 1
+                counter_c = 0
+
+        return final_list
