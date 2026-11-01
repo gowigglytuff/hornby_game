@@ -2056,6 +2056,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.text_entry_boxes = {"assembly_box_1": TextEntryBoxGhost(self.gc, "assembly_box_1")}
         self.currently_selected_text_entry_box = None
         self.button_list = {}
+        self.arrow_list = ["<", ">"]
 
         self.legs_counter = 0
         self.torso_counter = 0
@@ -2099,21 +2100,48 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                                     "frame_4": {}}}
         self.process_all_parts()
         self.bg_pink = (255, 145, 211)
+        self.skin_base = (236, 214, 184)
+        self.skin_base_2 = (155, 146, 134)
         self.primary_colour = (204, 204, 204)
         self.secondary_colour = (106, 106, 106)
-        blue = (128, 197, 213)
+
+        dark_red = (141, 43, 41)
+        light_red = (255, 0, 0)
+
+        dark_orange = (199, 101, 0)
+        light_orange = (255, 167, 0)
+
+        dark_yellow = (159, 138, 0)
+        light_yellow = (255, 255, 0)
+
         light_green = (0, 255, 0)
-        red = (255, 0, 0)
-        cherry_red = (255, 142, 108)
+        dark_green = (23, 119, 16)
+
+        light_blue = (128, 197, 213)
+        dark_blue = (48, 59, 156)
+
+        teal = (0, 128, 128)
+
+        lavender = (191, 140, 181)
+        purple = (153, 39, 155)
+
         white = (255, 255, 255)
         black = (46, 46, 46)
-        lavender = (191, 140, 181)
-        dark_green = (15, 144, 24)
-        light_brown = (137, 102, 75)
-        dark_brown = (70, 56, 45)
-        purple = (153, 39, 155)
-        yellow = (212, 202, 59)
-        dark_blue = (48, 59, 156)
+
+        light_pink = (255, 146, 222)
+        dark_pink = (217, 0, 152)
+        magenta = (255, 0, 255)
+
+
+        skin_2 = (246, 231, 218)
+        skin_3 = (240, 213, 190)
+        skin_4 = (229, 188, 155)
+        skin_5 = (214, 161, 124)
+        skin_6 = (197, 139, 96)
+        skin_7 = (169, 111, 73)
+        skin_8 = (139, 88, 60)
+        skin_9 = (112, 67, 47)
+        skin_10 = (82, 49, 36)
 
         self.selected_torso_colour = copy.copy(self.primary_colour)
         self.selected_legs_colour = copy.copy(self.primary_colour)
@@ -2128,8 +2156,11 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.selected_head_secondary_colour = copy.copy(self.secondary_colour)
         self.selected_mouth_secondary_colour = copy.copy(self.secondary_colour)
         self.selected_eyes_secondary_colour = copy.copy(self.secondary_colour)
-
-        self.colour_options = [self.primary_colour, self.secondary_colour, white, black, light_brown, dark_brown, yellow, light_green, dark_green, blue, dark_blue, red, cherry_red, lavender, purple]
+        self.primary_squares_list = []
+        self.secondary_squares_list = []
+        self.skin_tone_options = [skin_2, skin_3, skin_4, skin_5, skin_6, skin_7, skin_8, skin_9, skin_10]
+        self.fun_colours = [white, black, dark_red, light_red, dark_orange, light_orange, light_yellow, dark_yellow, light_blue, dark_blue, light_green, teal, dark_green, lavender, purple, light_pink, dark_pink, magenta]
+        self.colour_options = [self.primary_colour, self.secondary_colour] + self.skin_tone_options + self.fun_colours
         self.colour_buttons_list_primary = {}
         self.colour_buttons_list_secondary = {}
         self.final_front_frame_1 = self.assemble_front_1()
@@ -2237,22 +2268,73 @@ class CharacterAssemblyMenuGhost(MenuGhost):
     def add_to_item_list(self, list_type, species, display_name):
         getattr(self, list_type + "_item_list")[species] = [species, display_name]
 
+    def setup_colour_select_images(self):
+        square_number = 0
+        square_xy = 12
+        spacing = 2
+        square_offset = 15
+        base_border_colour = (0, 0, 0)
+        border_thickness = 2
+        highlight_colour = (212, 212, 83)
+
+        current_attributes_colour_primary = getattr(self, "selected_" + self.current_part + "_colour")
+        primary_colour_index = self.colour_options.index(current_attributes_colour_primary)
+
+        current_attributes_colour_secondary = getattr(self, "selected_" + self.current_part + "_secondary_colour")
+        secondary_colour_index = self.colour_options.index(current_attributes_colour_secondary)
+
+        primary_colour_squares = self.colour_buttons_list_primary.values()
+
+        self.primary_squares_list = []
+        for square_colour in primary_colour_squares:
+            if square_number == primary_colour_index:
+                border_colour = highlight_colour
+            else:
+                border_colour = base_border_colour
+            boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
+            boarder_square.fill(border_colour)
+
+            colour_square_xy = (square_xy - border_thickness, square_xy - border_thickness)
+            square_surface = pygame.Surface(colour_square_xy, pygame.SRCALPHA)
+            square_surface.fill(square_colour.details["colour"])
+            boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
+            self.primary_squares_list.append(boarder_square)
+            square_number += 1
+
+        secondary_colour_squares = self.colour_buttons_list_secondary.values()
+        square_number = 0
+
+        self.secondary_squares_list = []
+        for square_colour in secondary_colour_squares:
+            if square_number == secondary_colour_index:
+                border_colour = highlight_colour
+            else:
+                border_colour = base_border_colour
+            boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
+            boarder_square.fill(border_colour)
+
+            colour_square_xy = (square_xy - border_thickness, square_xy - border_thickness)
+            square_surface = pygame.Surface(colour_square_xy, pygame.SRCALPHA)
+            square_surface.fill(square_colour.details["colour"])
+            boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
+            self.secondary_squares_list.append(boarder_square)
+            square_number += 1
+
     def setup_colour_buttons_list(self):
-        button_count = 1
+        button_count = 0
         for item in self.colour_options:
             # primary colour
-            button_name = "button_" + str(button_count)
+            button_name = "button_primary_" + str(button_count)
             button = ButtonGhost(self.gc, button_name, self.BASE, "select_primary_colour", {"colour": item})
-            button_count += 1
             self.colour_buttons_list_primary[button_name] = button
             self.button_list[button_name] = button
 
             # secondary colour
-            button_name = "button_" + str(button_count)
+            button_name = "button_secondary_" + str(button_count)
             button = ButtonGhost(self.gc, button_name, self.BASE, "select_secondary_colour", {"colour": item})
-            button_count += 1
             self.colour_buttons_list_secondary[button_name] = button
             self.button_list[button_name] = button
+            button_count += 1
 
         # setup other buttons
         for item in self.parts_list:
@@ -2293,6 +2375,41 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         for item in range(len(source)):
             text_display_list.append(source[item])
 
+        # setting up parts selection list
+        parts_pass_list = []
+        for item in self.parts_list:
+            passer = ComponentPass(item, item + "_change_button")
+            if item != self.current_part:
+                passer.lowlight_text()
+            parts_pass_list.append(passer)
+
+        # setting up arrows
+        left_arrow_pass = ComponentPass(self.arrow_list[0], "left_arrow_button")
+        right_arrow_pass = ComponentPass(self.arrow_list[1], "right_arrow_button")
+
+        # setting up sprites
+        frame_list = [self.final_front_frame_1, self.final_front_frame_2, self.final_front_frame_3, self.final_front_frame_4,
+                       self.final_back_frame_1, self.final_back_frame_2, self.final_back_frame_3, self.final_back_frame_4,
+                       self.final_left_frame_1, self.final_left_frame_2, self.final_left_frame_3, self.final_left_frame_4,
+                       self.final_right_frame_1, self.final_right_frame_2, self.final_right_frame_3, self.final_right_frame_4]
+        frame_passer_list = []
+        for item in frame_list:
+            passer = ComponentPass(item, None)
+            frame_passer_list.append(passer)
+
+        # setting up colour squares
+        self.setup_colour_select_images()
+
+        primary_square_pass_list = []
+        for index, square in enumerate(self.primary_squares_list):
+            passer = ComponentPass(square, "button_primary_" + str(index))
+            primary_square_pass_list.append(passer)
+
+        secondary_square_pass_list = []
+        for index, square in enumerate(self.secondary_squares_list):
+            passer = ComponentPass(square, "button_secondary_" + str(index))
+            secondary_square_pass_list.append(passer)
+
         current_attributes_colour_primary = getattr(self, "selected_" + self.current_part + "_colour")
         primary_colour_index = self.colour_options.index(current_attributes_colour_primary)
 
@@ -2301,30 +2418,11 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
         menu_specific = {"selected_part": self.current_part,
                          "parts_list": self.parts_list,
-                         "frame_list": [self.final_front_frame_1, self.final_front_frame_2, self.final_front_frame_3, self.final_front_frame_4,
-                                        self.final_back_frame_1, self.final_back_frame_2, self.final_back_frame_3, self.final_back_frame_4,
-                                        self.final_left_frame_1, self.final_left_frame_2, self.final_left_frame_3, self.final_left_frame_4,
-                                        self.final_right_frame_1, self.final_right_frame_2, self.final_right_frame_3, self.final_right_frame_4],
-                         "front_frame_1": self.final_front_frame_1,
-                         "front_frame_2": self.final_front_frame_2,
-                         "front_frame_3": self.final_front_frame_3,
-                         "front_frame_4": self.final_front_frame_4,
-                         "back_frame_1": self.final_back_frame_1,
-                         "back_frame_2": self.final_back_frame_2,
-                         "back_frame_3": self.final_back_frame_3,
-                         "back_frame_4": self.final_back_frame_4,
-                         "left_frame_1": self.final_left_frame_1,
-                         "left_frame_2": self.final_left_frame_2,
-                         "left_frame_3": self.final_left_frame_3,
-                         "left_frame_4": self.final_left_frame_4,
-                         "right_frame_1": self.final_right_frame_1,
-                         "right_frame_2": self.final_right_frame_2,
-                         "right_frame_3": self.final_right_frame_3,
-                         "right_frame_4": self.final_right_frame_4,
-                         "primary_colour_square_list": self.colour_buttons_list_primary.values(),
-                         "secondary_colour_square_list": self.colour_buttons_list_secondary.values(),
-                         "current_primary_colour_index": primary_colour_index,
-                         "current_secondary_colour_index": secondary_colour_index,
+                         "parts_list_passes": parts_pass_list,
+                         "arrow_list_passes": [left_arrow_pass, right_arrow_pass],
+                         "frame_pass_list": frame_passer_list,
+                         "primary_square_pass_list": primary_square_pass_list,
+                         "secondary_square_pass_list": secondary_square_pass_list,
                          "text_box_dict": self.text_entry_boxes}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
@@ -2492,7 +2590,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(mouth_image, (0, 0))
         legs_image.blit(eyes_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_front_2(self):
         hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2511,7 +2610,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(mouth_image, (0, 1))
         legs_image.blit(eyes_image, (0, 1))
         legs_image.blit(hair_image, (0, 1))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_front_4(self):
         hair_image = self.change_colour(self.hair_list["front"][self.selected_hair], "front", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2533,7 +2633,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(mouth_image, (0, 0))
         legs_image.blit(eyes_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_back_1(self):
         hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_1",self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2546,7 +2647,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(head_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_back_2(self):
         hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2559,7 +2661,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(head_image, (0, 1))
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(hair_image, (0, 1))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_back_4(self):
         hair_image = self.change_colour(self.hair_list["back"][self.selected_hair], "back", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2575,7 +2678,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(head_image, (0, 0))
         legs_image.blit(torso_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_right_1(self):
         hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_1", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2594,7 +2698,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(mouth_image, (0, 0))
         legs_image.blit(eyes_image, (0, 0))
         legs_image.blit(hair_image, (0, 0))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_right_2(self):
         hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_2", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2613,7 +2718,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(mouth_image, (1, 1))
         legs_image.blit(eyes_image, (1, 1))
         legs_image.blit(hair_image, (1, 1))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_right_4(self):
         hair_image = self.change_colour(self.hair_list["right"][self.selected_hair], "right", "frame_4", self.selected_hair_colour, self.selected_hair_secondary_colour)
@@ -2632,7 +2738,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         legs_image.blit(mouth_image, (1, 0))
         legs_image.blit(eyes_image, (1, 0))
         legs_image.blit(hair_image, (1, 0))
-        return legs_image
+        final_image = self.change_skin_colour(legs_image, self.selected_head_colour, self.selected_head_secondary_colour)
+        return final_image
 
     def assemble_left_1(self):
         right_image = self.assemble_right_1()
@@ -2651,6 +2758,25 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         flipped_image = pygame.transform.flip(right_image, True, False)
         flipped_image.set_colorkey(self.bg_pink)
         return flipped_image
+
+    def change_skin_colour(self, image, new_primary_colour, new_secondary_colour):
+        img_copy = image.copy()
+        isolate_primary_skin = self.isolate_part(img_copy, self.skin_base)
+        isolate_secondary_skin = self.isolate_part(img_copy, self.skin_base_2)
+
+        with pygame.PixelArray(isolate_primary_skin) as pixel_array:
+            pixel_array.replace(self.skin_base, new_primary_colour)
+
+        img_copy.blit(isolate_primary_skin, (0, 0))
+
+        with pygame.PixelArray(isolate_secondary_skin) as pixel_array2:
+            pixel_array2.replace(self.skin_base_2, new_secondary_colour)
+
+        img_copy.blit(isolate_secondary_skin, (0, 0))
+        img_copy.set_colorkey(self.bg_pink)
+
+        return img_copy
+
 
     def change_colour(self, part, view, frame, new_primary_colour, new_secondary_colour):
         img_copy = part.copy()
@@ -2811,3 +2937,18 @@ class ButtonGhost(object):
         menu = self.gc.gs.ms.get_menu_ghost(self.menu_name)
         function = getattr(menu, self.press_function)
         function(self.details)
+
+
+class ComponentPass(object):
+    def __init__(self, text_or_image, related_button_name):
+        if type(text_or_image) == str:
+            self.text_or_image = text_or_image
+            self.surface = pygame.font.Font(GameSettings.FONT_FILE, GameSettings.FONT_SIZE).render(text_or_image, True, (0, 0, 0))
+        else:
+            self.text_or_image = None
+            self.surface = text_or_image
+        self.related_button_name = related_button_name
+
+    def lowlight_text(self):
+        if type(self.text_or_image) == str:
+            self.surface = pygame.font.Font(GameSettings.FONT_FILE, GameSettings.FONT_SIZE).render(self.text_or_image, True, (99, 99, 99))

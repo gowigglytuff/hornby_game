@@ -963,7 +963,6 @@ class MenuAvatar(object):
         self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
 
         if header:
-            # self.overlay_image = self.gc.build_special_overlay_image("special_menu" + "_overlay", menu_width, menu_height, self.offset_y)
             self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
         else:
             self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
@@ -976,7 +975,6 @@ class MenuAvatar(object):
         header = menu_info.header
         cursor_image = menu_info.cursor_image
         cursor_at = menu_info.cursor_at
-
 
         final_menu_text = []
 
@@ -1093,15 +1091,15 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.cursor_offset_x = self.offset_x - 10
         self.cursor_offset_y = self.offset_y + 7
 
-        self.menu_display_details = {"default_width": 48, "default_height": 70, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.menu_display_details = {"default_width": 48, "default_height": 75, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
-        self.x_counter = 0
-        self.y_counter = 0
         self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 35, 220)}
         self.button_list = []
-        self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 300, []),
+        self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 320, []),
                                 "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, []),
-                                "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 310, [])}
+                                "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 330, []),
+                                "primary_colour_group": ComponentCageGroup(self.gc, self, "primary_colour_group", 15, 10, 3, 2, 10, 3, "center", 250, []),
+                                "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 10, 3, 2, 10, 3, "center", 285, [])}
 
     def add_button_to_list(self, button_avatar):
         self.button_list.append(button_avatar)
@@ -1115,28 +1113,19 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
-        text_display_list = menu_info.text_display_list
-        selected_part = menu_info.menu_specific_details_dict["selected_part"]
         text_box_dict = menu_info.menu_specific_details_dict["text_box_dict"]
-        parts_list = menu_info.menu_specific_details_dict["parts_list"]
 
-        self.assign_list_of_images_to_group_cage("spritesheet_group", menu_info.menu_specific_details_dict["frame_list"])
-        # self.add_image_to_cage_group_cage("spritesheet_group", menu_info.menu_specific_details_dict["right_frame_3"], image_loc[0], image_loc[1])
+        arrows_text_pass_list = menu_info.menu_specific_details_dict["arrow_list_passes"]
+        parts_text_pass_list = menu_info.menu_specific_details_dict["parts_list_passes"]
+        frame_pass_list = menu_info.menu_specific_details_dict["frame_pass_list"]
+        primary_square_pass_list = menu_info.menu_specific_details_dict["primary_square_pass_list"]
+        secondary_square_pass_list = menu_info.menu_specific_details_dict["secondary_square_pass_list"]
 
-        text_surface_list = []
-
-        for item in menu_info.menu_specific_details_dict["parts_list"]:
-            if item == selected_part:
-                surface_text = self.main_font.render(item, True, (99, 99, 99))
-            else:
-                surface_text = self.main_font.render(item, True, (0, 0, 0))
-            text_surface_list.append(surface_text)
-
-        self.assign_list_of_images_to_group_cage("part_group", text_surface_list)
-
-        left_arrow = self.main_font.render("<", True, (0, 0, 0))
-        right_arrow = self.main_font.render(">", True, (0, 0, 0))
-        self.assign_list_of_images_to_group_cage("arrow_group", [left_arrow, right_arrow])
+        self.process_text_pass_list(parts_text_pass_list, "part_group")
+        self.process_text_pass_list(arrows_text_pass_list, "arrow_group")
+        self.process_text_pass_list(frame_pass_list, "spritesheet_group")
+        self.process_text_pass_list(primary_square_pass_list, "primary_colour_group")
+        self.process_text_pass_list(secondary_square_pass_list, "secondary_colour_group")
 
         final_menu_text = []
 
@@ -1148,18 +1137,10 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         part_group = self.return_cage_group_images("part_group")
         spritesheet_group = self.return_cage_group_images("spritesheet_group")
         arrow_group = self.return_cage_group_images("arrow_group")
+        primary_colour_group = self.return_cage_group_images("primary_colour_group")
+        secondary_colour_group = self.return_cage_group_images("secondary_colour_group")
 
-        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group
-
-        for index, item in enumerate(part_group):
-            part_change_button_avatar = ButtonAvatar(self.gc, parts_list[index] + "_change_button", item.x, item.y, item.text.get_width(), item.text.get_height())
-            self.add_button_to_list(part_change_button_avatar)
-
-        left_arrow_button = ButtonAvatar(self.gc, "left_arrow_button", arrow_group[0].x, arrow_group[0].y, arrow_group[0].text.get_width(), arrow_group[0].text.get_height())
-        self.add_button_to_list(left_arrow_button)
-
-        right_arrow_button = ButtonAvatar(self.gc, "right_arrow_button", arrow_group[1].x, arrow_group[1].y, arrow_group[1].text.get_width(), arrow_group[1].text.get_height())
-        self.add_button_to_list(right_arrow_button)
+        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group + primary_colour_group + secondary_colour_group
 
         # Header
         header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
@@ -1169,11 +1150,25 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         return final_menu_text
 
+    def process_text_pass_list(self, text_pass_list, assigned_cage_group_name):
+        text_surface_list = []
+
+        for item in text_pass_list:
+            text_surface_list.append(item.surface)
+
+        self.assign_list_of_images_to_group_cage(assigned_cage_group_name, text_surface_list)
+
+        cage_group_images = self.return_cage_group_images(assigned_cage_group_name)
+
+        for index, item in enumerate(text_pass_list):
+            if item.related_button_name:
+                part_change_button_avatar = ButtonAvatar(self.gc, item.related_button_name, cage_group_images[index].x, cage_group_images[index].y, cage_group_images[index].text.get_width(), cage_group_images[index].text.get_height())
+                self.add_button_to_list(part_change_button_avatar)
+
     def return_cage_group_images(self, group_name):
         return self.cage_group_dict[group_name].return_image_list()
 
     def get_offset_to_center_x(self, component_width):
-        print("body", self.spritesheet_width, component_width)
         offset_x = (self.spritesheet_width - component_width)/2
         return offset_x
 
@@ -1211,112 +1206,8 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
 
-        front_fram_1_image = menu_info.menu_specific_details_dict["front_frame_1"]
-        segment_1_x = Mundane.center_image_x(self.overlay_body_x, 0, front_fram_1_image)/2
-
-        self.x_counter = 0
-        self.y_counter = 0
-
-        def get_x_addition():
-            if self.x_counter == 4:
-                self.x_counter = 0
-                self.y_counter += 1
-            result = 0 + copy.copy(self.x_counter)
-            self.x_counter += 1
-
-
-            return result*32
-
-
-        loc_y = 20
-
-        # front_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        # front_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        # front_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        # front_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["front_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter*48)
-        # back_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        # back_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        # back_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        # back_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["back_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter *48)
-        # right_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # right_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # right_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # right_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["right_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # left_frame_1 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_1"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # left_frame_2 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_2"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # left_frame_3 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_3"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-        # left_frame_4 = ImageDisplay(menu_info.menu_specific_details_dict["left_frame_4"], segment_1_x + get_x_addition(), loc_y + self.y_counter * 48)
-
-        square_number = 0
-        square_xy = 12
-        spacing = 2
-        square_offset = 15
-        base_border_colour = (0, 0, 0)
-        border_thickness = 2
-        highlight_colour = (212, 212, 83)
-        current_primary_colour_index = menu_info.menu_specific_details_dict["current_primary_colour_index"]
-
-        primary_colour_squares = menu_info.menu_specific_details_dict["primary_colour_square_list"]
-
-        for square_colour in primary_colour_squares:
-            if square_number == current_primary_colour_index:
-                border_colour = highlight_colour
-            else:
-                border_colour = base_border_colour
-            boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
-            boarder_square.fill(border_colour)
-
-            colour_square_xy = (square_xy - border_thickness, square_xy - border_thickness)
-            square_surface = pygame.Surface(colour_square_xy, pygame.SRCALPHA)
-            square_surface.fill(square_colour.details["colour"])
-            boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
-
-            square_x_loc = square_offset + square_number * (square_xy + spacing)
-            square_y_loc = 250
-
-            final_image = ImageDisplay(boarder_square, square_x_loc, square_y_loc)
-            final_menu_images.append(final_image)
-            square_number += 1
-            button_avatar = ButtonAvatar(self.gc, square_colour.name, square_x_loc, square_y_loc, colour_square_xy[0], colour_square_xy[1])
-            self.add_button_to_list(button_avatar)
-
-        current_secondary_colour_index = menu_info.menu_specific_details_dict["current_secondary_colour_index"]
-        secondary_colour_squares = menu_info.menu_specific_details_dict["secondary_colour_square_list"]
-        square_number = 0
-
-        for square_colour in secondary_colour_squares:
-            if square_number == current_secondary_colour_index:
-                border_colour = highlight_colour
-            else:
-                border_colour = base_border_colour
-            boarder_square = pygame.Surface((square_xy, square_xy), pygame.SRCALPHA)
-            boarder_square.fill(border_colour)
-
-            colour_square_xy = (square_xy - border_thickness, square_xy - border_thickness)
-            square_surface = pygame.Surface(colour_square_xy, pygame.SRCALPHA)
-            square_surface.fill(square_colour.details["colour"])
-            boarder_square.blit(square_surface, (border_thickness - 1, border_thickness - 1))
-
-            square_x_loc = square_offset + square_number * (square_xy + spacing)
-            square_y_loc = 275
-
-            final_image = ImageDisplay(boarder_square, square_x_loc, square_y_loc)
-            final_menu_images.append(final_image)
-            square_number += 1
-            button_avatar = ButtonAvatar(self.gc, square_colour.name, square_x_loc, square_y_loc, colour_square_xy[0], colour_square_xy[1])
-            self.add_button_to_list(button_avatar)
-
         box_1_image = self.text_entry_boxes["assembly_box_1"].make_image()
         final_menu_images.append(box_1_image)
-
-        # final_images = [front_frame_1, front_frame_2, front_frame_3, front_frame_4,
-        #                 back_frame_1, back_frame_2, back_frame_3, back_frame_4,
-        #                 right_frame_1, right_frame_2, right_frame_3, right_frame_4,
-        #                 left_frame_1, left_frame_2, left_frame_3, left_frame_4
-        #                 ]
-        #
-        # for image in final_images:
-        #     final_menu_images.append(image)
 
         self.final_menu_images = final_menu_images
         return final_menu_images
@@ -1409,6 +1300,7 @@ class ComponentCageGroup(object):
     def return_image_list(self):
         final_image_list = []
         for cage in self.cage_list.keys():
+            print(self.starting_y, self.cage_list[cage]["assigned_y"])
             x_loc = self.starting_x + self.cage_list[cage]["assigned_x"]
             y_loc = self.starting_y + self.cage_list[cage]["assigned_y"]
             item = TextDisplay(self.cage_list[cage]["cage_object"].cage_image, x_loc, y_loc)

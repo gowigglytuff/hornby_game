@@ -40,6 +40,7 @@ class GameSettings(object):
     FPS = 62
 
     FONT_SIZE = 10
+    FONT_FILE = "assets/fonts/PressStart.ttf"
 
     @classmethod
     def get_unique_ID(cls):

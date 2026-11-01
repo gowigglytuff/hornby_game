@@ -585,7 +585,6 @@ class ScreenLayout(object):
         self.room_layout = copy.copy(self.gc.get_current_room_layout())
         self.menu_layouts = self.gc.game.gs.ms.get_current_menu_layouts()
 
-        print("special", self.room_layout)
         room_end_x = room_start_x + self.room_layout["room_size_x"]
         room_start_y = base_locator_y - camera[1]
         room_end_y = room_start_y + self.room_layout["room_size_y"]
@@ -596,11 +595,6 @@ class ScreenLayout(object):
                 pass
         else:
             pass
-        for menu in self.menu_layouts:
-            print(menu)
-        print("mouse", mouse_x, mouse_y)
-        print(room_start_x, room_end_x, room_start_y, room_end_y)
-        print(self.room_layout["room_name"], self.room_layout["room_size_x"], self.room_layout["room_size_y"], base_locator_x, base_locator_y, camera, mouse_x - base_locator_x)
 
         print(selected_menu, selected_room)
 
@@ -611,6 +605,7 @@ class ScreenLayout(object):
             selected_menu_avatar = self.gc.gs.gv.get_menu_avatar(selected_menu + "_avatar")
             button_name = self.check_menu_for_button(selected_menu_avatar, mouse_x - menu_start_x, mouse_y - menu_start_y)
             if button_name:
+                print(button_name)
                 self.gc.menu_controller.push_menu_button(button_name)
 
             # selected_menu_ghost.cursor_left()
