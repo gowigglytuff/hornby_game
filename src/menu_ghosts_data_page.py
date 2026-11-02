@@ -1,5 +1,6 @@
 import copy
 import math
+import random
 import textwrap
 
 import pygame
@@ -2505,7 +2506,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
                 self.perform_assemblies()
             elif letter == "z":
-                self.print_spritesheet_to_png()
+                name = self.text_entry_boxes["assembly_box_1"].current_text
+                self.print_spritesheet_to_png(name)
             elif letter == "x":
                 self.set_current_text_entry_box(self.text_entry_boxes["assembly_box_1"].name)
             else:
@@ -2513,7 +2515,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         else:
             self.text_entry_boxes[self.currently_selected_text_entry_box].add_letter(letter)
 
-    def print_spritesheet_to_png(self):
+    def print_spritesheet_to_png(self, name):
         final_surface = pygame.Surface((128, 192))
         final_surface.fill(self.bg_pink)
 
@@ -2553,7 +2555,11 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         for image in final_images:
             final_surface.blit(image, (get_x_addition(), self.y_counter * 48))
 
-        pygame.image.save(final_surface, "assets/character_assembly/assembled_images/output_image.png")
+        if name != "":
+            pygame.image.save(final_surface, "assets/character_assembly/assembled_images/" + name + "_image.png")
+        else:
+            number = random.randint(10000, 99999)
+            pygame.image.save(final_surface, "assets/character_assembly/assembled_images/" + str(number) + "_image.png")
 
     def perform_assemblies(self):
         setattr(self, "final_front_frame_1", self.assemble_front_1())
