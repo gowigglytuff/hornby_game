@@ -34,6 +34,7 @@ class MenuGhost(object):
         self.menu_images_list = []
         self.additional_information = []
         self.menu_type = Types.BASE
+        self.text_entry_boxes = {}
         self.currently_selected_text_entry_box = None
 
         self.cursor = "-"
@@ -116,8 +117,21 @@ class MenuGhost(object):
         return len(self.menu_item_list)
 
     def set_current_text_entry_box(self, box_name):
-        self.currently_selected_text_entry_box = box_name
+        print(self.text_entry_boxes)
+        box_object = self.text_entry_boxes[box_name]
+        print(box_object)
+        self.currently_selected_text_entry_box = box_object.name
+        box_object.select_box()
+        self.gc.game.set_active_keyboard_manager("InTextBox")
 
+    def unset_current_text_entry_box(self):
+        box_object = self.get_current_text_box()
+        box_object.deselect_box()
+        self.currently_selected_text_entry_box = None
+        self.gc.game.set_active_keyboard_manager("InMenu")
+
+    def get_current_text_box(self):
+        return self.text_entry_boxes[self.currently_selected_text_entry_box]
 
     def push_menu_button(self, button_name):
         button = self.button_list[button_name]
@@ -2348,6 +2362,10 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
         self.button_list["right_arrow_button"] = right_arrow_button
 
+        assembly_box_1_button = ButtonGhost(self.gc, "assembly_box_1", self.BASE, "set_current_text_entry_box", "assembly_box_1")
+        self.button_list["assembly_box_1"] = assembly_box_1_button
+
+
     def select_primary_colour(self, details):
         new_colour = details["colour"]
         setattr(self, "selected_" + self.current_part + "_colour", new_colour)
@@ -2417,6 +2435,13 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         current_attributes_colour_secondary = getattr(self, "selected_" + self.current_part + "_secondary_colour")
         secondary_colour_index = self.colour_options.index(current_attributes_colour_secondary)
 
+        # setting up text box
+        text_boxes_list = []
+        for index, text_box in enumerate(self.text_entry_boxes.keys()):
+            text_box_object = self.text_entry_boxes[text_box]
+            passer_box = ComponentPass(text_box_object.final_surface, text_box_object.name)
+            text_boxes_list.append(passer_box)
+
         menu_specific = {"selected_part": self.current_part,
                          "parts_list": self.parts_list,
                          "parts_list_passes": parts_pass_list,
@@ -2424,14 +2449,14 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                          "frame_pass_list": frame_passer_list,
                          "primary_square_pass_list": primary_square_pass_list,
                          "secondary_square_pass_list": secondary_square_pass_list,
-                         "text_box_dict": self.text_entry_boxes}
+                         "text_box_dict": text_boxes_list}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
 
     def do_option(self):
         if self.currently_selected_text_entry_box is not None:
-            self.currently_selected_text_entry_box = None
+            self.unset_current_text_entry_box()
         else:
             pass
 
@@ -2509,7 +2534,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                 name = self.text_entry_boxes["assembly_box_1"].current_text
                 self.print_spritesheet_to_png(name)
             elif letter == "x":
-                self.set_current_text_entry_box(self.text_entry_boxes["assembly_box_1"].name)
+                self.set_current_text_entry_box("assembly_box_1")
             else:
                 pass
         else:
@@ -2783,7 +2808,6 @@ class CharacterAssemblyMenuGhost(MenuGhost):
 
         return img_copy
 
-
     def change_colour(self, part, view, frame, new_primary_colour, new_secondary_colour):
         img_copy = part.copy()
 
@@ -2915,19 +2939,50 @@ class RoomSelectMenuGhost(MenuGhost):
 
 class TextEntryBoxGhost(object):
     def __init__(self, gc, name):
+        self.gc = gc
         self.name = name
         self.length_limit = 10
         self.current_text = ""
         self.selected = False
+        self.box_surface = self.build_box_image(34, 4)
+        self.final_surface = None
+        self.redefine_final_surface()
 
     def add_letter(self, letter):
         self.current_text += letter
+        self.redefine_final_surface()
 
     def erase_letter(self):
         self.current_text = self.current_text[:-1]
+        self.redefine_final_surface()
+
+    def clear_all_text(self):
+        self.current_text = ""
+        self.redefine_final_surface()
+
+    def redefine_final_surface(self):
+        box_image = copy.copy(self.box_surface)
+        if self.selected:
+            box_image = Mundane.change_single_colour_of_surface(box_image, (255, 255, 255), (255, 255, 130))
+        text = copy.copy(self.current_text)
+        text_surface = pygame.font.Font(GameSettings.FONT_FILE, GameSettings.FONT_SIZE).render(text, True, (0, 0, 0))
+        box_image.blit(text_surface, (5, 5))
+        self.final_surface = box_image
+
+    def select_box(self):
+        self.selected = True
+        self.redefine_final_surface()
+
+    def deselect_box(self):
+        self.selected = False
+        self.redefine_final_surface()
 
     def return_current_text(self):
         return copy.copy(self.current_text)
+
+    def build_box_image(self, size_x, size_y):
+        box = self.gc.gs.gv.build_overlay_image(self.name, size_x, size_y)
+        return box
 
 
 class ButtonGhost(object):
@@ -2940,6 +2995,7 @@ class ButtonGhost(object):
 
     def get_pressed(self):
         print("getting pressed")
+        print(self.details)
         menu = self.gc.gs.ms.get_menu_ghost(self.menu_name)
         function = getattr(menu, self.press_function)
         function(self.details)

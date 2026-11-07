@@ -8,7 +8,7 @@ from definitions import Direction, Types, GameSettings, Mundane
 from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
-from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager, WorldViewKeyboardManager
+from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager, WorldViewKeyboardManager, InTextBoxKeyboardManager
 from menu_avatars_view_page import MenuAvatar, ListMenuAvatar, CoupledListMenuAvatar, SuppliesMenuAvatar
 from position_manager_state_page import Door, Consolidated, SpecialRoom
 
@@ -56,7 +56,7 @@ def install_all_data(gc, bc, gs):
 
     def install_rooms(gc, gs):
         load1 = True
-        load2 = True
+        load2 = False
         load3 = False
         load4 = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
@@ -250,6 +250,7 @@ def install_all_data(gc, bc, gs):
         gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(InSceneKeyboardManager.ID, InSceneKeyboardManager(gc))
         gc.game_view.game_data.add_keyboard_manager_data(GhostEyeKeyboardManager.ID, GhostEyeKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(InTextBoxKeyboardManager.ID, InTextBoxKeyboardManager(gc))
 
     def set_initial_keyboard_manager(gc, gs):
         gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
@@ -301,7 +302,7 @@ def install_all_data(gc, bc, gs):
         #     gc.inventory_manager.acquire_page(gs.gd.bird_page_data_list[page].page_name)
 
     def install_menus(gc, bc, gs):
-        for ghost in gc.menu_controller.menu_load_list:
+        for ghost in gs.ms.menu_load_list:
             gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
 
         for ghost in gc.menu_controller.builder_menu_load_list:

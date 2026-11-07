@@ -2,6 +2,8 @@ import copy
 import os
 from enum import Enum
 
+import pygame
+
 _ENUM_BASE = 83571983457
 
 
@@ -201,3 +203,34 @@ class Mundane(object):
         # Filter to get names of files only
         files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
         return files
+
+    @classmethod
+    def change_single_colour_of_surface(cls, surface, colour_to_change, new_colour):
+        img_copy = surface.copy()
+
+        primary_part = cls.isolate_part(img_copy, colour_to_change)
+
+        with pygame.PixelArray(primary_part) as pixel_array:
+            pixel_array.replace(colour_to_change, new_colour)
+
+        img_copy.blit(primary_part, (0, 0))
+
+        return img_copy
+
+    @classmethod
+    def isolate_part(cls, image, colour):
+        temp_surface = image.copy()
+        mapped_colour = colour
+        dummy_colour = (105, 105, 105)
+
+        mapped_integer = temp_surface.map_rgb(mapped_colour)
+        dummy_integer = temp_surface.map_rgb(dummy_colour)
+
+        with pygame.PixelArray(temp_surface) as pixel_array:
+            for x in range(temp_surface.get_width()):
+                for y in range(temp_surface.get_height()):
+                    if pixel_array[x, y] != mapped_integer:
+                        pixel_array[x, y] = dummy_integer
+
+        temp_surface.set_colorkey(dummy_colour)
+        return temp_surface

@@ -1099,7 +1099,8 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
                                 "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, []),
                                 "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 330, []),
                                 "primary_colour_group": ComponentCageGroup(self.gc, self, "primary_colour_group", 15, 10, 3, 2, 10, 3, "center", 250, []),
-                                "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 10, 3, 2, 10, 3, "center", 285, [])}
+                                "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 10, 3, 2, 10, 3, "center", 285, []),
+                                "text_box_group": ComponentCageGroup(self.gc, self, "text_box_group", 1, 200, 0, 1, 30, 0, "center", 220, [])}
 
     def add_button_to_list(self, button_avatar):
         self.button_list.append(button_avatar)
@@ -1120,18 +1121,20 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         frame_pass_list = menu_info.menu_specific_details_dict["frame_pass_list"]
         primary_square_pass_list = menu_info.menu_specific_details_dict["primary_square_pass_list"]
         secondary_square_pass_list = menu_info.menu_specific_details_dict["secondary_square_pass_list"]
+        text_box_pass_list = menu_info.menu_specific_details_dict["text_box_dict"]
 
         self.process_text_pass_list(parts_text_pass_list, "part_group")
         self.process_text_pass_list(arrows_text_pass_list, "arrow_group")
         self.process_text_pass_list(frame_pass_list, "spritesheet_group")
         self.process_text_pass_list(primary_square_pass_list, "primary_colour_group")
         self.process_text_pass_list(secondary_square_pass_list, "secondary_colour_group")
+        self.process_text_pass_list(text_box_pass_list, "text_box_group")
 
         final_menu_text = []
 
-        # text box
-        box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
-        final_menu_text.append(box_1_text)
+        # # text box
+        # box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
+        # final_menu_text.append(box_1_text)
 
         # cage group
         part_group = self.return_cage_group_images("part_group")
@@ -1139,8 +1142,9 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         arrow_group = self.return_cage_group_images("arrow_group")
         primary_colour_group = self.return_cage_group_images("primary_colour_group")
         secondary_colour_group = self.return_cage_group_images("secondary_colour_group")
+        text_box_group = self.return_cage_group_images("text_box_group")
 
-        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group + primary_colour_group + secondary_colour_group
+        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group + primary_colour_group + secondary_colour_group + text_box_group
 
         # Header
         header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
@@ -1206,8 +1210,8 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
 
-        box_1_image = self.text_entry_boxes["assembly_box_1"].make_image()
-        final_menu_images.append(box_1_image)
+        # box_1_image = self.text_entry_boxes["assembly_box_1"].make_image()
+        # final_menu_images.append(box_1_image)
 
         self.final_menu_images = final_menu_images
         return final_menu_images

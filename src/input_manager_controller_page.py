@@ -78,6 +78,8 @@ class KeyboardManager(object):
             if key == pygame.K_CAPSLOCK:
                 self.key_caps_released()
 
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            pass
     # region KEYS
     def key_return_pressed(self):
         pass
@@ -176,6 +178,11 @@ class InGameKeyboardManager(KeyboardManager):
             if pygame.key.name(key) in self.release_function_dict.keys():
                 self.key_released(key)
 
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_clicked(key)
+
+    def mouse_clicked(self, click):
+        self.gc.act_on_mouse_click(click)
 
     def key_direction_pressed(self, key):
         self.gc.key_down_queue = key
@@ -324,6 +331,11 @@ class WorldViewKeyboardManager(KeyboardManager):
                 if pygame.key.name(key) in self.release_function_dict.keys():
                     self.key_released(key)
 
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_clicked(key)
+
+    def mouse_clicked(self, click):
+        self.gc.act_on_mouse_click(click)
 
     def key_direction_pressed(self, key):
         self.gc.key_down_queue = key
@@ -404,6 +416,11 @@ class GhostEyeKeyboardManager(KeyboardManager):
                 if pygame.key.name(key) in self.release_function_dict.keys():
                     self.key_released(key)
 
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_clicked(key)
+
+    def mouse_clicked(self, click):
+        pass
 
     def key_direction_pressed(self, key):
         self.gc.key_down_queue = key
@@ -491,6 +508,97 @@ class InMenuKeyboardManager(KeyboardManager):
                 if pygame.key.name(key) in self.release_function_dict.keys():
                     self.key_released(key)
 
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_clicked(key)
+
+    def mouse_clicked(self, click):
+        self.gc.act_on_mouse_click(click)
+
+    def key_pressed(self, key):
+        for item in self.press_function_dict[pygame.key.name(key)]:
+            item()
+
+    def key_released(self, key):
+        for item in self.release_function_dict[pygame.key.name(key)]:
+            item()
+
+
+class InTextBoxKeyboardManager(KeyboardManager):
+    ID = "InTextBox"
+
+    def __init__(self, game_view):
+        super().__init__(game_view)
+        self.press_function_dict = {"up": [],
+                                    "down": [],
+                                    "right": [],
+                                    "left": [],
+                                    "return": [self.gc.menu_controller.text_box_controller.key_return_pressed],
+                                    "space": [],
+                                    "backspace": [self.gc.menu_controller.text_box_controller.key_backspace_pressed],
+                                    "a": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "a")],
+                                    "b": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "b")],
+                                    "c": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "c")],
+                                    "d": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "d")],
+                                    "e": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "e")],
+                                    "f": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "f")],
+                                    "g": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "g")],
+                                    "h": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "h")],
+                                    "i": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "i")],
+                                    "j": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "j")],
+                                    "k": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "k")],
+                                    "l": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "l")],
+                                    "m": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "m")],
+                                    "n": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "n")],
+                                    "o": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "o")],
+                                    "p": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "p")],
+                                    "q": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "q")],
+                                    "r": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "r")],
+                                    "s": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "s")],
+                                    "t": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "t")],
+                                    "u": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "u")],
+                                    "v": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "v")],
+                                    "w": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "w")],
+                                    "x": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "x")],
+                                    "y": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "y")],
+                                    "z": [partial(self.gc.menu_controller.text_box_controller.key_letter_pressed, "z")],
+                                    "left ctrl": [],
+                                    "left shift": [],
+                                    "escape": [],
+                                    "tab": [],
+                                    "caps lock": []}
+        self.release_function_dict = {"a": [],
+                                      "s": [],
+                                      "return": [],
+                                      "space": [],
+                                      "left ctrl": [],
+                                      "left shift": [],
+                                      "escape": [],
+                                      "tab": [],
+                                      "caps lock": []}
+
+    def parse_key_input(self, event_type, key):
+        if event_type == pygame.KEYDOWN:
+
+            self.gc.add_to_held_key(key)
+
+            if pygame.key.name(key) in self.press_function_dict.keys():
+                self.key_pressed(key)
+
+        elif event_type == pygame.KEYUP:
+            self.gc.remove_from_held_key(key)
+
+            if key in [pygame.K_DOWN, pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_z]:
+                self.key_direction_released(key)
+            else:
+                if pygame.key.name(key) in self.release_function_dict.keys():
+                    self.key_released(key)
+
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_clicked(key)
+
+    def mouse_clicked(self, click):
+        self.gc.menu_controller.text_box_controller.mouse_clicked(click)
+
     def key_pressed(self, key):
         for item in self.press_function_dict[pygame.key.name(key)]:
             item()
@@ -525,7 +633,6 @@ class InSceneKeyboardManager(KeyboardManager):
                                       "caps lock": []}
 
     def parse_key_input(self, event_type, key):
-        # active_menu = self.gc.gs.ms.menu_ghost_data_list[self.gc.gs.ms.menu_stack[0] + "_ghost"]
         if event_type == pygame.KEYDOWN:
 
             self.gc.add_to_held_key(key)
@@ -538,6 +645,12 @@ class InSceneKeyboardManager(KeyboardManager):
 
             if pygame.key.name(key) in self.release_function_dict.keys():
                 self.key_released(key)
+
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_clicked(key)
+
+    def mouse_clicked(self, click):
+        pass
 
     def key_pressed(self, key):
         for item in self.press_function_dict[pygame.key.name(key)]:

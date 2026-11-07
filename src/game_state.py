@@ -4,7 +4,8 @@ from random import choice
 
 import feature_ghost_data_page
 from feature_ghost_data_page import PlayerGhost
-from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost, GameModeStatMenuGhost
+from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost, GameModeStatMenuGhost, DeveloperMenuGhost, WordsMenuGhost, DepositMenuGhost, CharacterAssemblyMenuGhost, PictureMenuGhost, BasketMenuGhost, SellerOptionsMenuGhost, SellItemMenuGhost, SellerMenuGhost, NumberSelectionMenuGhost, \
+    TextInputMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from position_manager_state_page import Room, Door
@@ -700,8 +701,16 @@ class GameState(object):
         player_avatar.face_feature(final_facing)
     # endregion
 
+
 class MenuState(object):
     def __init__(self, gs_input):
+        self.menu_load_list = [StatMenuGhost, GameModeStatMenuGhost, AcquireMenuGhost, StartMenuGhost,
+                               DeveloperMenuGhost, WordsMenuGhost, SellerMenuGhost, SellItemMenuGhost,
+                               SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost, SuppliesInventoryMenuGhost,
+                               KeyInventoryMenuGhost, DepositMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
+                               SellerOptionsMenuGhost, GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost,
+                               QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
+                               BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, CharacterAssemblyMenuGhost]
         self.menu_ghost_data_list = {}
         self.gs = gs_input
         self.gc = self.gs.gc  # type: GameController
@@ -731,6 +740,10 @@ class MenuState(object):
 
     def get_menu_ghost(self, menu_name):
         return self.menu_ghost_data_list[menu_name + "_ghost"]
+
+    def get_active_menu(self):
+        active_menu = self.menu_ghost_data_list[self.menu_stack[0] + "_ghost"]
+        return active_menu
 
     # region MENU DISPLAY LOGISTICS
     def get_menu_items(self, menu_name):

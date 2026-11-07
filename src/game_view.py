@@ -253,6 +253,10 @@ class GameView(object):
     def get_menu_avatar(self, menu_avatar_name):
         return self.menu_avatar_data_list[menu_avatar_name]
 
+    def get_active_menu_avatar(self):
+        active_menu_avatar = self.menu_avatar_data_list[self.gs.ms.menu_stack[0] + "_avatar"]
+        return active_menu_avatar
+
     def build_overlay_image(self, name, x_size, y_size, header=None):
         image = BuiltOverlay(name, x_size, y_size, header=header).build_overlay()
         return image
