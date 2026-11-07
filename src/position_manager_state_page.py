@@ -427,8 +427,6 @@ class PositionManager(object):
                 self.gc.trigger_manager.add_triggers(room_object, add_trigger_list)
             self.gc.add_actor_activation_to_timer(feature_ghost.unique_name)
 
-
-
     # region CHECKING FOR MOVEMENT
     def check_if_adjacent_tiles_full(self, checker_ghost, direction, room_object):
         adjacent_cube = room_object.access_adjacent_cube(checker_ghost, direction)

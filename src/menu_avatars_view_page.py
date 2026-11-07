@@ -69,10 +69,40 @@ class BaseMenuAvatar(object):
         self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
         self.button_list = []
+        self.cage_group_dict = {}
         self.main_font = pygame.font.Font("assets/fonts/PressStart.ttf", GameSettings.FONT_SIZE)
+
+    def process_text_pass_list(self, text_pass_list, assigned_cage_group_name):
+        text_surface_list = []
+
+        for item in text_pass_list:
+            text_surface_list.append(item.surface)
+
+        self.assign_list_of_images_to_group_cage(assigned_cage_group_name, text_surface_list)
+
+        cage_group_images = self.return_cage_group_images(assigned_cage_group_name)
+
+        for index, item in enumerate(text_pass_list):
+            if item.related_button_name:
+                part_change_button_avatar = ButtonAvatar(self.gc, item.related_button_name, cage_group_images[index].x, cage_group_images[index].y, cage_group_images[index].text.get_width(), cage_group_images[index].text.get_height())
+                self.add_button_to_list(part_change_button_avatar)
+
+    def return_cage_group_images(self, group_name):
+        return self.cage_group_dict[group_name].return_image_list()
+
+    def get_offset_to_center_x(self, component_width):
+        offset_x = (self.spritesheet_width - component_width)/2
+        return offset_x
 
     def add_button_to_list(self, button_avatar):
         self.button_list.append(button_avatar)
+
+    def add_image_to_cage_group_cage(self, group_name, image, image_x, image_y):
+        self.cage_group_dict[group_name].assign_image_to_cage(image, image_x, image_y)
+
+    def assign_list_of_images_to_group_cage(self, group_name, image_list):
+        group = self.cage_group_dict[group_name]
+        group.assign_list_of_images_to_cage(image_list)
 
     def fill_out_menu_info(self):
         self.overlay_body_x = self.menu_display_details["default_width"]
@@ -269,6 +299,34 @@ class ListMenuAvatar(BaseMenuAvatar):
             loc_y = (position_y * self.menu_spread_y) + self.offset_y + self.header_spacing
             item = currently_visible_items[position_y]
             final_menu_text.append(TextDisplay(item, loc_x, loc_y))
+
+        self.final_menu_text = final_menu_text
+
+        return final_menu_text
+
+
+class ClickListMenuAvatar(BaseMenuAvatar):
+    NAME = "click_list_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.menu_display_details = {"default_width": 35, "default_height": 53, "align_x": "left", "align_y": "bottom", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+        self.cage_group_dict = {"items_group": ComponentCageGroup(self.gc, self, "items_group", 1, 100, 0, 5, 15, 15, "left", 15, [])}
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+        text_display_list = menu_info.text_display_list
+        header = menu_info.header
+        cursor_image = menu_info.cursor_image
+        cursor_at = menu_info.cursor_at
+
+        text_pass_list = menu_info.menu_specific_details_dict["text_list_passes"]
+        self.process_text_pass_list(text_pass_list, "items_group")
+        text_group = self.return_cage_group_images("items_group")
+
+        final_menu_text = text_group
 
         self.final_menu_text = final_menu_text
 
@@ -574,7 +632,7 @@ class GameModeStatMenuAvatar(ListMenuAvatar):
 
     def __init__(self, gc, name):
         super().__init__(gc, name)
-        self.menu_display_details = {"default_width": 60, "default_height": 60, "align_x": "left", "align_y": "top", "coordinates": [0, 0]}
+        self.menu_display_details = {"default_width": 60, "default_height": 65, "align_x": "left", "align_y": "top", "coordinates": [0, 0]}
         self.fill_out_menu_info()
 
     def get_menu_text_drawing_instructions(self, menu_info):
@@ -1094,7 +1152,6 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.menu_display_details = {"default_width": 48, "default_height": 75, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
         self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 35, 220)}
-        self.button_list = []
         self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 320, []),
                                 "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, []),
                                 "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 330, []),
@@ -1102,15 +1159,6 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
                                 "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 10, 3, 2, 10, 3, "center", 285, []),
                                 "text_box_group": ComponentCageGroup(self.gc, self, "text_box_group", 1, 200, 0, 1, 30, 0, "center", 220, [])}
 
-    def add_button_to_list(self, button_avatar):
-        self.button_list.append(button_avatar)
-
-    def add_image_to_cage_group_cage(self, group_name, image, image_x, image_y):
-        self.cage_group_dict[group_name].assign_image_to_cage(image, image_x, image_y)
-
-    def assign_list_of_images_to_group_cage(self, group_name, image_list):
-        group = self.cage_group_dict[group_name]
-        group.assign_list_of_images_to_cage(image_list)
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -1154,28 +1202,6 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         return final_menu_text
 
-    def process_text_pass_list(self, text_pass_list, assigned_cage_group_name):
-        text_surface_list = []
-
-        for item in text_pass_list:
-            text_surface_list.append(item.surface)
-
-        self.assign_list_of_images_to_group_cage(assigned_cage_group_name, text_surface_list)
-
-        cage_group_images = self.return_cage_group_images(assigned_cage_group_name)
-
-        for index, item in enumerate(text_pass_list):
-            if item.related_button_name:
-                part_change_button_avatar = ButtonAvatar(self.gc, item.related_button_name, cage_group_images[index].x, cage_group_images[index].y, cage_group_images[index].text.get_width(), cage_group_images[index].text.get_height())
-                self.add_button_to_list(part_change_button_avatar)
-
-    def return_cage_group_images(self, group_name):
-        return self.cage_group_dict[group_name].return_image_list()
-
-    def get_offset_to_center_x(self, component_width):
-        offset_x = (self.spritesheet_width - component_width)/2
-        return offset_x
-
     def layout_text_in_a_grid(self, column_count, column_size, row_count, row_size, starting_x, starting_y, text_list):
         final_list = []
 
@@ -1205,7 +1231,6 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
                 counter_c = 0
 
         return final_list
-
 
     def get_menu_image_drawing_instructions(self, menu_info):
         final_menu_images = []
@@ -1290,9 +1315,9 @@ class ComponentCageGroup(object):
         if starting_x == "center":
             starting_x_loc = self.menu.get_offset_to_center_x(self.total_width)
         elif starting_x == "left":
-            starting_x_loc = 0
+            starting_x_loc = 15
         elif starting_x == "right":
-            starting_x_loc = self.menu.overaly_x - self.total_width
+            starting_x_loc = self.menu.overaly_x - self.total_width - 15
         else:
             starting_x_loc = starting_x
         return starting_x_loc

@@ -28,7 +28,7 @@ def run_game_loop():
                 if event.type in g.events_manager.timer_list:
                     g.events_manager.parse_input_event(event)
 
-            g.events_manager.parse_delayed_triggers()
+            g.events_manager.parse_delayed_procks()
             pygame.display.flip()
             g.game_controller.update_view()
             g.game_view.tick()

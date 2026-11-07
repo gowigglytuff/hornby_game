@@ -8,7 +8,7 @@ from definitions import Direction, Types, GameSettings, Mundane
 from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
-from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager, WorldViewKeyboardManager, InTextBoxKeyboardManager
+from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager, BuilderKeyboardManager, InTextBoxKeyboardManager
 from menu_avatars_view_page import MenuAvatar, ListMenuAvatar, CoupledListMenuAvatar, SuppliesMenuAvatar
 from position_manager_state_page import Door, Consolidated, SpecialRoom
 
@@ -24,6 +24,7 @@ def init_game(g):
     else:
         continue_game_procedures(g.game_controller, g.gs)
 
+    install_all_components(g.game_controller, g.builder_controller, g.gs)
     install_all_data(g.game_controller, g.builder_controller, g.gs)
 
 
@@ -52,12 +53,49 @@ def continue_game_procedures(gc, gs):
     pass
 
 
+def install_all_components(gc, bc, gs):
+
+    def install_keyboard_managers(gc, bc, gs):
+        gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(BuilderKeyboardManager.ID, BuilderKeyboardManager(bc))
+        gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(InSceneKeyboardManager.ID, InSceneKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(GhostEyeKeyboardManager.ID, GhostEyeKeyboardManager(gc))
+        gc.game_view.game_data.add_keyboard_manager_data(InTextBoxKeyboardManager.ID, InTextBoxKeyboardManager(gc))
+
+    def set_initial_keyboard_manager(gc, gs):
+        gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
+
+    def install_menus(gc, bc, gs):
+        for ghost in gs.ms.menu_load_list:
+            gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
+
+        for ghost in gs.ms.builder_menu_load_list:
+            gs.ms.add_menu_ghost(ghost.NAME, ghost(bc))
+
+        for menu in gs.ms.menu_ghost_data_list.values():
+            avatar_name = menu.BASE + "_avatar"
+            gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
+
+    def initiate_mixer():
+        pygame.mixer.init()
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.load("assets/sound_effects/popping_sound.mp3")
+        pygame.mixer.music.load("assets/music/flute_song.mp3")
+        # pygame.mixer.music.play(-1)
+
+    install_keyboard_managers(gc, bc, gs)
+    set_initial_keyboard_manager(gc, gs)
+    install_menus(gc, bc, gs)
+    initiate_mixer()
+
+
 def install_all_data(gc, bc, gs):
 
-    def install_rooms(gc, gs):
+    def install_rooms(gs):
         load1 = True
         load2 = False
-        load3 = False
+        load3 = True
         load4 = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
         gs.gd.add_room_data("Staging_Area", (SpecialRoom("Staging_Area", 7, 9, 1, 1)))
@@ -102,19 +140,18 @@ def install_all_data(gc, bc, gs):
                 # gs.gd.add_room_data("Entry_Room", (Consolidated("Entry_Room", 7, 9, 1, 1)))
             # gs.gd.add_room_data("Experiment", (SpecialRoom("Experiment", 13, 13, 1, 1)))
 
-
-    def install_classes(gc, gs):
+    def install_classes(bc):
         bird_class_objects_file_name = "assets/import_data/bird_class_import.csv"
-        gc.import_classes_from_csv(bird_class_objects_file_name)
+        bc.import_classes_from_csv(bird_class_objects_file_name)
 
         character_class_objects_file_name = "assets/import_data/character_class_import.csv"
-        gc.import_classes_from_csv(character_class_objects_file_name)
+        bc.import_classes_from_csv(character_class_objects_file_name)
 
         prop_class_objects_file_name = "assets/import_data/prop_class_import.csv"
-        gc.import_classes_from_csv(prop_class_objects_file_name)
+        bc.import_classes_from_csv(prop_class_objects_file_name)
 
         deco_class_objects_file_name = "assets/import_data/deco_class_import.csv"
-        gc.import_classes_from_csv(deco_class_objects_file_name)
+        bc.import_classes_from_csv(deco_class_objects_file_name)
 
     def install_features(gc, gs):
         object_class = gs.gd.get_feature_class("Brandon")
@@ -238,22 +275,15 @@ def install_all_data(gc, bc, gs):
             if related_ghost.species != "Jay":
                 gc.gs.gv.install_feature_avatar(related_ghost)
 
+    def set_camera_position(gc, gs):
+        player_ghost = gs.get_player_ghost()
+        gs.gv.set_camera(player_ghost.x, player_ghost.y)
+
     def install_triggers(gc, gs):
         gc.trigger_manager.setup_trigger_list()
 
     def spawn_first_room(gc, gs):
         gc.position_manager.spawn_all_initial_room_elements(gs.get_room(gs.current_room))
-
-    def install_keyboard_managers(gc, bc, gs):
-        gc.game_view.game_data.add_keyboard_manager_data(InGameKeyboardManager.ID, InGameKeyboardManager(gc))
-        gc.game_view.game_data.add_keyboard_manager_data(WorldViewKeyboardManager.ID, WorldViewKeyboardManager(bc))
-        gc.game_view.game_data.add_keyboard_manager_data(InMenuKeyboardManager.ID, InMenuKeyboardManager(gc))
-        gc.game_view.game_data.add_keyboard_manager_data(InSceneKeyboardManager.ID, InSceneKeyboardManager(gc))
-        gc.game_view.game_data.add_keyboard_manager_data(GhostEyeKeyboardManager.ID, GhostEyeKeyboardManager(gc))
-        gc.game_view.game_data.add_keyboard_manager_data(InTextBoxKeyboardManager.ID, InTextBoxKeyboardManager(gc))
-
-    def set_initial_keyboard_manager(gc, gs):
-        gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
 
     def install_temp_items(gc, gs):
         items_to_install = [Cheese, Milk, Cream, Banana, Apple, Orange, Mike, Spoon, Mouse, Match, Game, Card, Pizza, Meat, Egg]
@@ -301,17 +331,6 @@ def install_all_data(gc, bc, gs):
         # for page in gs.gd.bird_page_data_list.keys():
         #     gc.inventory_manager.acquire_page(gs.gd.bird_page_data_list[page].page_name)
 
-    def install_menus(gc, bc, gs):
-        for ghost in gs.ms.menu_load_list:
-            gs.ms.add_menu_ghost(ghost.NAME, ghost(gc))
-
-        for ghost in gc.menu_controller.builder_menu_load_list:
-            gs.ms.add_menu_ghost(ghost.NAME, ghost(bc))
-
-        for menu in gs.ms.menu_ghost_data_list.values():
-            avatar_name = menu.BASE + "_avatar"
-            gs.gv.add_menu_avatar(avatar_name, menu.AVATAR(gc, avatar_name))
-
     def install_outfits(gc, gs):
         outfits_list = [("lab_coat", "Lab Coat"), ("green_shirt", "Green Shirt"), ("robot", "Robot"), ["red_shirt", "Red Shirt"], ["blue_shirt", "Blue Shirt"], ["yellow_shirt", "Yellow Shirt"], ["ghost_eye", "Ghost Eye"], ["Mermaid", "Mermaid"], ["ninja_shinobi", "Ninja Shinobi"], ["au_naturel", "Au Naturel"]]
         for outfit_pair in outfits_list:
@@ -323,17 +342,6 @@ def install_all_data(gc, bc, gs):
 
     def install_goals(gc, gs):
         pass
-
-    def set_camera_position(gc, gs):
-        player_ghost = gs.get_player_ghost()
-        gs.gv.set_camera(player_ghost.x, player_ghost.y)
-
-    def initiate_mixer():
-        pygame.mixer.init()
-        pygame.mixer.music.set_volume(0.1)
-        pygame.mixer.music.load("assets/sound_effects/popping_sound.mp3")
-        pygame.mixer.music.load("assets/music/flute_song.mp3")
-        # pygame.mixer.music.play(-1)
 
     def add_sounds(gc, gs):
         reference_dict = ["splash", "popping_sound", "rocks_falling", "pickaxe_tap", "triumph"]
@@ -352,29 +360,24 @@ def install_all_data(gc, bc, gs):
         for item in reference_dict.keys():
             gs.gd.add_sound_reference(item, reference_dict[item])
 
-    install_keyboard_managers(gc, bc, gs)
-    set_initial_keyboard_manager(gc, gs)
-
     install_temp_items(gc, gs)
     install_outfits(gc, gs)
     install_key_items(gc, gs)
     install_treasure_items(gc, gs)
     install_bird_pages(gc, gs)
-    install_menus(gc, bc, gs)
     install_goals(gc, gs)
+    install_classes(bc)
     install_tileset(gc, gs)
     install_spritesheets(gc, gs)
-    install_rooms(gc, gs)
-    install_classes(gc, gs)
+    install_rooms(gs)
     install_features(gc, gs)
     install_player_avatar(gc, gs)
     install_avatar_all(gc, gs)
+    set_camera_position(gc, gs)
     install_doors(gc, gs)
     install_pickaxe_door_entry(gc, gs)
     install_triggers(gc, gs)
     spawn_first_room(gc, gs)
-    set_camera_position(gc, gs)
-    initiate_mixer()
     add_sounds(gc, gs)
     add_sound_references(gc,gs)
 

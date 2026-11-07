@@ -10,12 +10,12 @@ from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost
 from scenes import Scene
 
 if TYPE_CHECKING:
-    from game_controller import GameController, DelayedTrigger, SceneStep
+    from game_controller import GameController, BuilderController, Controller, DelayedProck, SceneStep
 
 
 class MouseManager(object):
     def __init__(self, gc):
-        self.gc = gc  # type: GameController
+        self.gc = gc  # type: Controller
 
     def parse_key_input(self, event_type):
         pass
@@ -23,7 +23,7 @@ class MouseManager(object):
 
 class KeyboardManager(object):
     def __init__(self, gc):
-        self.gc = gc  # type: GameController
+        self.gc = gc  # type: Controller
 
     def parse_key_input(self, event_type, key):
         if event_type == pygame.KEYDOWN:
@@ -130,6 +130,7 @@ class InGameKeyboardManager(KeyboardManager):
 
     def __init__(self, gc):
         super().__init__(gc)
+        self.gc = gc  # type: GameController
         self.press_function_dict = {"up": [partial(self.key_direction_pressed, pygame.K_UP)],
                                     "down": [partial(self.key_direction_pressed, pygame.K_DOWN)],
                                     "right": [partial(self.key_direction_pressed, pygame.K_RIGHT)],
@@ -137,14 +138,14 @@ class InGameKeyboardManager(KeyboardManager):
                                     "return": [self.gc.clear_key_down_cue, self.gc.player_interact, self.gc.gs.produce_player_coords],
                                     "space": [self.gc.snap_photo],
                                     "a": [self.gc.activate_mermaid_crown],
-                                    "x": [self.gc.developer_tools.toggle_developer_mode_on],
-                                    "c": [self.gc.developer_tools.toggle_name_display_on],
-                                    "v": [self.gc.developer_tools.toggle_on_view_window],
+                                    "x": [],
+                                    "c": [],
+                                    "v": [self.gc.toggle_on_view_window],
                                     "s": [self.gc.activate_ghost_eye],
                                     "1": [partial(self.gc.menu_controller.set_menu, "character_assembly_menu", None)],
                                     "2": [self.gc.switch_with_character_in_front_of_you],
                                     "left ctrl": [self.gc.clear_key_down_cue, self.gc.menu_controller.set_start_menu],
-                                    "right ctrl": [self.gc.enter_world_view_mode],
+                                    "right ctrl": [self.gc.enter_builder_mode],
                                     "left shift": [self.key_lshift_pressed],
                                     "right shift": [self.key_rshift_pressed],
                                     "escape": [],
@@ -223,7 +224,7 @@ class InGameKeyboardManager(KeyboardManager):
         #
         # def reaction(gc):
         #
-        # self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+        # self.gc.game.game_events.add_delayed_prock(condition, reaction)
         # scene = Scene(self, [("animation", PlayerSlideAnimation(Direction.LEFT, 2, Direction.UP, 3))])
         # self.gc.scene_manager.play_scene(scene)
 
@@ -273,11 +274,12 @@ class InGameKeyboardManager(KeyboardManager):
             self.gc.key_down_queue = []
 
 
-class WorldViewKeyboardManager(KeyboardManager):
-    ID = "WorldView"
+class BuilderKeyboardManager(KeyboardManager):
+    ID = "Builder"
 
     def __init__(self, gc):
         super().__init__(gc)
+        self.gc = gc  # type: BuilderController
         self.press_function_dict = {"up": [partial(self.key_direction_pressed, pygame.K_UP)],
                                     "down": [partial(self.key_direction_pressed, pygame.K_DOWN)],
                                     "right": [partial(self.key_direction_pressed, pygame.K_RIGHT)],
@@ -285,9 +287,9 @@ class WorldViewKeyboardManager(KeyboardManager):
                                     "return": [],
                                     "space": [],
                                     "a": [],
-                                    "x": [self.gc.developer_tools.toggle_developer_mode_on],
-                                    "c": [self.gc.developer_tools.toggle_name_display_on],
-                                    "v": [self.gc.developer_tools.toggle_on_view_window],
+                                    "x": [],
+                                    "c": [self.gc.toggle_name_display_on],
+                                    "v": [self.gc.toggle_on_view_window],
                                     "s": [],
                                     "left ctrl": [],
                                     "right ctrl": [self.gc.enter_game_mode],
@@ -372,6 +374,7 @@ class GhostEyeKeyboardManager(KeyboardManager):
 
     def __init__(self, gc):
         super().__init__(gc)
+        self.gc = gc  # type: GameController
         self.press_function_dict = {"up arrow": [],
                                     "down arrow": [],
                                     "right arrow": [],
@@ -441,8 +444,9 @@ class GhostEyeKeyboardManager(KeyboardManager):
 class InMenuKeyboardManager(KeyboardManager):
     ID = "InMenu"
 
-    def __init__(self, game_view):
-        super().__init__(game_view)
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.gc = gc  # type: GameController
         self.press_function_dict = {"up": [self.gc.menu_controller.menu_cursor_up],
                                     "down": [self.gc.menu_controller.menu_cursor_down],
                                     "right": [self.gc.menu_controller.menu_cursor_right],
@@ -526,8 +530,9 @@ class InMenuKeyboardManager(KeyboardManager):
 class InTextBoxKeyboardManager(KeyboardManager):
     ID = "InTextBox"
 
-    def __init__(self, game_view):
-        super().__init__(game_view)
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.gc = gc  # type: GameController
         self.press_function_dict = {"up": [],
                                     "down": [],
                                     "right": [],
@@ -611,8 +616,9 @@ class InTextBoxKeyboardManager(KeyboardManager):
 class InSceneKeyboardManager(KeyboardManager):
     ID = "InScene"
 
-    def __init__(self, game_view):
-        super().__init__(game_view)
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.gc = gc  # type: GameController
         self.press_function_dict = {"return": [],
                                     "space": [],
                                     "a": [],
@@ -663,7 +669,7 @@ class InSceneKeyboardManager(KeyboardManager):
 
 class ScreenLayout(object):
     def __init__(self, gc):
-        self.gc = gc
+        self.gc = gc  # type: Controller
         self.menu_layouts = []
         self.room_layout = None
 
@@ -719,7 +725,7 @@ class ScreenLayout(object):
             button_name = self.check_menu_for_button(selected_menu_avatar, mouse_x - menu_start_x, mouse_y - menu_start_y)
             if button_name:
                 print(button_name)
-                self.gc.menu_controller.push_menu_button(button_name)
+                self.gc.menu_controller.push_menu_button(button_name, selected_menu_ghost)
 
             # selected_menu_ghost.cursor_left()
 

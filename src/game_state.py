@@ -5,7 +5,7 @@ from random import choice
 import feature_ghost_data_page
 from feature_ghost_data_page import PlayerGhost
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost, GameModeStatMenuGhost, DeveloperMenuGhost, WordsMenuGhost, DepositMenuGhost, CharacterAssemblyMenuGhost, PictureMenuGhost, BasketMenuGhost, SellerOptionsMenuGhost, SellItemMenuGhost, SellerMenuGhost, NumberSelectionMenuGhost, \
-    TextInputMenuGhost
+    TextInputMenuGhost, BuilderFunctionsMenuGhost, RoomSelectMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from position_manager_state_page import Room, Door
@@ -233,7 +233,7 @@ class GameState(object):
                     def reaction(gc):
                         gc.gs.action_queue[player_ghost.unique_name].waiting_on_animation = False
 
-                    self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+                    self.gc.game.game_events.add_delayed_prock(condition, reaction)
 
             action_type = current_move[0]
 
@@ -280,7 +280,7 @@ class GameState(object):
                     def reaction(gc):
                         gc.gs.action_queue[actor_ghost.unique_name].waiting_on_animation = False
 
-                    self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+                    self.gc.game.game_events.add_delayed_prock(condition, reaction)
 
                 else:
                     animation = self.gv.animation_manager.get_animation(current_animation_name)
@@ -298,7 +298,7 @@ class GameState(object):
                     def reaction(gc):
                         gc.gs.action_queue[actor_ghost.unique_name].waiting_on_animation = False
 
-                    self.gc.game.game_events.add_delayed_trigger(condition, reaction)
+                    self.gc.game.game_events.add_delayed_prock(condition, reaction)
 
             action_type = current_move[0]
 
@@ -711,11 +711,13 @@ class MenuState(object):
                                SellerOptionsMenuGhost, GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost,
                                QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
                                BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, CharacterAssemblyMenuGhost]
+
+        self.builder_menu_load_list = [RoomSelectMenuGhost, BuilderFunctionsMenuGhost]
         self.menu_ghost_data_list = {}
         self.gs = gs_input
         self.gc = self.gs.gc  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE, GameModeStatMenuGhost.BASE]
+        self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE, GameModeStatMenuGhost.BASE, BuilderFunctionsMenuGhost.BASE]
         # self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
         self.active_menu = []
         self.menu_stack = []
@@ -794,7 +796,7 @@ class MenuState(object):
                 if self.gs.gc.game.mode == "in_game":
                     self.gs.gc.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
                 elif self.gs.gc.game.mode == "builder":
-                    self.gs.gc.game.set_active_keyboard_manager(WorldViewKeyboardManager.ID)
+                    self.gs.gc.game.set_active_keyboard_manager(BuilderKeyboardManager.ID)
     # endregion
 
 class ConditionChecker(object):

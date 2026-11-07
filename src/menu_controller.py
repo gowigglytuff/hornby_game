@@ -7,14 +7,13 @@ from menu_ghosts_data_page import StartMenuGhost, GameActionDialogueMenuGhost, S
     KeyInventoryMenuGhost, BasketMenuGhost, PictureMenuGhost, CharacterAssemblyMenuGhost, QuizMenuGhost, SubMenuGhost, TextInputMenuGhost, RoomSelectMenuGhost
 
 if TYPE_CHECKING:
-    from game_controller import Controller
+    from game_controller import Controller, BuilderController
 
 
 class MenuController(object):
     def __init__(self, controller):
         self.controller = controller  # type: Controller
         self.text_box_controller = TextBoxController(self.controller, self)
-        self.builder_menu_load_list = [RoomSelectMenuGhost]
 
     def get_current_text_box(self):
         active_menu = self.controller.gs.ms.get_active_menu()
@@ -45,10 +44,9 @@ class MenuController(object):
         active_menu.cursor_left()
         self.update_menu_text_and_images(active_menu)
 
-    def push_menu_button(self, button_name):
-        active_menu = self.controller.gs.ms.menu_ghost_data_list[self.controller.gs.ms.menu_stack[0] + "_ghost"]
-        active_menu.push_menu_button(button_name)
-        self.update_menu_text_and_images(active_menu)
+    def push_menu_button(self, button_name, menu_ghost):
+        menu_ghost.push_menu_button(button_name)
+        self.update_menu_text_and_images(menu_ghost)
 
     def menu_cursor_right(self):
         active_menu = self.controller.gs.ms.menu_ghost_data_list[self.controller.gs.ms.menu_stack[0] + "_ghost"]
@@ -72,6 +70,124 @@ class MenuController(object):
 
     def activate_menu(self):
         pass
+
+    def get_stat_mode_items(self):
+        mode = copy.copy(self.controller.game.mode)
+
+        stat_dict = {"mode": mode}
+
+        return stat_dict
+
+    def get_developer_items(self):
+        player_ghost = self.controller.gs.get_player_ghost()
+        player_avatar = self.controller.gs.gv.get_player_avatar()
+        camera = self.controller.gs.gv.camera
+        room_name = self.controller.gs.get_current_room().room_name
+
+        stat_dict = {"Room": str(room_name),
+                     "Player": str(player_ghost.x) + ", " + str(player_ghost.y),
+                     "Image": str(player_avatar.image_x) + ", " + str(player_avatar.image_y),
+                     "Camera": str(camera[0]) + ", " + str(camera[1])}
+
+        return stat_dict
+
+    def set_menu(self, menu_name, details):
+        selected_menu = self.controller.gs.ms.get_menu_ghost(menu_name)
+        selected_menu_avatar = self.controller.gs.gv.get_menu_avatar(menu_name + "_avatar")
+        menu_type = selected_menu.menu_type
+
+        if menu_type == Types.BASE:
+            selected_menu.prepare_menu_for_display(details)
+
+        elif menu_type == Types.SECONDARY:
+            selected_menu.set_master_menu(details["master_menu"])
+            selected_menu.prepare_menu_for_display(details)
+
+        elif menu_type == Types.SUB:
+            selected_menu.set_master_menu(details["master_menu"])
+            selected_menu.prepare_menu_for_display(details)
+            information_from_ghost = selected_menu.generate_menu_information_package()
+            self.controller.game_view.update_sub_menu_display_details(menu_name, details["master_menu"], information_from_ghost)
+
+        if menu_name == ChatMenuGhost.BASE:
+            selected_menu.set_current_phrase(details["phrase"])
+
+        self.update_menu_text_and_images(selected_menu)
+
+        self.controller.game.set_active_keyboard_manager(InMenuKeyboardManager.ID)
+        selected_menu.gc.gs.ms.add_menu_to_stack(menu_name)
+
+    def next_menu(self, current_menu):
+        total_number_menus = len(self.controller.gs.ms.start_menu_stack)
+        current_menu_index = self.controller.gs.ms.start_menu_stack.index(current_menu)
+        self.exit_menu(self.controller.gs.ms.start_menu_stack[current_menu_index])
+        next_menu = self.controller.gs.ms.start_menu_stack[0]
+        if current_menu_index != (total_number_menus - 1):
+            next_menu = self.controller.gs.ms.start_menu_stack[current_menu_index + 1]
+        else:
+            pass
+        self.set_menu(next_menu, None)
+
+    def previous_menu(self, current_menu):
+        total_number_menus = len(self.controller.gs.ms.start_menu_stack)
+        current_menu_index = self.controller.gs.ms.start_menu_stack.index(current_menu)
+        self.exit_menu(self.controller.gs.ms.start_menu_stack[current_menu_index])
+        previous_menu = self.controller.gs.ms.start_menu_stack[current_menu_index-1]
+        if current_menu_index == 0:
+            previous_menu = self.controller.gs.ms.start_menu_stack[total_number_menus - 1]
+        else:
+            pass
+        self.set_menu(previous_menu, None)
+
+    def exit_menu(self, menu_name):
+        selected_menu = self.controller.gs.ms.get_menu_ghost(menu_name)
+        selected_menu.reset_elements()
+        self.controller.gs.ms.deactivate_menu(menu_name)
+
+    def exit_scene_menu(self, menu_name):
+        selected_menu = self.controller.gs.ms.get_menu_ghost(menu_name)
+        selected_menu.reset_elements()
+        self.controller.gs.ms.deactivate_menu(menu_name)
+        self.controller.scene_manager.waiting_for_response = False
+        self.controller.scene_manager.process_scene_queue()
+
+    def exit_all_menus(self):
+        list = []
+        for x in self.controller.gs.ms.menu_stack:
+            list.append(x)
+        for item in list:
+            self.exit_menu(item)
+
+    def resize_sub_menu(self):
+        pass
+
+
+class BuilderMenuController(MenuController):
+    def __init__(self, controller):
+        super().__init__(controller)
+        self.controller = controller  # type: BuilderController
+
+    def builder_function_menu_selection(self, item_selected):
+        menu_selection = item_selected
+        if menu_selection == "Design Sprite":
+            self.controller.menu_controller.set_menu(CharacterAssemblyMenuGhost.BASE, None)
+
+        elif menu_selection == "Change Map":
+            self.controller.menu_controller.set_menu(RoomSelectMenuGhost.BASE, None)
+
+        elif menu_selection == "Toggle Display":
+            self.controller.toggle_on_view_window()
+
+        elif menu_selection == "Toggle Names":
+            self.controller.toggle_name_display_on()
+
+        else:
+            pass
+
+class InGameMenuController(MenuController):
+    def __init__(self, controller):
+        super().__init__(controller)
+        self.controller = controller  # type: Controller
 
     def get_game_time_string(self):
         hour = self.controller.gs.hour_of_day
@@ -101,29 +217,9 @@ class MenuController(object):
 
         stat_dict = {"Birds": str(self.controller.gs.bird_count),
                      "Pigeons": str(self.controller.gs.pigeon_count),
-                     "time": self.controller.menu_controller.get_game_time_string(),
+                     "time": self.get_game_time_string(),
                      "day": str(self.controller.gs.day_of_summer),
                      "selected_tool": str(self.controller.gs.selected_tool)}
-
-        return stat_dict
-
-    def get_stat_mode_items(self):
-        mode = copy.copy(self.controller.game.mode)
-
-        stat_dict = {"mode": mode}
-
-        return stat_dict
-
-    def get_developer_items(self):
-        player_ghost = self.controller.gs.get_player_ghost()
-        player_avatar = self.controller.gs.gv.get_player_avatar()
-        camera = self.controller.gs.gv.camera
-        room_name = self.controller.gs.get_current_room().room_name
-
-        stat_dict = {"Room": str(room_name),
-                     "Player": str(player_ghost.x) + ", " + str(player_ghost.y),
-                     "Image": str(player_avatar.image_x) + ", " + str(player_avatar.image_y),
-                     "Camera": str(camera[0]) + ", " + str(camera[1])}
 
         return stat_dict
 
@@ -289,17 +385,17 @@ class MenuController(object):
                     phrase_2 = "Put the " + follow_up["item"] + " in guide."
                 else:
                     pass
-                self.controller.menu_controller.post_notice(phrase_1)
-                self.controller.menu_controller.post_notice(phrase_2)
-                self.controller.menu_controller.exit_all_menus()
+                self.post_notice(phrase_1)
+                self.post_notice(phrase_2)
+                self.exit_all_menus()
             elif follow_up["action"] == "set_menu":
-                self.controller.menu_controller.exit_all_menus()
-                self.controller.menu_controller.set_menu(follow_up["menu_name"], follow_up["details_dict"])
+                self.exit_all_menus()
+                self.set_menu(follow_up["menu_name"], follow_up["details_dict"])
 
             else:
-                self.controller.menu_controller.exit_all_menus()
+                self.exit_all_menus()
         else:
-            self.controller.menu_controller.exit_all_menus()
+            self.exit_all_menus()
 
     def scene_menu_selection(self, item_selected):
         self.controller.menu_controller.exit_scene_menu(SceneDialogueMenuGhost.BASE)
@@ -309,76 +405,6 @@ class MenuController(object):
 
     def set_start_menu(self):
         self.set_menu(StartMenuGhost.BASE, None)
-
-    def set_menu(self, menu_name, details):
-        selected_menu = self.controller.gs.ms.get_menu_ghost(menu_name)
-        selected_menu_avatar = self.controller.gs.gv.get_menu_avatar(menu_name + "_avatar")
-        menu_type = selected_menu.menu_type
-
-        if menu_type == Types.BASE:
-            selected_menu.prepare_menu_for_display(details)
-
-        elif menu_type == Types.SECONDARY:
-            selected_menu.set_master_menu(details["master_menu"])
-            selected_menu.prepare_menu_for_display(details)
-
-        elif menu_type == Types.SUB:
-            selected_menu.set_master_menu(details["master_menu"])
-            selected_menu.prepare_menu_for_display(details)
-            information_from_ghost = selected_menu.generate_menu_information_package()
-            self.controller.game_view.update_sub_menu_display_details(menu_name, details["master_menu"], information_from_ghost)
-
-        if menu_name == ChatMenuGhost.BASE:
-            selected_menu.set_current_phrase(details["phrase"])
-
-        self.update_menu_text_and_images(selected_menu)
-
-        self.controller.game.set_active_keyboard_manager(InMenuKeyboardManager.ID)
-        selected_menu.gc.gs.ms.add_menu_to_stack(menu_name)
-
-    def next_menu(self, current_menu):
-        total_number_menus = len(self.controller.gs.ms.start_menu_stack)
-        current_menu_index = self.controller.gs.ms.start_menu_stack.index(current_menu)
-        self.exit_menu(self.controller.gs.ms.start_menu_stack[current_menu_index])
-        next_menu = self.controller.gs.ms.start_menu_stack[0]
-        if current_menu_index != (total_number_menus - 1):
-            next_menu = self.controller.gs.ms.start_menu_stack[current_menu_index + 1]
-        else:
-            pass
-        self.set_menu(next_menu, None)
-
-    def previous_menu(self, current_menu):
-        total_number_menus = len(self.controller.gs.ms.start_menu_stack)
-        current_menu_index = self.controller.gs.ms.start_menu_stack.index(current_menu)
-        self.exit_menu(self.controller.gs.ms.start_menu_stack[current_menu_index])
-        previous_menu = self.controller.gs.ms.start_menu_stack[current_menu_index-1]
-        if current_menu_index == 0:
-            previous_menu = self.controller.gs.ms.start_menu_stack[total_number_menus - 1]
-        else:
-            pass
-        self.set_menu(previous_menu, None)
-
-    def exit_menu(self, menu_name):
-        selected_menu = self.controller.gs.ms.get_menu_ghost(menu_name)
-        selected_menu.reset_elements()
-        self.controller.gs.ms.deactivate_menu(menu_name)
-
-    def exit_scene_menu(self, menu_name):
-        selected_menu = self.controller.gs.ms.get_menu_ghost(menu_name)
-        selected_menu.reset_elements()
-        self.controller.gs.ms.deactivate_menu(menu_name)
-        self.controller.scene_manager.waiting_for_response = False
-        self.controller.scene_manager.process_scene_queue()
-
-    def exit_all_menus(self):
-        list = []
-        for x in self.controller.gs.ms.menu_stack:
-            list.append(x)
-        for item in list:
-            self.exit_menu(item)
-
-    def resize_sub_menu(self):
-        pass
 
 
 class TextBoxController(object):
@@ -407,4 +433,4 @@ class TextBoxController(object):
         # current_text_box_button = current_menu_avatar.button_list[current_text_box.name + "_button"]
 
         self.controller.gs.ms.get_active_menu().unset_current_text_entry_box()
-        self.menu_controller.update_current_menu_text_and_images()
+        self.menu_controller.update_menu_text_and_images(current_menu_ghost)

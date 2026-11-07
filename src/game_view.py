@@ -180,7 +180,7 @@ class GameView(object):
                 self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])
                 self.screen.blit(bubble_results[3], [bubble_results[4], bubble_results[5]])
 
-            if self.gs.gc.developer_tools.show_unique_names_on:
+            if self.gs.gc.game.bc.show_unique_names_on and self.gs.gc.game.mode == "builder":
                 bubble_results = self.set_text_bubble_spacing(feature_avatar, feature_loc_x, feature_loc_y,
                                                               feature_avatar.unique_name, self.text_bubble_image, "small")
                 self.screen.blit(bubble_results[0], [bubble_results[1], bubble_results[2]])

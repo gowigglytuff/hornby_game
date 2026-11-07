@@ -7,7 +7,7 @@ import pygame
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar, ClickListMenuAvatar
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -40,7 +40,7 @@ class MenuGhost(object):
         self.cursor = "-"
         self.cursor_at = [0, 0]
         self.name = self.NAME
-        self.button_list = []
+        self.button_list = {}
 
     def get_menu_items_to_display(self):
         return self.menu_item_list
@@ -200,6 +200,8 @@ class GameModeStatMenuGhost(StatMenuGhost):
             instructions = ["Mode: [LCtrl",
                             "MapMenu: [LShift]",
                             "MoveCam: [Dir]",
+                            "Show Names: [c]",
+                            "View Window: [v]",
                             "ExitGame: [Caps]"]
         else:
             instructions = ["Mode: [RCtrl]",
@@ -210,6 +212,7 @@ class GameModeStatMenuGhost(StatMenuGhost):
                             "Swim: Hold [A]",
                             "Tool: [Tab]",
                             "MoveCam: H[LShift] + [Dir]",
+                            "View Window: [v]",
                             "Test: [RShift]",
                             "Assembly: [1]",
                             "SwapPlayer: [2]",
@@ -2936,6 +2939,49 @@ class RoomSelectMenuGhost(MenuGhost):
         else:
             self.gc.view_room(menu_selection)
 
+
+class BuilderFunctionsMenuGhost(MenuGhost):
+    BASE = "builder_functions_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = ClickListMenuAvatar
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_item_list = ["Design Sprite", "Change Map", "Toggle Display", "Toggle Names"]
+        self.setup_buttons_list()
+        self.menu_images_list = []
+        self.cursor = "-"
+        self.prepare_menu_for_display(None)
+
+    def do_option(self, choice=None):
+        menu_selection = self.get_current_menu_item()
+        if choice is not None:
+            menu_selection = choice
+        self.gc.menu_controller.builder_function_menu_selection(menu_selection)
+
+    def setup_buttons_list(self):
+        for item in self.menu_item_list:
+            button_name = str(item) + "_button"
+            button_object = ButtonGhost(self.gc, button_name, self.BASE, "do_option", item)
+            self.button_list[button_name] = button_object
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        # setting up parts selection list
+        text_list_passes = []
+        for item in self.menu_item_list:
+            passer = ComponentPass(item, item + "_button")
+            text_list_passes.append(passer)
+
+        menu_specific = {"text_list_passes": text_list_passes}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
 
 class TextEntryBoxGhost(object):
     def __init__(self, gc, name):
