@@ -94,7 +94,7 @@ def install_all_data(gc, bc, gs):
 
     def install_rooms(gs):
         load1 = True
-        load2 = False
+        load2 = True
         load3 = True
         load4 = False
         # gs.gd.add_room_data("Test_Room", (Consolidated("Test_Room", 20, 20, 1, 1)))
@@ -283,7 +283,7 @@ def install_all_data(gc, bc, gs):
         gc.trigger_manager.setup_trigger_list()
 
     def spawn_first_room(gc, gs):
-        gc.position_manager.spawn_all_initial_room_elements(gs.get_room(gs.current_room))
+        gc.position_manager.spawn_all_initial_room_elements(gs.get_room(gs.get_current_game_room().room_name))
 
     def install_temp_items(gc, gs):
         items_to_install = [Cheese, Milk, Cream, Banana, Apple, Orange, Mike, Spoon, Mouse, Match, Game, Card, Pizza, Meat, Egg]

@@ -41,8 +41,9 @@ class GameState(object):
         self.pickaxe_door_dict = {}
 
         self.new_game = True
-        self.current_room = "Staging_Area"
         self.current_view_room = "Staging_Area"
+        self.current_game_room = "Staging_Area"
+        self.current_room = self.current_game_room
         self.current_player_elevation = 3
 
         self.your_coins = 127
@@ -154,7 +155,7 @@ class GameState(object):
                         action_object.reset()
                         remove_list.append(actor_ghost_name)
                 else:
-                    current_room = self.get_current_room()
+                    current_room = self.get_current_game_room()
                     current_move = action_object.sequence[action_object.current_action][1]
 
                     action_type = current_move[0]
@@ -244,7 +245,7 @@ class GameState(object):
 
                 target_x = player_ghost.x + x_move
                 target_y = player_ghost.y + y_move
-                current_room = self.get_current_room()
+                current_room = self.get_current_game_room()
                 self.gc.position_manager.move_ghost(player_ghost, current_room, current_room, target_x, target_y)
 
             if action_type == "slide":
@@ -253,7 +254,7 @@ class GameState(object):
 
                 target_x = player_ghost.x + x_move
                 target_y = player_ghost.y + y_move
-                current_room = self.get_current_room()
+                current_room = self.get_current_game_room()
                 self.gc.position_manager.move_ghost(player_ghost, current_room, current_room, target_x, target_y)
 
         else:
@@ -570,6 +571,9 @@ class GameState(object):
     def get_current_room(self):
         return self.gv.game_data.room_data_list[self.current_room]
 
+    def get_current_game_room(self):
+        return self.gv.game_data.room_data_list[self.current_game_room]
+
     def get_current_view_room(self):
         return self.gv.game_data.room_data_list[self.current_view_room]
 
@@ -578,6 +582,9 @@ class GameState(object):
 
     def set_current_room(self, room_name):
         self.current_room = room_name
+
+    def set_current_game_room(self, room_name):
+        self.current_game_room = room_name
 
     def set_current_view_room(self, room_name):
         self.current_view_room = room_name
@@ -717,15 +724,24 @@ class MenuState(object):
         self.gs = gs_input
         self.gc = self.gs.gc  # type: GameController
         self.menu_data_list = {}
-        self.static_menus = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE, GameModeStatMenuGhost.BASE, BuilderFunctionsMenuGhost.BASE]
+        self.static_menus_in_game = [GameActionDialogueMenuGhost.BASE, StatMenuGhost.BASE, GameModeStatMenuGhost.BASE]
+        self.static_menus_builder = [GameModeStatMenuGhost.BASE, BuilderFunctionsMenuGhost.BASE]
+        self.static_menus = self.static_menus_in_game
         # self.static_menus = [GameActionDialogueMenuGhost.BASE, SpecialMenuGhost.BASE, StatMenuGhost.BASE]
         self.active_menu = []
         self.menu_stack = []
         self.visible_menus = []
         self.start_menu_stack = [SuppliesInventoryMenuGhost.BASE, KeyInventoryMenuGhost.BASE, TreasureInventoryMenuGhost.BASE]
 
+    def switch_stat_menus_mode(self, new_mode):
+        if new_mode == "builder":
+            self.static_menus = self.static_menus_builder
+        elif new_mode == "in_game":
+            self.static_menus = self.static_menus_in_game
+
     def get_current_menu_layouts(self):
         menu_states = []
+
         for menu in chain(self.static_menus, self.visible_menus):
             menu_ghost = self.get_menu_ghost(menu)
             menu_avatar = self.gs.gv.get_menu_avatar(menu + "_avatar")
@@ -807,7 +823,8 @@ class ConditionChecker(object):
     def check_player_on_tile(self, room_name, coords_list):
         result = False
         pl = self.gs.get_player_ghost()
-        if room_name == self.gs.current_room:
+        current_room = self.gs.get_current_game_room()
+        if room_name == current_room:
             for tile in coords_list:
                 if pl.x == tile[0] and pl.y == tile[1]:
                     result = True

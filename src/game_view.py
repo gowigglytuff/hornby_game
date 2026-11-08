@@ -373,7 +373,6 @@ class GameView(object):
         player_avatar = self.get_player_avatar()
         self.camera[0] = -(player_avatar.image_x - player_ghost_x) * GameSettings.TILESIZE
         self.camera[1] = -(player_avatar.image_y - player_ghost_y) * GameSettings.TILESIZE
-        print(self.camera)
 
     def set_camera_to_zero(self):
         self.camera[0] = 0

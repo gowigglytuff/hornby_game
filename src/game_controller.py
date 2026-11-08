@@ -237,6 +237,9 @@ class Controller(object):
         return result
     # endregion
 
+    def return_game_mode(self):
+        return self.game.mode
+
     def toggle_on_view_window(self):
         if not self.gs.gv.show_view_window:
             self.gs.gv.show_view_window = True
@@ -257,17 +260,17 @@ class Controller(object):
         self.screen_layout.check_mouse_selection(mouse_x, mouse_y)
 
     def enter_builder_mode(self):
-        self.game.set_active_keyboard_manager(BuilderKeyboardManager.ID)
-        current_camera_coords = copy.copy(self.gs.gv.get_camera_loc())
-        self.gs.gv.switch_active_camera("view")
-        self.gs.gv.set_camera_to_coords(current_camera_coords[0], current_camera_coords[1])
-        self.game.switch_game_mode("builder")
-        self.gs.set_current_view_room(self.gs.get_current_room().room_name)
+        self.game.bc.enter_builder_mode()
 
     def enter_game_mode(self):
+        new_mode = "in_game"
         self.game.set_active_keyboard_manager(InGameKeyboardManager.ID)
         self.gs.gv.switch_active_camera("in_game")
+        current_camera_coords = copy.copy(self.gs.gv.get_camera_loc())
+        self.gs.gv.set_camera_to_coords(current_camera_coords[0], current_camera_coords[1])
         self.game.switch_game_mode("in_game")
+        self.gs.ms.switch_stat_menus_mode(new_mode)
+        self.gs.gv.refresh_drawables()
 
     def close_game(self):
         self.game.game_running = False
@@ -280,7 +283,11 @@ class Controller(object):
         return self.game_view.avatar_classes[avatar_type]
 
     def update_view(self):
-        current_room = self.gs.get_current_room().room_name
+        current_room = self.gs.get_current_game_room().room_name
+        if self.return_game_mode() == "in_game":
+            current_room = self.gs.get_current_game_room().room_name
+        elif self.return_game_mode() == "builder":
+            current_room = self.gs.get_current_view_room().room_name
         if self.game_view.drawables_refreshed:
             ghost_data = self.gs.get_active_features_in_room_ghost_data(current_room)
             self.game_view.set_drawables_list(ghost_data, self.game_view.get_independent_anim_locations())
@@ -409,12 +416,13 @@ class Controller(object):
         room_object.load()
         self.position_manager.spawn_all_initial_room_elements(room_object)
         self.game_view.refresh_drawables()
-        self.gs.set_current_room(room_name)
 
-    def change_room(self, room_going_to):
-        current_room = self.gs.get_current_room()
+    def player_change_room(self, room_going_to):
+        current_room = self.gs.get_current_game_room()
         self.reset_room(current_room.room_name)
+        self.gs.set_current_game_room(room_going_to)
         self.load_up_room(room_going_to)
+
 
     def close_down_room(self, room_to_close_name):
         self.reset_room(room_to_close_name)
@@ -455,8 +463,6 @@ class GameController(Controller):
         target_character_ghost = self.gs.get_feature_ghost(target_character_unique_name)
         target_character_avatar = self.gs.gv.get_feature_avatar(target_character_unique_name)
 
-        print(current_character_avatar.image_x, current_character_avatar.image_y, target_character_avatar.image_x, target_character_avatar.image_y)
-
         target_character_ghost.special_designation = "Player"
         target_character_avatar.special_designation = "Player"
 
@@ -471,18 +477,18 @@ class GameController(Controller):
 
         self.gs.current_player_unique_name = target_character_ghost.unique_name
 
-        target_room = self.gs.get_current_room().room_name
+        target_room = self.gs.get_current_game_room().room_name
         if target_character_ghost.current_room is None:
             target_room = target_character_ghost.spawn_room
 
         if current_character_ghost.current_room != target_room:
-            self.change_room(target_room)
+            self.player_change_room(target_room)
 
         self.gs.gv.refresh_drawables()
 
     def switch_with_character_in_front_of_you(self):
         player = self.gs.get_player_ghost()
-        room = self.gs.get_current_room()
+        room = self.gs.get_current_game_room()
         full = self.position_manager.check_if_adjacent_tiles_full(player, player.facing, room)
         if full:
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
@@ -556,7 +562,7 @@ class GameController(Controller):
         if unique_name in self.gs.feature_ghost_list.keys():
             ghost_object = self.gs.get_feature_ghost(unique_name)
             if ghost_object.active:
-                if ghost_object.spawn_room == self.gs.get_current_room().room_name:
+                if ghost_object.spawn_room == self.gs.get_current_game_room().room_name:
                     if not ghost_object.check_if_busy():
                         self.move_feature_chaotically(unique_name)
 
@@ -599,7 +605,7 @@ class GameController(Controller):
         self.gs.ghost_eye_initiation = [self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]]
         self.gs.ghost_eye_counter = 0
         self.gs.ghost_eye_initiation_facing = copy.copy(player_ghost.facing)
-        husk_ghost = self.create_husk(self.gs.get_current_room(), player_ghost.x, player_ghost.y, player_ghost.facing, "green_shirt")
+        husk_ghost = self.create_husk(self.gs.get_current_game_room(), player_ghost.x, player_ghost.y, player_ghost.facing, "green_shirt")
         self.gs.ghost_eye_husk_name = husk_ghost.unique_name
         self.outfit_manager.put_on_temporary_outfit("ghost_eye")
         self.game.set_active_keyboard_manager(GhostEyeKeyboardManager.ID)
@@ -651,7 +657,7 @@ class GameController(Controller):
     def execute_action_from_animator(self, action_name):
         if action_name == "delete_husk":
             husk = self.gs.get_feature_ghost(self.gs.ghost_eye_husk_name)
-            self.position_manager.despawn_feature(husk.unique_name, self.gs.get_current_room())
+            self.position_manager.despawn_feature(husk.unique_name, self.gs.get_current_game_room())
         elif action_name == "ghost_eye_followup":
             self.outfit_manager.put_on_outfit(self.gs.revert_outfit)
             self.gs.change_player_facing(self.gs.ghost_eye_initiation_facing)
@@ -673,7 +679,7 @@ class GameController(Controller):
 
     def determine_mermaid_crown_end(self):
         if self.gs.using_mermaid_crown:
-            if self.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]) == 1:
+            if self.position_manager.get_tile_terrain(self.gs.get_current_game_room().room_name, self.gs.get_player_ghost_location()[0], self.gs.get_player_ghost_location()[1]) == 1:
                 self.deactivate_mermaid_crown()
             else:
                 self.cancel_mermaid_crown()
@@ -711,7 +717,7 @@ class GameController(Controller):
     def check_if_pickaxe_worked(self):
         result = False
         player = self.gs.get_player_ghost()
-        room = self.gs.get_current_room()
+        room = self.gs.get_current_game_room()
         cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
 
         tile_name = room.room_name + "_" + str(cube.x) + "_" + str(cube.y)
@@ -725,7 +731,7 @@ class GameController(Controller):
 
     def pickaxe_make_door(self):
         player = self.gs.get_player_ghost()
-        room = self.gs.get_current_room()
+        room = self.gs.get_current_game_room()
         cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
 
         tile_name = room.room_name + "_" + str(cube.x) + "_" + str(cube.y)
@@ -759,7 +765,7 @@ class GameController(Controller):
     # region INTERACT WITH OBJECTS (package, basket)
     def player_interact(self):
         player = self.gs.get_player_ghost()
-        room = self.gs.get_current_room()
+        room = self.gs.get_current_game_room()
         full = self.position_manager.check_if_adjacent_tiles_full(player, player.facing, room)
         if full:
             cube = self.position_manager.get_adjacent_tile(player, player.facing, room)
@@ -1006,7 +1012,7 @@ class GameController(Controller):
 
     def initiate_player_movement(self, direction):
         player_ghost = self.gs.get_player_ghost()
-        room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
+        room_object = self.gs.get_current_game_room()
         target_tile = self.position_manager.get_adjacent_tile(player_ghost, direction, room_object)
         target_x, target_y = self.position_manager.get_adjacent_coords(player_ghost, direction)
         self.gs.change_player_facing(direction)
@@ -1026,7 +1032,7 @@ class GameController(Controller):
 
     def initiate_spirit_movement(self, direction):
         player_ghost = self.gs.get_player_ghost()
-        room_object = self.game_view.game_data.room_data_list[self.gs.current_room]
+        room_object = self.gs.get_current_game_room()
         target_tile = self.position_manager.get_adjacent_tile(player_ghost, direction, room_object)
         self.gs.change_player_facing(direction)
         move_test = self.position_manager.check_if_spirit_can_move(direction, player_ghost, room_object)
@@ -1045,7 +1051,7 @@ class GameController(Controller):
 
 
     def player_moved_followup(self, player_x, player_y):
-        if self.gs.gc.position_manager.get_tile_terrain(self.gs.get_current_room().room_name, player_x, player_y) == 1:
+        if self.gs.gc.position_manager.get_tile_terrain(self.gs.get_current_game_room().room_name, player_x, player_y) == 1:
             self.gs.gc.play_sound("mermaid_swim")
         self.trigger_manager.check_for_map_triggers(player_x, player_y)
         if self.gs.using_mermaid_crown:
@@ -1153,7 +1159,7 @@ class GameController(Controller):
         self.position_manager.move_ghost(player_ghost, current_room_object, new_room_object, door.x_to, door.y_to)
         self.position_manager.match_player_elevation_to_target(new_room_object, door.x_to, door.y_to)
         self.game_view.manually_update_camera(x_change, y_change)
-        self.change_room(door.room_to)
+        self.player_change_room(door.room_to)
         self.game_view.refresh_drawables()
         self.play_sound("go_through_door")
 
@@ -1301,7 +1307,7 @@ class InventoryManager(object):
         current_key_inventory = self.gc.gs.ms.get_menu_items_list("key_inventory_menu")
         successes = 0
 
-        room = self.gc.gs.get_current_room()
+        room = self.gc.gs.get_current_game_room()
         player = self.gc.gs.get_player_ghost()
         cube = room.access_adjacent_cube(player, player.facing)
         if not self.gc.position_manager.check_rooms_edges(player, player.facing, room):
@@ -1322,7 +1328,7 @@ class InventoryManager(object):
         current_key_inventory = self.gc.gs.ms.get_menu_items_list("treasure_inventory_menu")
         successes = 0
 
-        room = self.gc.gs.get_current_room()
+        room = self.gc.gs.get_current_game_room()
         player = self.gc.gs.get_player_ghost()
         cube = room.access_adjacent_cube(player, player.facing)
         if not self.gc.position_manager.check_rooms_edges(player, player.facing, room):
@@ -1502,7 +1508,7 @@ class SceneManager(object): #TODO: Work on this mess!!
         x_change = player_object.x - movement_dict["x_move"]
         y_change = player_object.y - movement_dict["y_move"]
         # self.change_player_facing(door.exit_direction)
-        current_room_object = self.gc.gs.get_current_room()
+        current_room_object = self.gc.gs.get_current_game_room()
         self.gc.position_manager.move_ghost(player_object, current_room_object, current_room_object, x_change, y_change)
         self.gc.position_manager.match_player_elevation_to_target(current_room_object, x_change, y_change)
         # self.gc.game_view.manually_update_camera(x_change, y_change)
@@ -1559,6 +1565,17 @@ class BuilderController(Controller):
         self.menu_controller = BuilderMenuController(self)  # type:BuilderMenuController
         self.show_unique_names_on = False
 
+    def enter_builder_mode(self):
+        new_mode = "builder"
+        self.game.set_active_keyboard_manager(BuilderKeyboardManager.ID)
+        self.gs.gv.switch_active_camera("view")
+        current_camera_coords = copy.copy(self.gs.gv.get_camera_loc())
+        self.gs.gv.set_camera_to_coords(current_camera_coords[0], current_camera_coords[1])
+        self.view_room(self.gs.get_current_view_room().room_name)
+        self.game.switch_game_mode(new_mode)
+        self.gs.ms.switch_stat_menus_mode(new_mode)
+        self.gs.gv.refresh_drawables()
+
     def toggle_name_display_on(self):
         if not self.show_unique_names_on:
             self.show_unique_names_on = True
@@ -1601,7 +1618,6 @@ class BuilderController(Controller):
     def view_room(self, room_name):
         room_object = self.gs.get_room(room_name)
         if room_object.loaded_up:
-            self.gs.set_current_room(room_name)
             self.gs.gv.set_camera_to_zero()
             self.game_view.refresh_drawables()
             self.gs.set_current_view_room(room_name)

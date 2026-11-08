@@ -14,7 +14,7 @@ class PositionManager(object):
         self.gc = gc  # type: GameController
 
     def print_map_of_room(self):
-        room_object = self.gc.gs.get_current_room()
+        room_object = self.gc.gs.get_current_game_room()
 
         for row in room_object.tiles_array:
             row_model = []
@@ -313,7 +313,7 @@ class PositionManager(object):
         return elevation_result
 
     def get_current_plot_address(self):
-        current_room = self.gc.gs.get_current_room
+        current_room = self.gc.gs.get_current_game_room
         plot_info_list = current_room.get_plot_information
         player_coordinates = self.gc.gs.get_player_ghost_location
         total_room_x = plot_info_list[0] * plot_info_list[2]
@@ -779,7 +779,7 @@ class PositionManager(object):
     # endregion
 
     def access_cube(self, x, y):
-        current_room = self.gc.gs.get_current_room()
+        current_room = self.gc.gs.get_current_game_room()
         cube = current_room.access_cube(x, y)
         return cube
 

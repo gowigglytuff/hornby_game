@@ -353,7 +353,7 @@ class BuilderKeyboardManager(KeyboardManager):
     def key_rshift_pressed(self):
 
         rooms = ["Staging_Area", "Farmland", "Marsh", "Mountain"]
-        current_room = self.gc.gs.get_current_room().room_name
+        current_room = self.gc.gs.get_current_view_room().room_name
         print(current_room)
         ind = rooms.index(current_room)
         ind += 1
@@ -715,10 +715,7 @@ class ScreenLayout(object):
         else:
             pass
 
-        print(selected_menu, selected_room)
-
         if selected_menu:
-            print("ding!")
 
             selected_menu_ghost = self.gc.game.gs.ms.get_menu_ghost(selected_menu)
             selected_menu_avatar = self.gc.gs.gv.get_menu_avatar(selected_menu + "_avatar")

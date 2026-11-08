@@ -50,7 +50,7 @@ class TriggerManager(object):
                     tracker += 1
 
     def check_for_map_triggers(self, player_x, player_y):
-        room = self.gc.gs.get_current_room()
+        room = self.gc.gs.get_current_game_room()
         triggers = copy.copy(self.check_for_triggers(room, player_x, player_y))
         for trigger in triggers:
             self.gc.trigger_a_bird(trigger[0], room, trigger[1])
@@ -62,7 +62,7 @@ class TriggerManager(object):
         advanced_test = False
         if bird_species_name == "Seagull":
             # checks to see if there is more than one Seagull currently active on the map
-            features_in_room = self.gc.gs.get_all_features_in_room(self.gc.gs.get_current_room().room_name)
+            features_in_room = self.gc.gs.get_all_features_in_room(self.gc.gs.get_current_game_room().room_name)
             seagull_count = 0
             for feature in features_in_room:
                 if feature.special_designation != "Player":

@@ -170,9 +170,11 @@ class BuilderMenuController(MenuController):
     def builder_function_menu_selection(self, item_selected):
         menu_selection = item_selected
         if menu_selection == "Design Sprite":
+            self.controller.menu_controller.exit_all_menus()
             self.controller.menu_controller.set_menu(CharacterAssemblyMenuGhost.BASE, None)
 
         elif menu_selection == "Change Map":
+            self.controller.menu_controller.exit_all_menus()
             self.controller.menu_controller.set_menu(RoomSelectMenuGhost.BASE, None)
 
         elif menu_selection == "Toggle Display":

@@ -117,9 +117,7 @@ class MenuGhost(object):
         return len(self.menu_item_list)
 
     def set_current_text_entry_box(self, box_name):
-        print(self.text_entry_boxes)
         box_object = self.text_entry_boxes[box_name]
-        print(box_object)
         self.currently_selected_text_entry_box = box_object.name
         box_object.select_box()
         self.gc.game.set_active_keyboard_manager("InTextBox")
@@ -2477,8 +2475,6 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                 selected_colour = getattr(self, "selected_" + self.current_part + "_colour")
 
                 current_index = self.colour_options.index(selected_colour)
-                print(self.current_part, selected_colour)
-                print(self.selected_torso_colour, self.selected_legs_colour, self.selected_hair_colour)
 
                 new_colour = []
                 if current_index == self.colour_options[0]:
@@ -2925,7 +2921,7 @@ class RoomSelectMenuGhost(MenuGhost):
     def __init__(self, gc):
         super().__init__(gc)
         self.menu_header = None
-        self.menu_item_list = ["Staging_Area", "Farmland", "Marsh", "Mountain"]
+        self.menu_item_list = ["Staging_Area", "Farmland", "Marsh", "Beach", "Forest", "Mountain"]
         self.menu_item_list.append("Exit")
         self.menu_images_list = []
         self.cursor = "-"
@@ -3040,8 +3036,6 @@ class ButtonGhost(object):
         self.details = details
 
     def get_pressed(self):
-        print("getting pressed")
-        print(self.details)
         menu = self.gc.gs.ms.get_menu_ghost(self.menu_name)
         function = getattr(menu, self.press_function)
         function(self.details)

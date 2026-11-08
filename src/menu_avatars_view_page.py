@@ -1329,7 +1329,6 @@ class ComponentCageGroup(object):
     def return_image_list(self):
         final_image_list = []
         for cage in self.cage_list.keys():
-            print(self.starting_y, self.cage_list[cage]["assigned_y"])
             x_loc = self.starting_x + self.cage_list[cage]["assigned_x"]
             y_loc = self.starting_y + self.cage_list[cage]["assigned_y"]
             item = TextDisplay(self.cage_list[cage]["cage_object"].cage_image, x_loc, y_loc)
