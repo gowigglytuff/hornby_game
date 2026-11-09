@@ -1040,7 +1040,7 @@ class SpecialPlot(object):
         self.plot_name = self.room + "_" + str(plot_x) + "_" + str(plot_y)
 
         # self.background_csv_file = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background.csv"
-        shapes_path = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_" + "Background"
+        shapes_path = "assets/rooms/" + str(self.room) + "/" + self.room + "_" + str(plot_x) + "_" + str(plot_y) + "_Background"
 
         shapes_list = Mundane.get_file_names_from_directory(shapes_path)
         self.shape_csv_list = []

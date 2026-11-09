@@ -2,6 +2,7 @@ import copy
 import os
 
 from animations_page_view_page import IndependentAnimation, BirdDisappearAnimation
+from feature_image_handling import FeatureSpritesheet
 
 from graphics import BuiltOverlay
 from input_manager_controller_page import *

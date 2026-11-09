@@ -234,3 +234,8 @@ class Mundane(object):
 
         temp_surface.set_colorkey(dummy_colour)
         return temp_surface
+
+    @classmethod
+    def split_str_upto_first_underscore(cls, text):
+        result = text.split('_', 1)[0]
+        return result

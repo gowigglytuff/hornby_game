@@ -4,8 +4,9 @@ from random import choice
 
 import feature_ghost_data_page
 from feature_ghost_data_page import PlayerGhost
+from feature_image_handling import FeatureSpritesheet
 from menu_ghosts_data_page import StatMenuGhost, SubMenuGhost, SuppliesInventoryMenuGhost, KeyInventoryMenuGhost, ConversationOptionsMenuGhost, GameActionDialogueMenuGhost, ChatMenuGhost, AcquireMenuGhost, GalleryMenuGhost, GiftGivingMenuGhost, TreasureInventoryMenuGhost, GameModeStatMenuGhost, DeveloperMenuGhost, WordsMenuGhost, DepositMenuGhost, CharacterAssemblyMenuGhost, PictureMenuGhost, BasketMenuGhost, SellerOptionsMenuGhost, SellItemMenuGhost, SellerMenuGhost, NumberSelectionMenuGhost, \
-    TextInputMenuGhost, BuilderFunctionsMenuGhost, RoomSelectMenuGhost
+    TextInputMenuGhost, BuilderFunctionsMenuGhost, RoomSelectMenuGhost, CharacterSpritesheetViewMenuGhost
 from input_manager_controller_page import *
 from definitions import Direction, Types, GameSettings, Mundane
 from position_manager_state_page import Room, Door
@@ -719,7 +720,7 @@ class MenuState(object):
                                QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
                                BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, CharacterAssemblyMenuGhost]
 
-        self.builder_menu_load_list = [RoomSelectMenuGhost, BuilderFunctionsMenuGhost]
+        self.builder_menu_load_list = [RoomSelectMenuGhost, BuilderFunctionsMenuGhost, CharacterSpritesheetViewMenuGhost]
         self.menu_ghost_data_list = {}
         self.gs = gs_input
         self.gc = self.gs.gc  # type: GameController
@@ -896,6 +897,8 @@ class GameData(object):
         self.key_item_data_list = {}
         self.bird_page_data_list = {}
 
+        self.character_spritesheets_dict = {}
+
     def get_terrain_number_or_word(self, number, word):
         word_result = None
         number_result = None
@@ -967,6 +970,23 @@ class GameData(object):
     def add_outfit_data(self, outfit_name, outfit_object):
         self.outfit_data_list[outfit_name] = outfit_object
 
+    def add_character_spritesheet(self, sheet_name, sheet_image):
+        self.character_spritesheets_dict[sheet_name] = FeatureSpritesheet(self, sheet_name, sheet_image)
+
+    def import_all_character_spritesheets(self):
+        spritesheets_path = "assets/spritesheets/feature_spritesheets/character_spritesheets/"
+
+        spritesheets_list = Mundane.get_file_names_from_directory(spritesheets_path)
+
+        for item in spritesheets_list:
+            name = Mundane.split_str_upto_first_underscore(item)
+            self.add_character_spritesheet(name, item)
+
+    def get_character_spritesheet_dict(self):
+        return self.character_spritesheets_dict
+
+    def delete_character_spritesheet_from_dict(self, sheet_name):
+        del self.character_spritesheets_dict[sheet_name]
 
 class Action(object):
     def __init__(self, direction):

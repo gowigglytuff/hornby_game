@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from definitions import Types, Mundane
 from input_manager_controller_page import InMenuKeyboardManager
 from menu_ghosts_data_page import StartMenuGhost, GameActionDialogueMenuGhost, SceneDialogueMenuGhost, ChatMenuGhost, SellItemMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, GiftGivingMenuGhost, ConversationOptionsMenuGhost, OutfitMenuGhost, GalleryMenuGhost, MapMenuGhost, WordsMenuGhost, GuideMenuGhost, SuppliesInventoryMenuGhost, NumberSelectionMenuGhost, StatMenuGhost, GameModeStatMenuGhost, AcquireMenuGhost, DeveloperMenuGhost, TreasureInventoryMenuGhost, DepositMenuGhost, \
-    KeyInventoryMenuGhost, BasketMenuGhost, PictureMenuGhost, CharacterAssemblyMenuGhost, QuizMenuGhost, SubMenuGhost, TextInputMenuGhost, RoomSelectMenuGhost
+    KeyInventoryMenuGhost, BasketMenuGhost, PictureMenuGhost, CharacterAssemblyMenuGhost, QuizMenuGhost, SubMenuGhost, TextInputMenuGhost, RoomSelectMenuGhost, CharacterSpritesheetViewMenuGhost
 
 if TYPE_CHECKING:
     from game_controller import Controller, BuilderController
@@ -176,6 +176,10 @@ class BuilderMenuController(MenuController):
         elif menu_selection == "Change Map":
             self.controller.menu_controller.exit_all_menus()
             self.controller.menu_controller.set_menu(RoomSelectMenuGhost.BASE, None)
+
+        if menu_selection == "View Sprites":
+            self.controller.menu_controller.exit_all_menus()
+            self.controller.menu_controller.set_menu(CharacterSpritesheetViewMenuGhost.BASE, None)
 
         elif menu_selection == "Toggle Display":
             self.controller.toggle_on_view_window()

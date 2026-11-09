@@ -9,7 +9,7 @@ from feature_ghost_data_page import PlayerGhost, JayGhost
 
 from item_page import *
 from input_manager_controller_page import InGameKeyboardManager, InMenuKeyboardManager, InSceneKeyboardManager, GhostEyeKeyboardManager, BuilderKeyboardManager, InTextBoxKeyboardManager
-from menu_avatars_view_page import MenuAvatar, ListMenuAvatar, CoupledListMenuAvatar, SuppliesMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, CoupledListMenuAvatar, SuppliesMenuAvatar
 from position_manager_state_page import Door, Consolidated, SpecialRoom
 
 
@@ -195,6 +195,9 @@ def install_all_data(gc, bc, gs):
             if os.path.isfile(character_file_name):
                 gc.import_characters_from_csv(character_file_name, "Character", room_name)
 
+    def install_character_spritesheets(gs):
+        gs.gd.import_all_character_spritesheets()
+
     def install_doors(gc, gs):
         load = True
         if load:
@@ -374,6 +377,7 @@ def install_all_data(gc, bc, gs):
     install_player_avatar(gc, gs)
     install_avatar_all(gc, gs)
     set_camera_position(gc, gs)
+    install_character_spritesheets(gs)
     install_doors(gc, gs)
     install_pickaxe_door_entry(gc, gs)
     install_triggers(gc, gs)

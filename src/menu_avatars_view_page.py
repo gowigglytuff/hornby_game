@@ -313,7 +313,7 @@ class ClickListMenuAvatar(BaseMenuAvatar):
 
         self.menu_display_details = {"default_width": 35, "default_height": 53, "align_x": "left", "align_y": "bottom", "coordinates": [0, 0]}
         self.fill_out_menu_info()
-        self.cage_group_dict = {"items_group": ComponentCageGroup(self.gc, self, "items_group", 1, 100, 0, 5, 15, 15, "left", 15, [])}
+        self.cage_group_dict = {"items_group": ComponentCageGroup(self.gc, self, "items_group", 1, 140, 0, 5, 15, 15, "left", 15, [], "left")}
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -891,180 +891,6 @@ class TextInputMenuAvatar(SubMenuAvatar):
         self.fill_out_menu_info()
 
 
-class MenuAvatar(object):
-    NAME = "Menu_Base_Avatar"
-
-    def __init__(self, gc, name, items):
-        self.menu_display_details = {}
-        self.gc = gc
-
-        self.overlay_body_x = 0
-        self.overlay_body_Y = 0
-        self.overlay_header_x = 0
-        self.overlay_header_y = 0
-
-        self.x = 0
-        self.y = 0
-        self.offset_x = 15
-        self.offset_y = 15
-        self.cursor_offset_x = 5
-        self.header_spacing = 0
-        self.cursor_at = 0
-
-        self.y_space_size = 15
-
-        self.menu_spread_y = self.y_space_size + GameSettings.FONT_SIZE
-        self.menu_spread_x = 0
-        self.name = name
-
-        self.set_menu_width = None
-        self.set_menu_height = None
-        self.set_menu_display_coordinates()
-        self.menu_type = None
-
-        self.spritesheet_width = 0
-        self.spritesheet_height = 0
-
-        self.overlay_image = None
-        self.fill_out_menu_info(items)
-        self.final_menu_text = []
-        self.final_menu_images = []
-
-    def set_menu_display_coordinates(self):
-        dictionary = {"start_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                      "words_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                      "seller_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "acquire_menu_avatar": {"default_width": None, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "special_menu_avatar": {"default_width": None, "default_height": None, "align_x": "left", "align_y": "top", "coordinates": [0, 0]},
-                         "supplies_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "key_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "treasure_inventory_menu_avatar": {"default_width": 34, "default_height": 73, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "gift_giving_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "number_selection_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]},
-                         "text_input_menu_avatar": {"default_width": 34, "default_height": None, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}}
-
-        generic = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
-
-        skip_list = ["conversation_options_menu_avatar", "guide_menu_avatar", "chat_menu_avatar", "outfit_menu_avatar", "map_menu_avatar", "picture_menu_avatar", "quiz_menu_avatar", "stat_menu_avatar", "game_action_dialogue_menu_avatar", "scene_dialogue_menu_avatar"]
-
-        if self.name in dictionary.keys():
-            self.menu_display_details = dictionary[self.name]
-            self.set_menu_height = dictionary[self.name]["default_height"]
-            self.set_menu_width = dictionary[self.name]["default_width"]
-        elif self.name in skip_list:
-            pass
-        else:
-            self.menu_display_details = generic
-
-    def get_longest_item(self, menu_items_list, menu_header=None):
-        longest_item = 3
-        for item in menu_items_list:
-            length = len(item)
-            if length > longest_item:
-                longest_item = length
-
-        if menu_header:
-            if len(menu_header) > longest_item:
-                longest_item = len(menu_header)
-
-        return longest_item
-
-    def fill_out_menu_info(self, menu_information):
-        menu_items_list = menu_information.text_display_list
-        header = menu_information.header
-        cursor_at = menu_information.cursor_at
-
-        font_size = GameSettings.FONT_SIZE
-        segment_size = GameSettings.MENUSEGMENTSIZE
-        segment_proportion = font_size/segment_size
-
-        # Calculate the menu body width
-        edge_size = self.offset_x/segment_size
-        longest_item = self.get_longest_item(menu_items_list, header)
-        menu_width = 0
-        if self.set_menu_width:
-            menu_width = self.set_menu_width
-        else:
-            menu_width = (longest_item * segment_proportion) + (2 * int(edge_size))
-
-        # Calculate menu body height
-        if self.set_menu_height:
-            menu_height = self.set_menu_height
-        else:
-            number_of_items = len(menu_items_list)
-            number_of_spaces = number_of_items - 1
-            items_height = number_of_items * segment_proportion
-            space_size = int(self.y_space_size / segment_size)
-            space_height = space_size * number_of_spaces
-            border_height = int(self.offset_y/segment_size) * 2
-            menu_height = items_height + space_height + border_height
-
-        header_height = 0
-        if header:
-            # Calculate Header Height
-            header_number_of_items = 1
-            header_items_height = header_number_of_items * segment_proportion
-            header_border_height = int(self.offset_y / segment_size) * 2
-            header_height = header_items_height + header_border_height
-            self.overlay_header_x = menu_width
-            self.overlay_header_y = header_height
-            self.header_spacing = header_height * segment_size - 5
-
-        # Update class info
-        self.overlay_body_x = menu_width
-        self.overlay_body_Y = menu_height
-
-        total_width = menu_width
-        self.spritesheet_width = menu_width * segment_size
-
-        total_height = menu_height + header_height
-        self.spritesheet_height = (menu_height * segment_size) + (self.overlay_header_y * segment_size)
-
-        if header:
-            self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height, header=header)
-        else:
-            self.overlay_image = self.gc.game_view.build_overlay_image("special_menu" + "_overlay", menu_width, menu_height)
-
-        self.name = self.NAME
-
-    def get_menu_text_drawing_instructions(self, menu_info):
-        menu_info = menu_info
-        text_display_list = menu_info.text_display_list
-        header = menu_info.header
-        cursor_image = menu_info.cursor_image
-        cursor_at = menu_info.cursor_at
-
-        final_menu_text = []
-
-        if header:
-            header_text_length = len(header)*2
-            max_width = self.overlay_body_x
-            offset = (self.offset_x/GameSettings.MENUSEGMENTSIZE)
-            width_less_offsets = max_width/2 - offset
-            header_spaces = int((width_less_offsets - header_text_length/2)/2)
-            for space in range(header_spaces):
-                header = " " + header
-            final_menu_text.append(TextDisplay(header, self.offset_x, self.offset_y))
-
-        if cursor_image:
-            cursor_loc_x = (cursor_at[0] * self.menu_spread_x) + self.cursor_offset_x
-            cursor_loc_y = (cursor_at[1] * self.menu_spread_y) + self.header_spacing + self.offset_y
-            final_menu_text.append(TextDisplay(cursor_image, cursor_loc_x, cursor_loc_y))
-
-        for position_y in range(len(text_display_list)):
-            loc_x = self.menu_spread_x + self.offset_x
-            loc_y = (position_y * self.menu_spread_y) + self.offset_y + self.header_spacing
-            final_menu_text.append(TextDisplay(text_display_list[position_y], loc_x, loc_y))
-
-        self.final_menu_text = final_menu_text
-        return final_menu_text
-
-    def get_menu_image_drawing_instructions(self, menu_info):
-        final_menu_images = []
-        self.final_menu_images = final_menu_images
-        return None
-
-
 class ImageMenuAvatar(BaseMenuAvatar):
     NAME = "image_menu_avatar"
 
@@ -1152,12 +978,13 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.menu_display_details = {"default_width": 48, "default_height": 75, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
         self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 35, 220)}
-        self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 320, []),
-                                "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, []),
-                                "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 330, []),
-                                "primary_colour_group": ComponentCageGroup(self.gc, self, "primary_colour_group", 15, 10, 3, 2, 10, 3, "center", 250, []),
-                                "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 10, 3, 2, 10, 3, "center", 285, []),
-                                "text_box_group": ComponentCageGroup(self.gc, self, "text_box_group", 1, 200, 0, 1, 30, 0, "center", 220, [])}
+        self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 320, [], "center"),
+                                "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, [], "center"),
+                                "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 330, [], "center"),
+                                "primary_colour_group": ComponentCageGroup(self.gc, self, "primary_colour_group", 15, 12, 3, 2, 12, 3, "center", 250, [], "center"),
+                                "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 12, 3, 2, 12, 3, "center", 285, [], "center"),
+                                "text_box_group": ComponentCageGroup(self.gc, self, "text_box_group", 1, 200, 0, 1, 30, 0, "center", 220, [], "center"),
+                                "header_group": ComponentCageGroup(self.gc, self, "header_group", 1, 100, 0, 1, 10, 0, "center", 10, [], "center")}
 
 
     def get_menu_text_drawing_instructions(self, menu_info):
@@ -1170,6 +997,7 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         primary_square_pass_list = menu_info.menu_specific_details_dict["primary_square_pass_list"]
         secondary_square_pass_list = menu_info.menu_specific_details_dict["secondary_square_pass_list"]
         text_box_pass_list = menu_info.menu_specific_details_dict["text_box_dict"]
+        header_pass_list = menu_info.menu_specific_details_dict["header_passes"]
 
         self.process_text_pass_list(parts_text_pass_list, "part_group")
         self.process_text_pass_list(arrows_text_pass_list, "arrow_group")
@@ -1177,6 +1005,7 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         self.process_text_pass_list(primary_square_pass_list, "primary_colour_group")
         self.process_text_pass_list(secondary_square_pass_list, "secondary_colour_group")
         self.process_text_pass_list(text_box_pass_list, "text_box_group")
+        self.process_text_pass_list(header_pass_list, "header_group")
 
         final_menu_text = []
 
@@ -1191,12 +1020,9 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         primary_colour_group = self.return_cage_group_images("primary_colour_group")
         secondary_colour_group = self.return_cage_group_images("secondary_colour_group")
         text_box_group = self.return_cage_group_images("text_box_group")
+        header_box_group = self.return_cage_group_images("header_group")
 
-        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group + primary_colour_group + secondary_colour_group + text_box_group
-
-        # Header
-        header_text = Mundane.center_text_x(self.overlay_body_x, 0, "ASSEMBLE")
-        final_menu_text.append(TextDisplay(header_text[0], header_text[1], 10))
+        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group + primary_colour_group + secondary_colour_group + text_box_group + header_box_group
 
         self.final_menu_text = final_menu_text
 
@@ -1242,6 +1068,37 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
         return final_menu_images
 
 
+class CharacterSpritesheetViewMenu(BaseMenuAvatar):
+    NAME = "character_spritesheet_view_menu_avatar"
+
+    def __init__(self, gc, name):
+        super().__init__(gc, name)
+
+        self.menu_display_details = {"default_width": 35, "default_height": 55, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
+        self.fill_out_menu_info()
+        self.cage_group_dict = {"name_group": ComponentCageGroup(self.gc, self, "name_group", 1, 100, 0, 1, 20, 0, "center", 15, [], "center"),
+                                "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 1, 128, 0, 1, 192, 0, "center", 45, [], "center"),
+                                "functions_group": ComponentCageGroup(self.gc, self, "functions_text_pass", 2, 70, 0, 1, 20, 0, "center", 250, [], "center")}
+
+    def get_menu_text_drawing_instructions(self, menu_info):
+        menu_info = menu_info
+
+        final_menu_text = []
+        for item in menu_info.menu_specific_details_dict.keys():
+            completed_group = self.take_passes_and_assign_to_group(menu_info, item)
+            final_menu_text = final_menu_text + completed_group
+
+        self.final_menu_text = final_menu_text
+
+        return final_menu_text
+
+    def take_passes_and_assign_to_group(self, menu_info_dict, image_pass_name, ):
+        image_pass_related_group_name = Mundane.split_str_upto_first_underscore(image_pass_name) + "_group"
+        image_pass = menu_info_dict.menu_specific_details_dict[image_pass_name]
+        self.process_text_pass_list(image_pass, image_pass_related_group_name)
+        complete_group = self.return_cage_group_images(image_pass_related_group_name)
+        return complete_group
+
 class TextEntryBoxAvatar(object):
     def __init__(self, gv, name, x_image, y_image):
         self.gv = gv   # type: GameView
@@ -1284,7 +1141,23 @@ class ComponentCage(object):
         self.cage_image = self.make_image()
 
     def assign_image_to_cage(self, image):
-        self.cage_image = image
+        # image_width = image.get_width()
+        # image_height = image.get_height()
+        # if image_width > self.x_size:
+        #     if image_height > self.y_size:
+        #         image_rect = pygame.Rect(0, 0, self.x_size, self.y_size)
+        #         self.cage_image = image.subsurface(image_rect)
+        #     else:
+        #         image_rect = pygame.Rect(0, 0, self.x_size, image_height)
+        #         self.cage_image = image.subsurface(image_rect)
+        used_width = self.x_size
+        if image.get_width() < self.x_size:
+            used_width = image.get_width()
+
+        source_rect = (0, 0, used_width, self.y_size)
+        trimmed_image = pygame.Surface((used_width, self.y_size), pygame.SRCALPHA)
+        trimmed_image.blit(image, (0, 0), source_rect)
+        self.cage_image = trimmed_image
 
     def make_image(self):
         square_surface = pygame.Surface((self.x_size, self.y_size), pygame.SRCALPHA)
@@ -1293,7 +1166,7 @@ class ComponentCage(object):
 
 
 class ComponentCageGroup(object):
-    def __init__(self, gc, menu, group_name, column_count, column_size, column_spacing, row_count, row_size, row_spacing, starting_x, starting_y, text_list):
+    def __init__(self, gc, menu, group_name, column_count, column_size, column_spacing, row_count, row_size, row_spacing, starting_x, starting_y, text_list, align_in_cage):
         self.gc = gc
         self.total_height = None
         self.total_width = None
@@ -1309,6 +1182,7 @@ class ComponentCageGroup(object):
         self.cage_list = self.create_cage_grid()
         self.set_total_group_height_width()
         self.starting_y = starting_y
+        self.align_in_cage = align_in_cage
         self.starting_x = self.set_starting_x(starting_x)
 
     def set_starting_x(self, starting_x):
@@ -1320,6 +1194,7 @@ class ComponentCageGroup(object):
             starting_x_loc = self.menu.overaly_x - self.total_width - 15
         else:
             starting_x_loc = starting_x
+            self.starting_x_type = "number"
         return starting_x_loc
 
     def set_total_group_height_width(self):
@@ -1337,10 +1212,15 @@ class ComponentCageGroup(object):
         return final_image_list
 
     def assign_image_to_cage(self, image, image_x, image_y):
+        # getting the individual cage object and putting the image inside of it
         cage_object = self.cage_list[(image_x - 1, image_y - 1)]["cage_object"]
         cage_object.assign_image_to_cage(image)
+
+        # getting the relative_x of the relevant cage, using that to determine where to draw the new image and updating the assigned_x (which determines where the image gets drawn)
         rel_x = self.cage_list[(image_x - 1, image_y - 1)]["relative_x"]
-        new_assigned_x = rel_x + self.get_assigned_x_offset(cage_object.cage_image.get_width())
+        new_assigned_x = rel_x
+        if self.align_in_cage == "center":
+            new_assigned_x = rel_x + self.get_assigned_x_offset(cage_object.cage_image.get_width())
         self.cage_list[(image_x - 1, image_y - 1)]["assigned_x"] = new_assigned_x
 
     def get_assigned_x_offset(self, surface_size_x):

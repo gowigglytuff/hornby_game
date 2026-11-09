@@ -1,13 +1,15 @@
 import copy
 import math
 import random
+import shutil
 import textwrap
 
 import pygame
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar, ClickListMenuAvatar
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar, ClickListMenuAvatar, \
+    CharacterSpritesheetViewMenu
 from spritesheet import Spritesheet
 from text_input import get_input
 
@@ -134,6 +136,7 @@ class MenuGhost(object):
     def push_menu_button(self, button_name):
         button = self.button_list[button_name]
         button.get_pressed()
+
 
 class StatMenuGhost(MenuGhost):
     BASE = "stat_menu"
@@ -2443,6 +2446,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
             passer_box = ComponentPass(text_box_object.final_surface, text_box_object.name)
             text_boxes_list.append(passer_box)
 
+        header = [ComponentPass("ASSEMBLE", None)]
+
         menu_specific = {"selected_part": self.current_part,
                          "parts_list": self.parts_list,
                          "parts_list_passes": parts_pass_list,
@@ -2450,7 +2455,8 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                          "frame_pass_list": frame_passer_list,
                          "primary_square_pass_list": primary_square_pass_list,
                          "secondary_square_pass_list": secondary_square_pass_list,
-                         "text_box_dict": text_boxes_list}
+                         "text_box_dict": text_boxes_list,
+                         "header_passes": header}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
@@ -2944,7 +2950,7 @@ class BuilderFunctionsMenuGhost(MenuGhost):
     def __init__(self, gc):
         super().__init__(gc)
         self.menu_header = None
-        self.menu_item_list = ["Design Sprite", "Change Map", "Toggle Display", "Toggle Names"]
+        self.menu_item_list = ["Design Sprite", "View Sprites", "Change Map", "Toggle Display", "Toggle Names"]
         self.setup_buttons_list()
         self.menu_images_list = []
         self.cursor = "-"
@@ -2978,6 +2984,109 @@ class BuilderFunctionsMenuGhost(MenuGhost):
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
+
+
+class CharacterSpritesheetViewMenuGhost(MenuGhost):
+    BASE = "character_spritesheet_view_menu"
+    NAME = BASE + "_ghost"
+    AVATAR = CharacterSpritesheetViewMenu
+
+    def __init__(self, gc):
+        super().__init__(gc)
+        self.menu_header = None
+        self.menu_type = Types.BASE
+        self.menu_item_list = []
+        self.menu_images_list = []
+        self.cursor = None
+        self.shifts = 0
+        self.max_displayed_items = 14
+        self.currently_displayed_items = []
+        self.spritesheet_images_dict = {}
+        self.currently_selected_spritesheet = 0
+        self.functions_list = ["Rename", "Delete"]
+        self.setup_buttons_list()
+
+    def prepare_menu_for_display(self, details):
+        self.spritesheet_images_dict = self.gc.gs.gd.get_character_spritesheet_dict()
+
+    def generate_menu_information_package(self):
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        # setting up parts selection list
+        spritesheet_image_pass = []
+        name_text_pass = []
+        sheet_image_keys = self.spritesheet_images_dict.keys()
+
+        for sheet_name in sheet_image_keys:
+            sheet_object = self.spritesheet_images_dict[sheet_name]
+
+            name_text = ComponentPass(sheet_object.sheet_name, None)
+            name_text_pass.append(name_text)
+
+            passer = ComponentPass(sheet_object.spritesheet_object.sheet, None)
+            spritesheet_image_pass.append(passer)
+
+        functions_text_pass = []
+        for text in self.functions_list:
+            function_text = ComponentPass(text, text)
+            functions_text_pass.append(function_text)
+
+        menu_specific = {"spritesheet_image_pass": [spritesheet_image_pass[self.currently_selected_spritesheet]],
+                         "name_text_pass": [name_text_pass[self.currently_selected_spritesheet]],
+                         "functions_text_pass": functions_text_pass}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def do_option(self):
+        self.gc.menu_controller.exit_all_menus()
+
+    def cursor_left(self):
+        if 0 < self.currently_selected_spritesheet:
+            self.currently_selected_spritesheet -= 1
+        else:
+            self.currently_selected_spritesheet = len(self.spritesheet_images_dict.keys()) - 1
+
+    def cursor_right(self):
+        if len(self.spritesheet_images_dict.keys()) - 1 > self.currently_selected_spritesheet:
+            self.currently_selected_spritesheet += 1
+        else:
+            self.currently_selected_spritesheet = 0
+
+    def setup_buttons_list(self):
+        # left_arrow_button = ButtonGhost(self.gc, "left_arrow_button", self.BASE, "cursor_left", {})
+        # self.button_list["left_arrow_button"] = left_arrow_button
+        #
+        # right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
+        # self.button_list["right_arrow_button"] = right_arrow_button
+
+        # rename_button = ButtonGhost(self.gc, "Rename", self.BASE, "rename_sheet", {})
+        # self.button_list["Rename"] = rename_button
+
+        delete_button = ButtonGhost(self.gc, "Delete", self.BASE, "delete_sheet", {})
+        self.button_list["Delete"] = delete_button
+
+    def delete_sheet(self, details):
+        character_spritesheet_object = self.spritesheet_images_dict[list(self.spritesheet_images_dict.keys())[self.currently_selected_spritesheet]]
+        file_name = character_spritesheet_object.sheet_image_name
+        source_path = "assets/spritesheets/feature_spritesheets/character_spritesheets/" + file_name
+        destination_path = "assets/spritesheets/feature_spritesheets/character_spritesheets_deleted"
+
+        # Move the file
+        shutil.move(source_path, destination_path)
+
+        # Delete item from game data
+        self.gc.gs.gd.delete_character_spritesheet_from_dict(character_spritesheet_object.sheet_name)
+
+        # Redo this menu
+        self.prepare_menu_for_display({})
+
+        # ensure that we didn't mess up currently selected number
+        if len(self.spritesheet_images_dict.keys()) - 1 < self.currently_selected_spritesheet:
+            self.currently_selected_spritesheet = 0
+
 
 class TextEntryBoxGhost(object):
     def __init__(self, gc, name):
