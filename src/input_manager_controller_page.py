@@ -6,7 +6,7 @@ import pygame
 
 from animations_page_view_page import CameraPanAnimation, Action, PlayerSlideAnimation
 from definitions import Direction, GameSettings
-from menu_ghosts_data_page import StartMenuGhost, QuizMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost, MenuGhost, SceneDialogueMenuGhost
+from menu_ghosts_data_page import StartMenuGhost, OutfitMenuGhost, MapMenuGhost, GuideMenuGhost, MenuGhost, SceneDialogueMenuGhost
 from scenes import Scene
 
 if TYPE_CHECKING:

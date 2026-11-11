@@ -8,7 +8,7 @@ import pygame
 
 from definitions import GameSettings, Types, Mundane
 from game_view import Outfit
-from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, QuizMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar, ClickListMenuAvatar, \
+from menu_avatars_view_page import ListMenuAvatar, SuppliesMenuAvatar, KeyInventoryMenuAvatar, TreasuresInventoryMenuAvatar, GiftGivingMenuAvatar, AcquireMenuAvatar, SellerMenuAvatar, ChattingMenuAvatar, StatMenuAvatar, GameActionDialogueMenuAvatar, GuideMenuAvatar, GalleryMenuAvatar, NumberSelectionMenuAvatar, SubMenuAvatar, TextInputMenuAvatar, ImageMenuAvatar, BasketMenuAvatar, DeveloperMenuAvatar, CharacterAssemblyMenuAvatar, GameModeStatMenuAvatar, ClickListMenuAvatar, \
     CharacterSpritesheetViewMenu
 from spritesheet import Spritesheet
 from text_input import get_input
@@ -38,11 +38,15 @@ class MenuGhost(object):
         self.menu_type = Types.BASE
         self.text_entry_boxes = {}
         self.currently_selected_text_entry_box = None
+        self.master_menu = None
 
         self.cursor = "-"
         self.cursor_at = [0, 0]
         self.name = self.NAME
         self.button_list = {}
+
+    def once_set_actions(self):
+        pass
 
     def get_menu_items_to_display(self):
         return self.menu_item_list
@@ -114,21 +118,18 @@ class MenuGhost(object):
         self.cursor_at[0] = 0
         self.cursor_at[1] = 0
 
+    def set_master_menu(self, master_menu):
+        self.master_menu = master_menu
+
     @property
     def size(self):
         return len(self.menu_item_list)
 
     def set_current_text_entry_box(self, box_name):
-        box_object = self.text_entry_boxes[box_name]
-        self.currently_selected_text_entry_box = box_object.name
-        box_object.select_box()
-        self.gc.game.set_active_keyboard_manager("InTextBox")
+        self.gc.menu_controller.set_current_text_entry_box(box_name)
 
-    def unset_current_text_entry_box(self):
-        box_object = self.get_current_text_box()
-        box_object.deselect_box()
-        self.currently_selected_text_entry_box = None
-        self.gc.game.set_active_keyboard_manager("InMenu")
+    def unset_text_entry_box_followup(self):
+        pass
 
     def get_current_text_box(self):
         return self.text_entry_boxes[self.currently_selected_text_entry_box]
@@ -1474,7 +1475,9 @@ class MapMenuGhost(MenuGhost):
         self.menu_header = None
         self.menu_type = Types.BASE
         self.menu_item_list = []
-        self.menu_images_list = []
+        image = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Hornby_map" + "_spritesheet.png",  256, 160)
+        image_choice = image.get_image(0, 0)
+        self.menu_images_list = [image_choice]
         self.cursor = None
         self.shifts = 0
         self.max_displayed_items = 14
@@ -1484,16 +1487,15 @@ class MapMenuGhost(MenuGhost):
         pass
 
     def generate_menu_information_package(self):
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
-        text_display_list = []
+        # setting up text box
+        image_pass_list = []
+        for image in self.menu_images_list:
+            passer = ComponentPass(image, None)
+            image_pass_list.append(passer)
 
-        image = Spritesheet("Hornby_map_spritesheet", "assets/spritesheets/map_spritesheets/Hornby_map" + "_spritesheet.png",  256, 160)
-        image_choice = image.get_image(0, 0)
+        menu_specific = {"image_passes": image_pass_list}
 
-        menu_specific = {"image": image_choice}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, None, None, None, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -1511,7 +1513,9 @@ class PictureMenuGhost(MenuGhost):
         self.menu_type = Types.BASE
         self.menu_item_list = []
         self.image_name = "Tanager"
-        self.menu_images_list = []
+        image = Spritesheet("picture_spritesheet", "assets/spritesheets/irl_images/" + self.image_name + "_image.png",  256, 160)
+        image_choice = image.get_image(0, 0)
+        self.menu_images_list = [image_choice]
         self.cursor = "-"
         self.shifts = 0
         self.max_displayed_items = 14
@@ -1521,16 +1525,15 @@ class PictureMenuGhost(MenuGhost):
         self.image_name = details["image"]
 
     def generate_menu_information_package(self):
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
-        text_display_list = []
+        # setting up text box
+        image_pass_list = []
+        for image in self.menu_images_list:
+            passer = ComponentPass(image, None)
+            image_pass_list.append(passer)
 
-        image = Spritesheet("picture_spritesheet", "assets/spritesheets/irl_images/" + self.image_name + "_image.png",  256, 160)
-        image_choice = image.get_image(0, 0)
+        menu_specific = {"image_passes": image_pass_list}
 
-        menu_specific = {"image": image_choice}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, None, None, None, menu_specific)
         return menu_information
 
     def do_option(self):
@@ -1687,41 +1690,24 @@ class TextInputMenuGhost(MenuGhost):
         self.menu_header = None
         self.current_text = ""
         self.max_text_length = 8
+        self.text_entry_boxes = {"input_box_1": TextEntryBoxGhost(self.gc, "input_box_1")}
+        self.setup_buttons_list()
+
+    def once_set_actions(self):
+        self.gc.menu_controller.set_current_text_entry_box("input_box_1")
+
+    def unset_text_entry_box_followup(self):
+        self.choose_option()
 
     def reset_elements(self):
         self.current_text = ""
-
-    def choose_option(self):
-        self.do_option()
-
-    def set_master_menu(self, master_menu):
-        self.master_menu = master_menu
-
-    def cursor_left(self):
-        pass
-
-    def key_letter(self, letter):
-        if len(self.current_text) < self.max_text_length:
-            self.current_text = self.current_text + letter
-        else:
-            pass
-
-    def erase_letter(self):
-        self.current_text = self.current_text[:-1]
-
-    def cursor_right(self):
-        pass
 
     def prepare_menu_for_display(self, details):
         self.current_text = ""
         self.menu_item_list = self.current_text
 
-    def get_current_menu_item(self):
-        menu_selection = self.current_text
-        return menu_selection
-
     def do_option(self, choice=None):
-        chosen_word = self.get_current_menu_item()
+        chosen_word = self.text_entry_boxes["input_box_1"].current_text
         if len(chosen_word) <= 2:
             print("that's not long enough!")
         else:
@@ -1729,74 +1715,20 @@ class TextInputMenuGhost(MenuGhost):
             self.gc.gs.ms.get_menu_ghost(self.master_menu).do_option(chosen_word)
 
     def generate_menu_information_package(self):
-        source = self.get_menu_items_to_display()
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
+        text_boxes_list = []
+        for index, text_box in enumerate(self.text_entry_boxes.keys()):
+            text_box_object = self.text_entry_boxes[text_box]
+            passer_box = ComponentPass(text_box_object.final_surface, text_box_object.name)
+            text_boxes_list.append(passer_box)
 
-        final_text = self.current_text
-        #
-        # if self.current_number > self.min_number:
-        #     final_text = "< " + final_text
-        # else:
-        #     final_text = "  " + final_text
-        #
-        # if self.current_number < self.max_number:
-        #     final_text = final_text + " >"
+        menu_specific = {"textbox_passes": text_boxes_list}
 
-        text_display_list = [final_text]
-
-        menu_specific = {"text_to_display": text_display_list, "max_word_length": copy.copy(self.max_text_length)}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        menu_information = MenuInformation(self.menu_header, None, None, None, menu_specific)
         return menu_information
 
-
-class QuizMenuGhost(MenuGhost):
-    BASE = "quiz_menu"
-    NAME = BASE + "_ghost"
-    AVATAR = QuizMenuAvatar
-
-    def __init__(self, gc):
-        super().__init__(gc)
-        self.menu_header = None
-        self.menu_type = Types.BASE
-        self.menu_item_list = ["Talk", "Give Gift", "Exit"]
-        self.menu_images_list = []
-        self.currently_displayed_items = []
-        details = []
-        self.prepare_menu_for_display(details)
-        self.update_currently_displayed()
-        spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
-        face = spritesheet.get_image(0, 0)
-        face = face.subsurface(0, 0, 224, 224)
-        self.image = face
-
-    def prepare_menu_for_display(self, details):
-        spritesheet = Spritesheet("dog", "assets/quiz_material/dog.png", 224, 224)
-        face = spritesheet.get_image(0, 0)
-        face = face.subsurface(0, 0, 224, 224)
-        self.image = face
-        self.menu_item_list = ["What type of dog is this?"]
-
-    def update_currently_displayed(self):
-        self.currently_displayed_items = []
-        self.currently_displayed_items.append(self.menu_item_list)
-
-    def generate_menu_information_package(self):
-        source = self.get_menu_items_to_display().copy()
-        text_display_list = []
-
-        for item in range(len(source)):
-            text_display_list.append(source[item])
-
-        menu_specific = {"image": self.image}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, " ", [0, 0], menu_specific)
-
-        return menu_information
-
-    def do_option(self):
-        info = get_input()
+    def setup_buttons_list(self):
+        input_box_1_button = ButtonGhost(self.gc, "input_box_1", self.BASE, "set_current_text_entry_box", "input_box_1")
+        self.button_list["input_box_1"] = input_box_1_button
 
 
 class GuideMenuGhost(MenuGhost):
@@ -2056,6 +1988,8 @@ class SceneDialogueMenuGhost(MenuGhost):
         pass
 
 
+# Builder menus
+
 class CharacterAssemblyMenuGhost(MenuGhost):
     BASE = "character_assembly_menu"
     NAME = BASE + "_ghost"
@@ -2198,9 +2132,109 @@ class CharacterAssemblyMenuGhost(MenuGhost):
         self.final_left_frame_2 = self.assemble_left_2()
         self.final_left_frame_3 = self.assemble_left_1()
         self.final_left_frame_4 = self.assemble_left_4()
-        self.setup_colour_buttons_list()
+        self.setup_buttons_list()
 
         self.prepare_menu_for_display(None)
+
+    def generate_menu_information_package(self):
+        source = self.get_menu_items_to_display().copy()
+        cursor_at = self.cursor_at
+        cursor_image = self.cursor
+        text_display_list = []
+
+        for item in range(len(source)):
+            text_display_list.append(source[item])
+
+        # setting up parts selection list
+        parts_pass_list = []
+        for item in self.parts_list:
+            passer = ComponentPass(item, item + "_change_button")
+            if item != self.current_part:
+                passer.lowlight_text()
+            parts_pass_list.append(passer)
+
+        # setting up arrows
+        left_arrow_pass = ComponentPass(self.arrow_list[0], "left_arrow_button")
+        right_arrow_pass = ComponentPass(self.arrow_list[1], "right_arrow_button")
+
+        # setting up sprites
+        frame_list = [self.final_front_frame_1, self.final_front_frame_2, self.final_front_frame_3, self.final_front_frame_4,
+                       self.final_back_frame_1, self.final_back_frame_2, self.final_back_frame_3, self.final_back_frame_4,
+                       self.final_left_frame_1, self.final_left_frame_2, self.final_left_frame_3, self.final_left_frame_4,
+                       self.final_right_frame_1, self.final_right_frame_2, self.final_right_frame_3, self.final_right_frame_4]
+        frame_passer_list = []
+        for item in frame_list:
+            passer = ComponentPass(item, None)
+            frame_passer_list.append(passer)
+
+        # setting up colour squares
+        self.setup_colour_select_images()
+
+        primary_square_pass_list = []
+        for index, square in enumerate(self.primary_squares_list):
+            passer = ComponentPass(square, "button_primary_" + str(index))
+            primary_square_pass_list.append(passer)
+
+        secondary_square_pass_list = []
+        for index, square in enumerate(self.secondary_squares_list):
+            passer = ComponentPass(square, "button_secondary_" + str(index))
+            secondary_square_pass_list.append(passer)
+
+        current_attributes_colour_primary = getattr(self, "selected_" + self.current_part + "_colour")
+        primary_colour_index = self.colour_options.index(current_attributes_colour_primary)
+
+        current_attributes_colour_secondary = getattr(self, "selected_" + self.current_part + "_secondary_colour")
+        secondary_colour_index = self.colour_options.index(current_attributes_colour_secondary)
+
+        # setting up text box
+        text_boxes_list = []
+        for index, text_box in enumerate(self.text_entry_boxes.keys()):
+            text_box_object = self.text_entry_boxes[text_box]
+            passer_box = ComponentPass(text_box_object.final_surface, text_box_object.name)
+            text_boxes_list.append(passer_box)
+
+        header = [ComponentPass("ASSEMBLE", None)]
+
+        menu_specific = {"parts_passes": parts_pass_list,
+                         "arrow_passes": [left_arrow_pass, right_arrow_pass],
+                         "spritesheet_passes": frame_passer_list,
+                         "primarycolour_passes": primary_square_pass_list,
+                         "secondarycolour_passes": secondary_square_pass_list,
+                         "textbox_dict": text_boxes_list,
+                         "header_passes": header}
+
+        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
+        return menu_information
+
+    def setup_buttons_list(self):
+        button_count = 0
+        for item in self.colour_options:
+            # primary colour
+            button_name = "button_primary_" + str(button_count)
+            button = ButtonGhost(self.gc, button_name, self.BASE, "select_primary_colour", {"colour": item})
+            self.colour_buttons_list_primary[button_name] = button
+            self.button_list[button_name] = button
+
+            # secondary colour
+            button_name = "button_secondary_" + str(button_count)
+            button = ButtonGhost(self.gc, button_name, self.BASE, "select_secondary_colour", {"colour": item})
+            self.colour_buttons_list_secondary[button_name] = button
+            self.button_list[button_name] = button
+            button_count += 1
+
+        # setup other buttons
+        for item in self.parts_list:
+            part_change_button = ButtonGhost(self.gc, item + "_change_button", self.BASE, "select_current_part", {"selected_part": item})
+            self.button_list[item + "_change_button"] = part_change_button
+
+        left_arrow_button = ButtonGhost(self.gc, "left_arrow_button", self.BASE, "cursor_left", {})
+        self.button_list["left_arrow_button"] = left_arrow_button
+
+        right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
+        self.button_list["right_arrow_button"] = right_arrow_button
+
+        assembly_box_1_button = ButtonGhost(self.gc, "assembly_box_1", self.BASE, "set_current_text_entry_box", "assembly_box_1")
+        self.button_list["assembly_box_1"] = assembly_box_1_button
 
     def process_all_parts(self):
         legs_files = Mundane.get_file_names_from_directory("assets/character_assembly/legs")
@@ -2339,37 +2373,6 @@ class CharacterAssemblyMenuGhost(MenuGhost):
             self.secondary_squares_list.append(boarder_square)
             square_number += 1
 
-    def setup_colour_buttons_list(self):
-        button_count = 0
-        for item in self.colour_options:
-            # primary colour
-            button_name = "button_primary_" + str(button_count)
-            button = ButtonGhost(self.gc, button_name, self.BASE, "select_primary_colour", {"colour": item})
-            self.colour_buttons_list_primary[button_name] = button
-            self.button_list[button_name] = button
-
-            # secondary colour
-            button_name = "button_secondary_" + str(button_count)
-            button = ButtonGhost(self.gc, button_name, self.BASE, "select_secondary_colour", {"colour": item})
-            self.colour_buttons_list_secondary[button_name] = button
-            self.button_list[button_name] = button
-            button_count += 1
-
-        # setup other buttons
-        for item in self.parts_list:
-            part_change_button = ButtonGhost(self.gc, item + "_change_button", self.BASE, "select_current_part", {"selected_part": item})
-            self.button_list[item + "_change_button"] = part_change_button
-
-        left_arrow_button = ButtonGhost(self.gc, "left_arrow_button", self.BASE, "cursor_left", {})
-        self.button_list["left_arrow_button"] = left_arrow_button
-
-        right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
-        self.button_list["right_arrow_button"] = right_arrow_button
-
-        assembly_box_1_button = ButtonGhost(self.gc, "assembly_box_1", self.BASE, "set_current_text_entry_box", "assembly_box_1")
-        self.button_list["assembly_box_1"] = assembly_box_1_button
-
-
     def select_primary_colour(self, details):
         new_colour = details["colour"]
         setattr(self, "selected_" + self.current_part + "_colour", new_colour)
@@ -2389,81 +2392,9 @@ class CharacterAssemblyMenuGhost(MenuGhost):
     def prepare_menu_for_display(self, details):
         pass
 
-    def generate_menu_information_package(self):
-        source = self.get_menu_items_to_display().copy()
-        cursor_at = self.cursor_at
-        cursor_image = self.cursor
-        text_display_list = []
-
-        for item in range(len(source)):
-            text_display_list.append(source[item])
-
-        # setting up parts selection list
-        parts_pass_list = []
-        for item in self.parts_list:
-            passer = ComponentPass(item, item + "_change_button")
-            if item != self.current_part:
-                passer.lowlight_text()
-            parts_pass_list.append(passer)
-
-        # setting up arrows
-        left_arrow_pass = ComponentPass(self.arrow_list[0], "left_arrow_button")
-        right_arrow_pass = ComponentPass(self.arrow_list[1], "right_arrow_button")
-
-        # setting up sprites
-        frame_list = [self.final_front_frame_1, self.final_front_frame_2, self.final_front_frame_3, self.final_front_frame_4,
-                       self.final_back_frame_1, self.final_back_frame_2, self.final_back_frame_3, self.final_back_frame_4,
-                       self.final_left_frame_1, self.final_left_frame_2, self.final_left_frame_3, self.final_left_frame_4,
-                       self.final_right_frame_1, self.final_right_frame_2, self.final_right_frame_3, self.final_right_frame_4]
-        frame_passer_list = []
-        for item in frame_list:
-            passer = ComponentPass(item, None)
-            frame_passer_list.append(passer)
-
-        # setting up colour squares
-        self.setup_colour_select_images()
-
-        primary_square_pass_list = []
-        for index, square in enumerate(self.primary_squares_list):
-            passer = ComponentPass(square, "button_primary_" + str(index))
-            primary_square_pass_list.append(passer)
-
-        secondary_square_pass_list = []
-        for index, square in enumerate(self.secondary_squares_list):
-            passer = ComponentPass(square, "button_secondary_" + str(index))
-            secondary_square_pass_list.append(passer)
-
-        current_attributes_colour_primary = getattr(self, "selected_" + self.current_part + "_colour")
-        primary_colour_index = self.colour_options.index(current_attributes_colour_primary)
-
-        current_attributes_colour_secondary = getattr(self, "selected_" + self.current_part + "_secondary_colour")
-        secondary_colour_index = self.colour_options.index(current_attributes_colour_secondary)
-
-        # setting up text box
-        text_boxes_list = []
-        for index, text_box in enumerate(self.text_entry_boxes.keys()):
-            text_box_object = self.text_entry_boxes[text_box]
-            passer_box = ComponentPass(text_box_object.final_surface, text_box_object.name)
-            text_boxes_list.append(passer_box)
-
-        header = [ComponentPass("ASSEMBLE", None)]
-
-        menu_specific = {"selected_part": self.current_part,
-                         "parts_list": self.parts_list,
-                         "parts_list_passes": parts_pass_list,
-                         "arrow_list_passes": [left_arrow_pass, right_arrow_pass],
-                         "frame_pass_list": frame_passer_list,
-                         "primary_square_pass_list": primary_square_pass_list,
-                         "secondary_square_pass_list": secondary_square_pass_list,
-                         "text_box_dict": text_boxes_list,
-                         "header_passes": header}
-
-        menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
-        return menu_information
-
     def do_option(self):
         if self.currently_selected_text_entry_box is not None:
-            self.unset_current_text_entry_box()
+            self.gc.menu_controller.unset_current_text_entry_box()
         else:
             pass
 
@@ -2539,7 +2470,7 @@ class CharacterAssemblyMenuGhost(MenuGhost):
                 name = self.text_entry_boxes["assembly_box_1"].current_text
                 self.print_spritesheet_to_png(name)
             elif letter == "x":
-                self.set_current_text_entry_box("assembly_box_1")
+                self.gc.menu_controller.set_current_text_entry_box("assembly_box_1")
             else:
                 pass
         else:
@@ -2917,8 +2848,6 @@ class CharacterAssemblyMenuGhost(MenuGhost):
             setattr(self, "is_first_" + list_type, False)
 
 
-# Builder menus
-
 class RoomSelectMenuGhost(MenuGhost):
     BASE = "room_select_menu"
     NAME = BASE + "_ghost"
@@ -3033,9 +2962,13 @@ class CharacterSpritesheetViewMenuGhost(MenuGhost):
             function_text = ComponentPass(text, text)
             functions_text_pass.append(function_text)
 
+        left_arrow = ComponentPass("<", "left_arrow_button")
+        right_arrow = ComponentPass(">", "right_arrow_button")
+
         menu_specific = {"spritesheet_image_pass": [spritesheet_image_pass[self.currently_selected_spritesheet]],
                          "name_text_pass": [name_text_pass[self.currently_selected_spritesheet]],
-                         "functions_text_pass": functions_text_pass}
+                         "functions_text_pass": functions_text_pass,
+                         "arrows_pass": [left_arrow, right_arrow]}
 
         menu_information = MenuInformation(self.menu_header, text_display_list, cursor_image, cursor_at, menu_specific)
         return menu_information
@@ -3043,24 +2976,24 @@ class CharacterSpritesheetViewMenuGhost(MenuGhost):
     def do_option(self):
         self.gc.menu_controller.exit_all_menus()
 
-    def cursor_left(self):
+    def cursor_left(self, details=None):
         if 0 < self.currently_selected_spritesheet:
             self.currently_selected_spritesheet -= 1
         else:
             self.currently_selected_spritesheet = len(self.spritesheet_images_dict.keys()) - 1
 
-    def cursor_right(self):
+    def cursor_right(self, details=None):
         if len(self.spritesheet_images_dict.keys()) - 1 > self.currently_selected_spritesheet:
             self.currently_selected_spritesheet += 1
         else:
             self.currently_selected_spritesheet = 0
 
     def setup_buttons_list(self):
-        # left_arrow_button = ButtonGhost(self.gc, "left_arrow_button", self.BASE, "cursor_left", {})
-        # self.button_list["left_arrow_button"] = left_arrow_button
-        #
-        # right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
-        # self.button_list["right_arrow_button"] = right_arrow_button
+        left_arrow_button = ButtonGhost(self.gc, "left_arrow_button", self.BASE, "cursor_left", {})
+        self.button_list["left_arrow_button"] = left_arrow_button
+
+        right_arrow_button = ButtonGhost(self.gc, "right_arrow_button", self.BASE, "cursor_right", {})
+        self.button_list["right_arrow_button"] = right_arrow_button
 
         # rename_button = ButtonGhost(self.gc, "Rename", self.BASE, "rename_sheet", {})
         # self.button_list["Rename"] = rename_button

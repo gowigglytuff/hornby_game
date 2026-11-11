@@ -717,7 +717,7 @@ class MenuState(object):
                                SubMenuGhost, NumberSelectionMenuGhost, TextInputMenuGhost, SuppliesInventoryMenuGhost,
                                KeyInventoryMenuGhost, DepositMenuGhost, TreasureInventoryMenuGhost, ConversationOptionsMenuGhost,
                                SellerOptionsMenuGhost, GameActionDialogueMenuGhost, SceneDialogueMenuGhost, GuideMenuGhost,
-                               QuizMenuGhost, ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
+                               ChatMenuGhost, GalleryMenuGhost, OutfitMenuGhost, MapMenuGhost,
                                BasketMenuGhost, PictureMenuGhost, GiftGivingMenuGhost, CharacterAssemblyMenuGhost]
 
         self.builder_menu_load_list = [RoomSelectMenuGhost, BuilderFunctionsMenuGhost, CharacterSpritesheetViewMenuGhost]

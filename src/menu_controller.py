@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from definitions import Types, Mundane
 from input_manager_controller_page import InMenuKeyboardManager
 from menu_ghosts_data_page import StartMenuGhost, GameActionDialogueMenuGhost, SceneDialogueMenuGhost, ChatMenuGhost, SellItemMenuGhost, SellerMenuGhost, SellerOptionsMenuGhost, GiftGivingMenuGhost, ConversationOptionsMenuGhost, OutfitMenuGhost, GalleryMenuGhost, MapMenuGhost, WordsMenuGhost, GuideMenuGhost, SuppliesInventoryMenuGhost, NumberSelectionMenuGhost, StatMenuGhost, GameModeStatMenuGhost, AcquireMenuGhost, DeveloperMenuGhost, TreasureInventoryMenuGhost, DepositMenuGhost, \
-    KeyInventoryMenuGhost, BasketMenuGhost, PictureMenuGhost, CharacterAssemblyMenuGhost, QuizMenuGhost, SubMenuGhost, TextInputMenuGhost, RoomSelectMenuGhost, CharacterSpritesheetViewMenuGhost
+    KeyInventoryMenuGhost, BasketMenuGhost, PictureMenuGhost, CharacterAssemblyMenuGhost, SubMenuGhost, TextInputMenuGhost, RoomSelectMenuGhost, CharacterSpritesheetViewMenuGhost
 
 if TYPE_CHECKING:
     from game_controller import Controller, BuilderController
@@ -19,6 +19,21 @@ class MenuController(object):
         active_menu = self.controller.gs.ms.get_active_menu()
         current_text_box = active_menu.get_current_text_box()
         return current_text_box
+
+    def set_current_text_entry_box(self, box_name):
+        active_menu_ghost = self.controller.gs.ms.get_active_menu()
+        box_object = active_menu_ghost.text_entry_boxes[box_name]
+        active_menu_ghost.currently_selected_text_entry_box = box_object.name
+        box_object.select_box()
+        self.controller.game.set_active_keyboard_manager("InTextBox")
+
+    def unset_current_text_entry_box(self):
+        active_menu_ghost = self.controller.gs.ms.get_active_menu()
+        box_object = self.get_current_text_box()
+        box_object.deselect_box()
+        active_menu_ghost.currently_selected_text_entry_box = None
+        self.controller.game.set_active_keyboard_manager("InMenu")
+        active_menu_ghost.unset_text_entry_box_followup()
 
     def update_current_menu_text_and_images(self):
         self.update_menu_text_and_images(self.controller.gs.ms.get_active_menu())
@@ -112,10 +127,12 @@ class MenuController(object):
         if menu_name == ChatMenuGhost.BASE:
             selected_menu.set_current_phrase(details["phrase"])
 
-        self.update_menu_text_and_images(selected_menu)
+        print(menu_name)
 
         self.controller.game.set_active_keyboard_manager(InMenuKeyboardManager.ID)
         selected_menu.gc.gs.ms.add_menu_to_stack(menu_name)
+        selected_menu.once_set_actions()
+        self.update_menu_text_and_images(selected_menu)
 
     def next_menu(self, current_menu):
         total_number_menus = len(self.controller.gs.ms.start_menu_stack)
@@ -424,7 +441,7 @@ class TextBoxController(object):
         self.menu_controller.update_current_menu_text_and_images()
 
     def key_return_pressed(self):
-        self.controller.gs.ms.get_active_menu().unset_current_text_entry_box()
+        self.menu_controller.unset_current_text_entry_box()
         self.menu_controller.update_current_menu_text_and_images()
 
     def key_backspace_pressed(self):
@@ -438,5 +455,5 @@ class TextBoxController(object):
         current_menu_avatar = self.controller.gs.gv.get_active_menu_avatar()
         # current_text_box_button = current_menu_avatar.button_list[current_text_box.name + "_button"]
 
-        self.controller.gs.ms.get_active_menu().unset_current_text_entry_box()
+        self.menu_controller.unset_current_text_entry_box()
         self.menu_controller.update_menu_text_and_images(current_menu_ghost)

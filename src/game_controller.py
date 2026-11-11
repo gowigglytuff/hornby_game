@@ -1586,14 +1586,10 @@ class BuilderController(Controller):
         file_path = os.path.abspath("assets/rooms/Beach/Beach_character_import_dict.csv")
         new_row = ["species", "Leela", "display_name", "Leela", "function", "None", "spawn_room", "Beach", "spawn_x", "30", "spawn_y", "30", "spawn_facing", "Down", 'spawn_active', 'yes', "base_phrase", "Sup", "good_gift_phrase", "Wow", "bad_gift_phrase", "Ewwww", "neutral_gift_phrase", "Thanks", "bird_hint_phrase", "crow", "good_gift_list", "0", "bad_gift_list", "0", 'friend_phrase', "Yoo", "friend_action", "{'Gift':'Milk-1'}", "is_friend", "no"]
 
-        print(True if os.path.exists(file_path) else False)
-
         with open(file_path, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             file.write('\n')
             writer.writerow(new_row)
-
-        print(f"Successfully wrote to: {file_path}")
 
     def report_mouse_location(self):
         mouse_location = pygame.mouse.get_pos()

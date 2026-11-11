@@ -853,33 +853,30 @@ class TextInputMenuAvatar(SubMenuAvatar):
     def __init__(self, gc, name):
         super().__init__(gc, name)
 
-        self.menu_display_details = {"default_width": 50, "default_height": 7, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
+        self.menu_display_details = {"default_width": 40, "default_height": 7, "align_x": "right", "align_y": "center", "coordinates": [0, 0]}
         self.offset_x = 0
+        self.offset_y = 8
         self.fill_out_menu_info()
+        self.cage_group_dict = {"textbox_group": ComponentCageGroup(self.gc, self, "textbox_group", 1, 200, 0, 1, 30, 0, "center", self.offset_y, [], "center")}
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
-        text_display_list = menu_info.text_display_list
-        current_text_to_show = text_display_list[0]
-
-        max_word_length = menu_info.menu_specific_details_dict["max_word_length"]
 
         final_menu_text = []
-
-        underscore_text = ""
-
-        if len(current_text_to_show) < max_word_length:
-            for space in range(len(current_text_to_show)):
-                underscore_text = underscore_text + " "
-            underscore_text = underscore_text + "_"
-            flashing_underscore = self.gc.make_flashing_text(underscore_text)
-            final_menu_text.append(TextDisplay(flashing_underscore, 10, 20))
-
-        final_menu_text.append(TextDisplay(current_text_to_show, 10, 20))
+        for item in menu_info.menu_specific_details_dict.keys():
+            completed_group = self.take_passes_and_assign_to_group(menu_info, item)
+            final_menu_text = final_menu_text + completed_group
 
         self.final_menu_text = final_menu_text
 
         return final_menu_text
+
+    def take_passes_and_assign_to_group(self, menu_info_dict, image_pass_name, ):
+        image_pass_related_group_name = Mundane.split_str_upto_first_underscore(image_pass_name) + "_group"
+        image_pass = menu_info_dict.menu_specific_details_dict[image_pass_name]
+        self.process_text_pass_list(image_pass, image_pass_related_group_name)
+        complete_group = self.return_cage_group_images(image_pass_related_group_name)
+        return complete_group
 
     def update_for_display(self, information_from_ghost, master_menu_display_details):
         spritesheet_width = self.menu_display_details["default_width"] * GameSettings.MENUSEGMENTSIZE
@@ -896,70 +893,30 @@ class ImageMenuAvatar(BaseMenuAvatar):
 
     def __init__(self, gc, name):
         super().__init__(gc, name)
-        self.offset_x = 130
-        self.offset_y = 20
-        self.title_offset_y = 20
-        self.image_offset_x = 7
-        self.image_offset_y = 8
         self.offset_x = 10
-        self.offset_y = 10
-
+        self.offset_y = 8
         self.menu_display_details = {"default_width": 54, "default_height": 35, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
-
-
-    def get_menu_image_drawing_instructions(self, menu_info):
-        image = menu_info.menu_specific_details_dict["image"]
-        final_menu_images = []
-        image = ImageDisplay(image, self.image_offset_x, self.image_offset_y)
-        final_menu_images.append(image)
-
-        self.final_menu_images = final_menu_images
-        return final_menu_images
-
-
-class QuizMenuAvatar(BaseMenuAvatar):
-    NAME = "quiz_menu_avatar"
-
-    def __init__(self, gc, name):
-        super().__init__(gc, name)
-        self.offset_x = 130
-        self.offset_y = 20
-        self.title_offset_y = 20
-        self.image_offset_x = 10
-        self.image_offset_y = 10
-        self.cursor_offset_x = self.offset_x - 10
-        self.cursor_offset_y = self.offset_y + 7
-
-        self.menu_display_details = {"default_width": 100, "default_height": 100, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
-        self.fill_out_menu_info()
+        self.cage_group_dict = {"image_group": ComponentCageGroup(self.gc, self, "image_group", 1, 256, 0, 1, 160, 0, "center", self.offset_y, [], "center")}
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
-        text_display_list = menu_info.text_display_list
-        final_menu_text = []
 
-        for position_y in range(len(text_display_list)):
-            loc_x = self.menu_spread_x + self.offset_x
-            loc_y = (position_y * self.menu_spread_y) + self.menu_spread_y + self.offset_y
-            text = TextDisplay(text_display_list[position_y], 10, 10)
-            final_menu_text.append(text)
+        final_menu_text = []
+        for item in menu_info.menu_specific_details_dict.keys():
+            completed_group = self.take_passes_and_assign_to_group(menu_info, item)
+            final_menu_text = final_menu_text + completed_group
 
         self.final_menu_text = final_menu_text
 
         return final_menu_text
 
-    def get_menu_image_drawing_instructions(self, menu_info):
-        picture = menu_info.menu_specific_details_dict["image"]
-        final_menu_images = []
-
-        loc_x = 20
-        loc_y = 50
-        image = ImageDisplay(picture, loc_x, loc_y)
-        final_menu_images.append(image)
-
-        self.final_menu_images = final_menu_images
-        return final_menu_images
+    def take_passes_and_assign_to_group(self, menu_info_dict, image_pass_name, ):
+        image_pass_related_group_name = Mundane.split_str_upto_first_underscore(image_pass_name) + "_group"
+        image_pass = menu_info_dict.menu_specific_details_dict[image_pass_name]
+        self.process_text_pass_list(image_pass, image_pass_related_group_name)
+        complete_group = self.return_cage_group_images(image_pass_related_group_name)
+        return complete_group
 
 
 class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
@@ -977,56 +934,32 @@ class CharacterAssemblyMenuAvatar(BaseMenuAvatar):
 
         self.menu_display_details = {"default_width": 48, "default_height": 75, "align_x": "center", "align_y": "center", "coordinates": [0, 0]}
         self.fill_out_menu_info()
-        self.text_entry_boxes = {"assembly_box_1": TextEntryBoxAvatar(self.gc.gs.gv, "assembly_box_1", 35, 220)}
-        self.cage_group_dict = {"part_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 320, [], "center"),
+        self.cage_group_dict = {"parts_group": ComponentCageGroup(self.gc, self, "part_group", 3, 50, 10, 2, 10, 10, "center", 320, [], "center"),
                                 "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 4, 32, 0, 4, 48, 0, "center", 20, [], "center"),
                                 "arrow_group": ComponentCageGroup(self.gc, self, "arrow_group", 2, 15, 200, 1, 15, 0, "center", 330, [], "center"),
-                                "primary_colour_group": ComponentCageGroup(self.gc, self, "primary_colour_group", 15, 12, 3, 2, 12, 3, "center", 250, [], "center"),
-                                "secondary_colour_group": ComponentCageGroup(self.gc, self, "secondary_colour_group", 15, 12, 3, 2, 12, 3, "center", 285, [], "center"),
-                                "text_box_group": ComponentCageGroup(self.gc, self, "text_box_group", 1, 200, 0, 1, 30, 0, "center", 220, [], "center"),
+                                "primarycolour_group": ComponentCageGroup(self.gc, self, "primarycolour_group", 15, 12, 3, 2, 12, 3, "center", 250, [], "center"),
+                                "secondarycolour_group": ComponentCageGroup(self.gc, self, "secondarycolour_group", 15, 12, 3, 2, 12, 3, "center", 285, [], "center"),
+                                "textbox_group": ComponentCageGroup(self.gc, self, "textbox_group", 1, 200, 0, 1, 30, 0, "center", 220, [], "center"),
                                 "header_group": ComponentCageGroup(self.gc, self, "header_group", 1, 100, 0, 1, 10, 0, "center", 10, [], "center")}
-
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
-        text_box_dict = menu_info.menu_specific_details_dict["text_box_dict"]
-
-        arrows_text_pass_list = menu_info.menu_specific_details_dict["arrow_list_passes"]
-        parts_text_pass_list = menu_info.menu_specific_details_dict["parts_list_passes"]
-        frame_pass_list = menu_info.menu_specific_details_dict["frame_pass_list"]
-        primary_square_pass_list = menu_info.menu_specific_details_dict["primary_square_pass_list"]
-        secondary_square_pass_list = menu_info.menu_specific_details_dict["secondary_square_pass_list"]
-        text_box_pass_list = menu_info.menu_specific_details_dict["text_box_dict"]
-        header_pass_list = menu_info.menu_specific_details_dict["header_passes"]
-
-        self.process_text_pass_list(parts_text_pass_list, "part_group")
-        self.process_text_pass_list(arrows_text_pass_list, "arrow_group")
-        self.process_text_pass_list(frame_pass_list, "spritesheet_group")
-        self.process_text_pass_list(primary_square_pass_list, "primary_colour_group")
-        self.process_text_pass_list(secondary_square_pass_list, "secondary_colour_group")
-        self.process_text_pass_list(text_box_pass_list, "text_box_group")
-        self.process_text_pass_list(header_pass_list, "header_group")
 
         final_menu_text = []
-
-        # # text box
-        # box_1_text = self.text_entry_boxes["assembly_box_1"].make_text(text_box_dict["assembly_box_1"].return_current_text())
-        # final_menu_text.append(box_1_text)
-
-        # cage group
-        part_group = self.return_cage_group_images("part_group")
-        spritesheet_group = self.return_cage_group_images("spritesheet_group")
-        arrow_group = self.return_cage_group_images("arrow_group")
-        primary_colour_group = self.return_cage_group_images("primary_colour_group")
-        secondary_colour_group = self.return_cage_group_images("secondary_colour_group")
-        text_box_group = self.return_cage_group_images("text_box_group")
-        header_box_group = self.return_cage_group_images("header_group")
-
-        final_menu_text = final_menu_text + part_group + spritesheet_group + arrow_group + primary_colour_group + secondary_colour_group + text_box_group + header_box_group
+        for item in menu_info.menu_specific_details_dict.keys():
+            completed_group = self.take_passes_and_assign_to_group(menu_info, item)
+            final_menu_text = final_menu_text + completed_group
 
         self.final_menu_text = final_menu_text
 
         return final_menu_text
+
+    def take_passes_and_assign_to_group(self, menu_info_dict, image_pass_name, ):
+        image_pass_related_group_name = Mundane.split_str_upto_first_underscore(image_pass_name) + "_group"
+        image_pass = menu_info_dict.menu_specific_details_dict[image_pass_name]
+        self.process_text_pass_list(image_pass, image_pass_related_group_name)
+        complete_group = self.return_cage_group_images(image_pass_related_group_name)
+        return complete_group
 
     def layout_text_in_a_grid(self, column_count, column_size, row_count, row_size, starting_x, starting_y, text_list):
         final_list = []
@@ -1078,7 +1011,8 @@ class CharacterSpritesheetViewMenu(BaseMenuAvatar):
         self.fill_out_menu_info()
         self.cage_group_dict = {"name_group": ComponentCageGroup(self.gc, self, "name_group", 1, 100, 0, 1, 20, 0, "center", 15, [], "center"),
                                 "spritesheet_group": ComponentCageGroup(self.gc, self, "spritesheet_group", 1, 128, 0, 1, 192, 0, "center", 45, [], "center"),
-                                "functions_group": ComponentCageGroup(self.gc, self, "functions_text_pass", 2, 70, 0, 1, 20, 0, "center", 250, [], "center")}
+                                "functions_group": ComponentCageGroup(self.gc, self, "functions_group", 2, 70, 0, 1, 20, 0, "center", 250, [], "center"),
+                                "arrows_group": ComponentCageGroup(self.gc, self, "arrows_group", 2, 10, 120, 1, 10, 0, "center", 15, [], "center")}
 
     def get_menu_text_drawing_instructions(self, menu_info):
         menu_info = menu_info
@@ -1098,6 +1032,7 @@ class CharacterSpritesheetViewMenu(BaseMenuAvatar):
         self.process_text_pass_list(image_pass, image_pass_related_group_name)
         complete_group = self.return_cage_group_images(image_pass_related_group_name)
         return complete_group
+
 
 class TextEntryBoxAvatar(object):
     def __init__(self, gv, name, x_image, y_image):
@@ -1189,9 +1124,9 @@ class ComponentCageGroup(object):
         if starting_x == "center":
             starting_x_loc = self.menu.get_offset_to_center_x(self.total_width)
         elif starting_x == "left":
-            starting_x_loc = 15
+            starting_x_loc = self.menu.offset_x
         elif starting_x == "right":
-            starting_x_loc = self.menu.overaly_x - self.total_width - 15
+            starting_x_loc = self.menu.overaly_x - self.total_width - self.menu.offset_x
         else:
             starting_x_loc = starting_x
             self.starting_x_type = "number"

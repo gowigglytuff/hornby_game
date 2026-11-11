@@ -32,6 +32,7 @@ def run_game_loop():
             pygame.display.flip()
             g.game_controller.update_view()
             g.game_view.tick()
+            print(g.active_keyboard_manager)
 
 
 if __name__ == "__main__":
